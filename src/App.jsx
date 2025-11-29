@@ -12,6 +12,7 @@ import LoginPage from "./pages/user/LoginPage";
 import FindIdPage from "./pages/user/FindIdPage";
 import ResetPwdPage from "./pages/user/ResetPwdPage";
 import MyPage from "./pages/user/MyPage";
+import EmailVerifiedPage from "./pages/user/EmailVerifiedPage";
 
 import CommunityPage from "./pages/community/CommunityPage";
 
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/signup" element={<AddUserPage />} />
           <Route path="/find-email" element={<FindIdPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
+          <Route path="/email-verified" element={<EmailVerifiedPage />} />
           <Route
             path="/mypage"
             element={requireLogin() ? <MyPage /> : <Navigate to="/login" replace />}

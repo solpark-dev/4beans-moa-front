@@ -1,4 +1,4 @@
-import axios from "axios";
+import httpClient from "@/api/httpClient";
 
 export function initMainPage() {
   const title = document.getElementById("mainBannerTitle");
@@ -6,26 +6,24 @@ export function initMainPage() {
   const popularList = document.getElementById("popularPartyList");
   const loading = document.getElementById("popularLoading");
 
-  axios
-    .all([
-      axios.get("/api/main/banner"),
-      axios.get("/api/main/popular-parties")
-    ])
-    .then(
-      axios.spread((bannerRes, partyRes) => {
-        if (bannerRes.data.success) {
-          title.innerText = bannerRes.data.data.title;
-          desc.innerText = bannerRes.data.data.description;
-        }
+  Promise.all([
+    httpClient.get("/main/banner"),
+    httpClient.get("/main/popular-parties"),
+  ])
+    .then(([bannerRes, partyRes]) => {
+      if (bannerRes.success && bannerRes.data) {
+        title.innerText = bannerRes.data.title;
+        desc.innerText = bannerRes.data.description;
+      }
 
-        if (partyRes.data.success) {
-          loading.classList.add("hidden");
+      if (partyRes.success && partyRes.data) {
+        loading.classList.add("hidden");
 
-          const list = partyRes.data.data;
+        const list = partyRes.data;
 
-          popularList.innerHTML = list
-            .map(
-              (p) => `
+        popularList.innerHTML = list
+          .map(
+            (p) => `
             <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition" 
                  role="link" data-href="/party/${p.id}">
               <h3 class="font-bold">${p.title}</h3>
@@ -33,11 +31,10 @@ export function initMainPage() {
               <p class="mt-3 font-semibold">₩${p.price}</p>
             </div>
           `
-            )
-            .join("");
-        }
-      })
-    )
+          )
+          .join("");
+      }
+    })
     .catch(() => {
       loading.innerText = "데이터 불러오기 실패";
     });

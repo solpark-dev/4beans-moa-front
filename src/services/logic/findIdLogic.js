@@ -1,5 +1,4 @@
-// src/services/logic/findIdLogic.js
-import axios from "axios";
+import httpClient from "@/api/httpClient";
 
 export function initFindIdPage() {
   const passButton = document.getElementById("btnPassAuth");

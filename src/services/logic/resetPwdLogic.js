@@ -1,63 +1,128 @@
-// src/services/logic/resetPwdLogic.js
-import axios from "axios";
+import httpClient from "@/api/httpClient";
 
 export const initResetPwdPage = () => {
-  const btn = document.getElementById("btnResetPwd");
+  const passBtn = document.getElementById("btnResetPassAuth");
+  const step1 = document.getElementById("resetStep1");
+  const step2 = document.getElementById("resetStep2");
+  const guide = document.getElementById("resetGuide");
+  const formArea = document.getElementById("resetFormArea");
+  const btnReset = document.getElementById("btnResetPwd");
   const newPwdInput = document.getElementById("resetNewPassword");
   const newPwdCheckInput = document.getElementById("resetNewPasswordCheck");
 
-  if (!btn || !newPwdInput || !newPwdCheckInput) {
+  if (!passBtn || !step1 || !step2 || !guide || !formArea || !btnReset) {
     return;
   }
 
-  btn.addEventListener("click", async () => {
-    const password = newPwdInput.value.trim();
-    const passwordCheck = newPwdCheckInput.value.trim();
+  if (!passBtn.dataset.boundPass) {
+    passBtn.addEventListener("click", async () => {
+      try {
+        const res = await httpClient.get("/users/pass/start");
+        const { data } = res;
+        const { impCode, merchantUid } = data;
 
-    if (!password || !passwordCheck) {
-      alert("비밀번호를 모두 입력해 주세요.");
-      return;
-    }
+        if (!window.IMP) {
+          alert("본인인증 모듈이 로드되지 않았습니다.");
+          return;
+        }
 
-    if (password !== passwordCheck) {
-      alert("새 비밀번호와 확인이 일치하지 않습니다.");
-      return;
-    }
+        window.IMP.init(impCode);
+        window.IMP.certification(
+          {
+            merchant_uid: merchantUid,
+            popup: true,
+            pg: "inicis_unified",
+          },
+          async function (rsp) {
+            if (!rsp.success) {
+              alert("본인인증 실패");
+              return;
+            }
 
-    if (password.length < 8 || password.length > 20) {
-      alert("비밀번호는 8~20자여야 합니다.");
-      return;
-    }
+            const verify = await httpClient.post("/users/pass/verify", {
+              imp_uid: rsp.imp_uid,
+            });
 
-    const pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+~\-={}[\]:;"'`<>,.?/]{8,20}$/;
-    if (!pattern.test(password)) {
-      alert("영문과 숫자를 포함한 비밀번호를 입력해 주세요.");
-      return;
-    }
+            const { data } = verify;
+            const di = data.di;
 
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+            await httpClient.post("/users/resetPwd/start-pass", { di });
 
-    if (!token) {
-      alert("유효하지 않은 비밀번호 재설정 링크입니다.");
-      return;
-    }
+            guide.innerText =
+              "본인 인증이 완료되었습니다. 새 비밀번호를 입력해 주세요.";
+            formArea.classList.remove("hidden");
 
-    try {
-      const res = await axios.post("/api/users/reset-pwd", {
-        token,
-        password,
-      });
+            step1.classList.remove("text-blue-600");
+            step1.classList.add("text-gray-400");
+            step2.classList.remove("text-gray-400");
+            step2.classList.add("text-blue-600");
 
-      if (res.data && res.data.success) {
-        alert("비밀번호가 변경되었습니다. 다시 로그인해 주세요.");
-        window.location.href = "/login";
-      } else {
-        const msg = res.data?.error?.message || "비밀번호 변경에 실패했습니다.";
+            alert("본인인증 성공. 비밀번호를 변경할 수 있습니다.");
+          }
+        );
+      } catch (err) {
+        console.log(err);
+        const msg =
+          err.response?.data?.error?.message ||
+          err.response?.data?.message ||
+          "본인인증 처리 중 오류가 발생했습니다.";
         alert(msg);
       }
-    } catch (err) {
-      alert("비밀번호 변경 중 오류가 발생했습니다.");
-    }
-  });
+    });
+
+    passBtn.dataset.boundPass = "true";
+  }
+
+  if (!btnReset.dataset.boundReset) {
+    btnReset.addEventListener("click", async () => {
+      const password = newPwdInput.value.trim();
+      const passwordCheck = newPwdCheckInput.value.trim();
+
+      if (!password || !passwordCheck) {
+        alert("비밀번호를 모두 입력해 주세요.");
+        return;
+      }
+
+      if (password !== passwordCheck) {
+        alert("새 비밀번호와 확인이 일치하지 않습니다.");
+        return;
+      }
+
+      if (password.length < 8 || password.length > 20) {
+        alert("비밀번호는 8~20자여야 합니다.");
+        return;
+      }
+
+      const pattern =
+        /^(?=.*[A-Za-z])(?:(?=.*[0-9])|(?=.*[^A-Za-z0-9])).{8,20}$/;
+      if (!pattern.test(password)) {
+        alert("영문과 숫자 또는 특수문자를 포함한 비밀번호를 입력해 주세요.");
+        return;
+      }
+
+      try {
+        const res = await httpClient.post("/users/resetPwd", {
+          password,
+          passwordConfirm: passwordCheck,
+        });
+
+        if (res.success) {
+          alert("비밀번호가 변경되었습니다. 다시 로그인해 주세요.");
+          window.location.href = "/login";
+        } else {
+          const msg = res.error?.message || "비밀번호 변경에 실패했습니다.";
+          alert(msg);
+        }
+      } catch (err) {
+        console.log(err);
+        const msg =
+          err.response?.data?.error?.message ||
+          err.response?.data?.message ||
+          "비밀번호 변경 중 오류가 발생했습니다.";
+        alert(msg);
+      }
+    });
+
+    btnReset.dataset.boundReset = "true";
+  }
 };

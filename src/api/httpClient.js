@@ -1,14 +1,16 @@
-import axios from 'axios';
+// src/api/httpClient.js
+import axios from "axios";
 
 const httpClient = axios.create({
-  baseURL: '/api',
+  baseURL: "/api",
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json; charset=UTF-8',
+    "Content-Type": "application/json; charset=UTF-8",
   },
 });
 
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => Promise.reject(error)
 );
 

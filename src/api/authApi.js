@@ -1,7 +1,28 @@
-import axios from "axios";
+import httpClient from "./httpClient";
 
-export const loginApi = (data) =>
-  axios.post("/api/auth/login", data);
+export const fetchCurrentUser = () =>
+  httpClient.get("/users/me");
 
-export const signupApi = (data) =>
-  axios.post("/api/auth/signup", data);
+export const login = (data) =>
+  httpClient.post("/users/login", data);
+
+export const logout = () =>
+  httpClient.post("/users/logout");
+
+export const checkCommon = (data) =>
+  httpClient.post("/users/check", data);
+
+export const checkPasswordFormat = (password) =>
+  httpClient.post("/users/checkPasswordFormat", { password });
+
+export const checkPasswordConfirm = (password, passwordConfirm) =>
+  httpClient.post("/users/checkPasswordConfirm", { password, passwordConfirm });
+
+export const startPassAuth = () =>
+  httpClient.get("/users/pass/start");
+
+export const verifyPassAuth = (data) =>
+  httpClient.post("/users/pass/verify", data);
+
+export const verifyEmail = (token) =>
+  httpClient.get("/users/verify-email", { params: { token } });
