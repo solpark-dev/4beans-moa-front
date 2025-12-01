@@ -6,7 +6,6 @@ export default function Header() {
   return (
     <header className="w-full border-b border-gray-200 bg-white fixed top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-
         <button
           className="font-bold text-xl text-blue-600 cursor-pointer"
           role="link"
@@ -16,9 +15,15 @@ export default function Header() {
         </button>
 
         <nav className="hidden md:flex gap-6 text-sm text-gray-600">
-          <button role="link" data-href="/party">파티 찾기</button>
-          <button role="link" data-href="/mypage">마이페이지</button>
-          <button role="link" data-href="/community">고객센터</button>
+          <button role="link" data-href="/subscriptions">
+            구독상품
+          </button>
+          <button role="link" data-href="/my/subscriptions">
+            구독목록
+          </button>
+          <button role="link" data-href="/party">
+            파티 찾기
+          </button>
         </nav>
 
         {user ? (

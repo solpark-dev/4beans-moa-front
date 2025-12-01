@@ -17,7 +17,8 @@ import MyPage from "./pages/user/MyPage";
 import EmailVerifiedPage from "./pages/user/EmailVerifiedPage";
 import UpdateUserPage from "./pages/user/UpdateUserPage";
 
-import CommunityPage from "./pages/community/CommunityPage";
+import GetProductList from "./pages/subscription/GetProductList";
+import UserSubscriptionList from "./pages/subscription/UserSubscriptionList";
 
 import { requireLogin } from "./services/authGuard";
 
@@ -45,12 +46,19 @@ export default function App() {
           />
           <Route
             path="/mypage/edit"
-            element={requireLogin() ? <UpdateUserPage /> : <Navigate to="/login" replace />}
+            element={
+              requireLogin() ? (
+                <UpdateUserPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
           <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
 
-          {/* 커뮤니티 */}
-          <Route path="/community" element={<CommunityPage />} />
+          {/* product & Subscription */}
+          <Route path="/subscriptions" element={<GetProductList />} />
+          <Route path="/my/subscriptions" element={<UserSubscriptionList />} />
         </Routes>
       </main>
 
