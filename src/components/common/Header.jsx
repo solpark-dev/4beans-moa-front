@@ -15,10 +15,10 @@ export default function Header() {
         </button>
 
         <nav className="hidden md:flex gap-6 text-sm text-gray-600">
-          <button role="link" data-href="/subscriptions">
+          <button role="link" data-href="/product">
             구독상품
           </button>
-          <button role="link" data-href="/my/subscriptions">
+          <button role="link" data-href="/my/subscription">
             구독목록
           </button>
           <button role="link" data-href="/party">

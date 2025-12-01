@@ -20,6 +20,8 @@ import UpdateUserPage from "./pages/user/UpdateUserPage";
 import GetProductList from "./pages/subscription/GetProductList";
 import UserSubscriptionList from "./pages/subscription/UserSubscriptionList";
 
+import SupportPage from "./pages/community/SupportPage";
+
 import { requireLogin } from "./services/authGuard";
 
 export default function App() {
@@ -59,6 +61,8 @@ export default function App() {
           {/* product & Subscription */}
           <Route path="/subscriptions" element={<GetProductList />} />
           <Route path="/my/subscriptions" element={<UserSubscriptionList />} />
+
+          <Route path="/support" element={<SupportPage />} />
         </Routes>
       </main>
 
