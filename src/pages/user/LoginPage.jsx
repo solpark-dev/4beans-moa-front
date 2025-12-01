@@ -28,15 +28,12 @@ export default function LoginPage() {
 
         <div className="flex justify-between text-sm">
           <label className="flex gap-2">
-            <input id="loginAuto" type="checkbox" /> 자동 로그인
+            <input id="loginRemember" type="checkbox" />
+            아이디 기억하기
           </label>
 
           <div className="flex gap-4">
-            <button
-              className="text-blue-600"
-              role="link"
-              data-href="/signup"
-            >
+            <button className="text-blue-600" role="link" data-href="/signup">
               회원가입
             </button>
             <button

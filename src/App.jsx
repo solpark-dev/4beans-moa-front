@@ -5,6 +5,7 @@ import Footer from "./components/common/Footer";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import OAuthKakaoPage from "./pages/oauth/OAuthKakaoPage";
+import SocialLoginCallbackPage from "./pages/oauth/SocialLoginCallbackPage";
 import MainPage from "./pages/main/MainPage";
 import PartyListPage from "./pages/party/PartyListPage";
 import PartyDetailPage from "./pages/party/PartyDetailPage";
@@ -36,16 +37,22 @@ export default function App() {
           <Route path="/party" element={<PartyListPage />} />
           <Route path="/party/:id" element={<PartyDetailPage />} />
 
-          {/* User 도메인 */}
+          {/* ===== OAuth 콜백 MUST BE PUBLIC ===== */}
+          <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
+          <Route path="/login/social" element={<SocialLoginCallbackPage />} />
+
+          {/* User */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<AddUserPage />} />
           <Route path="/find-email" element={<FindIdPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
+
           <Route
             path="/mypage"
             element={<ProtectedRoute element={<MyPage />} />}
           />
+
           <Route
             path="/mypage/edit"
             element={
@@ -56,7 +63,6 @@ export default function App() {
               )
             }
           />
-          <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
 
           {/* product & Subscription */}
           <Route path="/subscriptions" element={<GetProductList />} />

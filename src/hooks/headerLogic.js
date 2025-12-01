@@ -5,6 +5,13 @@ export function useHeaderLogic() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const path = window.location.pathname;
+    const isOAuthCallback = path.startsWith("/oauth/");
+
+    if (isOAuthCallback) {
+      return;
+    }
+
     fetchCurrentUser()
       .then((body) => {
         if (body.success && body.data) {
@@ -21,8 +28,7 @@ export function useHeaderLogic() {
   const logout = async () => {
     try {
       const res = await requestLogout();
-      const ok =
-        typeof res.success !== "undefined" ? res.success : true;
+      const ok = typeof res.success !== "undefined" ? res.success : true;
       if (!ok && res.error?.message) {
         alert(res.error.message);
       }
