@@ -46,6 +46,9 @@ export default function MyPage() {
             <div className="text-sm text-gray-500">마케팅 수신여부</div>
             <div id="myMarketing" className="text-sm text-gray-900" />
 
+            <div className="text-sm text-gray-500">로그인 방식</div>
+            <div id="myLoginProvider" className="text-sm text-gray-900"></div>
+
             <div className="text-sm text-gray-500">연동</div>
             <div className="flex gap-3">
               <button

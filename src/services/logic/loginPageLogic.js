@@ -22,9 +22,40 @@ export function initLoginPage() {
 
         if (success) {
           window.location.href = "/";
-        } else {
-          alert(error?.message || "로그인 실패");
+          return;
         }
+
+        if (!success && error?.code === "U410") {
+          const ok = window.confirm(
+            "탈퇴한 계정입니다.\n복구하시겠습니까? (본인인증 필요)"
+          );
+
+          if (ok) {
+            try {
+              const result = await startRestoreVerify(email.value);
+
+              if (result.success) {
+                // PASS 인증 URL로 이동
+                window.location.href = result.data.passAuthUrl;
+                return;
+              } else {
+                alert(
+                  result.error?.message || "복구 인증을 시작할 수 없습니다."
+                );
+              }
+            } catch (err) {
+              console.log(err);
+              alert(
+                err.response?.data?.error?.message ||
+                  "복구 요청 중 오류가 발생했습니다."
+              );
+            }
+          }
+
+          return;
+        }
+
+        alert(error?.message || "로그인 실패");
       } catch (error) {
         const msg =
           error.response?.data?.error?.message ||
@@ -37,13 +68,13 @@ export function initLoginPage() {
 
   if (kakao) {
     kakao.onclick = () => {
-      window.location.href = "/api/auth/oauth/kakao";
+      window.location.href = "/api/oauth/kakao/auth";
     };
   }
 
   if (google) {
     google.onclick = () => {
-      window.location.href = "/api/auth/oauth/google";
+      window.location.href = "/api/oauth/google/auth";
     };
   }
 }

@@ -26,6 +26,17 @@ export async function initMyPage() {
 
     user = data;
 
+    const loginProviderEl = document.getElementById("myLoginProvider");
+    if (loginProviderEl) {
+      const activeConn = user.oauthConnections?.find((c) => !c.releaseDate);
+      if (activeConn) {
+        loginProviderEl.textContent =
+          activeConn.provider === "google" ? "Google 로그인" : "Kakao 로그인";
+      } else {
+        loginProviderEl.textContent = "일반 로그인";
+      }
+    }
+
     emailEl.textContent = user.userId || "";
 
     const nicknameEl = document.getElementById("myNickname");
@@ -94,7 +105,7 @@ export async function initMyPage() {
   const btnChangePwd = document.getElementById("btnChangePwd");
   if (btnChangePwd) {
     btnChangePwd.onclick = () => {
-      window.location.href = "/reset-password";
+      window.location.href = "/mypage/password";
     };
   }
 
@@ -112,11 +123,36 @@ export async function initMyPage() {
     };
   }
 
-  const googleConnect = document.getElementById("btnGoogleConnect");
-  if (googleConnect) {
-    googleConnect.onclick = () => {
-      window.location.href = "/api/auth/oauth/google";
-    };
+  const googleButton = document.getElementById("btnGoogleConnect");
+  if (googleButton) {
+    const connections = user.oauthConnections || [];
+    const googleConn = connections.find(
+      (c) => c.provider === "google" && !c.releaseDate
+    );
+
+    if (googleConn) {
+      googleButton.textContent = "Google 연동 해제";
+      googleButton.onclick = async () => {
+        if (!window.confirm("Google 계정 연동을 해제하시겠습니까?")) return;
+        try {
+          const res = await httpClient.post("/oauth/release", {
+            oauthId: googleConn.oauthId,
+          });
+          if (res.success) {
+            alert("Google 계정 연동이 해제되었습니다.");
+            window.location.reload();
+          }
+        } catch (e) {
+          console.log(e);
+          alert("Google 연동 해제 중 오류가 발생했습니다.");
+        }
+      };
+    } else {
+      googleButton.textContent = "Google로 시작하기";
+      googleButton.onclick = () => {
+        window.location.href = "/api/oauth/google/auth";
+      };
+    }
   }
 
   const kakaoButton = document.getElementById("btnKakaoConnect");

@@ -8,7 +8,9 @@ export function initDeleteUserPage() {
 
   if (!btn.dataset.boundDelete) {
     btn.addEventListener("click", async () => {
-      const selected = document.querySelector("input[name='deleteReason']:checked");
+      const selected = document.querySelector(
+        "input[name='deleteReason']:checked"
+      );
       if (!selected) {
         alert("탈퇴 사유를 선택해 주세요.");
         return;
@@ -22,13 +24,18 @@ export function initDeleteUserPage() {
         return;
       }
 
-      if (!window.confirm("정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+      if (
+        !window.confirm(
+          "정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+        )
+      ) {
         return;
       }
 
       try {
-        const res = await httpClient.delete("/users", {
-          data: { deleteType, deleteDetail },
+        const res = await httpClient.post("/users/delete", {
+          deleteType,
+          deleteDetail,
         });
 
         if (res.success) {
