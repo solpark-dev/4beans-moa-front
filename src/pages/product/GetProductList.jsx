@@ -15,6 +15,7 @@ const GetProductList = () => {
         setLoading(true);
         const response = await httpClient.get('/product');
         if (response.success) {
+          console.log('Products data:', response.data);
           setProducts(response.data || []);
         } else {
           setProducts([]);
@@ -38,7 +39,7 @@ const GetProductList = () => {
         <h1 className="text-2xl font-bold text-gray-900">구독 상품 목록</h1>
         {user?.role === 'ADMIN' && (
           <button
-            onClick={() => navigate('/products/add')}
+            onClick={() => navigate('/product/add')}
             className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors"
           >
             상품 등록
@@ -55,27 +56,43 @@ const GetProductList = () => {
           {products.map(product => (
             <div
               key={product.productId}
-              onClick={() => navigate(`/products/${product.productId}`)}
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1"
+              onClick={() => navigate(`/product/${product.productId}`)}
+              className="bg-white border border-gray-200 rounded-[2rem] p-6 cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 relative"
             >
-              <div className="aspect-video bg-gray-100 relative">
-                {product.image ? (
-                  <img src={product.image} alt={product.productName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-                )}
-                {product.categoryName && (
-                  <span className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 relative">
+                  {product.image ? (
+                    <img src={product.image} alt={product.productName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Img</div>
+                  )}
+                  {product.productStatus === 'INACTIVE' && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="text-white text-[10px] font-bold">판매중지</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-xl font-bold text-gray-900">
+                  ₩{product.price?.toLocaleString()}
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 mt-4 mb-8">
+                {product.productName}
+              </h3>
+
+              <div className="flex justify-between items-center">
+                {product.categoryName ? (
+                  <span className="bg-gray-100 text-gray-500 text-xs font-bold px-3 py-1 rounded uppercase">
                     {product.categoryName}
                   </span>
+                ) : (
+                  <span></span>
                 )}
-              </div>
-              <div className="p-5">
-                <h3 className="font-bold text-lg mb-2 text-gray-900">{product.productName}</h3>
-                <p className="text-brand-600 font-bold text-xl">
-                  {product.price?.toLocaleString()}원
-                  <span className="text-sm text-gray-500 font-normal ml-1">/월</span>
-                </p>
+
+                <span className="text-indigo-600 font-semibold text-sm flex items-center gap-1">
+                  상세보기 &gt;
+                </span>
               </div>
             </div>
           ))}

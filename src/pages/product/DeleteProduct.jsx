@@ -13,10 +13,10 @@ const DeleteProduct = () => {
                     const response = await httpClient.delete(`/product/${id}`);
                     if (response.success) {
                         alert('상품이 삭제되었습니다.');
-                        navigate('/products');
+                        navigate('/product');
                     } else {
                         alert(response.error?.message || '상품 삭제에 실패했습니다.');
-                        navigate(`/products/${id}`);
+                        navigate(`/product/${id}`);
                     }
                 } catch (error) {
                     console.error("Failed to delete product", error);

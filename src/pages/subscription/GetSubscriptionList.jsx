@@ -36,7 +36,7 @@ const GetSubscriptionList = () => {
                 <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
                     <p className="text-gray-500 mb-4">구독 중인 상품이 없습니다.</p>
                     <button
-                        onClick={() => navigate('/products')}
+                        onClick={() => navigate('/product')}
                         className="bg-brand-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-brand-700 transition-colors"
                     >
                         구독 상품 보러가기

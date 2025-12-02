@@ -23,7 +23,7 @@ const GetProduct = () => {
             } catch (error) {
                 console.error("Failed to fetch product", error);
                 alert("상품 정보를 불러오는데 실패했습니다.");
-                navigate('/products');
+                navigate('/product');
             } finally {
                 setLoading(false);
             }
@@ -71,13 +71,13 @@ const GetProduct = () => {
                             {user?.role === 'ADMIN' ? (
                                 <>
                                     <button
-                                        onClick={() => navigate(`/products/${id}/edit`)}
+                                        onClick={() => navigate(`/product/${id}/edit`)}
                                         className="flex-1 bg-white border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors"
                                     >
                                         수정하기
                                     </button>
                                     <button
-                                        onClick={() => navigate(`/products/${id}/delete`)}
+                                        onClick={() => navigate(`/product/${id}/delete`)}
                                         className="flex-1 bg-red-50 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition-colors"
                                     >
                                         삭제하기

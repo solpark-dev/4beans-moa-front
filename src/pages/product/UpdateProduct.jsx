@@ -45,7 +45,7 @@ const UpdateProduct = () => {
             } catch (error) {
                 console.error("Failed to load data", error);
                 alert("데이터를 불러오는데 실패했습니다.");
-                navigate('/products');
+                navigate('/product');
             } finally {
                 setLoading(false);
             }
@@ -63,7 +63,7 @@ const UpdateProduct = () => {
             });
             if (response.success) {
                 alert('상품 정보가 수정되었습니다.');
-                navigate(`/products/${id}`);
+                navigate(`/product/${id}`);
             } else {
                 alert(response.error?.message || '상품 수정에 실패했습니다.');
             }
@@ -163,7 +163,7 @@ const UpdateProduct = () => {
                 <div className="pt-4 flex gap-3">
                     <button
                         type="button"
-                        onClick={() => navigate(`/products/${id}`)}
+                        onClick={() => navigate(`/product/${id}`)}
                         className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors"
                     >
                         취소

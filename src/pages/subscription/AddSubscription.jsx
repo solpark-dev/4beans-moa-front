@@ -20,7 +20,7 @@ const AddSubscription = () => {
             } catch (error) {
                 console.error("Failed to fetch product", error);
                 alert("상품 정보를 불러오는데 실패했습니다.");
-                navigate('/products');
+                navigate('/product');
             } finally {
                 setLoading(false);
             }

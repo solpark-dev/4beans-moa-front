@@ -38,7 +38,7 @@ const AddProduct = () => {
             });
             if (response.success) {
                 alert('상품이 등록되었습니다.');
-                navigate('/products');
+                navigate('/product');
             } else {
                 alert(response.error?.message || '상품 등록에 실패했습니다.');
             }
