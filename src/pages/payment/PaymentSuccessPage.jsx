@@ -21,8 +21,16 @@ export default function PaymentSuccessPage() {
             return;
         }
 
+        // 세션 기반 중복 방지 (컴포넌트 재마운트 시에도 유효)
+        const processId = `payment_${orderId}_${paymentKey}`;
+        if (sessionStorage.getItem(processId)) {
+            console.warn("Payment already processed in this session:", processId);
+            return;
+        }
+
         if (isProcessed.current) return; // 이미 처리되었으면 리턴
         isProcessed.current = true; // 처리 시작 표시
+        sessionStorage.setItem(processId, 'true'); // 세션에 처리 완료 표시
 
         const processPayment = async () => {
             try {
@@ -72,26 +80,16 @@ export default function PaymentSuccessPage() {
                 console.error(error);
 
                 // 이미 처리된 결제인 경우 성공으로 간주하고 진행
+                // 먼저 localStorage에서 정보를 읽은 후 처리
+                const storedPayment = JSON.parse(localStorage.getItem("pendingPayment"));
+
                 if (error.response && error.response.data && error.response.data.code === "ALREADY_PROCESSED_PAYMENT") {
                     console.warn("Already processed payment, proceeding as success.");
-                    localStorage.removeItem("pendingPayment");
-                    const pendingPayment = JSON.parse(localStorage.getItem("pendingPayment")); // 다시 읽어서 확인 (위에서 지웠으므로 null일 것임, 하지만 로직 흐름상 필요하면 변수 사용)
-                    // 위에서 pendingPayment 변수가 이미 있으므로 그것을 사용.
-                    // 단, type과 partyId는 위에서 이미 구조분해 할당 했음.
 
-                    // pendingPayment가 null이면 위에서 에러가 났을 것이므로 여기서는 type, partyId가 유효함.
-                    // 하지만 catch 블록이므로 스코프 문제 확인 필요. 
-                    // let { type, partyId } = pendingPayment; 는 try 블록 안에 있음.
-                    // 따라서 catch 블록에서는 접근 불가할 수 있음.
-                    // 해결책: try 블록 밖으로 변수 선언을 빼거나, catch 블록에서 다시 읽어야 함.
-                    // 하지만 localStorage에서 이미 지웠다면? 아님. 지우기 전임.
-
-                    // 코드를 재구성하여 try-catch 범위를 조정하거나, catch에서 로컬스토리지를 다시 읽어서 처리.
-
-                    const storedPayment = JSON.parse(localStorage.getItem("pendingPayment"));
                     if (storedPayment) {
                         const { type, partyId } = storedPayment;
-                        localStorage.removeItem("pendingPayment");
+                        localStorage.removeItem("pendingPayment"); // 정보를 읽은 후 삭제
+
                         if (type === "CREATE_PARTY") {
                             navigate(`/party/create?step=4&partyId=${partyId}`);
                         } else if (type === "JOIN_PARTY") {
@@ -108,7 +106,7 @@ export default function PaymentSuccessPage() {
         };
 
         processPayment();
-    }, [navigate, searchParams]);
+    }, []); // 의존성 배열을 빈 배열로 변경 - 컴포넌트 마운트 시 1회만 실행
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
