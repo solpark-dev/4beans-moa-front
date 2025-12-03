@@ -7,8 +7,7 @@ import {
   leaveParty,
 } from "../../services/partyService";
 import { requestPayment } from "../../services/paymentService";
-import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
+
 
 export default function PartyDetailPage() {
   const { id } = useParams();
@@ -91,8 +90,6 @@ export default function PartyDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       <div className="max-w-5xl mx-auto px-6 py-12 w-full">
         <div className="bg-white shadow rounded-lg p-8">
           <div className="flex justify-between items-start">
@@ -120,8 +117,8 @@ export default function PartyDetailPage() {
                   상태:{" "}
                   <span
                     className={`font-bold ${party.partyStatus === "RECRUITING"
-                        ? "text-green-600"
-                        : "text-gray-600"
+                      ? "text-green-600"
+                      : "text-gray-600"
                       }`}
                   >
                     {party.partyStatus}
@@ -180,7 +177,6 @@ export default function PartyDetailPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

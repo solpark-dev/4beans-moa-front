@@ -8,8 +8,7 @@ import {
     fetchPartyDetail,
 } from "../../services/partyService";
 import { requestPayment } from "../../services/paymentService";
-import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
+
 
 export default function PartyCreatePage() {
     const navigate = useNavigate();
@@ -161,19 +160,16 @@ export default function PartyCreatePage() {
     if (isRestoring) {
         return (
             <div className="min-h-screen flex flex-col bg-gray-50">
-                <Header />
                 <main className="flex-1 flex flex-col items-center justify-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
                     <p className="text-gray-600">결제 정보를 확인하고 있습니다...</p>
                 </main>
-                <Footer />
             </div>
         );
     }
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-            <Header />
             <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12">
                 <div className="bg-white shadow-lg rounded-xl p-8">
                     <h1 className="text-3xl font-bold mb-8 text-center">파티 만들기</h1>
@@ -381,7 +377,6 @@ export default function PartyCreatePage() {
                     )}
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }

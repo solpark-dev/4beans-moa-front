@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchPartyList } from "../../services/partyService";
-import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
+
 
 export default function PartyListPage() {
   const [list, setList] = useState([]);
@@ -13,8 +12,6 @@ export default function PartyListPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       <div className="max-w-7xl mx-auto px-6 py-12 w-full">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">파티 찾기</h2>
@@ -45,8 +42,8 @@ export default function PartyListPage() {
                     </span>
                     <span
                       className={`text-sm font-semibold ${item.partyStatus === "RECRUITING"
-                          ? "text-green-600"
-                          : "text-gray-500"
+                        ? "text-green-600"
+                        : "text-gray-500"
                         }`}
                     >
                       {item.partyStatus}
@@ -75,7 +72,6 @@ export default function PartyListPage() {
           </div>
         )}
       </div>
-      <Footer />
     </div>
   );
 }
