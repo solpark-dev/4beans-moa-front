@@ -4,9 +4,8 @@ import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
-import OAuthKakaoPage from "./pages/oauth/OAuthKakaoPage";
 import OAuthGooglePage from "./pages/oauth/OAuthGooglePage";
-import SocialLoginPage from "./pages/oauth/SocialLoginCallbackPage";
+import OAuthKakaoPage from "./pages/oauth/OAuthKakaoPage";
 import MainPage from "./pages/main/MainPage";
 import PartyListPage from "./pages/party/PartyListPage";
 import PartyCreatePage from "./pages/party/PartyCreatePage";
@@ -57,10 +56,8 @@ export default function App() {
           {/* ===== OAuth 콜백 MUST BE PUBLIC ===== */}
           <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
           <Route path="/oauth/google" element={<OAuthGooglePage />} />
-          <Route path="/login/social" element={<SocialLoginPage />} />
 
           {/* User 도메인 (Public) */}
-
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<AddUserPage />} />
           <Route path="/find-email" element={<FindIdPage />} />
@@ -101,17 +98,17 @@ export default function App() {
           <Route
             path="/product/add"
             element={<ProtectedRoute element={<AddProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/edit"
             element={<ProtectedRoute element={<UpdateProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}

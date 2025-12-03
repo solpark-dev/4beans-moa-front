@@ -55,10 +55,6 @@ export const loginHandler = async () => {
   }
 };
 
-export const kakaoLoginHandler = () => {
-  window.location.href = "/api/oauth/kakao/auth";
-};
-
 export const googleLoginHandler = () => {
   window.location.href = "/api/oauth/google/auth";
 };
