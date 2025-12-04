@@ -1,87 +1,74 @@
-// src/store/authStore.js
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import httpClient from "@/api/httpClient";
 
-export const useAuthStore = create((set, get) => ({
-  user: null,
-  accessToken: localStorage.getItem("accessToken") || null,
-  refreshToken: localStorage.getItem("refreshToken") || null,
-  accessTokenExpiresIn: localStorage.getItem("accessTokenExpiresIn")
-    ? Number(localStorage.getItem("accessTokenExpiresIn"))
-    : null,
-  loading: true,
-
-  setTokens: ({ accessToken, refreshToken, accessTokenExpiresIn }) => {
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-    } else {
-      localStorage.removeItem("accessToken");
-    }
-
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    } else {
-      localStorage.removeItem("refreshToken");
-    }
-
-    if (accessTokenExpiresIn) {
-      localStorage.setItem(
-        "accessTokenExpiresIn",
-        String(accessTokenExpiresIn)
-      );
-    } else {
-      localStorage.removeItem("accessTokenExpiresIn");
-    }
-
-    set({
-      accessToken: accessToken ?? get().accessToken,
-      refreshToken: refreshToken ?? get().refreshToken,
-      accessTokenExpiresIn: accessTokenExpiresIn ?? get().accessTokenExpiresIn,
-    });
-  },
-
-  setUser: (user) => set({ user }),
-
-  clearAuth: () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("accessTokenExpiresIn");
-    set({
+export const useAuthStore = create(
+  persist(
+    (set, get) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
       accessTokenExpiresIn: null,
       loading: false,
-    });
-  },
 
-  fetchSession: async () => {
-    const { accessToken, clearAuth } = get();
+      setTokens: ({ accessToken, refreshToken, accessTokenExpiresIn }) => {
+        set({
+          accessToken,
+          refreshToken,
+          accessTokenExpiresIn: Number(accessTokenExpiresIn),
+        });
+        get().fetchSession();
+      },
 
-    if (!accessToken) {
-      set({ user: null, loading: false });
-      return;
+      setUser: (user) => set({ user }),
+      clearAuth: () => {
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          accessTokenExpiresIn: null,
+          loading: false,
+        });
+        localStorage.removeItem("auth-storage");
+      },
+      fetchSession: async () => {
+        const { accessToken, clearAuth } = get();
+
+        if (!accessToken) {
+          set({ user: null, loading: false });
+          return;
+        }
+
+        set({ loading: true });
+
+        try {
+          const res = await httpClient.get("/users/me");
+
+          if (res.success) {
+            set({ user: res.data, loading: false });
+          } else {
+            clearAuth();
+          }
+        } catch (error) {
+          console.error("Session Fetch Error:", error);
+          clearAuth();
+        } finally {
+          set({ loading: false });
+        }
+      },
+      logout: async () => {
+        try {
+          await httpClient.post("/auth/logout");
+        } catch (error) {
+          console.error("Logout Error:", error);
+        } finally {
+          get().clearAuth();
+        }
+      },
+    }),
+    {
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
     }
-
-    try {
-      const res = await httpClient.get("/users/me");
-      if (res.success && res.data) {
-        set({ user: res.data, loading: false });
-      } else {
-        clearAuth();
-      }
-    } catch {
-      clearAuth();
-    }
-  },
-
-  logout: async () => {
-    try {
-      await httpClient.post("/auth/logout");
-    } catch {
-      // 로그아웃 요청이 실패해도 클라이언트 세션은 무조건 초기화
-    } finally {
-      get().clearAuth();
-    }
-  },
-}));
+  )
+);

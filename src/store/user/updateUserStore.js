@@ -1,4 +1,3 @@
-// src/store/user/updateUserStore.js
 import { create } from "zustand";
 
 export const useUpdateUserStore = create((set) => ({
@@ -6,16 +5,18 @@ export const useUpdateUserStore = create((set) => ({
   nickname: "",
   phone: "",
   profileImage: "",
-  previewImage: "",
-
-  setField: (key, value) => set({ [key]: value }),
+  previewImage: null,
+  agreeMarketing: false,
 
   setUserData: (user) =>
     set({
-      email: user.userId || "",
-      nickname: user.nickname || "",
-      phone: user.phone || "",
-      profileImage: user.profileImage || "",
-      previewImage: user.profileImage || "",
+      email: user.userId,
+      nickname: user.nickname,
+      phone: user.phone,
+      profileImage: user.profileImage,
+      previewImage: user.profileImage,
+      agreeMarketing: user.agreeMarketing ?? user.marketing ?? false,
     }),
+
+  setField: (field, value) => set({ [field]: value }),
 }));

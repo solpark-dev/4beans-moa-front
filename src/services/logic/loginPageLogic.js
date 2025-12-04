@@ -1,82 +1,123 @@
-// src/services/logic/loginPageLogic.js
-import { login, startRestoreVerify, fetchCurrentUser } from "@/api/authApi";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import httpClient from "@/api/httpClient";
 import { useLoginStore } from "@/store/user/loginStore";
 import { useAuthStore } from "@/store/authStore";
 
-export function initLoginPage() {
-  const emailEl = document.getElementById("loginEmail");
-  const pwEl = document.getElementById("loginPassword");
-  const btn = document.getElementById("btnLogin");
+export const useLoginPageLogic = () => {
+  const navigate = useNavigate();
+  const { email, password, remember, setField } = useLoginStore();
+  const { setTokens } = useAuthStore();
+  const [googleClient, setGoogleClient] = useState(null);
 
-  if (!emailEl || !pwEl || !btn) return;
+  useEffect(() => {
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+    }
 
-  const enterHandler = (e) => {
-    if (e.key === "Enter") {
-      btn.click();
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google) {
+        const client = window.google.accounts.oauth2.initCodeClient({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          scope: "openid email profile",
+          ux_mode: "popup",
+          callback: (response) => {
+            if (response.code) {
+              onGoogleLoginSuccess(response.code);
+            }
+          },
+        });
+        setGoogleClient(client);
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const onGoogleLoginSuccess = async (code) => {
+    try {
+      const res = await httpClient.get("/oauth/google/callback", {
+        params: { code },
+      });
+
+      if (res.success || res.status === "success") {
+
+        const { status, accessToken, refreshToken, accessTokenExpiresIn, provider, providerUserId } = res.data;
+
+        if (status === "LOGIN") {
+          setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
+          navigate("/", { replace: true });
+        } else if (status === "NEED_REGISTER" || status === "CONNECT") {
+          navigate(
+            `/signup?provider=${provider}&providerUserId=${providerUserId}`,
+            { replace: true }
+          );
+        } else {
+          navigate("/", { replace: true });
+        }
+      } else {
+        alert(res.error?.message || "로그인 처리에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMsg = error.response?.data?.error?.message || error.response?.data?.message || "구글 로그인 처리 중 오류가 발생했습니다.";
+      alert(errorMsg);
     }
   };
 
-  emailEl.addEventListener("keyup", enterHandler);
-  pwEl.addEventListener("keyup", enterHandler);
-}
+  const handleKakaoLogin = () => {
+    if (!window.Kakao) {
+      alert("카카오 SDK 로드 실패");
+      return;
+    }
+    window.Kakao.Auth.authorize({
+      redirectUri: import.meta.env.VITE_KAKAO_REDIRECT_URI,
+    });
+  };
 
-export const loginHandler = async () => {
-  const { email, password } = useLoginStore.getState();
-  const { setTokens, setUser, clearAuth } = useAuthStore.getState();
+  const handleGoogleLogin = () => {
+    if (googleClient) {
+      googleClient.requestCode();
+    } else {
+      alert("Google 로그인 초기화 중입니다. 잠시 후 다시 시도해주세요.");
+    }
+  };
 
-  try {
-    const res = await login({ userId: email, password });
-
-    if (res.success) {
-      const tokenData = res.data;
-
-      if (tokenData) {
-        setTokens({
-          accessToken: tokenData.accessToken,
-          refreshToken: tokenData.refreshToken,
-          accessTokenExpiresIn: tokenData.accessTokenExpiresIn,
-        });
-
-        try {
-          const meRes = await fetchCurrentUser();
-          if (meRes.success) {
-            setUser(meRes.data);
-          }
-        } catch (e) {
-          console.log(e);
-          clearAuth();
-        }
-      }
-
-      window.location.href = "/";
+  const handleEmailLogin = async () => {
+    if (!email || !password) {
+      alert("이메일과 비밀번호를 입력해주세요.");
       return;
     }
 
-    if (!res.success && res.error?.code === "U410") {
-      const ok = window.confirm("탈퇴한 계정입니다.\n복구하시겠습니까?");
-      if (!ok) return;
-
-      const result = await startRestoreVerify(email);
-      if (result.success) {
-        window.location.href = result.data.passAuthUrl;
-        return;
+    try {
+      const response = await httpClient.post("/auth/login", { email, password });
+      if (response.data.success) {
+        const { accessToken, refreshToken, accessTokenExpiresIn } = response.data.data;
+        setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
+        window.location.href = "/";
+      } else {
+        alert("로그인 실패");
       }
-
-      alert(result.error?.message || "복구 인증을 시작할 수 없습니다.");
-      return;
+    } catch (error) {
+      console.error(error);
+      alert("로그인 중 오류가 발생했습니다.");
     }
+  };
 
-    alert(res.error?.message || "로그인 실패");
-  } catch (err) {
-    const msg =
-      err.response?.data?.error?.message ||
-      err.response?.data?.message ||
-      "서버 오류로 로그인에 실패했습니다.";
-
-    alert(msg);
-  }
-};
-
-export const googleLoginHandler = () => {
-  window.location.href = "/api/oauth/google/auth";
+  return {
+    email,
+    password,
+    remember,
+    setField,
+    handleEmailLogin,
+    handleKakaoLogin,
+    handleGoogleLogin,
+  };
 };
