@@ -30,8 +30,11 @@ export async function initMyPage() {
 export function myPageHandlers() {
   return {
     goSubscription: () => (window.location.href = "/subscription/list"),
+    goMyParties: () => (window.location.href = "/my-parties"),
     goChangePwd: () => (window.location.href = "/mypage/password"),
+    goWallet: () => (window.location.href = "/user/wallet"),
     goPayment: () => (window.location.href = "/payment/method/list"),
+    goFinancialHistory: () => (window.location.href = "/user/financial-history"),
     goEditUser: () => (window.location.href = "/mypage/edit"),
     goAdminUserList: () => (window.location.href = "/admin/users"),
     goAdminBlacklist: () => (window.location.href = "/admin/blacklist"),

@@ -21,6 +21,9 @@ import DeleteUserPage from "./pages/user/DeleteUserPage";
 import MyPage from "./pages/user/MyPage";
 import EmailVerifiedPage from "./pages/user/EmailVerifiedPage";
 import UpdateUserPage from "./pages/user/UpdateUserPage";
+import FinancialHistoryPage from "./pages/user/FinancialHistoryPage";
+import MyWalletPage from "./pages/user/MyWalletPage";
+import MyPartyListPage from "./pages/party/MyPartyListPage";
 import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 
 import GetProductList from "./pages/product/GetProductList";
@@ -77,6 +80,18 @@ export default function App() {
           <Route
             path="/mypage/delete"
             element={<ProtectedRoute element={<DeleteUserPage />} />}
+          />
+          <Route
+            path="/user/financial-history"
+            element={<ProtectedRoute element={<FinancialHistoryPage />} />}
+          />
+          <Route
+            path="/user/wallet"
+            element={<ProtectedRoute element={<MyWalletPage />} />}
+          />
+          <Route
+            path="/my-parties"
+            element={<ProtectedRoute element={<MyPartyListPage />} />}
           />
           <Route
             path="/mypage/edit"

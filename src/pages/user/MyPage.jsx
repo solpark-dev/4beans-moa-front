@@ -32,8 +32,9 @@ export default function MyPage() {
         {/* 사이드바 */}
         <aside className="w-56 bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-2">
           <SidebarButton label="구독·약정" onClick={handlers.goSubscription} />
+          <SidebarButton label="내 파티 목록" onClick={handlers.goMyParties} />
           <SidebarButton label="비밀번호 변경" onClick={handlers.goChangePwd} />
-          <SidebarButton label="결제수단 관리" onClick={handlers.goPayment} />
+          <SidebarButton label="내 지갑" onClick={handlers.goWallet} />
 
           {isAdmin && (
             <>
