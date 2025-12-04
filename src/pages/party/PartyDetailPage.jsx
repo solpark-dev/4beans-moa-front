@@ -43,8 +43,10 @@ export default function PartyDetailPage() {
 
     try {
       // 1. 결제 요청 (보증금 + 첫 달 구독료)
-      // 보증금 = 월 구독료, 첫 달 구독료 = 월 구독료 -> 총 2개월치
-      const totalAmount = party.monthlyFee * 2;
+      // 인당 월 구독료 = 전체 구독료 / 최대 인원
+      const perPersonFee = Math.floor(party.monthlyFee / party.maxMembers);
+      const totalAmount = perPersonFee * 2;
+
       const paymentData = await requestPayment(
         `${party.productName} 파티 가입`,
         totalAmount,
