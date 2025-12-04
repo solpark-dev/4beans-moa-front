@@ -1,14 +1,11 @@
+// src/api/authApi.js
 import httpClient from "./httpClient";
 
 export const fetchCurrentUser = () => httpClient.get("/users/me");
 
-export const login = (data) =>
-  httpClient.post("/users/login", {
-    userId: data.userId,
-    password: data.password,
-  });
+export const login = (data) => httpClient.post("/auth/login", data);
 
-export const logout = () => httpClient.post("/users/logout");
+export const logout = () => httpClient.post("/auth/logout");
 
 export const checkCommon = (data) => httpClient.post("/users/check", data);
 

@@ -7,7 +7,9 @@ import {
   leaveParty,
 } from "../../services/partyService";
 import { requestPayment } from "../../services/paymentService";
-
+import LeavePartyWarningModal from "../../components/party/LeavePartyWarningModal";
+import UpdateOttModal from "../../components/party/UpdateOttModal";
+import { Eye, EyeOff, Edit2 } from "lucide-react";
 
 export default function PartyDetailPage() {
   const { id } = useParams();
@@ -15,6 +17,13 @@ export default function PartyDetailPage() {
   const [party, setParty] = useState(null);
   const [members, setMembers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+
+  // Modals state
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isOttModalOpen, setIsOttModalOpen] = useState(false);
+
+  // OTT visibility state
+  const [showOttInfo, setShowOttInfo] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -43,8 +52,10 @@ export default function PartyDetailPage() {
 
     try {
       // 1. 결제 요청 (보증금 + 첫 달 구독료)
-      // 보증금 = 월 구독료, 첫 달 구독료 = 월 구독료 -> 총 2개월치
-      const totalAmount = party.monthlyFee * 2;
+      // 인당 월 구독료 = 전체 구독료 / 최대 인원
+      const perPersonFee = Math.floor(party.monthlyFee / party.maxMembers);
+      const totalAmount = perPersonFee * 2;
+
       const paymentData = await requestPayment(
         `${party.productName} 파티 가입`,
         totalAmount,
@@ -67,18 +78,16 @@ export default function PartyDetailPage() {
     }
   };
 
-  const handleLeave = async () => {
-    if (!window.confirm("정말로 파티를 탈퇴하시겠습니까? 보증금은 환불됩니다.")) {
-      return;
-    }
-
+  const handleLeaveConfirm = async () => {
     try {
       await leaveParty(id);
       alert("파티에서 탈퇴했습니다.");
-      loadData(); // 데이터 갱신 (또는 목록으로 이동)
+      navigate("/my-parties"); // 목록으로 이동
     } catch (error) {
       console.error(error);
-      alert("파티 탈퇴에 실패했습니다.");
+      alert("파티 탈퇴에 실패했습니다. (백엔드 미구현일 수 있음)");
+    } finally {
+      setIsLeaveModalOpen(false);
     }
   };
 
@@ -109,26 +118,79 @@ export default function PartyDetailPage() {
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">파티 정보</h3>
-              <ul className="space-y-2">
-                <li>
-                  상태:{" "}
-                  <span
-                    className={`font-bold ${party.partyStatus === "RECRUITING"
-                      ? "text-green-600"
-                      : "text-gray-600"
-                      }`}
-                  >
-                    {party.partyStatus}
-                  </span>
-                </li>
-                <li>
-                  인원: {party.currentMembers} / {party.maxMembers}명
-                </li>
-                <li>시작일: {party.startDate}</li>
-              </ul>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">파티 정보</h3>
+                <ul className="space-y-2">
+                  <li>
+                    상태:{" "}
+                    <span
+                      className={`font-bold ${party.partyStatus === "RECRUITING"
+                        ? "text-green-600"
+                        : "text-gray-600"
+                        }`}
+                    >
+                      {party.partyStatus}
+                    </span>
+                  </li>
+                  <li>
+                    인원: {party.currentMembers} / {party.maxMembers}명
+                  </li>
+                  <li>시작일: {party.startDate}</li>
+                </ul>
+              </div>
+
+              {/* OTT 계정 정보 섹션 (멤버 또는 방장만 보임) */}
+              {(isMember || isLeader) && (
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-bold text-gray-800">OTT 계정 정보</h3>
+                    {isLeader && (
+                      <button
+                        onClick={() => setIsOttModalOpen(true)}
+                        className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        <Edit2 className="w-3 h-3" /> 수정
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between bg-white p-3 rounded border border-gray-100">
+                      <span className="text-gray-500 w-16">아이디</span>
+                      <div className="flex-1 text-right font-mono">
+                        {showOttInfo ? (
+                          party.ottId || <span className="text-gray-400 italic">미등록</span>
+                        ) : (
+                          "*****"
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-white p-3 rounded border border-gray-100">
+                      <span className="text-gray-500 w-16">비밀번호</span>
+                      <div className="flex-1 text-right font-mono">
+                        {showOttInfo ? (
+                          party.ottPassword || <span className="text-gray-400 italic">미등록</span>
+                        ) : (
+                          "*****"
+                        )}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setShowOttInfo(!showOttInfo)}
+                      className="w-full mt-2 flex items-center justify-center gap-2 py-2 text-gray-600 hover:bg-gray-200 rounded transition-colors text-sm font-medium"
+                    >
+                      {showOttInfo ? (
+                        <><EyeOff className="w-4 h-4" /> 정보 숨기기</>
+                      ) : (
+                        <><Eye className="w-4 h-4" /> 정보 보기</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -161,7 +223,7 @@ export default function PartyDetailPage() {
             {isMember && !isLeader && (
               <button
                 className="bg-red-100 text-red-600 px-6 py-3 rounded-lg font-bold hover:bg-red-200 transition"
-                onClick={handleLeave}
+                onClick={() => setIsLeaveModalOpen(true)}
               >
                 파티 탈퇴하기
               </button>
@@ -177,6 +239,23 @@ export default function PartyDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <LeavePartyWarningModal
+        isOpen={isLeaveModalOpen}
+        onClose={() => setIsLeaveModalOpen(false)}
+        onConfirm={handleLeaveConfirm}
+      />
+
+      <UpdateOttModal
+        isOpen={isOttModalOpen}
+        onClose={(success) => {
+          setIsOttModalOpen(false);
+          if (success) loadData();
+        }}
+        partyId={id}
+        currentOttId={party.ottId}
+      />
     </div>
   );
 }

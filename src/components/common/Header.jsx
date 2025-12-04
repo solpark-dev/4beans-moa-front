@@ -1,173 +1,197 @@
 import { useHeaderLogic } from "@/hooks/headerLogic";
-import { Bell, Search, LogOut, Menu, User as UserIcon } from "lucide-react";
-import { useState } from "react";
+import {
+  Bell,
+  Search,
+  LogOut,
+  Menu,
+  LayoutDashboard,
+  Users,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Header() {
-  const { user, oauthProvider, logout, isAdmin } = useHeaderLogic();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const onMenuToggle = () => setMenuOpen((prev) => !prev);
+  const { user, logout, isAdmin } = useHeaderLogic();
+
+  const profileImageUrl = user?.profileImage
+    ? user.profileImage.startsWith("/")
+      ? `https://localhost:8443${user.profileImage}`
+      : user.profileImage
+    : "https://static.thenounproject.com/png/363633-200.png";
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 h-16">
       <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-        {/* Logo */}
-        <button role="link" data-href="/" className="flex items-center gap-2">
+        <Link
+          to="/"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow">
             <span className="text-white font-extrabold text-lg">M</span>
           </div>
           <span className="text-xl font-extrabold text-slate-900">MoA</span>
-        </button>
+        </Link>
 
-        {/* ───────── Navigation (홈 제거됨) ───────── */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-600">
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
           {isAdmin ? (
             <>
-              <button
-                role="link"
-                data-href="/admin/users"
-                className="hover:text-blue-600"
+              <Link
+                to="/admin/dashboard"
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
               >
-                회원 관리
-              </button>
-              <button
-                role="link"
-                data-href="/admin/blacklist"
-                className="hover:text-blue-600"
+                <LayoutDashboard className="w-4 h-4" />
+                대시보드
+              </Link>
+              <Link
+                to="/admin/users"
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
               >
-                블랙리스트
-              </button>
-              <button
-                role="link"
-                data-href="/admin/logs"
-                className="hover:text-blue-600"
-              >
-                시스템 로그
-              </button>
+                <Users className="w-4 h-4" />
+                회원 리스트
+              </Link>
             </>
           ) : (
             <>
-              <button
-                role="link"
-                data-href="/product"
-                className="hover:text-blue-600"
+              <Link
+                to="/product"
+                className="hover:text-blue-600 transition-colors"
               >
                 구독상품
-              </button>
-              <button
-                role="link"
-                data-href="/subscription"
-                className="hover:text-blue-600"
+              </Link>
+              <Link
+                to="/subscription"
+                className="hover:text-blue-600 transition-colors"
               >
                 구독목록
-              </button>
-              <button
-                role="link"
-                data-href="/party"
-                className="hover:text-blue-600"
+              </Link>
+              <Link
+                to="/party"
+                className="hover:text-blue-600 transition-colors"
               >
                 파티 찾기
-              </button>
+              </Link>
             </>
           )}
         </nav>
 
-        {/* Right UI */}
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-4">
           <div className="hidden lg:flex bg-slate-100 rounded-full px-4 py-1.5 w-64 items-center gap-2">
             <Search className="w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="넷플릭스 파티 검색..."
-              className="bg-transparent text-sm focus:outline-none w-full"
+              placeholder={isAdmin ? "회원 검색..." : "넷플릭스 파티 검색..."}
+              className="bg-transparent text-sm focus:outline-none w-full placeholder:text-slate-400"
             />
           </div>
 
           {user ? (
-            <>
-              <div className="relative">
-                <button className="p-2 hover:bg-slate-100 rounded-full">
-                  <Bell className="w-5 h-5 text-slate-600" />
-                </button>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </div>
-
-              <div className="hidden md:flex items-center gap-2">
-                {user.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    className="w-8 h-8 rounded-full border object-cover"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-gray-200 rounded-full border flex items-center justify-center">
-                    <UserIcon className="w-5 h-5 text-gray-600" />
-                  </div>
-                )}
-
-                <span className="text-sm font-semibold text-slate-900">
-                  {user.nickname}님
-                </span>
-              </div>
-
-              <button
-                onClick={onMenuToggle}
-                className="p-2 hover:bg-slate-100 rounded-lg"
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative rounded-full"
               >
-                <Menu className="w-6 h-6 text-slate-700" />
-              </button>
+                <Bell className="w-5 h-5 text-slate-600" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+              </Button>
 
-              {menuOpen && (
-                <div className="absolute right-0 top-14 w-52 bg-white shadow-lg rounded-lg border py-2 z-50">
-                  <button
-                    role="link"
-                    data-href="/mypage"
-                    className="w-full px-4 py-2 text-left hover:bg-blue-50 text-sm"
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full"
                   >
-                    마이페이지
-                  </button>
+                    <Avatar className="h-9 w-9 border">
+                      <AvatarImage src={profileImageUrl} alt={user.nickname} />
+                      <AvatarFallback>
+                        {user.nickname?.substring(0, 2) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
 
-                  <button
-                    role="link"
-                    data-href="/mypage/subscriptions"
-                    className="w-full px-4 py-2 text-left hover:bg-blue-50 text-sm"
-                  >
-                    나의 구독목록
-                  </button>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.nickname}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {isAdmin ? "슈퍼 관리자" : user.email || "사용자"}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
 
-                  <button
-                    role="link"
-                    data-href="/mypage/delete"
-                    className="w-full px-4 py-2 text-left hover:bg-blue-50 text-sm"
-                  >
-                    회원 탈퇴
-                  </button>
-
-                  <button
-                    onClick={logout}
-                    className="w-full px-4 py-2 text-left hover:bg-blue-50 text-sm flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    로그아웃
-                  </button>
-                </div>
-              )}
-            </>
+                  {isAdmin ? (
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="text-red-600 focus:text-red-600 cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>로그아웃</span>
+                    </DropdownMenuItem>
+                  ) : (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/mypage" className="cursor-pointer">
+                          마이페이지
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/mypage/subscriptions"
+                          className="cursor-pointer"
+                        >
+                          나의 구독목록
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/mypage/delete"
+                          className="cursor-pointer text-red-500 focus:text-red-500"
+                        >
+                          회원 탈퇴
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={logout}
+                        className="cursor-pointer"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>로그아웃</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
-            <>
-              <button
-                role="link"
-                data-href="/signup"
-                className="px-4 py-2 border border-blue-600 text-blue-600 rounded-full text-sm font-semibold hover:bg-blue-50"
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                asChild
+                className="rounded-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
               >
-                회원가입
-              </button>
-              <button
-                role="link"
-                data-href="/login"
-                className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700"
+                <Link to="/signup">회원가입</Link>
+              </Button>
+              <Button
+                asChild
+                className="rounded-full bg-blue-600 hover:bg-blue-700"
               >
-                로그인
-              </button>
-            </>
+                <Link to="/login">로그인</Link>
+              </Button>
+            </div>
           )}
         </div>
       </div>

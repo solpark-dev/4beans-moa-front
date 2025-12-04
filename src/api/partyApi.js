@@ -1,4 +1,5 @@
 import axios from "axios";
+import httpClient from "./httpClient";
 
 const API_BASE_URL = "/api/parties";
 const PRODUCT_API_URL = "/api/product";
@@ -97,15 +98,14 @@ export const leaveParty = (partyId) => {
     });
 };
 
-export const getMyParties = () => {
-    return fetch(`${API_BASE_URL}/my`, {
-        method: "GET",
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to fetch my parties");
-        }
-        return response.json();
-    });
+export const getMyParties = async () => {
+    try {
+        const response = await httpClient.get("/parties/my");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch my parties:", error);
+        throw error;
+    }
 };
 
 export const getPartyMembers = (partyId) => {

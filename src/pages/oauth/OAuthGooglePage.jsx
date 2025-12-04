@@ -1,46 +1,70 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import httpClient from "@/api/httpClient";
 
 export default function OAuthGooglePage() {
-  const { search } = useLocation();
-  const params = new URLSearchParams(search);
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
 
-  const status = params.get("status");
-  const provider = params.get("provider");
-  const providerUserId = params.get("providerUserId");
-  const userId = params.get("userId");
+  const { setUser, clearAuth, setTokens } = useAuthStore();
 
   useEffect(() => {
+    const status = params.get("status");
+    const providerUserId = params.get("providerUserId");
+    const provider = params.get("provider");
+    const accessToken = params.get("accessToken");
+    const refreshToken = params.get("refreshToken");
+
     if (!status) {
       alert("잘못된 접근입니다.");
-      window.location.href = "/";
-      return;
-    }
-
-    if (status === "LOGIN") {
-      alert("구글 로그인 완료!");
-      window.location.href = "/";
+      navigate("/", { replace: true });
       return;
     }
 
     if (status === "CONNECT") {
-      alert("구글 계정 연동이 완료되었습니다.");
-      window.location.href = "/mypage";
+      alert("구글 계정 연동 완료!");
+      navigate("/mypage", { replace: true });
+      return;
+    }
+
+    if (status === "ALREADY_CONNECTED") {
+      alert("이미 다른 계정에 연결된 구글 계정입니다.");
+      navigate("/mypage", { replace: true });
       return;
     }
 
     if (status === "NEED_REGISTER") {
       alert("구글 계정으로 가입을 진행합니다.");
-      window.location.href = `/signup?provider=${provider}&providerUserId=${providerUserId}`;
+      navigate(
+        `/signup?provider=${provider}&providerUserId=${providerUserId}`,
+        { replace: true }
+      );
       return;
     }
 
-    if (status === "ALREADY_CONNECTED") {
-      alert("이미 다른 계정에 연동된 구글 계정입니다.");
-      window.location.href = "/mypage";
+    if (status === "LOGIN") {
+      alert("구글 로그인 완료!");
+
+      setTokens({
+        accessToken,
+        refreshToken,
+      });
+
+      httpClient
+        .get("/users/me")
+        .then((userRes) => {
+          if (userRes.success) setUser(userRes.data);
+        })
+        .catch(clearAuth);
+
+      navigate("/", { replace: true });
       return;
     }
-  }, [status, provider, providerUserId, userId]);
+
+    alert("OAuth 처리 중 오류 발생");
+    navigate("/", { replace: true });
+  }, []);
 
   return (
     <div className="pt-40 text-center">

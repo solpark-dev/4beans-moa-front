@@ -20,7 +20,6 @@ export default function LoginPage() {
   useEffect(() => {
     initLoginPage();
 
-    // ⭐ 카카오 SDK 초기화
     if (window.Kakao && !window.Kakao.isInitialized()) {
       window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
     }

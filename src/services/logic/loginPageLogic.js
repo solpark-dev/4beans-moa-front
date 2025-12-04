@@ -1,5 +1,7 @@
-import { login, startRestoreVerify } from "@/api/authApi";
+// src/services/logic/loginPageLogic.js
+import { login, startRestoreVerify, fetchCurrentUser } from "@/api/authApi";
 import { useLoginStore } from "@/store/user/loginStore";
+import { useAuthStore } from "@/store/authStore";
 
 export function initLoginPage() {
   const emailEl = document.getElementById("loginEmail");
@@ -20,16 +22,36 @@ export function initLoginPage() {
 
 export const loginHandler = async () => {
   const { email, password } = useLoginStore.getState();
+  const { setTokens, setUser, clearAuth } = useAuthStore.getState();
 
   try {
     const res = await login({ userId: email, password });
 
     if (res.success) {
+      const tokenData = res.data;
+
+      if (tokenData) {
+        setTokens({
+          accessToken: tokenData.accessToken,
+          refreshToken: tokenData.refreshToken,
+          accessTokenExpiresIn: tokenData.accessTokenExpiresIn,
+        });
+
+        try {
+          const meRes = await fetchCurrentUser();
+          if (meRes.success) {
+            setUser(meRes.data);
+          }
+        } catch (e) {
+          console.log(e);
+          clearAuth();
+        }
+      }
+
       window.location.href = "/";
       return;
     }
 
-    // 탈퇴계정 복구
     if (!res.success && res.error?.code === "U410") {
       const ok = window.confirm("탈퇴한 계정입니다.\n복구하시겠습니까?");
       if (!ok) return;
