@@ -10,7 +10,6 @@ export default function MainPage() {
       {/* HERO 영역 */}
       <section className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-24 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-          
           {/* 왼쪽 텍스트 */}
           <div className="text-center md:text-left max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
@@ -63,13 +62,16 @@ export default function MainPage() {
       {/* Feature 섹션 */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
           <div className="bg-white p-8 rounded-3xl shadow border border-gray-100">
             <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold mb-3 text-gray-900">약속 걱정 NO</h3>
-            <p className="text-gray-500">파티원 제공 정보는 100% 검증 후 매칭됩니다.</p>
+            <h3 className="text-xl font-bold mb-3 text-gray-900">
+              약속 걱정 NO
+            </h3>
+            <p className="text-gray-500">
+              파티원 제공 정보는 100% 검증 후 매칭됩니다.
+            </p>
           </div>
 
           <div className="bg-white p-8 rounded-3xl shadow border border-gray-100">
@@ -87,7 +89,6 @@ export default function MainPage() {
             <h3 className="text-xl font-bold mb-3 text-gray-900">자동 정산</h3>
             <p className="text-gray-500">매월 자동 정산되어 편리하게 이용.</p>
           </div>
-
         </div>
       </section>
 
@@ -113,7 +114,9 @@ export default function MainPage() {
                     />
                     <div>
                       <h3 className="font-bold">{party.serviceName}</h3>
-                      <p className="text-sm text-gray-400">파티장: {party.hostName}</p>
+                      <p className="text-sm text-gray-400">
+                        파티장: {party.hostName}
+                      </p>
                     </div>
                   </div>
 
@@ -124,12 +127,16 @@ export default function MainPage() {
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
-                    {party.status === PartyStatus.RECRUITING ? "모집중" : "마감"}
+                    {party.status === PartyStatus.RECRUITING
+                      ? "모집중"
+                      : "마감"}
                   </span>
                 </div>
 
                 <h4 className="font-bold text-gray-800 mb-2">{party.title}</h4>
-                <p className="text-gray-500 text-sm mb-4">{party.description}</p>
+                <p className="text-gray-500 text-sm mb-4">
+                  {party.description}
+                </p>
 
                 <Link
                   to={`/parties/${party.id}`}

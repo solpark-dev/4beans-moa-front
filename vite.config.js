@@ -14,6 +14,7 @@ export default defineConfig({
   },
 
   server: {
+    host: true,
     https: {
       pfx: fs.readFileSync("./moa-ssl.p12"),
       passphrase: "moa1234",
