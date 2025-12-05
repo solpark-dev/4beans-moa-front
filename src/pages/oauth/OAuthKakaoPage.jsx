@@ -32,13 +32,69 @@ export default function OAuthKakaoPage() {
         }
 
         const {
+          status,
           accessToken,
           refreshToken,
           accessTokenExpiresIn,
-          needSignup,
           provider,
           providerUserId,
+          fromUserId,
         } = res.data || {};
+
+        if (
+          status === "NEED_TRANSFER" &&
+          provider &&
+          providerUserId &&
+          fromUserId
+        ) {
+          const ok = window.confirm(
+            "이 카카오 계정은 다른 간편가입 계정에 연결되어 있습니다.\n현재 로그인한 계정으로 소셜 로그인을 이전하시겠습니까?"
+          );
+
+          if (ok) {
+            try {
+              const transferRes = await httpClient.post("/oauth/transfer", {
+                provider,
+                providerUserId,
+                fromUserId,
+              });
+
+              if (!transferRes.success) {
+                alert(
+                  transferRes.error?.message || "소셜 계정 이전에 실패했습니다."
+                );
+                navigate("/mypage", { replace: true });
+                return;
+              }
+
+              try {
+                const meRes = await fetchCurrentUser();
+                if (meRes.success) {
+                  setUser(meRes.data);
+                }
+              } catch (e) {
+                console.error(e);
+                clearAuth();
+              }
+
+              alert("카카오 계정이 현재 계정으로 이전되었습니다.");
+              navigate("/mypage", { replace: true });
+              return;
+            } catch (e) {
+              console.error(e);
+              alert(
+                e.response?.data?.error?.message ||
+                  e.response?.data?.message ||
+                  "소셜 계정 이전 중 오류가 발생했습니다."
+              );
+              navigate("/mypage", { replace: true });
+              return;
+            }
+          } else {
+            navigate("/mypage", { replace: true });
+            return;
+          }
+        }
 
         if (accessToken) {
           setTokens({
@@ -47,7 +103,6 @@ export default function OAuthKakaoPage() {
             accessTokenExpiresIn,
           });
 
-          // 토큰을 저장한 후, 최신 사용자 정보를 가져와 Zustand에 업데이트
           try {
             const meRes = await fetchCurrentUser();
             if (meRes.success) {
@@ -56,31 +111,27 @@ export default function OAuthKakaoPage() {
           } catch (e) {
             console.error(e);
             clearAuth();
-            // 사용자 정보 갱신 실패 시, 재로그인을 유도
             navigate("/login", { replace: true });
             return;
           }
         }
 
-        if (needSignup && provider && providerUserId) {
-          // 1. 가입이 필요할 경우, 가입 페이지로 이동
+        if (status === "NEED_REGISTER" && provider && providerUserId) {
           navigate(
             `/signup?provider=${encodeURIComponent(
               provider
             )}&providerUserId=${encodeURIComponent(providerUserId)}`,
             { replace: true }
           );
-        } else {
-          // 2. 로그인 완료 또는 연동 완료 후 처리
-
-          if (mode === "connect") {
-            // 연동(마이페이지) 모드일 경우: 알림 없이 마이페이지로 이동
-            navigate("/mypage", { replace: true });
-          } else {
-            // 일반 로그인 모드일 경우: 메인 페이지로 이동
-            navigate("/", { replace: true });
-          }
+          return;
         }
+
+        if (mode === "connect") {
+          navigate("/mypage", { replace: true });
+          return;
+        }
+
+        navigate("/", { replace: true });
       } catch (err) {
         console.error(err);
         alert(

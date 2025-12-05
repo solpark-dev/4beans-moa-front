@@ -35,13 +35,18 @@ export function myPageHandlers() {
     goChangePwd: () => (window.location.href = "/mypage/password"),
     goWallet: () => (window.location.href = "/user/wallet"),
     goPayment: () => (window.location.href = "/payment/method/list"),
-    goFinancialHistory: () => (window.location.href = "/user/financial-history"),
+    goFinancialHistory: () =>
+      (window.location.href = "/user/financial-history"),
     goEditUser: () => (window.location.href = "/mypage/edit"),
+
     goAdminUserList: () => (window.location.href = "/admin/users"),
     goAdminBlacklist: () => (window.location.href = "/admin/blacklist"),
     goAdminHome: () => (window.location.href = "/admin"),
     goBlacklistAdd: (userId) =>
       (window.location.href = `/admin/blacklist/add?user=${userId}`),
+
+    // 🔹 여기 추가된 부분
+    goDeleteUser: () => (window.location.href = "/mypage/delete"),
 
     oauthConnect: (provider) => {
       if (provider === "kakao") {
