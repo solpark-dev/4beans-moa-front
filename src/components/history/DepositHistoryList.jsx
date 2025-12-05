@@ -34,26 +34,28 @@ export default function DepositHistoryList() {
                     className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
                 >
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-gray-500">{deposit.createdAt}</span>
+                        <span className="text-xs text-gray-500">
+                            {deposit.paymentDate ? new Date(deposit.paymentDate).toLocaleDateString() : "-"}
+                        </span>
                         <span
-                            className={`px-2 py-1 text-xs font-bold rounded-full ${deposit.status === "PAID"
+                            className={`px-2 py-1 text-xs font-bold rounded-full ${deposit.depositStatus === "HELD"
                                     ? "bg-blue-100 text-blue-700"
-                                    : deposit.status === "REFUNDED"
+                                    : deposit.depositStatus === "REFUNDED"
                                         ? "bg-gray-100 text-gray-700"
                                         : "bg-yellow-100 text-yellow-700"
                                 }`}
                         >
-                            {deposit.status === "PAID"
+                            {deposit.depositStatus === "HELD"
                                 ? "보관중"
-                                : deposit.status === "REFUNDED"
+                                : deposit.depositStatus === "REFUNDED"
                                     ? "환급완료"
                                     : "처리중"}
                         </span>
                     </div>
                     <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-gray-900">{deposit.partyTitle}</h3>
+                        <h3 className="font-bold text-gray-900">{deposit.productName || "파티"}</h3>
                         <span className="font-bold text-lg">
-                            {deposit.amount.toLocaleString()}원
+                            {deposit.depositAmount?.toLocaleString() || 0}원
                         </span>
                     </div>
                 </div>

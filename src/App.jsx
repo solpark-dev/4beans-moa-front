@@ -22,6 +22,7 @@ import EmailVerifiedPage from "./pages/user/EmailVerifiedPage";
 import UpdateUserPage from "./pages/user/UpdateUserPage";
 import FinancialHistoryPage from "./pages/user/FinancialHistoryPage";
 import MyWalletPage from "./pages/user/MyWalletPage";
+import AccountRegisterPage from "./pages/user/AccountRegisterPage";
 import MyPartyListPage from "./pages/party/MyPartyListPage";
 import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 import AdminUserListPage from "@/pages/admin/AdminUserListPage";
@@ -89,6 +90,14 @@ export default function App() {
             element={<ProtectedRoute element={<MyWalletPage />} />}
           />
           <Route
+            path="/user/account-register"
+            element={<ProtectedRoute element={<AccountRegisterPage />} />}
+          />
+          <Route
+            path="/user/account-verify"
+            element={<ProtectedRoute element={<AccountRegisterPage />} />}
+          />
+          <Route
             path="/my-parties"
             element={<ProtectedRoute element={<MyPartyListPage />} />}
           />
@@ -117,17 +126,17 @@ export default function App() {
           <Route
             path="/product/add"
             element={<ProtectedRoute element={<AddProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/edit"
             element={<ProtectedRoute element={<UpdateProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}
