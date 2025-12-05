@@ -38,9 +38,10 @@ export default function MyWalletPage() {
                 getMyCard().catch(() => ({ data: null })),
             ]);
 
-            setDeposits(depositsRes.data || depositsRes || []);
-            setAccount(accountRes.data || accountRes);
-            setCard(cardRes.data || cardRes);
+            // Extract data from ApiResponse format: { success, data, error }
+            setDeposits(depositsRes?.data || []);
+            setAccount(accountRes?.data || null);
+            setCard(cardRes?.data || null);
         } catch (error) {
             console.error("Failed to load wallet data:", error);
         } finally {
@@ -59,15 +60,14 @@ export default function MyWalletPage() {
         navigate(`/user/financial-history?tab=${tab}`);
     };
 
-    const handleEditAccount = (e) => {
+    const handleViewAccountHistory = (e) => {
         e.stopPropagation();
-        navigate("/user/account-register");
+        navigate("/user/financial-history?tab=settlement");
     };
 
-    const handleEditCard = (e) => {
+    const handleViewPaymentHistory = (e) => {
         e.stopPropagation();
-        // TODO: 카드 수정 모달 or 페이지
-        alert("결제 수단 변경 기능은 추후 구현 예정입니다.");
+        navigate("/user/financial-history?tab=payment");
     };
 
     if (authLoading || loading) {
@@ -115,14 +115,14 @@ export default function MyWalletPage() {
                     <div className="flex justify-between items-center px-1">
                         <h3 className="font-bold text-gray-900">정산 계좌</h3>
                         <button
-                            onClick={handleEditAccount}
+                            onClick={handleViewAccountHistory}
                             className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                         >
-                            {account ? "변경" : "등록"}
+                            내역보기
                         </button>
                     </div>
                     <div
-                        onClick={() => goHistory("settlement")}
+                        onClick={() => navigate("/user/account-register")}
                         className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-blue-200 hover:shadow-md transition-all"
                     >
                         {account ? (
@@ -154,14 +154,14 @@ export default function MyWalletPage() {
                     <div className="flex justify-between items-center px-1">
                         <h3 className="font-bold text-gray-900">결제 정보</h3>
                         <button
-                            onClick={handleEditCard}
+                            onClick={handleViewPaymentHistory}
                             className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                         >
-                            {card ? "수정" : "등록"}
+                            내역보기
                         </button>
                     </div>
                     <div
-                        onClick={() => goHistory("payment")}
+                        onClick={() => alert("결제 수단 변경 기능은 추후 구현 예정입니다.")}
                         className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-blue-200 hover:shadow-md transition-all"
                     >
                         {card ? (
