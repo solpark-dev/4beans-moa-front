@@ -1,56 +1,54 @@
+import { useState } from "react";
 import httpClient from "@/api/httpClient";
 
-export function initFindIdPage() {
-  const passButton = document.getElementById("btnPassAuth");
-  const emailInput = document.getElementById("findIdEmail");
-  const guideText = document.getElementById("findIdGuide");
-  const goLoginButton = document.getElementById("btnGoLogin");
-  const step1 = document.getElementById("findIdStep1");
-  const step2 = document.getElementById("findIdStep2");
+export const useFindId = () => {
+  const [step, setStep] = useState(1);
+  const [foundEmail, setFoundEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (!passButton || !emailInput) {
-    return;
-  }
-
-  passButton.addEventListener("click", async () => {
+  const handlePassAuth = async () => {
     try {
-      // TODO: PORTONE PASS 본인인증 실제 연동
-      // ex) await window.IMP.certification(...)
+      setIsLoading(true);
 
-      // TODO: 본인인증 결과를 이용해 서버에 이메일 조회
-      // const res = await axios.post("/api/users/find-id", { name, phone, birth });
-      // const { success, data } = res.data;
+      const mockResponse = {
+        imp_uid: "imp_1234567890",
+        success: true,
+      };
 
-      const dummyEmail = "moa@gmail.com";
-      const success = true;
-      const data = { email: dummyEmail };
-
-      if (!success || !data?.email) {
-        alert("가입된 이메일을 찾을 수 없습니다.");
+      if (!mockResponse.success) {
+        alert("본인 인증에 실패했습니다.");
         return;
       }
 
-      if (guideText) {
-        guideText.classList.add("hidden");
+      const verifyRes = await httpClient.post("/users/pass/verify", {
+        imp_uid: mockResponse.imp_uid,
+      });
+
+      const { phone } = verifyRes.data.data;
+
+      const findIdRes = await httpClient.post("/users/find-id", {
+        phone: phone,
+      });
+
+      const { email } = findIdRes.data.data;
+
+      setFoundEmail(email);
+      setStep(2);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        alert("해당 번호로 가입된 이메일이 존재하지 않습니다.");
+      } else {
+        alert("이메일 찾기 중 오류가 발생했습니다.");
       }
-
-      // 단계 진행 UI 변경
-      if (step1 && step2) {
-        step1.classList.remove("text-blue-600");
-        step1.classList.add("text-gray-400");
-
-        step2.classList.remove("text-gray-400");
-        step2.classList.add("text-blue-600");
-      }
-
-      emailInput.value = data.email;
-      emailInput.classList.remove("hidden");
-
-      if (goLoginButton) {
-        goLoginButton.classList.remove("hidden");
-      }
-    } catch (err) {
-      alert("이메일 찾기 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-  });
-}
+  };
+
+  return {
+    step,
+    foundEmail,
+    isLoading,
+    handlePassAuth,
+  };
+};
