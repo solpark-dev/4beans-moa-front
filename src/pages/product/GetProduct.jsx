@@ -85,7 +85,7 @@ const GetProduct = () => {
                                 </>
                             ) : (
                                 <button
-                                    onClick={() => navigate(`/subscriptions/add/${id}`)}
+                                    onClick={() => navigate(`/subscription/add/${id}`)}
                                     className="flex-1 bg-brand-600 text-white py-4 rounded-xl font-bold hover:bg-brand-700 transition-colors shadow-lg shadow-brand-200"
                                 >
                                     구독 시작하기
