@@ -8,6 +8,7 @@ import {
     fetchPartyDetail,
 } from "../../services/partyService";
 import { requestPayment } from "../../services/paymentService";
+import { useAuthStore } from "../../store/authStore";
 
 
 export default function PartyCreatePage() {
@@ -22,19 +23,37 @@ export default function PartyCreatePage() {
     const [loading, setLoading] = useState(false);
     // 리다이렉트 복귀 시 데이터 복구 중인지 여부
     const [isRestoring, setIsRestoring] = useState(!!searchParams.get("step"));
+    const { user, loading: authLoading } = useAuthStore();
+
+    // Step 0: Check Login Status
+    useEffect(() => {
+        if (!authLoading && !user) {
+            alert("로그인이 필요한 서비스입니다.");
+            navigate("/login");
+        }
+    }, [user, authLoading, navigate]);
 
     // Step 1: Load Products & Check for Redirect Return
     useEffect(() => {
-        loadProducts();
-        checkRedirectReturn();
-    }, []);
+        if (user) { // Only load if user exists
+            loadProducts();
+            checkRedirectReturn();
+        }
+    }, [user]);
 
     const loadProducts = async () => {
         try {
             const data = await fetchProducts();
-            setProducts(data);
+            console.log("Loaded products:", data);
+            if (Array.isArray(data)) {
+                setProducts(data);
+            } else {
+                console.error("Invalid products data format:", data);
+                setProducts([]);
+            }
         } catch (error) {
             console.error("Failed to load products", error);
+            setProducts([]);
         }
     };
 
@@ -194,32 +213,39 @@ export default function PartyCreatePage() {
                     {step === 1 && (
                         <div>
                             <h2 className="text-xl font-bold mb-4">공유할 구독 상품을 선택하세요</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {products.map((product) => (
-                                    <div
-                                        key={product.productId}
-                                        onClick={() => handleProductSelect(product)}
-                                        className="border rounded-lg p-4 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition flex items-center space-x-4"
-                                    >
-                                        <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0">
-                                            {/* 이미지 있으면 표시 */}
-                                            {product.image && (
-                                                <img
-                                                    src={product.image}
-                                                    alt={product.productName}
-                                                    className="w-full h-full object-cover rounded-full"
-                                                />
-                                            )}
+                            {products.length === 0 ? (
+                                <div className="text-center py-10 text-gray-500 bg-gray-100 rounded-lg">
+                                    <p>등록된 구독 상품이 없습니다.</p>
+                                    <p className="text-sm mt-2">관리자에게 문의해주세요.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {products.map((product) => (
+                                        <div
+                                            key={product.productId}
+                                            onClick={() => handleProductSelect(product)}
+                                            className="border rounded-lg p-4 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition flex items-center space-x-4"
+                                        >
+                                            <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0">
+                                                {/* 이미지 있으면 표시 */}
+                                                {product.image && (
+                                                    <img
+                                                        src={product.image}
+                                                        alt={product.productName}
+                                                        className="w-full h-full object-cover rounded-full"
+                                                    />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-lg">{product.productName}</h3>
+                                                <p className="text-gray-600">
+                                                    월 {product.price.toLocaleString()}원
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-bold text-lg">{product.productName}</h3>
-                                            <p className="text-gray-600">
-                                                월 {product.price.toLocaleString()}원
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 

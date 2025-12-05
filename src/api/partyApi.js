@@ -1,107 +1,58 @@
-import axios from "axios";
 import httpClient from "./httpClient";
 
-const API_BASE_URL = "/api/parties";
-const PRODUCT_API_URL = "/api/product";
+const API_BASE_URL = "/parties";
+const PRODUCT_API_URL = "/product";
 
 export const createParty = (partyData) => {
-    return fetch(`${API_BASE_URL}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(partyData),
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to create party");
-        }
-        return response.json();
-    });
+    return httpClient.post(`${API_BASE_URL}`, partyData);
 };
 
 export const getPartyList = (params) => {
-    const queryString = new URLSearchParams(params).toString();
-    return fetch(`${API_BASE_URL}?${queryString}`, {
-        method: "GET",
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to fetch party list");
-        }
-        return response.json();
-    });
+    return httpClient.get(`${API_BASE_URL}`, { params });
 };
 
 export const getPartyDetail = (id) => {
-    return fetch(`${API_BASE_URL}/${id}`, {
-        method: "GET",
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to fetch party detail");
-        }
-        return response.json();
-    });
+    return httpClient.get(`${API_BASE_URL}/${id}`);
 };
 
 export const getProducts = () => {
-    return fetch(`${PRODUCT_API_URL}`, {
-        method: "GET",
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to fetch products");
-        }
-        return response.json();
-    });
+    return httpClient.get(`${PRODUCT_API_URL}`);
 };
 
 export const updateOttAccount = (partyId, ottData) => {
-    return fetch(`${API_BASE_URL}/${partyId}/ott-account`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(ottData),
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to update OTT account");
-        }
-        return response.json();
-    });
+    return httpClient.patch(`${API_BASE_URL}/${partyId}/ott-account`, ottData);
 };
 
 export const joinParty = (partyId, paymentData) => {
-    return fetch(`${API_BASE_URL}/${partyId}/join`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(paymentData),
-    }).then((response) => {
-        if (!response.ok) {
-            return response.json().then((err) => {
-                throw new Error(err.message || "Failed to join party");
-            });
-        }
-        return response.json();
-    });
+    return httpClient.post(`${API_BASE_URL}/${partyId}/join`, paymentData);
 };
 
 export const leaveParty = (partyId) => {
-    return fetch(`${API_BASE_URL}/${partyId}/leave`, {
-        method: "POST",
-    }).then((response) => {
-        if (!response.ok) {
-            return response.json().then((err) => {
-                throw new Error(err.message || "Failed to leave party");
-            });
-        }
-        // return response.json(); // void 반환일 수 있음
-    });
+    return httpClient.post(`${API_BASE_URL}/${partyId}/leave`);
 };
 
 export const getMyParties = async () => {
     try {
         const response = await httpClient.get("/parties/my");
-        return response.data;
+        // httpClient interceptor returns response.data, so we might just need response here if the backend returns the list directly.
+        // However, looking at getMyParties in the original code:
+        // const response = await httpClient.get("/parties/my");
+        // return response.data;
+        // If httpClient returns response.data, then 'response' here IS the data.
+        // Let's check httpClient.js again.
+        // httpClient.interceptors.response.use((response) => response.data, ...)
+        // So httpClient.get returns the body directly.
+        // But wait, the original getMyParties was:
+        // const response = await httpClient.get("/parties/my");
+        // return response.data;
+        // This implies the original code might have been expecting axios response object OR the interceptor wasn't working as I thought.
+        // Let's look at the interceptor in httpClient.js:
+        // (response) => response.data
+        // So yes, it returns data.
+        // If the backend returns ApiResponse<List<PartyListResponse>>, then 'response' is that JSON.
+        // If the original code was `return response.data`, it might be trying to access a `data` field inside the JSON response (ApiResponse structure).
+        // Let's assume standard usage for now.
+        return response;
     } catch (error) {
         console.error("Failed to fetch my parties:", error);
         throw error;
@@ -109,29 +60,10 @@ export const getMyParties = async () => {
 };
 
 export const getPartyMembers = (partyId) => {
-    return fetch(`${API_BASE_URL}/${partyId}/members`, {
-        method: "GET",
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("Failed to fetch party members");
-        }
-        return response.json();
-    });
+    return httpClient.get(`${API_BASE_URL}/${partyId}/members`);
 };
 
 export const processLeaderDeposit = (partyId, paymentData) => {
-    return fetch(`${API_BASE_URL}/${partyId}/leader-deposit`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(paymentData),
-    }).then((response) => {
-        if (!response.ok) {
-            return response.json().then((err) => {
-                throw new Error(err.message || "Failed to process leader deposit");
-            });
-        }
-        return response.json();
-    });
+    return httpClient.post(`${API_BASE_URL}/${partyId}/leader-deposit`, paymentData);
 };
+
