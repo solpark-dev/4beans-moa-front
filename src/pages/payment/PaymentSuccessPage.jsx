@@ -115,7 +115,7 @@ export default function PaymentSuccessPage() {
             <div className="bg-white p-8 rounded-3xl shadow-lg text-center border border-stone-200">
                 {status === "processing" && (
                     <>
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-moa-brand-600 mx-auto mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ea580c] mx-auto mb-4"></div>
                         <h2 className="text-xl font-extrabold text-gray-900">결제 확인 중입니다...</h2>
                         <p className="text-stone-600 mt-2 font-semibold">잠시만 기다려주세요.</p>
                     </>
@@ -126,7 +126,7 @@ export default function PaymentSuccessPage() {
                         <h2 className="text-xl font-extrabold text-gray-900">결제 처리에 실패했습니다.</h2>
                         <button
                             onClick={() => navigate("/")}
-                            className="mt-6 bg-moa-brand-600 hover:bg-moa-brand-700 text-white px-6 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
+                            className="mt-6 bg-[#ea580c] hover:bg-[#c2410c] text-white px-6 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
                         >
                             메인으로 돌아가기
                         </button>

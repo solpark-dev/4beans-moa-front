@@ -189,7 +189,7 @@ export default function PartyCreatePage() {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-moa-brand-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#ea580c] border-t-transparent"></div>
           <p className="mt-4 text-lg text-stone-600 font-medium">
             결제 정보를 확인하고 있습니다...
           </p>
@@ -206,7 +206,7 @@ export default function PartyCreatePage() {
           <h1 className="text-4xl md:text-5xl font-black text-center mb-3">
             파티 만들기
           </h1>
-          <p className="text-center text-lg text-moa-brand-100 font-medium">
+          <p className="text-center text-lg text-[#ffedd5] font-medium">
             몇 단계만 거치면 파티 생성이 완료됩니다
           </p>
         </div>
@@ -229,7 +229,7 @@ export default function PartyCreatePage() {
                         isCompleted
                           ? "bg-emerald-500 shadow-lg"
                           : isActive
-                          ? "bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 shadow-lg scale-110"
+                          ? "bg-gradient-to-r from-[#ea580c] to-[#c2410c] shadow-lg scale-110"
                           : "bg-stone-200"
                       }`}
                     >
@@ -299,7 +299,7 @@ export default function PartyCreatePage() {
                     <div
                       key={product.productId}
                       onClick={() => handleProductSelect(product)}
-                      className="group relative bg-gradient-to-br from-stone-50 to-stone-100 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 border-transparent hover:border-moa-brand-300"
+                      className="group relative bg-gradient-to-br from-stone-50 to-stone-100 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 border-transparent hover:border-[#fdba74]"
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 bg-stone-200 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform">
@@ -317,7 +317,7 @@ export default function PartyCreatePage() {
                           <h3 className="font-black text-xl text-gray-900 mb-1">
                             {product.productName}
                           </h3>
-                          <p className="text-2xl font-black text-moa-brand-600">
+                          <p className="text-2xl font-black text-[#ea580c]">
                             {product.price.toLocaleString()}
                             <span className="text-sm text-gray-600 font-normal ml-1">
                               원/월
@@ -354,7 +354,7 @@ export default function PartyCreatePage() {
                     <p className="font-black text-xl text-gray-900">
                       {selectedProduct.productName}
                     </p>
-                    <p className="text-lg font-bold text-moa-brand-600">
+                    <p className="text-lg font-bold text-[#ea580c]">
                       {selectedProduct.price.toLocaleString()}원/월
                     </p>
                   </div>
@@ -372,7 +372,7 @@ export default function PartyCreatePage() {
                     name="startDate"
                     value={dates.startDate}
                     onChange={handleDateChange}
-                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-moa-brand-500 focus:border-moa-brand-500 outline-none text-lg font-semibold transition-all"
+                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#fff7ed] focus:border-[#fff7ed] outline-none text-lg font-semibold transition-all"
                     required
                   />
                   <div className="mt-3 flex items-start gap-2 bg-blue-50 p-3 rounded-lg">
@@ -393,7 +393,7 @@ export default function PartyCreatePage() {
                     name="endDate"
                     value={dates.endDate}
                     onChange={handleDateChange}
-                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-moa-brand-500 focus:border-moa-brand-500 outline-none text-lg font-semibold transition-all"
+                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#fff7ed] focus:border-[#fff7ed] outline-none text-lg font-semibold transition-all"
                     required
                   />
                 </div>
@@ -410,7 +410,7 @@ export default function PartyCreatePage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 text-white rounded-xl font-black hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-xl font-black hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
                   다음
                   <ArrowRight className="w-5 h-5" />
@@ -448,7 +448,7 @@ export default function PartyCreatePage() {
                   <span className="text-xl font-black text-gray-900">
                     결제 금액 (보증금)
                   </span>
-                  <span className="text-3xl font-black text-moa-brand-600">
+                  <span className="text-3xl font-black text-[#ea580c]">
                     {selectedProduct.price.toLocaleString()}
                     <span className="text-lg text-gray-600 font-normal ml-1">
                       원
@@ -484,7 +484,7 @@ export default function PartyCreatePage() {
                 <button
                   onClick={handlePayment}
                   disabled={loading}
-                  className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 text-white rounded-xl font-black text-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-xl font-black text-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   <CreditCard className="w-6 h-6" />
                   {loading ? "처리 중..." : "결제하고 파티 만들기"}
@@ -530,7 +530,7 @@ export default function PartyCreatePage() {
                     value={ottInfo.ottId}
                     onChange={handleOttChange}
                     placeholder="example@email.com"
-                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-moa-brand-500 focus:border-moa-brand-500 outline-none text-lg font-semibold transition-all"
+                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#fff7ed] focus:border-[#fff7ed] outline-none text-lg font-semibold transition-all"
                     required
                   />
                 </div>
@@ -546,7 +546,7 @@ export default function PartyCreatePage() {
                     value={ottInfo.ottPassword}
                     onChange={handleOttChange}
                     placeholder="비밀번호를 입력하세요"
-                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-moa-brand-500 focus:border-moa-brand-500 outline-none text-lg font-semibold transition-all"
+                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#fff7ed] focus:border-[#fff7ed] outline-none text-lg font-semibold transition-all"
                     required
                   />
                   <div className="mt-3 flex items-start gap-2 bg-blue-50 p-3 rounded-lg">
@@ -560,7 +560,7 @@ export default function PartyCreatePage() {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 text-white rounded-xl font-black text-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-xl font-black text-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
               >
                 <Check className="w-6 h-6" />
                 저장하고 완료하기

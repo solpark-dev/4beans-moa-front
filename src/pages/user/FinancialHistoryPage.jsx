@@ -24,7 +24,7 @@ export default function FinancialHistoryPage() {
                 <div className="flex border-b border-gray-200">
                     <button
                         className={`flex-1 py-4 text-sm font-semibold transition-colors ${activeTab === "payment"
-                            ? "text-moa-brand-600 border-b-2 border-moa-brand-600 bg-moa-brand-50"
+                            ? "text-[#ea580c] border-b-2 border-[#ea580c] bg-[#fff7ed]"
                             : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
                         onClick={() => setActiveTab("payment")}
@@ -33,7 +33,7 @@ export default function FinancialHistoryPage() {
                     </button>
                     <button
                         className={`flex-1 py-4 text-sm font-semibold transition-colors ${activeTab === "deposit"
-                            ? "text-moa-brand-600 border-b-2 border-moa-brand-600 bg-moa-brand-50"
+                            ? "text-[#ea580c] border-b-2 border-[#ea580c] bg-[#fff7ed]"
                             : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
                         onClick={() => setActiveTab("deposit")}
@@ -42,7 +42,7 @@ export default function FinancialHistoryPage() {
                     </button>
                     <button
                         className={`flex-1 py-4 text-sm font-semibold transition-colors ${activeTab === "settlement"
-                            ? "text-moa-brand-600 border-b-2 border-moa-brand-600 bg-moa-brand-50"
+                            ? "text-[#ea580c] border-b-2 border-[#ea580c] bg-[#fff7ed]"
                             : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
                         onClick={() => setActiveTab("settlement")}

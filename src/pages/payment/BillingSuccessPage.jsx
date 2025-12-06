@@ -94,7 +94,7 @@ export default function BillingSuccessPage() {
                 <div className="bg-white rounded-3xl shadow-lg p-8 border border-stone-200">
                     {status === "processing" && (
                         <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-moa-brand-600 border-t-transparent mb-4"></div>
+                            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#ea580c] border-t-transparent mb-4"></div>
                             <h2 className="text-2xl font-extrabold text-gray-900 mb-2">
                                 {message}
                             </h2>
@@ -149,7 +149,7 @@ export default function BillingSuccessPage() {
                             <p className="text-stone-600 font-semibold mb-6">{message}</p>
                             <button
                                 onClick={() => navigate("/user/my-wallet")}
-                                className="px-6 py-3 bg-moa-brand-600 hover:bg-moa-brand-700 text-white rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
+                                className="px-6 py-3 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
                             >
                                 지갑으로 돌아가기
                             </button>

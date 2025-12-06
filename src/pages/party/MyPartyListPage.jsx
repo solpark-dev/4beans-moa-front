@@ -106,7 +106,7 @@ export default function MyPartyListPage() {
       {/* Hero Header */}
       <div className="bg-gradient-to-r from-orange-950 to-stone-900 text-white relative overflow-hidden">
         {/* Blob animations */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-moa-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#fff7ed] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-rose-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
@@ -121,7 +121,7 @@ export default function MyPartyListPage() {
             </div>
             <button
               onClick={() => navigate("/party/create")}
-              className="flex items-center gap-2 px-6 py-3 bg-moa-brand-600 hover:bg-moa-brand-700 text-white rounded-2xl font-bold transition-all duration-200 hover:translate-y-1 shadow-lg"
+              className="flex items-center gap-2 px-6 py-3 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-2xl font-bold transition-all duration-200 hover:translate-y-1 shadow-lg"
             >
               <Plus className="w-5 h-5" />
               새 파티 만들기
@@ -138,7 +138,7 @@ export default function MyPartyListPage() {
             <div className="bg-white rounded-3xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-stone-200">
               <div className="flex items-center justify-between mb-3">
                 <div className="w-12 h-12 bg-stone-100 rounded-xl flex items-center justify-center shadow">
-                  <Users className="w-6 h-6 text-moa-brand-600" />
+                  <Users className="w-6 h-6 text-[#ea580c]" />
                 </div>
                 <span className="text-3xl font-black text-gray-900">
                   {stats.total}
@@ -204,13 +204,13 @@ export default function MyPartyListPage() {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => navigate("/party")}
-                  className="px-6 py-3 bg-moa-brand-600 hover:bg-moa-brand-700 text-white rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
+                  className="px-6 py-3 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
                 >
                   파티 찾아보기
                 </button>
                 <button
                   onClick={() => navigate("/party/create")}
-                  className="px-6 py-3 bg-white border-2 border-moa-brand-600 text-moa-brand-600 rounded-2xl font-bold hover:bg-moa-brand-50 transition-all duration-200"
+                  className="px-6 py-3 bg-white border-2 border-[#ea580c] text-[#ea580c] rounded-2xl font-bold hover:bg-[#fff7ed] transition-all duration-200"
                 >
                   파티 만들기
                 </button>
@@ -260,7 +260,7 @@ export default function MyPartyListPage() {
                                       <Crown className="w-3 h-3" /> 파티장
                                     </span>
                                   </div>
-                                  <h3 className="text-xl font-black text-gray-900 group-hover:text-moa-brand-600 transition-colors">
+                                  <h3 className="text-xl font-black text-gray-900 group-hover:text-[#ea580c] transition-colors">
                                     {item.productName}
                                   </h3>
                                 </div>
@@ -292,7 +292,7 @@ export default function MyPartyListPage() {
                                 </p>
                               </div>
 
-                              <div className="mt-4 flex items-center justify-end text-moa-brand-600 group-hover:text-moa-brand-700 font-bold text-sm">
+                              <div className="mt-4 flex items-center justify-end text-[#ea580c] group-hover:text-[#c2410c] font-bold text-sm">
                                 <span>상세 보기</span>
                                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                               </div>
@@ -343,7 +343,7 @@ export default function MyPartyListPage() {
                                       {badge.icon} {badge.text}
                                     </span>
                                   </div>
-                                  <h3 className="text-xl font-black text-gray-900 group-hover:text-moa-brand-600 transition-colors">
+                                  <h3 className="text-xl font-black text-gray-900 group-hover:text-[#ea580c] transition-colors">
                                     {item.productName}
                                   </h3>
                                   <p className="text-sm text-stone-600 mt-1">
@@ -378,7 +378,7 @@ export default function MyPartyListPage() {
                                 </p>
                               </div>
 
-                              <div className="mt-4 flex items-center justify-end text-moa-brand-600 group-hover:text-moa-brand-700 font-bold text-sm">
+                              <div className="mt-4 flex items-center justify-end text-[#ea580c] group-hover:text-[#c2410c] font-bold text-sm">
                                 <span>상세 보기</span>
                                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                               </div>

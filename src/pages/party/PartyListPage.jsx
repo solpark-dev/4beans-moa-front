@@ -39,7 +39,7 @@ export default function PartyListPage() {
   const getStatusBadge = (status) => {
     const badges = {
       RECRUITING: {
-        bg: "bg-moa-brand-100 text-moa-brand-700",
+        bg: "bg-[#ffedd5] text-[#c2410c]",
         text: "모집중",
         icon: "✨",
       },
@@ -66,7 +66,7 @@ export default function PartyListPage() {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-moa-brand-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#ea580c] border-t-transparent"></div>
           <p className="mt-4 text-lg text-stone-600 font-medium">
             파티 불러오는 중...
           </p>
@@ -82,7 +82,7 @@ export default function PartyListPage() {
         {/* Warm Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-orange-950 to-stone-900 opacity-90"></div>
         {/* Blob Animations */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-moa-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-[#fff7ed] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-rose-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -90,7 +90,7 @@ export default function PartyListPage() {
             <h1 className="text-5xl md:text-6xl font-black mb-4 tracking-tight">
               <span className="inline-block animate-pulse">🎉</span> 파티 찾기
             </h1>
-            <p className="text-xl md:text-2xl text-moa-brand-100 font-medium mb-8">
+            <p className="text-xl md:text-2xl text-[#ffedd5] font-medium mb-8">
               함께 나누면 더 저렴해요. 지금 파티에 참여하세요!
             </p>
 
@@ -128,7 +128,7 @@ export default function PartyListPage() {
                 onClick={() => setFilterStatus(filter.value)}
                 className={`px-6 py-2.5 rounded-full font-semibold whitespace-nowrap transition-all duration-200 ${
                   filterStatus === filter.value
-                    ? "bg-moa-brand-50 text-moa-brand-700 border border-moa-brand-100 shadow-lg scale-105"
+                    ? "bg-[#fff7ed] text-[#c2410c] border border-[#ffedd5] shadow-lg scale-105"
                     : "bg-white text-stone-600 border border-stone-200 hover:bg-stone-50"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function PartyListPage() {
               {!searchQuery && (
                 <button
                   onClick={() => navigate("/party/create")}
-                  className="mt-6 px-8 py-3 bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 text-white rounded-2xl font-bold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                  className="mt-6 px-8 py-3 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-2xl font-bold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
                 >
                   파티 만들기
                 </button>
@@ -185,7 +185,7 @@ export default function PartyListPage() {
                   {/* Card Container */}
                   <div className="relative h-full bg-white rounded-3xl border border-stone-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group-hover:-translate-y-1">
                     {/* Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-moa-brand-50 to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#fff7ed] to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     {/* Content */}
                     <div className="relative p-6">
@@ -205,7 +205,7 @@ export default function PartyListPage() {
                               </span>
                             )}
                           </div>
-                          <h3 className="text-2xl font-black text-stone-900 group-hover:text-moa-brand-600 transition-colors">
+                          <h3 className="text-2xl font-black text-stone-900 group-hover:text-[#ea580c] transition-colors">
                             {party.productName}
                           </h3>
                         </div>
@@ -276,7 +276,7 @@ export default function PartyListPage() {
                             <p className="text-xs text-stone-500 line-through">
                               {party.monthlyFee.toLocaleString()}원
                             </p>
-                            <p className="text-sm font-bold text-moa-brand-600">
+                            <p className="text-sm font-bold text-[#ea580c]">
                               {Math.round(
                                 ((party.monthlyFee - perPersonFee) /
                                   party.monthlyFee) *
@@ -293,7 +293,7 @@ export default function PartyListPage() {
                         className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${
                           isFull
                             ? "bg-stone-100 text-stone-400 cursor-not-allowed"
-                            : "bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 text-white hover:shadow-lg hover:scale-[1.02]"
+                            : "bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white hover:shadow-lg hover:scale-[1.02]"
                         }`}
                         disabled={isFull}
                       >
@@ -311,7 +311,7 @@ export default function PartyListPage() {
       {/* Floating Create Button */}
       <button
         onClick={() => navigate("/party/create")}
-        className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-moa-brand-600 to-moa-brand-700 text-white rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-200 group z-50"
+        className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-200 group z-50"
       >
         <Sparkles className="w-8 h-8 group-hover:rotate-12 transition-transform" />
       </button>
