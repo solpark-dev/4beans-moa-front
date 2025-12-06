@@ -53,12 +53,8 @@ export const useChatBot = () => {
       setLoading(true);
 
       try {
-        const response = await sendChatMessage(text);
-        const raw = response?.data;
-
-        // 📌 신 백엔드 응답 구조
-        const reply =
-          raw?.data?.reply ?? "응답을 가져오지 못했어! 다시 시도해줘.";
+        const chat = await sendChatMessage(text);
+        const reply = chat?.reply ?? "응답을 가져오지 못했어!";
 
         pushMessage(createMessage("bot", reply));
       } catch (e) {
