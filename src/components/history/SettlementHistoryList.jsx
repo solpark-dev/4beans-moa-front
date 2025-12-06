@@ -34,15 +34,20 @@ export default function SettlementHistoryList() {
                     className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
                 >
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-gray-500">{settlement.settlementDate}</span>
+                        <span className="text-xs text-gray-500">
+                            {settlement.settlementDate ? new Date(settlement.settlementDate).toLocaleDateString() : "-"}
+                        </span>
                         <span className="px-2 py-1 text-xs font-bold rounded-full bg-purple-100 text-purple-700">
-                            정산완료
+                            {settlement.settlementStatus === "COMPLETED" ? "정산완료" : "처리중"}
                         </span>
                     </div>
                     <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-gray-900">{settlement.partyTitle}</h3>
+                        <div>
+                            <h3 className="font-bold text-gray-900">파티 ID: {settlement.partyId}</h3>
+                            <p className="text-xs text-gray-500">{settlement.settlementMonth}</p>
+                        </div>
                         <span className="font-bold text-lg">
-                            {settlement.amount.toLocaleString()}원
+                            {settlement.netAmount?.toLocaleString() || 0}원
                         </span>
                     </div>
                 </div>

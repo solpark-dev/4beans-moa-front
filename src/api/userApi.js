@@ -41,4 +41,9 @@ export const resetPwdByToken = (data) =>
 export const withdrawUser = (data) =>
   httpClient.post("/users/delete", data);
 
+/* =========================== 지갑 관련 =========================== */
+export const getMyAccount = () =>
+  httpClient.get("/users/me/account");
 
+export const getMyCard = () =>
+  httpClient.get("/users/me/card");

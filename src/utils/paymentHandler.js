@@ -13,14 +13,25 @@ export const requestPayment = (orderName, amount, customerName) => {
         }
         const tossPayments = window.TossPayments(clientKey);
 
+        const orderId = "ORDER_" + new Date().getTime();
+
         tossPayments
             .requestPayment("카드", {
                 amount: amount,
-                orderId: "ORDER_" + new Date().getTime(),
+                orderId: orderId,
                 orderName: orderName,
                 customerName: customerName,
                 successUrl: window.location.origin + "/payment/success",
                 failUrl: window.location.origin + "/payment/fail",
+            })
+            .then(() => {
+                // Toss Payments는 성공 시 successUrl로 리다이렉트하므로
+                // 여기서는 실제로 resolve가 호출되지 않습니다.
+                // 하지만 명시적으로 resolve를 추가합니다.
+                resolve({
+                    orderId: orderId,
+                    amount: amount,
+                });
             })
             .catch((error) => {
                 if (error.code === "USER_CANCEL") {
