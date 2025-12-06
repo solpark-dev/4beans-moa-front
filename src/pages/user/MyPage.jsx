@@ -29,6 +29,9 @@ export default function MyPage() {
 
   if (!user) return null;
 
+  const marketingAgreed =
+    user.agreeMarketing ?? user.marketing ?? false;
+
   const googleConn = user.oauthConnections?.find(
     (c) => c.provider === "google" && !c.releaseDate
   );
@@ -210,10 +213,8 @@ export default function MyPage() {
                 />
                 <InfoRow
                   label="마케팅 동의"
-                  value={user.marketing ? "수신 동의됨" : "미동의"}
-                  valueClass={
-                    user.marketing ? "text-emerald-600" : "text-slate-400"
-                  }
+                  value={marketingAgreed ? "수신 동의됨" : "미동의"}
+                  valueClass={marketingAgreed ? "text-emerald-600" : "text-slate-400"}
                 />
               </InfoCard>
 
@@ -280,13 +281,11 @@ function MenuButton({
       className={`
         w-full justify-start h-11 px-4 text-sm font-medium rounded-lg
         transition-all duration-200
-        ${
-          active
-            ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+        ${active
+          ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
         }
-        ${
-          isDestructive ? "text-red-600 hover:text-red-700 hover:bg-red-50" : ""
+        ${isDestructive ? "text-red-600 hover:text-red-700 hover:bg-red-50" : ""
         }
       `}
     >

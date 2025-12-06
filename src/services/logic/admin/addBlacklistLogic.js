@@ -1,49 +1,95 @@
-// src/services/logic/admin/addBlacklistLogic.js
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { addUserBlacklist } from "@/api/adminUserApi";
+import { useAddBlacklistStore } from "@/store/admin/addBlacklistStore";
 
-import httpClient from "@/api/httpClient";
-import { useBlacklistStore } from "@/store/admin/blacklistStore";
+export const useAddBlacklistLogic = () => {
+  const navigate = useNavigate();
 
-export function useAddBlacklistLogic() {
-  const { userId, reasonType, reasonDetail } = useBlacklistStore();
+  const {
+    userId,
+    reasonType,
+    reasonDetail,
+    submitting,
+    error,
+    setUserId,
+    setReasonType,
+    setReasonDetail,
+    setSubmitting,
+    setError,
+    reset,
+  } = useAddBlacklistStore();
 
-  const submit = async () => {
-    if (!userId) {
-      alert("이메일을 입력해 주세요.");
-      return false;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("user");
+    if (user) {
+      setUserId(user);
     }
+  }, [setUserId]);
 
-    let reason = "";
+  const handleChangeUserId = (value) => {
+    setUserId(value);
+  };
 
-    if (reasonType === "DIRECT") {
-      if (!reasonDetail.trim()) {
-        alert("직접입력 사유를 입력해 주세요.");
-        return false;
-      }
-      reason = reasonDetail.trim();
-    } else {
-      reason = reasonType;
+  const handleChangeReasonType = (value) => {
+    setReasonType(value);
+  };
+
+  const handleChangeReasonDetail = (value) => {
+    setReasonDetail(value);
+  };
+
+  const handleSubmit = async () => {
+    if (!userId) {
+      alert("회원 아이디(이메일)를 입력하세요.");
+      return;
+    }
+    if (!reasonType) {
+      alert("사유 구분을 선택하세요.");
+      return;
     }
 
     try {
-      const res = await httpClient.post("/admin/blacklist/add", {
+      setSubmitting(true);
+      setError(null);
+
+      const body = await addUserBlacklist({
         userId,
-        reason,
+        reasonType,
+        reasonDetail,
       });
 
-      if (res.success) return true;
+      if (!body.success) {
+        throw new Error(body.error?.message || "블랙리스트 등록에 실패했습니다.");
+      }
 
-      alert(res.error?.message || "블랙리스트 등록 실패");
-      return false;
-    } catch (err) {
-      const msg =
-        err.response?.data?.error?.message ||
-        err.response?.data?.message ||
-        "서버 오류가 발생했습니다.";
-
-      alert(msg);
-      return false;
+      alert("블랙리스트가 등록되었습니다.");
+      navigate(`/admin/users/${encodeURIComponent(userId)}`);
+      reset();
+    } catch (e) {
+      setError(e.message);
+      alert(e.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  return { submit };
-}
+  const handleCancel = () => {
+    reset();
+    navigate(-1);
+  };
+
+  return {
+    userId,
+    reasonType,
+    reasonDetail,
+    submitting,
+    error,
+    handleChangeUserId,
+    handleChangeReasonType,
+    handleChangeReasonDetail,
+    handleSubmit,
+    handleCancel,
+  };
+};

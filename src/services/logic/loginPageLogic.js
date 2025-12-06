@@ -27,6 +27,11 @@ export const useLoginPageLogic = () => {
           response.data;
 
         setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
+        const me = await httpClient.get("/users/me");
+
+        if (me?.success) {
+          useAuthStore.getState().setUser(me.data);
+        }
 
         navigate("/", { replace: true });
       } else {
