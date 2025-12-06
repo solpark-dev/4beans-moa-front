@@ -28,7 +28,6 @@ export default function AddUserPage() {
     <div className="w-full pb-20 bg-slate-50 text-slate-900">
       <section className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-20 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* 왼쪽 텍스트 영역 */}
           <div className="text-center lg:text-left max-w-xl">
             <div className="inline-flex items-center rounded-full border border-white/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold mb-4 backdrop-blur">
               <span className="flex h-2 w-2 rounded-full bg-emerald-300 mr-2" />
@@ -46,7 +45,6 @@ export default function AddUserPage() {
             </p>
           </div>
 
-          {/* 오른쪽 카드 (Form 영역) */}
           <div className="w-full max-w-xl">
             <form onSubmit={handleSubmit}>
               <Card className="w-full bg-white border border-gray-100 shadow-2xl rounded-3xl">
@@ -77,7 +75,6 @@ export default function AddUserPage() {
 
                   {!isSocial && (
                     <>
-                      {/* 이메일 입력 */}
                       <div className="space-y-1.5">
                         <Label htmlFor="email" className="text-xs md:text-sm text-gray-800">
                           이메일(아이디)
@@ -92,13 +89,11 @@ export default function AddUserPage() {
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
-                        {/* ✅ 에러 메시지 표시 */}
                         <p className={`text-xs mt-1 ${errors.email.isError ? "text-red-500" : "text-green-600"}`}>
                           {errors.email.message}
                         </p>
                       </div>
 
-                      {/* 비밀번호 입력 */}
                       <div className="space-y-1.5">
                         <Label htmlFor="password" className="text-xs md:text-sm text-gray-800">
                           비밀번호
@@ -117,7 +112,6 @@ export default function AddUserPage() {
                         </p>
                       </div>
 
-                      {/* 비밀번호 확인 */}
                       <div className="space-y-1.5">
                         <Label htmlFor="passwordCheck" className="text-xs md:text-sm text-gray-800">
                           비밀번호 확인
@@ -138,7 +132,6 @@ export default function AddUserPage() {
                     </>
                   )}
 
-                  {/* 닉네임 입력 */}
                   <div className="space-y-1.5">
                     <Label htmlFor="nickname" className="text-xs md:text-sm text-gray-800">
                       닉네임
@@ -157,7 +150,6 @@ export default function AddUserPage() {
                     </p>
                   </div>
 
-                  {/* 휴대폰 번호 & 본인인증 */}
                   <div className="space-y-1.5">
                     <Label htmlFor="phone" className="text-xs md:text-sm text-gray-800">
                       휴대폰 번호
@@ -184,13 +176,11 @@ export default function AddUserPage() {
                     </p>
                   </div>
 
-                  {/* 프로필 이미지 */}
                   <div className="space-y-2">
                     <Label className="text-xs md:text-sm text-gray-800">
                       프로필 이미지
                     </Label>
                     <div className="flex items-center gap-4">
-                      {/* 미리보기 영역 */}
                       <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center text-gray-400 text-xs relative">
                         {form.previewUrl ? (
                           <img
@@ -211,7 +201,6 @@ export default function AddUserPage() {
                     </div>
                   </div>
 
-                  {/* 마케팅 동의 */}
                   <div className="rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-xs md:text-sm text-gray-700 flex items-start gap-2">
                     <input
                       id="agreeMarketing"

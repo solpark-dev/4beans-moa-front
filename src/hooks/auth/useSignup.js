@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import httpClient from "@/api/httpClient";
+import { useSignupStore } from "@/store/user/addUserStore";
+import { signup, checkCommon } from "@/api/authApi";
 
 const BAD_WORDS = [
   "fuck", "shit", "bitch", "asshole", "개새", "개새끼", "씨발", "시발",
@@ -26,24 +28,7 @@ export const useSignup = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    passwordCheck: "",
-    nickname: "",
-    phone: "",
-    agreeMarketing: false,
-    profileImage: null,
-    previewUrl: "",
-  });
-
-  const [errors, setErrors] = useState({
-    email: { message: "", isError: false },
-    nickname: { message: "", isError: false },
-    phone: { message: "", isError: false },
-    password: { message: "", isError: false },
-    passwordCheck: { message: "", isError: false },
-  });
+  const { form, errors, setField, setErrorMessage, reset } = useSignupStore();
 
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
@@ -55,36 +40,31 @@ export const useSignup = () => {
   const providerUserId = searchParams.get("providerUserId");
   const isSocial = !!(provider && providerUserId);
 
-  const setErrorMessage = (name, message, isError) => {
-    setErrors((prev) => ({
-      ...prev,
-      [name]: { message, isError },
-    }));
-  };
-
   useEffect(() => {
     return () => {
       if (form.previewUrl) {
         URL.revokeObjectURL(form.previewUrl);
       }
+      reset();
     };
-  }, [form.previewUrl]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
-    setForm((prev) => ({ ...prev, [name]: newValue }));
+    setField(name, newValue);
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      setForm((prev) => ({ ...prev, profileImage: file, previewUrl: url }));
+      setField("profileImage", file);
+      setField("previewUrl", url);
     }
   };
 
-  const handleBlur = () => { };
+  const handleBlur = () => {};
 
   useEffect(() => {
     if (isSocial) return;
@@ -99,9 +79,11 @@ export const useSignup = () => {
         return;
       }
 
+      setErrorMessage("email", "확인 중...", false);
+
       try {
-        const res = await httpClient.post("/users/check", { type: "email", value: form.email });
-        const available = res.data?.available ?? res.data?.data?.available;
+        const res = await checkCommon({ type: "email", value: form.email });
+        const available = res.data?.available ?? res.data?.data?.available ?? true;
         if (available) {
           setErrorMessage("email", "사용 가능한 이메일입니다.", false);
         } else {
@@ -109,6 +91,7 @@ export const useSignup = () => {
         }
       } catch (error) {
         console.error(error);
+        setErrorMessage("email", "중복 확인 불가 (서버 통신 오류)", false);
       }
     };
 
@@ -118,7 +101,6 @@ export const useSignup = () => {
 
   useEffect(() => {
     if (isSocial) return;
-
     if (!form.password) {
       setErrorMessage("password", "", false);
       return;
@@ -132,7 +114,6 @@ export const useSignup = () => {
 
   useEffect(() => {
     if (isSocial) return;
-
     if (!form.passwordCheck) {
       setErrorMessage("passwordCheck", "", false);
       return;
@@ -160,9 +141,11 @@ export const useSignup = () => {
         return;
       }
 
+      setErrorMessage("nickname", "확인 중...", false);
+
       try {
-        const res = await httpClient.post("/users/check", { type: "nickname", value: form.nickname });
-        const available = res.data?.available ?? res.data?.data?.available;
+        const res = await checkCommon({ type: "nickname", value: form.nickname });
+        const available = res.data?.available ?? res.data?.data?.available ?? true;
         if (available) {
           setErrorMessage("nickname", "사용 가능한 닉네임입니다.", false);
         } else {
@@ -170,6 +153,7 @@ export const useSignup = () => {
         }
       } catch (error) {
         console.error(error);
+        setErrorMessage("nickname", "중복 확인 불가 (서버 오류)", false);
       }
     };
 
@@ -192,11 +176,10 @@ export const useSignup = () => {
         if (!rsp.success) return;
         try {
           const verifyRes = await httpClient.post("/users/pass/verify", { imp_uid: rsp.imp_uid });
-          const { phone, ci, di } = verifyRes.data;
+          const { phone, ci } = verifyRes.data; 
 
-          setForm((prev) => ({ ...prev, phone }));
+          setField("phone", phone);
           sessionStorage.setItem("PASS_CI", ci);
-          sessionStorage.setItem("PASS_DI", di);
           setErrorMessage("phone", "본인인증 성공!", false);
         } catch (err) {
           alert("본인인증 검증 오류");
@@ -211,77 +194,45 @@ export const useSignup = () => {
     e.preventDefault();
 
     if (!isSocial) {
-      if (!form.email) {
-        alert("이메일을 입력하세요.");
-        emailRef.current?.focus();
-        return;
-      }
-      if (errors.email.isError) {
+      if (!form.email || errors.email.isError) {
         alert("이메일을 확인해주세요.");
         emailRef.current?.focus();
         return;
       }
-
-      if (!form.password) {
-        alert("비밀번호를 입력하세요.");
+      if (!form.password || errors.password.isError) {
+        alert("비밀번호를 확인해주세요.");
         passwordRef.current?.focus();
         return;
       }
-      if (errors.password.isError) {
-        alert("비밀번호 형식을 확인해주세요.");
-        passwordRef.current?.focus();
-        return;
-      }
-
-      if (!form.passwordCheck) {
-        alert("비밀번호 확인을 입력하세요.");
-        passwordCheckRef.current?.focus();
-        return;
-      }
-      if (form.password !== form.passwordCheck) {
-        alert("비밀번호가 일치하지 않습니다.");
+      if (!form.passwordCheck || form.password !== form.passwordCheck) {
+        alert("비밀번호 일치 여부를 확인해주세요.");
         passwordCheckRef.current?.focus();
         return;
       }
     }
 
-    if (!form.nickname) {
-      alert("닉네임을 입력하세요.");
-      nicknameRef.current?.focus();
-      return;
-    }
-    if (errors.nickname.isError) {
+    if (!form.nickname || errors.nickname.isError) {
       alert("닉네임을 확인해주세요.");
       nicknameRef.current?.focus();
       return;
     }
 
     if (!form.phone) {
-      alert("휴대폰 번호를 입력(본인인증)하세요.");
+      alert("본인인증을 진행해주세요.");
       phoneRef.current?.focus();
       return;
     }
 
-    const lowerNickname = form.nickname.toLowerCase();
-    const hasBadWord = BAD_WORDS.some((bad) => lowerNickname.includes(bad));
-    if (hasBadWord) {
-      alert("닉네임에 부적절한 단어가 포함되어 있습니다.");
-      nicknameRef.current?.focus();
-      return;
-    }
-
     const ci = sessionStorage.getItem("PASS_CI");
-    const di = sessionStorage.getItem("PASS_DI");
-    if (!ci || !di) {
-      alert("본인인증이 필요합니다.");
-      return;
+    if (!ci) {
+       alert("본인인증 정보(CI)가 없습니다. 본인인증을 다시 진행해주세요.");
+       return;
     }
 
     let base64 = null;
     if (form.profileImage) {
       base64 = await toBase64(form.profileImage);
     }
-
     const payload = {
       userId: isSocial ? providerUserId : form.email,
       password: isSocial ? null : form.password,
@@ -290,25 +241,23 @@ export const useSignup = () => {
       phone: form.phone,
       agreeMarketing: form.agreeMarketing,
       profileImageBase64: base64,
-      ci,
-      di,
+      ci: ci, 
       provider: isSocial ? provider : null,
       providerUserId: isSocial ? providerUserId : null,
     };
 
     try {
-      const res = await httpClient.post("/users/add", payload);
-      const isSuccess = res.success || res.data?.success;
-
-      if (isSuccess) {
-        alert("회원가입이 완료되었습니다.");
-        navigate("/login");
+      await signup(payload);
+      
+      if (isSocial) {
+          alert("회원가입이 완료되었습니다. 로그인해주세요.");
+          navigate("/user/login");
       } else {
-        const msg = res.error?.message || res.data?.message || res.message || "회원가입 실패";
-        alert(msg);
+          alert("인증 이메일이 발송되었습니다.\n이메일을 확인하여 가입을 완료해주세요.");
+          navigate("/user/login");
       }
     } catch (err) {
-      const msg = err.response?.data?.error?.message || err.response?.data?.message || "회원가입 중 오류가 발생했습니다.";
+      const msg = err.response?.data?.message || err.message || "회원가입 실패";
       alert(msg);
     }
   };
@@ -317,13 +266,7 @@ export const useSignup = () => {
     form,
     errors,
     isSocial,
-    refs: {
-      emailRef,
-      passwordRef,
-      passwordCheckRef,
-      nicknameRef,
-      phoneRef,
-    },
+    refs: { emailRef, passwordRef, passwordCheckRef, nicknameRef, phoneRef },
     handleChange,
     handleBlur,
     handleImageChange,

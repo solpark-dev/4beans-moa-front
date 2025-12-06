@@ -19,6 +19,11 @@ export default defineConfig({
       pfx: fs.readFileSync("./moa-ssl.p12"),
       passphrase: "moa1234",
     },
+    hmr: {
+      host: "192.168.55.115.nip.io",
+      protocol: "wss",
+      clientPort: 5173,
+    },
     proxy: {
       "/api": {
         target: "https://localhost:8443",

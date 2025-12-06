@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom"; // Navigate는 이제 필요 없어서 제거했습니다.
+import { Routes, Route } from "react-router-dom";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
@@ -27,6 +27,7 @@ import MyPartyListPage from "./pages/party/MyPartyListPage";
 import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 import AdminUserListPage from "@/pages/admin/AdminUserListPage";
 import AdminUserDetailPage from "@/pages/admin/AdminUserDetailPage";
+import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -44,10 +45,7 @@ import PaymentSuccessPage from "./pages/payment/PaymentSuccessPage";
 
 import SupportPage from "./pages/community/SupportPage";
 
-// requireLogin import는 ProtectedRoute로 대체하므로 삭제했습니다.
-
 export default function App() {
-  // ✅ [수정 1] 전역 링크 핸들러 훅 실행
   useGlobalLinkHandler();
 
   return (
@@ -72,7 +70,7 @@ export default function App() {
           <Route path="/find-email" element={<FindIdPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
-          
+
           {/* User 도메인 (Private - ProtectedRoute 적용) */}
           <Route
             path="/mypage"
@@ -98,7 +96,7 @@ export default function App() {
             path="/my-parties"
             element={<ProtectedRoute element={<MyPartyListPage />} />}
           />
-          
+
           {/* ✅ [수정 2] 복잡한 조건부 렌더링을 ProtectedRoute로 통일 */}
           <Route
             path="/mypage/edit"
@@ -110,7 +108,14 @@ export default function App() {
             element={<ProtectedRoute element={<AddBlacklistPage />} />}
           />
           <Route path="/admin/users" element={<AdminUserListPage />} />
-          <Route path="/admin/users/:userId" element={<AdminUserDetailPage />} />
+          <Route
+            path="/admin/users/:userId"
+            element={<AdminUserDetailPage />}
+          />
+          <Route
+            path="/admin/blacklist/delete"
+            element={<AdminBlacklistDeletePage />}
+          />
 
           {/* Product (Public) */}
           <Route path="/product" element={<GetProductList />} />

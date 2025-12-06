@@ -1,10 +1,15 @@
-// src/hooks/common/useHeader.js
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 
 export function useHeaderLogic() {
-  const { user, fetchSession, logout: storeLogout, accessToken } = useAuthStore();
+  const {
+    user,
+    fetchSession,
+    logout: storeLogout,
+    accessToken,
+    setUser,
+  } = useAuthStore();
   const navigate = useNavigate();
   const [isAdminMode, setIsAdminMode] = useState(true);
 
@@ -22,7 +27,24 @@ export function useHeaderLogic() {
 
   const handleAdminSwitch = () => {
     setIsAdminMode((prev) => !prev);
-    alert(isAdminMode ? "일반 관리자 모드로 전환" : "슈퍼 관리자 모드로 전환");
+
+    if (user?.email === "admin@admin.com") {
+      setUser({
+        ...user,
+        email: "admin@moa.com",
+        nickname: "MoA관리자",
+        role: "ADMIN",
+      });
+      alert("일반 관리자 모드로 전환");
+    } else {
+      setUser({
+        ...user,
+        email: "admin@admin.com",
+        nickname: "슈퍼관리자",
+        role: "ADMIN",
+      });
+      alert("슈퍼 관리자 모드로 전환");
+    }
   };
 
   const isAdmin = user?.role === "ADMIN" || user?.email === "admin@admin.com";
@@ -33,7 +55,9 @@ export function useHeaderLogic() {
       : `https://localhost:8443${user.profileImage}`
     : "";
 
-  const userInitial = user?.nickname ? user.nickname.substring(0, 1).toUpperCase() : "U";
+  const userInitial = user?.nickname
+    ? user.nickname.substring(0, 1).toUpperCase()
+    : "U";
   const displayNickname = user?.nickname || "사용자";
   const displayEmail = user?.email || "";
 

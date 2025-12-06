@@ -3,8 +3,8 @@ import httpClient from "./httpClient";
 export const fetchAdminUsers = (params) =>
   httpClient.get("/admin/users", { params });
 
-export const fetchAdminUserDetail = (userId) =>
-  httpClient.get(`/admin/users/${userId}`);
+export const getAdminUserDetail = (userId) =>
+  httpClient.get(`/admin/users/${encodeURIComponent(userId)}`);
 
 export const addUserBlacklist = (data) =>
   httpClient.post("/admin/users/blacklist", data);
