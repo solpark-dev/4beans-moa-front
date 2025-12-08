@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchPartyList, fetchMyParties } from "../../services/partyService";
-import { Sparkles, Users, Calendar, TrendingUp, Search, Eye } from "lucide-react";
+import { fetchPartyList, fetchMyParties } from "../../hooks/party/partyService";
+import {
+  Sparkles,
+  Users,
+  Calendar,
+  TrendingUp,
+  Search,
+  Eye,
+} from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
 export default function PartyListPage() {

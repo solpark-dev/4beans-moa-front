@@ -1,6 +1,6 @@
 // src/pages/user/DeleteUserPage.jsx
 import { useEffect } from "react";
-import { initDeleteUserPage } from "../../services/logic/deleteUserLogic";
+import { initDeleteUserPage } from "../../hooks/user/useDeleteUser";
 
 export default function DeleteUserPage() {
   useEffect(() => {

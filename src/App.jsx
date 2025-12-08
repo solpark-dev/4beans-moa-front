@@ -1,7 +1,8 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
+import { useGlobalLinkHandler } from "@/hooks/common/useGlobalLinkHandler";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import OAuthGooglePage from "./pages/oauth/OAuthGooglePage";
@@ -27,6 +28,7 @@ import MyPartyListPage from "./pages/party/MyPartyListPage";
 import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 import AdminUserListPage from "@/pages/admin/AdminUserListPage";
 import AdminUserDetailPage from "@/pages/admin/AdminUserDetailPage";
+import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -44,18 +46,18 @@ import PaymentSuccessPage from "./pages/payment/PaymentSuccessPage";
 import BillingSuccessPage from "./pages/payment/BillingSuccessPage";
 import BillingRegisterPage from "./pages/payment/BillingRegisterPage";
 
-
-import { requireLogin } from "./services/authGuard";
 import ListNotice from "./pages/community/ListNotice";
 import GetNotice from "./pages/community/GetNotice";
 import AddNotice from "./pages/community/AddNotice";
 import UpdateNotice from "./pages/community/UpdateNotice";
-import ListFaq from './pages/community/ListFaq';
-import AddFaq from './pages/community/AddFaq';
+import ListFaq from "./pages/community/ListFaq";
+import AddFaq from "./pages/community/AddFaq";
 import Inquiry from "./pages/community/Inquiry";
 import InquiryAdmin from "./pages/community/InquiryAdmin";
 
 export default function App() {
+  useGlobalLinkHandler();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -78,6 +80,8 @@ export default function App() {
           <Route path="/find-email" element={<FindIdPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
+
+          {/* User 도메인 (Private - ProtectedRoute 적용) */}
           <Route
             path="/mypage"
             element={<ProtectedRoute element={<MyPage />} />}
@@ -114,22 +118,26 @@ export default function App() {
             path="/my-parties"
             element={<ProtectedRoute element={<MyPartyListPage />} />}
           />
+
+          {/* ✅ [수정 2] 복잡한 조건부 렌더링을 ProtectedRoute로 통일 */}
           <Route
             path="/mypage/edit"
-            element={
-              requireLogin() ? (
-                <UpdateUserPage />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
+            element={<ProtectedRoute element={<UpdateUserPage />} />}
           />
+
           <Route
             path="/admin/blacklist/add"
             element={<ProtectedRoute element={<AddBlacklistPage />} />}
           />
           <Route path="/admin/users" element={<AdminUserListPage />} />
-          <Route path="/admin/users/:userId" element={<AdminUserDetailPage />} />
+          <Route
+            path="/admin/users/:userId"
+            element={<AdminUserDetailPage />}
+          />
+          <Route
+            path="/admin/blacklist/delete"
+            element={<AdminBlacklistDeletePage />}
+          />
 
           {/* Product (Public) */}
           <Route path="/product" element={<GetProductList />} />
@@ -139,17 +147,17 @@ export default function App() {
           <Route
             path="/product/add"
             element={<ProtectedRoute element={<AddProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/edit"
             element={<ProtectedRoute element={<UpdateProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}
@@ -174,25 +182,35 @@ export default function App() {
             element={<ProtectedRoute element={<CancelSubscription />} />}
           />
 
-          {/* 고객센터/커뮤니티 */}
-          {/* product & Subscription */}
+          {/* 고객센터/커뮤니티 & 기타 */}
           <Route path="/subscriptions" element={<GetProductList />} />
           <Route path="/my/subscriptions" element={<UserSubscriptionList />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
-          <Route path="/payment/billing/register" element={<BillingRegisterPage />} />
-          <Route path="/payment/billing/success" element={<BillingSuccessPage />} />
+          <Route
+            path="/payment/billing/register"
+            element={<BillingRegisterPage />}
+          />
+          <Route
+            path="/payment/billing/success"
+            element={<BillingSuccessPage />}
+          />
 
           <Route path="/community/notice" element={<ListNotice />} />
-          <Route path="/community/notice/:communityId" element={<GetNotice />} />
+          <Route
+            path="/community/notice/:communityId"
+            element={<GetNotice />}
+          />
           <Route path="/community/notice/add" element={<AddNotice />} />
-          <Route path="/community/notice/update/:communityId" element={<UpdateNotice />} />
+          <Route
+            path="/community/notice/update/:communityId"
+            element={<UpdateNotice />}
+          />
 
           <Route path="/community/faq" element={<ListFaq />} />
           <Route path="/community/faq/add" element={<AddFaq />} />
 
           <Route path="/community/inquiry" element={<Inquiry />} />
           <Route path="/community/inquiry/admin" element={<InquiryAdmin />} />
-          
         </Routes>
       </main>
 

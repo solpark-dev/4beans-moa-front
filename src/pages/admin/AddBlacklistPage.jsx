@@ -1,4 +1,4 @@
-import { useAddBlacklistLogic } from "@/services/logic/admin/addBlacklistLogic";
+import { useAddBlacklistLogic } from "@/hooks/admin/useAddBlacklist";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

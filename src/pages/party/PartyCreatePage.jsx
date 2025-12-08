@@ -6,8 +6,8 @@ import {
   processLeaderDeposit,
   updateOttAccount,
   fetchPartyDetail,
-} from "../../services/partyService";
-import { requestPayment } from "../../services/paymentService";
+} from "../../hooks/party/partyService";
+import { requestPayment } from "../../utils/paymentHandler";
 import { useAuthStore } from "../../store/authStore";
 import {
   Check,
@@ -84,7 +84,9 @@ export default function PartyCreatePage() {
         }
       } catch (error) {
         console.error("Failed to restore party info", error);
-        alert("파티 정보를 불러오는 데 실패했습니다. 처음부터 다시 시도해주세요.");
+        alert(
+          "파티 정보를 불러오는 데 실패했습니다. 처음부터 다시 시도해주세요."
+        );
         setStep(1);
       } finally {
         setIsRestoring(false);

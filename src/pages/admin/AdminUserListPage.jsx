@@ -1,6 +1,6 @@
 // src/pages/admin/AdminUserListPage.jsx
 import { useState } from "react";
-import { useAdminUserListLogic } from "@/services/logic/admin/adminUserListLogic";
+import { useAdminUserListLogic } from "@/hooks/admin/useAdminUserList";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -94,6 +94,13 @@ export default function AdminUserListPage() {
         </Badge>
       );
     }
+    if (status === "PENDING") {
+      return (
+        <Badge className="bg-yellow-400 hover:bg-yellow-500 text-xs font-semibold text-slate-900">
+          미인증
+        </Badge>
+      );
+    }
     return (
       <Badge className="bg-emerald-500 hover:bg-emerald-600 text-xs font-semibold">
         정상
@@ -162,10 +169,12 @@ export default function AdminUserListPage() {
                       {filters.status === "ALL"
                         ? "전체"
                         : filters.status === "ACTIVE"
-                        ? "정상"
-                        : filters.status === "BLOCK"
-                        ? "이용제한"
-                        : "탈퇴"}
+                          ? "정상"
+                          : filters.status === "BLOCK"
+                            ? "이용제한"
+                            : filters.status === "WITHDRAW"
+                              ? "탈퇴"
+                              : "미인증"}
                     </p>
                   </div>
                 </div>
@@ -205,6 +214,7 @@ export default function AdminUserListPage() {
                       <SelectItem value="ACTIVE">정상</SelectItem>
                       <SelectItem value="BLOCK">이용제한</SelectItem>
                       <SelectItem value="WITHDRAW">탈퇴</SelectItem>
+                      <SelectItem value="PENDING">미인증</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -317,11 +327,10 @@ export default function AdminUserListPage() {
                           <TableCell className="py-3 text-sm">
                             <button
                               type="button"
-                              className={`text-left font-medium ${
-                                user.blacklisted
-                                  ? "text-red-500 hover:underline"
-                                  : "text-slate-900 hover:text-indigo-600 hover:underline"
-                              }`}
+                              className={`text-left font-medium ${user.blacklisted
+                                ? "text-red-500 hover:underline"
+                                : "text-slate-900 hover:text-indigo-600 hover:underline"
+                                }`}
                               onClick={() => handleEmailClick(user.userId)}
                             >
                               {user.userId}
@@ -372,11 +381,10 @@ export default function AdminUserListPage() {
                       key={p}
                       variant={p === page ? "default" : "outline"}
                       size="icon"
-                      className={`h-8 w-8 text-xs ${
-                        p === page
-                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                          : "text-slate-700"
-                      }`}
+                      className={`h-8 w-8 text-xs ${p === page
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                        : "text-slate-700"
+                        }`}
                       onClick={() => handlePageClick(p)}
                     >
                       {p}

@@ -1,4 +1,4 @@
-import * as partyApi from "../api/partyApi";
+import * as partyApi from "@/api/partyApi";
 
 export const fetchPartyList = async (params) => {
   // axios: res.data.data

@@ -5,8 +5,8 @@ import {
   fetchPartyMembers,
   joinParty,
   leaveParty,
-} from "../../services/partyService";
-import { requestPayment } from "../../services/paymentService";
+} from "../../hooks/party/partyService";
+import { requestPayment } from "../../utils/paymentHandler";
 import { fetchCurrentUser } from "../../api/authApi";
 import LeavePartyWarningModal from "../../components/party/LeavePartyWarningModal";
 import UpdateOttModal from "../../components/party/UpdateOttModal";
@@ -291,8 +291,9 @@ export default function PartyDetailPage() {
                     <div
                       className="bg-[#fff7ed] h-3 rounded-full transition-all duration-500"
                       style={{
-                        width: `${(party.currentMembers / party.maxMembers) * 100
-                          }%`,
+                        width: `${
+                          (party.currentMembers / party.maxMembers) * 100
+                        }%`,
                       }}
                     ></div>
                   </div>
@@ -306,15 +307,24 @@ export default function PartyDetailPage() {
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-stone-500 w-16">시작일</span>
+                      <span className="text-sm text-stone-500 w-16">
+                        시작일
+                      </span>
                       <p className="text-2xl font-black text-stone-900">
-                        {party.startDate?.split("T")[0] || party.startDate?.split(" ")[0] || "-"}
+                        {party.startDate?.split("T")[0] ||
+                          party.startDate?.split(" ")[0] ||
+                          "-"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-stone-500 w-16">종료일</span>
+                      <span className="text-sm text-stone-500 w-16">
+                        종료일
+                      </span>
                       <p className="text-2xl font-black text-stone-900">
-                        {party.endDate ? (party.endDate.split("T")[0] || party.endDate.split(" ")[0]) : "미정"}
+                        {party.endDate
+                          ? party.endDate.split("T")[0] ||
+                            party.endDate.split(" ")[0]
+                          : "미정"}
                       </p>
                     </div>
                   </div>
@@ -536,9 +546,13 @@ export default function PartyDetailPage() {
                   1
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-gray-900">보증금 + 첫 달 구독료 결제</p>
+                  <p className="font-bold text-gray-900">
+                    보증금 + 첫 달 구독료 결제
+                  </p>
                   <p className="text-sm text-stone-600 mt-1">
-                    총 {firstPayment.toLocaleString()}원 (보증금 {depositAmount.toLocaleString()}원 + 첫 달 구독료 {perPersonFee.toLocaleString()}원)
+                    총 {firstPayment.toLocaleString()}원 (보증금{" "}
+                    {depositAmount.toLocaleString()}원 + 첫 달 구독료{" "}
+                    {perPersonFee.toLocaleString()}원)
                   </p>
                 </div>
               </div>
@@ -548,9 +562,12 @@ export default function PartyDetailPage() {
                   2
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-gray-900">월 구독료 자동 결제 설정</p>
+                  <p className="font-bold text-gray-900">
+                    월 구독료 자동 결제 설정
+                  </p>
                   <p className="text-sm text-stone-600 mt-1">
-                    매월 {party.paymentDay}일에 {perPersonFee.toLocaleString()}원이 자동 결제됩니다
+                    매월 {party.paymentDay}일에 {perPersonFee.toLocaleString()}
+                    원이 자동 결제됩니다
                   </p>
                 </div>
               </div>

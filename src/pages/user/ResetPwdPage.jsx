@@ -1,6 +1,6 @@
 // src/pages/user/ResetPwdPage.jsx
 import { useEffect } from "react";
-import { initResetPwdPage } from "../../services/logic/resetPwdLogic";
+import { initResetPwdPage } from "@/hooks/auth/useResetPassword";
 
 export default function ResetPwdPage() {
   useEffect(() => {
