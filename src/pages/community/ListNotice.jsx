@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import NoticeItem from '../../components/community/NoticeItem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,26 +17,41 @@ import {
 
 const ListNotice = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [notices, setNotices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [searchType, setSearchType] = useState('title');
     const [searchKeyword, setSearchKeyword] = useState('');
-    const [isAdmin, setIsAdmin] = useState(false);
 
+    const isAdmin = user?.role === 'ADMIN';
     const pageSize = 10;
 
     useEffect(() => {
-        checkUserRole();
-        loadNoticeList(1);
+        const loadNoticeList = async () => {
+            try {
+                const response = await fetch(`/api/community/notice?page=1&size=${pageSize}`);
+                
+                if (!response.ok) {
+                    console.error('API 응답 에러:', response.status);
+                    setNotices([]);
+                    return;
+                }
+                
+                const data = await response.json();
+                setNotices(data.content || []);
+                setCurrentPage(data.page || 1);
+                setTotalPages(data.totalPages || 0);
+            } catch (error) {
+                console.error('공지사항 목록 로드 실패:', error);
+                setNotices([]);
+            }
+        };
+        
+        loadNoticeList();
     }, []);
 
-    const checkUserRole = () => {
-        const userRole = sessionStorage.getItem('role');
-        setIsAdmin(userRole === 'ADMIN');
-    };
-
-    const loadNoticeList = async (page) => {
+    const loadNoticeListByPage = async (page) => {
         try {
             const response = await fetch(`/api/community/notice?page=${page}&size=${pageSize}`);
             
@@ -80,11 +96,11 @@ const ListNotice = () => {
 
     const handlePageChange = (page) => {
         if (page < 1 || page > totalPages) return;
-        loadNoticeList(page);
+        loadNoticeListByPage(page);
     };
 
-    const goToDetail = (communityId) => {
-        navigate(`/community/notice/${communityId}`);
+    const goToDetail = (communityId, displayIndex) => {
+        navigate(`/community/notice/${communityId}?index=${displayIndex}`);
     };
 
     const goToAdd = () => {
@@ -172,7 +188,7 @@ const ListNotice = () => {
                         <PaginationItem>
                             <PaginationPrevious 
                                 onClick={() => handlePageChange(currentPage - 1)}
-                                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
                             />
                         </PaginationItem>
                         
@@ -191,7 +207,7 @@ const ListNotice = () => {
                         <PaginationItem>
                             <PaginationNext 
                                 onClick={() => handlePageChange(currentPage + 1)}
-                                className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} [&>span]:hidden`}
+                                className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
                             />
                         </PaginationItem>
                     </PaginationContent>

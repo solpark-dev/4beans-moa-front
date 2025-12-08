@@ -9,16 +9,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function LoginPage() {
   const {
     email,
     password,
     remember,
+    otpModalOpen,
+    otpCode,
     setField,
     handleEmailLogin,
     handleKakaoLogin,
     handleGoogleLogin,
+    handleOtpChange,
+    handleOtpConfirm,
+    closeOtpModal,
+    handleUnlockByCertification,
   } = useLoginPageLogic();
 
   return (
@@ -120,6 +132,14 @@ export default function LoginPage() {
                   로그인
                 </Button>
 
+                <button
+                  type="button"
+                  onClick={handleUnlockByCertification}
+                  className="w-full text-[11px] text-indigo-100 hover:text-white text-right mt-1 underline-offset-2 hover:underline"
+                >
+                  본인인증으로 계정 잠금 해제
+                </button>
+
                 <div className="flex items-center gap-3 pt-2">
                   <span className="h-px flex-1 bg-gray-200" />
                   <span className="text-[11px] text-gray-400">
@@ -194,6 +214,39 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
+
+      <Dialog
+        open={otpModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeOtpModal();
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Google OTP 인증</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600">
+              Google Authenticator 앱에 표시된 6자리 코드를 입력해주세요.
+            </p>
+            <Input
+              value={otpCode}
+              maxLength={6}
+              inputMode="numeric"
+              className="text-center tracking-[0.4em] text-lg"
+              onChange={(e) => handleOtpChange(e.target.value)}
+            />
+            <Button
+              className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg"
+              onClick={handleOtpConfirm}
+            >
+              인증 완료
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

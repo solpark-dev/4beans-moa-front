@@ -1,12 +1,21 @@
-import { useEffect } from "react";
-import { initMyPage, myPageHandlers } from "@/hooks/user/useMyPage";
-import { useMyPageStore } from "@/store/user/myPageStore";
+import React from "react";
+import { useMyPage } from "@/hooks/user/useMyPage";
 
+// shadcn-ui
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+
+// icons
 import {
   User,
   CreditCard,
@@ -19,27 +28,27 @@ import {
   Zap,
 } from "lucide-react";
 
-export default function MyPage() {
-  const { user, isAdmin } = useMyPageStore();
-  const handlers = myPageHandlers();
+// QR
+import { QRCodeSVG } from "qrcode.react";
 
-  useEffect(() => {
-    initMyPage();
-  }, []);
+// zustand OTP store
+import { useOtpStore } from "@/store/user/otpStore";
+
+export default function MyPage() {
+  const { state, actions } = useMyPage();
+
+  const { user, isAdmin, shortId, marketingAgreed, googleConn, kakaoConn } =
+    state;
+  const otp = {
+    enabled: useOtpStore((s) => s.enabled),
+    modalOpen: useOtpStore((s) => s.modalOpen),
+    mode: useOtpStore((s) => s.mode),
+    qrUrl: useOtpStore((s) => s.qrUrl),
+    code: useOtpStore((s) => s.code),
+    loading: useOtpStore((s) => s.loading),
+  };
 
   if (!user) return null;
-
-  const marketingAgreed =
-    user.agreeMarketing ?? user.marketing ?? false;
-
-  const googleConn = user.oauthConnections?.find(
-    (c) => c.provider === "google" && !c.releaseDate
-  );
-  const kakaoConn = user.oauthConnections?.find(
-    (c) => c.provider === "kakao" && !c.releaseDate
-  );
-
-  const shortId = user.userId?.split("@")[0] || user.userId;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
@@ -104,21 +113,20 @@ export default function MyPage() {
 
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button
-                    onClick={handlers.goEditUser}
+                    onClick={actions.goEditUser}
                     className="h-8 px-3 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
                   >
                     내 정보 수정
                   </Button>
                   <Button
-                    onClick={handlers.goChangePwd}
+                    onClick={actions.goChangePwd}
                     variant="outline"
                     className="h-8 px-3 text-xs border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50 rounded-lg"
                   >
                     비밀번호 변경
                   </Button>
-                  {/* 새로 추가된 회원 탈퇴 버튼 */}
                   <Button
-                    onClick={handlers.goDeleteUser}
+                    onClick={actions.goDeleteUser}
                     variant="outline"
                     className="h-8 px-3 text-xs border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-lg"
                   >
@@ -147,23 +155,23 @@ export default function MyPage() {
                 <MenuButton
                   icon={<CreditCard className="w-4 h-4" />}
                   label="구독·약정 관리"
-                  onClick={handlers.goSubscription}
+                  onClick={actions.goSubscription}
                   active
                 />
                 <MenuButton
                   icon={<Users className="w-4 h-4" />}
                   label="내 파티 목록"
-                  onClick={handlers.goMyParties}
+                  onClick={actions.goMyParties}
                 />
                 <MenuButton
                   icon={<KeyRound className="w-4 h-4" />}
                   label="비밀번호 변경"
-                  onClick={handlers.goChangePwd}
+                  onClick={actions.goChangePwd}
                 />
                 <MenuButton
                   icon={<Wallet className="w-4 h-4" />}
                   label="내 지갑"
-                  onClick={handlers.goWallet}
+                  onClick={actions.goWallet}
                 />
               </CardContent>
             </Card>
@@ -180,18 +188,18 @@ export default function MyPage() {
                   <MenuButton
                     icon={<User className="w-4 h-4" />}
                     label="회원 관리"
-                    onClick={handlers.goAdminUserList}
+                    onClick={actions.goAdminUserList}
                   />
                   <MenuButton
                     icon={<UserX className="w-4 h-4" />}
                     label="블랙리스트 관리"
                     variant="destructive"
-                    onClick={handlers.goAdminBlacklist}
+                    onClick={actions.goAdminBlacklist}
                   />
                   <MenuButton
                     icon={<LayoutDashboard className="w-4 h-4" />}
                     label="관리자 대시보드"
-                    onClick={handlers.goAdminHome}
+                    onClick={actions.goAdminHome}
                   />
                 </CardContent>
               </Card>
@@ -209,12 +217,14 @@ export default function MyPage() {
                 <InfoRow label="닉네임" value={user.nickname} />
                 <InfoRow
                   label="가입일"
-                  value={handlers.formatDate(user.regDate)}
+                  value={actions.formatDate(user.regDate)}
                 />
                 <InfoRow
                   label="마케팅 동의"
                   value={marketingAgreed ? "수신 동의됨" : "미동의"}
-                  valueClass={marketingAgreed ? "text-emerald-600" : "text-slate-400"}
+                  valueClass={
+                    marketingAgreed ? "text-emerald-600" : "text-slate-400"
+                  }
                 />
               </InfoCard>
 
@@ -239,21 +249,56 @@ export default function MyPage() {
                     <SocialButton
                       provider="google"
                       isConnected={!!googleConn}
-                      onClick={() =>
-                        googleConn
-                          ? handlers.oauthRelease(googleConn.oauthId)
-                          : handlers.oauthConnect("google")
-                      }
+                      onClick={actions.handleGoogleClick}
                     />
                     <SocialButton
                       provider="kakao"
                       isConnected={!!kakaoConn}
-                      onClick={() =>
-                        kakaoConn
-                          ? handlers.oauthRelease(kakaoConn.oauthId)
-                          : handlers.oauthConnect("kakao")
-                      }
+                      onClick={actions.handleKakaoClick}
                     />
+                  </div>
+                </div>
+
+                <Separator className="bg-slate-200 my-4" />
+
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-[0.16em]">
+                    Security · Google OTP
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={
+                        otp.enabled
+                          ? "text-sm font-semibold text-emerald-600"
+                          : "text-sm font-semibold text-slate-400"
+                      }
+                    >
+                      {otp.enabled ? "OTP 사용중" : "OTP 미사용"}
+                    </span>
+                    <div className="flex gap-2">
+                      {!otp.enabled && (
+                        <Button
+                          size="sm"
+                          className="h-8 px-3 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+                          onClick={actions.otp.openSetup}
+                        >
+                          OTP 설정
+                        </Button>
+                      )}
+
+                      {otp.enabled && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 px-3 text-xs border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-lg"
+                          onClick={() => {
+                            actions.otp.prepareDisable();
+                          }}
+                        >
+                          OTP 해제
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </InfoCard>
@@ -261,9 +306,67 @@ export default function MyPage() {
           </main>
         </div>
       </div>
+
+      <Dialog open={otp.modalOpen} onOpenChange={actions.handleOtpModalChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {otp.mode === "disable" ? "Google OTP 해제" : "Google OTP 설정"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5">
+            {otp.mode === "enable" && otp.qrUrl && (
+              <div className="flex justify-center">
+                <div className="p-3 bg-white border border-slate-200 rounded-2xl">
+                  <QRCodeSVG value={otp.qrUrl} size={180} />
+                </div>
+              </div>
+            )}
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {otp.mode === "disable"
+                ? "등록된 Google OTP를 해제하려면 앱에서 생성된 6자리 코드를 입력해주세요."
+                : "Google Authenticator 앱을 열고 QR 코드를 스캔한 뒤, 생성된 6자리 코드를 아래에 입력해주세요."}
+            </p>
+            <Input
+              type="text"
+              value={otp.code}
+              maxLength={6}
+              inputMode="numeric"
+              className="text-center tracking-[0.4em] text-lg"
+              onChange={(e) => actions.otp.changeCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  actions.otp.confirmOtp();
+                }
+              }}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={actions.otp.closeModal}
+              >
+                취소
+              </Button>
+              <Button
+                type="button"
+                onClick={actions.otp.confirmOtp}
+                disabled={otp.loading || otp.code.length !== 6}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                인증 완료
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+// ----------------------------------------------------------------------
+// 아래 보조 컴포넌트들도 생략 없이 모두 포함되어 있습니다.
+// ----------------------------------------------------------------------
 
 function MenuButton({
   icon,
@@ -273,7 +376,6 @@ function MenuButton({
   active = false,
 }) {
   const isDestructive = variant === "destructive";
-
   return (
     <Button
       variant="ghost"
@@ -281,11 +383,13 @@ function MenuButton({
       className={`
         w-full justify-start h-11 px-4 text-sm font-medium rounded-lg
         transition-all duration-200
-        ${active
-          ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+        ${
+          active
+            ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
         }
-        ${isDestructive ? "text-red-600 hover:text-red-700 hover:bg-red-50" : ""
+        ${
+          isDestructive ? "text-red-600 hover:text-red-700 hover:bg-red-50" : ""
         }
       `}
     >
@@ -322,7 +426,6 @@ function InfoRow({ label, value, valueClass = "text-slate-900" }) {
 
 function SocialButton({ provider, isConnected, onClick }) {
   const isGoogle = provider === "google";
-
   const baseConnected =
     "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-red-50 border-red-300 text-red-600 hover:bg-red-100 rounded-xl";
   const baseGoogle =

@@ -17,12 +17,20 @@ export default function AddUserPage() {
     form,
     errors,
     isSocial,
+    socialProvider,
     handleChange,
     handleBlur,
     handleImageChange,
     handlePassAuth,
-    handleSubmit
+    handleSubmit,
   } = useSignup();
+
+  const socialNameKo =
+    socialProvider === "google"
+      ? "구글"
+      : socialProvider === "kakao"
+      ? "카카오"
+      : "소셜";
 
   return (
     <div className="w-full pb-20 bg-slate-50 text-slate-900">
@@ -40,7 +48,7 @@ export default function AddUserPage() {
             </h2>
             <p className="text-sm sm:text-base text-indigo-50/90 max-w-md mx-auto lg:mx-0 leading-relaxed">
               {isSocial
-                ? "카카오 계정과 연동된 정보로, 필수 입력은 최소화하고 빠르게 가입할 수 있어요."
+                ? `${socialNameKo} 계정과 연동된 정보로, 필수 입력은 최소화하고 빠르게 가입할 수 있어요.`
                 : "이메일, 비밀번호, 휴대폰 번호만 정확히 입력하면 바로 파티에 합류할 수 있어요."}
             </p>
           </div>
@@ -57,7 +65,7 @@ export default function AddUserPage() {
                   </CardTitle>
                   <CardDescription className="text-gray-500 text-xs md:text-sm mt-1.5">
                     {isSocial
-                      ? "카카오에서 전달받은 정보를 기반으로 이메일/비밀번호 입력 없이 가입을 진행합니다."
+                      ? `${socialNameKo}에서 전달받은 정보를 기반으로 이메일/비밀번호 입력 없이 가입을 진행합니다.`
                       : "이메일, 비밀번호, 휴대폰 번호를 입력하고 MoA 구독 파티에 참여해 보세요."}
                   </CardDescription>
                 </CardHeader>
@@ -65,10 +73,13 @@ export default function AddUserPage() {
                 <CardContent className="space-y-6 pt-6 px-6 pb-6">
                   {isSocial && (
                     <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs md:text-sm text-indigo-900">
-                      <p className="font-semibold">카카오 소셜 회원가입</p>
+                      <p className="font-semibold">
+                        {socialNameKo} 소셜 회원가입
+                      </p>
                       <p className="mt-1 text-indigo-900/80">
-                        카카오에서 받은 인증 정보로 이메일/비밀번호는 생략되고,
-                        닉네임과 휴대폰 정보만 확인하면 가입이 완료됩니다.
+                        {socialNameKo}에서 받은 인증 정보로 이메일/비밀번호는
+                        생략되고, 닉네임과 휴대폰 정보만 확인하면 가입이
+                        완료됩니다.
                       </p>
                     </div>
                   )}
@@ -76,7 +87,10 @@ export default function AddUserPage() {
                   {!isSocial && (
                     <>
                       <div className="space-y-1.5">
-                        <Label htmlFor="email" className="text-xs md:text-sm text-gray-800">
+                        <Label
+                          htmlFor="email"
+                          className="text-xs md:text-sm text-gray-800"
+                        >
                           이메일(아이디)
                         </Label>
                         <Input
@@ -89,13 +103,22 @@ export default function AddUserPage() {
                           onChange={handleChange}
                           onBlur={handleBlur}
                         />
-                        <p className={`text-xs mt-1 ${errors.email.isError ? "text-red-500" : "text-green-600"}`}>
+                        <p
+                          className={`text-xs mt-1 ${
+                            errors.email.isError
+                              ? "text-red-500"
+                              : "text-green-600"
+                          }`}
+                        >
                           {errors.email.message}
                         </p>
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label htmlFor="password" className="text-xs md:text-sm text-gray-800">
+                        <Label
+                          htmlFor="password"
+                          className="text-xs md:text-sm text-gray-800"
+                        >
                           비밀번호
                         </Label>
                         <Input
@@ -107,13 +130,22 @@ export default function AddUserPage() {
                           value={form.password}
                           onChange={handleChange}
                         />
-                        <p className={`text-xs mt-1 ${errors.password.isError ? "text-red-500" : "text-green-600"}`}>
+                        <p
+                          className={`text-xs mt-1 ${
+                            errors.password.isError
+                              ? "text-red-500"
+                              : "text-green-600"
+                          }`}
+                        >
                           {errors.password.message}
                         </p>
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label htmlFor="passwordCheck" className="text-xs md:text-sm text-gray-800">
+                        <Label
+                          htmlFor="passwordCheck"
+                          className="text-xs md:text-sm text-gray-800"
+                        >
                           비밀번호 확인
                         </Label>
                         <Input
@@ -125,7 +157,13 @@ export default function AddUserPage() {
                           value={form.passwordCheck}
                           onChange={handleChange}
                         />
-                        <p className={`text-xs mt-1 ${errors.passwordCheck.isError ? "text-red-500" : "text-green-600"}`}>
+                        <p
+                          className={`text-xs mt-1 ${
+                            errors.passwordCheck.isError
+                              ? "text-red-500"
+                              : "text-green-600"
+                          }`}
+                        >
                           {errors.passwordCheck.message}
                         </p>
                       </div>
@@ -133,7 +171,10 @@ export default function AddUserPage() {
                   )}
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="nickname" className="text-xs md:text-sm text-gray-800">
+                    <Label
+                      htmlFor="nickname"
+                      className="text-xs md:text-sm text-gray-800"
+                    >
                       닉네임
                     </Label>
                     <Input
@@ -145,13 +186,22 @@ export default function AddUserPage() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    <p className={`text-xs mt-1 ${errors.nickname.isError ? "text-red-500" : "text-green-600"}`}>
+                    <p
+                      className={`text-xs mt-1 ${
+                        errors.nickname.isError
+                          ? "text-red-500"
+                          : "text-green-600"
+                      }`}
+                    >
                       {errors.nickname.message}
                     </p>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="phone" className="text-xs md:text-sm text-gray-800">
+                    <Label
+                      htmlFor="phone"
+                      className="text-xs md:text-sm text-gray-800"
+                    >
                       휴대폰 번호
                     </Label>
                     <div className="flex items-end gap-2">
@@ -171,7 +221,11 @@ export default function AddUserPage() {
                         본인인증
                       </Button>
                     </div>
-                    <p className={`text-xs mt-1 ${errors.phone.isError ? "text-red-500" : "text-green-600"}`}>
+                    <p
+                      className={`text-xs mt-1 ${
+                        errors.phone.isError ? "text-red-500" : "text-green-600"
+                      }`}
+                    >
                       {errors.phone.message}
                     </p>
                   </div>
@@ -211,10 +265,12 @@ export default function AddUserPage() {
                       onChange={handleChange}
                     />
                     <div>
-                      <p className="font-medium">마케팅 정보 수신 동의 (선택)</p>
+                      <p className="font-medium">
+                        마케팅 정보 수신 동의 (선택)
+                      </p>
                       <p className="mt-1 text-[11px] md:text-xs text-gray-500">
-                        이벤트, 프로모션, 신규 파티 알림을 이메일·문자로 받아볼 수
-                        있습니다.
+                        이벤트, 프로모션, 신규 파티 알림을 이메일·문자로 받아볼
+                        수 있습니다.
                       </p>
                     </div>
                   </div>

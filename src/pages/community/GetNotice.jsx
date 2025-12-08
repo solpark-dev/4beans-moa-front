@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -8,30 +9,30 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 const GetNotice = () => {
     const navigate = useNavigate();
     const { communityId } = useParams();
+    const location = useLocation();
+    const { user } = useAuthStore();
     const [notice, setNotice] = useState(null);
-    const [isAdmin, setIsAdmin] = useState(false);
+
+    const isAdmin = user?.role === 'ADMIN';
+    
+    const params = new URLSearchParams(location.search);
+    const displayIndex = params.get('index');
 
     useEffect(() => {
-        checkUserRole();
+        const loadNoticeDetail = async () => {
+            try {
+                const response = await fetch(`/api/community/notice/${communityId}`);
+                const data = await response.json();
+                setNotice(data);
+            } catch (error) {
+                console.error('공지사항 상세 로드 실패:', error);
+                alert('공지사항을 불러올 수 없습니다.');
+                navigate('/community/notice');
+            }
+        };
+        
         loadNoticeDetail();
-    }, [communityId]);
-
-    const checkUserRole = () => {
-        const userRole = sessionStorage.getItem('role');
-        setIsAdmin(userRole === 'ADMIN');
-    };
-
-    const loadNoticeDetail = async () => {
-        try {
-            const response = await fetch(`/api/community/notice/${communityId}`);
-            const data = await response.json();
-            setNotice(data);
-        } catch (error) {
-            console.error('공지사항 상세 로드 실패:', error);
-            alert('공지사항을 불러올 수 없습니다.');
-            navigate('/community/notice');
-        }
-    };
+    }, [communityId, navigate]);
 
     const formatDate = (dateString) => {
         if (!dateString) return '-';
@@ -57,11 +58,16 @@ const GetNotice = () => {
 
     return (
         <CommunityLayout>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">공지 #{notice.communityId}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">공지사항</h2>
 
             <Card>
                 <CardHeader className="border-b border-gray-200">
-                    <div className="mb-3">
+                    <div className="mb-3 flex items-center gap-2">
+                        {displayIndex && (
+                            <Badge variant="secondary" className="bg-blue-600 text-white hover:bg-blue-700">
+                                #{displayIndex}
+                            </Badge>
+                        )}
                         <Badge variant="secondary" className="bg-blue-50 text-blue-600 hover:bg-blue-100">
                             {notice.categoryName}
                         </Badge>

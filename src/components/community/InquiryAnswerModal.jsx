@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -10,18 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 
-const InquiryAnswerModal = ({ isOpen, onClose, inquiry, onAnswerSubmit }) => {
-    const [answerContent, setAnswerContent] = useState('');
-
-    useEffect(() => {
-        if (inquiry?.answerContent) {
-            setAnswerContent(inquiry.answerContent);
-        } else {
-            setAnswerContent('');
-        }
-    }, [inquiry]);
-
-    if (!inquiry) return null;
+const InquiryAnswerModalContent = ({ inquiry, onClose, onAnswerSubmit }) => {
+    const [answerContent, setAnswerContent] = useState(inquiry?.answerContent || '');
 
     const formatDate = (dateString) => {
         if (!dateString) return '-';
@@ -45,76 +35,91 @@ const InquiryAnswerModal = ({ isOpen, onClose, inquiry, onAnswerSubmit }) => {
         }
 
         await onAnswerSubmit(inquiry.communityId, answerContent);
-        onClose();
     };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>
+                    {inquiry.answerContent ? '답변 수정' : '답변 작성'}
+                </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-600">
+                        {getCategoryName(inquiry.communityCodeId)}
+                    </Badge>
+                    <span className="text-sm text-gray-500">
+                        {formatDate(inquiry.createdAt)}
+                    </span>
+                </div>
+
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">{inquiry.title}</h3>
+                    <p className="text-sm text-gray-500">작성자: {inquiry.userId}</p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">문의 내용</p>
+                    <p className="text-gray-700 whitespace-pre-wrap">
+                        {inquiry.content}
+                    </p>
+                </div>
+
+                {inquiry.fileOriginal && (
+                    <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">첨부 이미지</p>
+                        <img 
+                            src={`/api/community/inquiry/image/${inquiry.fileUuid}`} 
+                            alt={inquiry.fileOriginal}
+                            className="max-w-full max-h-64 rounded-lg border object-contain"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">{inquiry.fileOriginal}</p>
+                    </div>
+                )}
+
+                <div className="border-t pt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        답변 작성
+                    </label>
+                    <Textarea
+                        value={answerContent}
+                        onChange={(e) => setAnswerContent(e.target.value)}
+                        placeholder="답변 내용을 입력하세요"
+                        rows={8}
+                        className="w-full"
+                    />
+                </div>
+            </div>
+
+            <DialogFooter>
+                <Button variant="outline" onClick={onClose}>
+                    취소
+                </Button>
+                <Button 
+                    onClick={handleSubmit}
+                    className="bg-blue-600 hover:bg-blue-700"
+                >
+                    {inquiry.answerContent ? '수정' : '등록'}
+                </Button>
+            </DialogFooter>
+        </>
+    );
+};
+
+const InquiryAnswerModal = ({ isOpen, onClose, inquiry, onAnswerSubmit }) => {
+    if (!inquiry) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>
-                        {inquiry.answerContent ? '답변 수정' : '답변 작성'}
-                    </DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                        <Badge variant="secondary" className="bg-blue-50 text-blue-600">
-                            {getCategoryName(inquiry.communityCodeId)}
-                        </Badge>
-                        <span className="text-sm text-gray-500">
-                            {formatDate(inquiry.createdAt)}
-                        </span>
-                    </div>
-
-                    <div>
-                        <h3 className="font-semibold text-lg mb-2">{inquiry.title}</h3>
-                        <p className="text-sm text-gray-500">작성자: {inquiry.userId}</p>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm font-medium text-gray-700 mb-2">문의 내용</p>
-                        <p className="text-gray-700 whitespace-pre-wrap">
-                            {inquiry.content}
-                        </p>
-                    </div>
-
-                    {inquiry.fileOriginal && (
-                        <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">첨부 이미지</p>
-                            <img 
-                                src={`/uploads/${inquiry.fileUuid}`} 
-                                alt={inquiry.fileOriginal}
-                                className="max-w-full rounded-lg border"
-                            />
-                        </div>
-                    )}
-
-                    <div className="border-t pt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            답변 작성
-                        </label>
-                        <Textarea
-                            value={answerContent}
-                            onChange={(e) => setAnswerContent(e.target.value)}
-                            placeholder="답변 내용을 입력하세요"
-                            rows={8}
-                            className="w-full"
-                        />
-                    </div>
-                </div>
-
-                <DialogFooter>
-                    <Button variant="outline" onClick={onClose}>
-                        취소
-                    </Button>
-                    <Button 
-                        onClick={handleSubmit}
-                        className="bg-blue-600 hover:bg-blue-700"
-                    >
-                        저장
-                    </Button>
-                </DialogFooter>
+                <InquiryAnswerModalContent 
+                    key={inquiry.communityId}
+                    inquiry={inquiry}
+                    onClose={onClose}
+                    onAnswerSubmit={onAnswerSubmit}
+                />
             </DialogContent>
         </Dialog>
     );

@@ -5,14 +5,29 @@ import { useSignupStore } from "@/store/user/addUserStore";
 import { signup, checkCommon } from "@/api/authApi";
 
 const BAD_WORDS = [
-  "fuck", "shit", "bitch", "asshole", "개새", "개새끼", "씨발", "시발",
-  "좆", "병신", "썅", "새끼", "니미", "염병", "지랄", "닥쳐",
+  "fuck",
+  "shit",
+  "bitch",
+  "asshole",
+  "개새",
+  "개새끼",
+  "씨발",
+  "시발",
+  "좆",
+  "병신",
+  "썅",
+  "새끼",
+  "니미",
+  "염병",
+  "지랄",
+  "닥쳐",
 ];
 
 const REGEX = {
   EMAIL: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   NICKNAME: /^[A-Za-z0-9가-힣]{2,10}$/,
-  PASSWORD: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,20}$/,
+  PASSWORD:
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,20}$/,
 };
 
 const toBase64 = (file) => {
@@ -35,10 +50,31 @@ export const useSignup = () => {
   const passwordCheckRef = useRef(null);
   const nicknameRef = useRef(null);
   const phoneRef = useRef(null);
+  const socialInitRef = useRef(false);
 
   const provider = searchParams.get("provider");
   const providerUserId = searchParams.get("providerUserId");
   const isSocial = !!(provider && providerUserId);
+
+  useEffect(() => {
+    if (isSocial && !socialInitRef.current) {
+      socialInitRef.current = true;
+
+      const socialEmail = searchParams.get("email");
+      const socialNickname = searchParams.get("nickname");
+      const socialProfileImageUrl = searchParams.get("profileImageUrl");
+
+      if (socialEmail) {
+        setField("email", socialEmail);
+      }
+      if (socialNickname) {
+        setField("nickname", socialNickname);
+      }
+      if (socialProfileImageUrl) {
+        setField("previewUrl", socialProfileImageUrl);
+      }
+    }
+  }, [isSocial, searchParams, setField]);
 
   useEffect(() => {
     return () => {
@@ -83,7 +119,8 @@ export const useSignup = () => {
 
       try {
         const res = await checkCommon({ type: "email", value: form.email });
-        const available = res.data?.available ?? res.data?.data?.available ?? true;
+        const available =
+          res.data?.available ?? res.data?.data?.available ?? true;
         if (available) {
           setErrorMessage("email", "사용 가능한 이메일입니다.", false);
         } else {
@@ -106,7 +143,11 @@ export const useSignup = () => {
       return;
     }
     if (!REGEX.PASSWORD.test(form.password)) {
-      setErrorMessage("password", "영문+숫자+특수문자 포함 8~20자로 입력하세요.", true);
+      setErrorMessage(
+        "password",
+        "영문+숫자+특수문자 포함 8~20자로 입력하세요.",
+        true
+      );
     } else {
       setErrorMessage("password", "사용 가능한 비밀번호입니다.", false);
     }
@@ -132,20 +173,32 @@ export const useSignup = () => {
         return;
       }
       if (!REGEX.NICKNAME.test(form.nickname)) {
-        setErrorMessage("nickname", "닉네임은 2~10자, 한글/영문/숫자만 가능합니다.", true);
+        setErrorMessage(
+          "nickname",
+          "닉네임은 2~10자, 한글/영문/숫자만 가능합니다.",
+          true
+        );
         return;
       }
       const lower = form.nickname.toLowerCase();
       if (BAD_WORDS.some((bad) => lower.includes(bad))) {
-        setErrorMessage("nickname", "부적절한 단어가 포함될 수 없습니다.", true);
+        setErrorMessage(
+          "nickname",
+          "부적절한 단어가 포함될 수 없습니다.",
+          true
+        );
         return;
       }
 
       setErrorMessage("nickname", "확인 중...", false);
 
       try {
-        const res = await checkCommon({ type: "nickname", value: form.nickname });
-        const available = res.data?.available ?? res.data?.data?.available ?? true;
+        const res = await checkCommon({
+          type: "nickname",
+          value: form.nickname,
+        });
+        const available =
+          res.data?.available ?? res.data?.data?.available ?? true;
         if (available) {
           setErrorMessage("nickname", "사용 가능한 닉네임입니다.", false);
         } else {
@@ -175,17 +228,21 @@ export const useSignup = () => {
       window.IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
         if (!rsp.success) return;
         try {
-          const verifyRes = await httpClient.post("/users/pass/verify", { imp_uid: rsp.imp_uid });
-          const { phone, ci } = verifyRes.data; 
+          const verifyRes = await httpClient.post("/users/pass/verify", {
+            imp_uid: rsp.imp_uid,
+          });
+          const { phone, ci } = verifyRes.data;
 
           setField("phone", phone);
           sessionStorage.setItem("PASS_CI", ci);
           setErrorMessage("phone", "본인인증 성공!", false);
         } catch (err) {
+          console.error(err);
           alert("본인인증 검증 오류");
         }
       });
     } catch (err) {
+      console.error(err);
       alert("본인인증 초기화 오류");
     }
   };
@@ -225,14 +282,15 @@ export const useSignup = () => {
 
     const ci = sessionStorage.getItem("PASS_CI");
     if (!ci) {
-       alert("본인인증 정보(CI)가 없습니다. 본인인증을 다시 진행해주세요.");
-       return;
+      alert("본인인증 정보(CI)가 없습니다. 본인인증을 다시 진행해주세요.");
+      return;
     }
 
     let base64 = null;
     if (form.profileImage) {
       base64 = await toBase64(form.profileImage);
     }
+
     const payload = {
       userId: isSocial ? providerUserId : form.email,
       password: isSocial ? null : form.password,
@@ -241,20 +299,22 @@ export const useSignup = () => {
       phone: form.phone,
       agreeMarketing: form.agreeMarketing,
       profileImageBase64: base64,
-      ci: ci, 
+      ci,
       provider: isSocial ? provider : null,
       providerUserId: isSocial ? providerUserId : null,
     };
 
     try {
       await signup(payload);
-      
+
       if (isSocial) {
-          alert("회원가입이 완료되었습니다. 로그인해주세요.");
-          navigate("/user/login");
+        alert("회원가입이 완료되었습니다. 로그인해주세요.");
+        navigate("/login");
       } else {
-          alert("인증 이메일이 발송되었습니다.\n이메일을 확인하여 가입을 완료해주세요.");
-          navigate("/user/login");
+        alert(
+          "인증 이메일이 발송되었습니다.\n이메일을 확인하여 가입을 완료해주세요."
+        );
+        navigate("/login");
       }
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "회원가입 실패";
@@ -266,6 +326,7 @@ export const useSignup = () => {
     form,
     errors,
     isSocial,
+    socialProvider: provider,
     refs: { emailRef, passwordRef, passwordCheckRef, nicknameRef, phoneRef },
     handleChange,
     handleBlur,
