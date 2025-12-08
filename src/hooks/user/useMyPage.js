@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import httpClient from "@/api/httpClient";
-import { useMyPageStore } from "@/store/user/myPageStore";
+import { useAuthStore } from "@/store/authStore";
 import { useOtpStore } from "@/store/user/otpStore";
 import { otpHandlers } from "@/hooks/user/useOtp";
 
@@ -14,11 +14,10 @@ function formatDate(value) {
 
 export const useMyPage = () => {
   // 1. Store State
-  const { user, isAdmin, setUser } = useMyPageStore();
+  const { user, setUser } = useAuthStore();
   const { enabled, modalOpen, qrUrl, code, loading, setEnabled } =
     useOtpStore();
 
-  // OTP 관련 로직 핸들러 가져오기 (외부 Hook)
   const otpActionHandlers = otpHandlers();
 
   // 2. 초기 데이터 로드 (API 호출)
@@ -59,6 +58,8 @@ export const useMyPage = () => {
     (c) => c.provider === "kakao" && !c.releaseDate
   );
 
+  const isAdmin = user?.role === "ADMIN";
+
   // 4. Event Handlers (Navigation & Logic)
   const handlers = {
     goSubscription: () => (window.location.href = "/subscription/list"),
@@ -94,7 +95,6 @@ export const useMyPage = () => {
         window.location.href = "/api/oauth/google/auth?mode=connect";
         return;
       }
-      window.location.href = `/api/oauth/${provider}/auth`;
     },
 
     oauthRelease: async (oauthId) => {

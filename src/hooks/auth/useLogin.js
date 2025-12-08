@@ -34,7 +34,7 @@ export const useLoginPageLogic = () => {
   } = useLoginStore();
   const { setTokens } = useAuthStore();
 
-  const [googleClient, setGoogleClient] = useState(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleUnlockByCertification = useCallback(async () => {
     if (!email) {
@@ -153,87 +153,6 @@ export const useLoginPageLogic = () => {
     handleUnlockByCertification,
   ]);
 
-  const onGoogleLoginSuccess = useCallback(
-    async (code) => {
-      try {
-        const res = await httpClient.get("/oauth/google/callback", {
-          params: { code },
-        });
-
-        if (!res.success) {
-          alert(res.error?.message || "구글 로그인에 실패했습니다.");
-          return;
-        }
-
-        const {
-          status,
-          accessToken,
-          refreshToken,
-          accessTokenExpiresIn,
-          provider,
-          providerUserId,
-        } = res.data;
-
-        if (status === "LOGIN") {
-          setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
-          navigate("/", { replace: true });
-          return;
-        }
-
-        if (status === "NEED_REGISTER") {
-          navigate(
-            `/signup?provider=${provider}&providerUserId=${providerUserId}`,
-            { replace: true }
-          );
-          return;
-        }
-
-        if (status === "CONNECT") {
-          navigate("/mypage", { replace: true });
-          return;
-        }
-      } catch (error) {
-        console.error(error);
-        alert(
-          error.response?.data?.error?.message ||
-            error.response?.data?.message ||
-            "구글 로그인 처리 중 오류가 발생했습니다."
-        );
-      }
-    },
-    [navigate, setTokens]
-  );
-
-  useEffect(() => {
-    if (window.Kakao && !window.Kakao.isInitialized()) {
-      window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-
-    script.onload = () => {
-      if (window.google) {
-        const client = window.google.accounts.oauth2.initCodeClient({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          scope: "openid email profile",
-          ux_mode: "popup",
-          callback: (response) => {
-            if (response.code) {
-              onGoogleLoginSuccess(response.code);
-            }
-          },
-        });
-        setGoogleClient(client);
-      }
-    };
-
-    document.body.appendChild(script);
-    return () => document.body.removeChild(script);
-  }, [onGoogleLoginSuccess]);
-
   const handleOtpChange = (value) => {
     const onlyNumber = value.replace(/\D/g, "").slice(0, 6);
     setField("otpCode", onlyNumber);
@@ -302,22 +221,34 @@ export const useLoginPageLogic = () => {
       return;
     }
 
+    if (!window.Kakao.isInitialized()) {
+      window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+    }
+
     window.Kakao.Auth.authorize({
       redirectUri: import.meta.env.VITE_KAKAO_REDIRECT_URI,
     });
   };
 
-  const handleGoogleLogin = () => {
-    if (googleClient) {
-      googleClient.requestCode();
-    } else {
-      alert("Google 로그인 초기화 중입니다. 잠시 후 다시 시도해주세요.");
+  const handleGoogleLogin = useCallback(async () => {
+    if (googleLoading) return;
+    try {
+      setGoogleLoading(true);
+      window.location.href = "/api/oauth/google/auth?mode=login";
+    } finally {
+      setGoogleLoading(false);
     }
-  };
+  }, [googleLoading]);
 
   const closeOtpModal = () => {
     resetOtp();
   };
+
+  useEffect(() => {
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+    }
+  }, []);
 
   return {
     email,

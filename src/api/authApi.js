@@ -37,3 +37,6 @@ export const disableOtp = () => httpClient.post("/auth/otp/disable");
 
 export const disableOtpVerify = (code) =>
   httpClient.post("/auth/otp/disable-verify", { code });
+
+export const connectSocial = (provider, providerUserId) =>
+  httpClient.post("/users/me/oauth/connect", { provider, providerUserId });
