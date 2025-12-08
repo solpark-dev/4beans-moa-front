@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Search } from 'lucide-react';
+import { Search, Coffee } from 'lucide-react';
 import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 
@@ -83,7 +83,11 @@ const GetProductList = () => {
       <div className="flex justify-between items-end mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            구독 상품 <span className="text-2xl"></span>
+            구독 상품
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF4E5] text-[#B95000] animate-bounce shadow-sm ml-2">
+              <Coffee className="w-3 h-3" />
+              개인 구독 관리
+            </span>
           </h1>
           <p className="text-gray-500 mt-2">다양한 구독 서비스를 확인하고 관리해보세요.</p>
         </div>
@@ -151,65 +155,85 @@ const GetProductList = () => {
           {filteredProducts.map(product => (
             <div
               key={product.productId}
-              onClick={() => navigate(`/product/${product.productId}`)}
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-200 ease-out hover:-translate-y-2 border border-gray-100 hover:border-indigo-500 cursor-pointer p-4 flex flex-col h-full relative overflow-hidden"
+              className="group relative flex flex-col h-full bg-white rounded-[2rem] border border-stone-200 p-6 overflow-hidden transition-all duration-500 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/10 transform hover:-translate-y-2"
             >
-              {/* Main Content: Horizontal Layout */}
-              <div className="flex items-start gap-4 mb-3">
-                {/* Icon Box (90x90) */}
-                <div className="w-[90px] h-[90px] rounded-2xl overflow-hidden bg-white border-2 border-gray-200 flex-shrink-0 relative group-hover:border-indigo-500 transition-colors duration-200 p-0.5">
-                  <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 relative">
+              {/* 콘텐츠 레이어 */}
+              <div className="relative z-10 flex flex-col gap-4 h-full">
+                {/* 상단: 아이콘 + 서비스 정보 */}
+                <div className="flex items-start gap-3">
+                  <div className="relative w-[60px] h-[60px] flex-shrink-0">
                     {product.image ? (
                       <img
                         src={product.image}
                         alt={product.productName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full rounded-xl object-cover border border-stone-200 shadow-sm"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-300">
-                        <span className="text-xs">No Img</span>
+                      <div className="w-full h-full rounded-xl bg-stone-100 flex items-center justify-center border border-stone-200">
+                        <span className="text-stone-400 text-xs">No Img</span>
                       </div>
                     )}
 
-                    {/* Status Overlay */}
+                    {/* INACTIVE 오버레이 */}
                     {product.productStatus === 'INACTIVE' && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                        <span className="text-white text-[10px] font-bold">중지</span>
+                      <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">중지</span>
                       </div>
                     )}
                   </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-stone-900 mb-0.5 truncate">
+                      {product.productName}
+                    </h3>
+                    <p className="text-sm text-stone-500">
+                      {product.categoryName || '구독'}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Info Area (Right) */}
-                <div className="flex-1 min-w-0 pt-1">
-                  <div className="mb-1">
-                    {product.categoryName && (
-                      <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-bold tracking-wide">
-                        {product.categoryName}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 truncate group-hover:text-indigo-600 transition-colors">
-                    {product.productName}
-                  </h3>
-
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-[#FF6B00]">
-                      {product.price?.toLocaleString()}
+                {/* 중단: 가격 정보 박스 */}
+                <div className="rounded-2xl p-5 flex-1 border transition-colors backdrop-blur-sm bg-stone-50/80 border-stone-100 group-hover:bg-white group-hover:border-stone-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-stone-500 text-sm font-medium">월 공식 구독료</span>
+                    <span className="text-xl font-bold text-stone-900">
+                      ₩{product.price?.toLocaleString()}
                     </span>
-                    <span className="text-gray-400 text-sm font-medium">원/월</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Bottom Section: Hover Action */}
-              <div className="mt-auto pt-3 border-t border-gray-50 flex justify-between items-center group-hover:border-indigo-50 transition-colors">
-                <span className="text-xs font-medium text-gray-400 group-hover:text-indigo-600 transition-colors">
-                  자세히 보기
-                </span>
-                <div className="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors" />
+                {/* 하단: 액션 버튼 */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/product/${product.productId}`);
+                    }}
+                    className="border border-stone-200 text-stone-700 rounded-lg py-2.5 text-sm font-medium hover:bg-stone-50 transition-colors"
+                  >
+                    상세보기
+                  </button>
+                  {user?.role === 'ADMIN' ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/product/${product.productId}/edit`);
+                      }}
+                      className="bg-stone-900 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-stone-700 transition-colors"
+                    >
+                      상품관리
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/subscription/add/${product.productId}`);
+                      }}
+                      className="bg-stone-900 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-indigo-600 transition-colors"
+                    >
+                      구독신청
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
