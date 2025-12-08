@@ -9,7 +9,8 @@ export const logout = () => httpClient.post("/auth/logout");
 
 export const signup = (data) => httpClient.post("/users/add", data);
 
-export const verifyEmail = (token) => httpClient.post(`/auth/verify-email?token=${token}`);
+export const verifyEmail = (token) =>
+  httpClient.post(`/auth/verify-email?token=${token}`);
 
 export const checkCommon = (data) => httpClient.post("/users/check", data);
 
@@ -26,3 +27,13 @@ export const verifyPassAuth = (data) =>
 
 export const startRestoreVerify = (userId) =>
   httpClient.post("/users/restore/start", { userId });
+
+export const setupOtp = () => httpClient.post("/auth/otp/setup");
+
+export const verifyOtp = (code) =>
+  httpClient.post("/auth/otp/verify", { code });
+
+export const disableOtp = () => httpClient.post("/auth/otp/disable");
+
+export const disableOtpVerify = (code) =>
+  httpClient.post("/auth/otp/disable-verify", { code });

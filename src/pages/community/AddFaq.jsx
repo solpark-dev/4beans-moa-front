@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,34 +10,28 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 const AddFaq = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [formData, setFormData] = useState({
-        userId: '',
         communityCodeId: 4,
         title: '',
         content: ''
     });
-    const [isAdmin, setIsAdmin] = useState(false);
 
-    useEffect(() => {
-        checkUserRole();
-    }, []);
+    const isAdmin = user?.role === 'ADMIN';
+    const userId = user?.userId || 'admin@moa.com';
 
-    const checkUserRole = () => {
-        const userRole = sessionStorage.getItem('role');
-        const userId = sessionStorage.getItem('userId');
-        
-        if (userRole !== 'ADMIN') {
-            alert('관리자만 접근 가능합니다.');
-            navigate('/community/faq');
-            return;
-        }
-        
-        setIsAdmin(true);
-        setFormData(prev => ({
-            ...prev,
-            userId: userId || 'admin@moa.com'
-        }));
-    };
+    if (!isAdmin) {
+        return (
+            <CommunityLayout>
+                <div className="text-center py-20">
+                    <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
+                    <Button onClick={() => navigate('/community/faq')}>
+                        목록으로 돌아가기
+                    </Button>
+                </div>
+            </CommunityLayout>
+        );
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -63,7 +58,10 @@ const AddFaq = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    userId: userId
+                }),
             });
 
             if (response.ok) {
@@ -81,10 +79,6 @@ const AddFaq = () => {
     const handleCancel = () => {
         navigate('/community/faq');
     };
-
-    if (!isAdmin) {
-        return null;
-    }
 
     return (
         <CommunityLayout>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoA - 스마트한 구독 관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <style>
+        :root {
+            --font-pretendard: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+        body {
+            font-family: var(--font-pretendard);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(214.3 31.8% 91.4%)",
+                        input: "hsl(214.3 31.8% 91.4%)",
+                        ring: "hsl(222.2 84% 4.9%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(222.2 84% 4.9%)",
+                        primary: {
+                            DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 47.4% 11.2%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(215.4 16.3% 46.9%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 47.4% 11.2%)",
+                        },
+                    },
+                    borderRadius: {
+                        lg: "0.5rem",
+                        md: "calc(0.5rem - 2px)",
+                        sm: "calc(0.5rem - 4px)",
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-white text-slate-900 antialiased selection:bg-slate-900 selection:text-white">
+
+    <nav class="fixed top-0 w-full z-50 border-b border-slate-100 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="bg-slate-900 text-white p-1.5 rounded-lg">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">MoA</span>
+                </div>
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                    <a href="#" class="hover:text-slate-900 transition-colors">파티 찾기</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">이용 가이드</a>
+                    <a href="#" class="hover:text-slate-900 transition-colors">자주 묻는 질문</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="text-sm font-medium text-slate-600 hover:text-slate-900">로그인</a>
+                    <a href="#" class="inline-flex h-9 items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-slate-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950">
+                        시작하기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-16">
+        <section class="relative py-20 lg:py-32 overflow-hidden">
+            <div class="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+            <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-indigo-500 opacity-20 blur-[100px]"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+                <div class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-600 shadow-sm mb-8 animate-fade-in-up">
+                    <span class="flex h-2 w-2 rounded-full bg-indigo-500 mr-2"></span>
+                    지금 가입하면 첫 달 수수료 무료 🎉
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 max-w-4xl leading-tight">
+                    모든 구독을 <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">반값으로</span>.<br/>
+                    스마트한 관리의 시작.
+                </h1>
+                
+                <p class="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl leading-relaxed">
+                    넷플릭스, 디즈니+, 유튜브 프리미엄까지. <br class="hidden md:block"/>
+                    흩어진 구독 서비스를 MoA에서 안전하게 공유하고, 매달 커피 두 잔 값을 아끼세요.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <a href="/parties" class="inline-flex h-12 items-center justify-center rounded-lg bg-slate-900 px-8 text-base font-medium text-white shadow-lg transition-all hover:bg-slate-800 hover:scale-105">
+                        파티 찾으러 가기
+                        <i data-lucide="arrow-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                    <a href="/parties/create" class="inline-flex h-12 items-center justify-center rounded-lg border border-slate-200 bg-white px-8 text-base font-medium text-slate-900 shadow-sm transition-all hover:bg-slate-50 hover:text-slate-900">
+                        파티 만들기
+                    </a>
+                </div>
+
+                <div class="mt-20 relative w-full max-w-5xl">
+                    <div class="relative rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+                        <div class="flex items-center border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+                            <div class="flex space-x-1.5">
+                                <div class="h-3 w-3 rounded-full bg-red-400"></div>
+                                <div class="h-3 w-3 rounded-full bg-amber-400"></div>
+                                <div class="h-3 w-3 rounded-full bg-green-400"></div>
+                            </div>
+                        </div>
+                        <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                            <div class="space-y-2">
+                                <div class="text-sm font-medium text-slate-500">이번 달 절약한 금액</div>
+                                <div class="text-3xl font-bold text-slate-900">₩ 27,500</div>
+                                <div class="text-xs text-green-600 flex items-center">
+                                    <i data-lucide="trending-up" class="w-3 h-3 mr-1"></i> 지난달보다 15% 증가
+                                </div>
+                            </div>
+                             <div class="space-y-2">
+                                <div class="text-sm font-medium text-slate-500">구독 중인 서비스</div>
+                                <div class="flex -space-x-3">
+                                    <img class="w-10 h-10 rounded-full border-2 border-white shadow-sm" src="https://picsum.photos/seed/n/100/100" alt="">
+                                    <img class="w-10 h-10 rounded-full border-2 border-white shadow-sm" src="https://picsum.photos/seed/d/100/100" alt="">
+                                    <img class="w-10 h-10 rounded-full border-2 border-white shadow-sm" src="https://picsum.photos/seed/y/100/100" alt="">
+                                    <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500 shadow-sm">+1</div>
+                                </div>
+                            </div>
+                             <div class="space-y-2">
+                                <div class="text-sm font-medium text-slate-500">다음 결제일</div>
+                                <div class="text-lg font-semibold text-slate-900">12월 25일</div>
+                                <div class="w-full bg-slate-100 rounded-full h-2 mt-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full" style="width: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-24 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900">왜 MoA인가요?</h2>
+                    <p class="mt-4 text-lg text-slate-500">복잡한 구독 관리, 이제 MoA 하나로 해결하세요.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="group relative rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
+                        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">먹튀 걱정 제로</h3>
+                        <p class="text-slate-500 leading-relaxed">
+                            본인 인증과 안전 결제 시스템(Escrow)을 통해 파티 해지 시점까지 결제 금액을 안전하게 보호합니다.
+                        </p>
+                    </div>
+
+                    <div class="group relative rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
+                        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">5초 빠른 매칭</h3>
+                        <p class="text-slate-500 leading-relaxed">
+                            기다릴 필요 없습니다. 결제 즉시 계정 정보가 공유되며, 바로 시청을 시작할 수 있습니다.
+                        </p>
+                    </div>
+
+                    <div class="group relative rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
+                        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">자동 정산 시스템</h3>
+                        <p class="text-slate-500 leading-relaxed">
+                            파티장도, 파티원도 매달 신경 쓸 필요가 없습니다. 정해진 날짜에 알아서 정산됩니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-end mb-10">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight text-slate-900">지금 뜨는 파티 🔥</h2>
+                        <p class="mt-2 text-slate-500">실시간으로 모집 중인 인기 파티를 확인하세요.</p>
+                    </div>
+                    <a href="#" class="hidden md:flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+                        전체 보기 <i data-lucide="chevron-right" class="ml-1 w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <div class="group relative rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-indigo-200">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative">
+                                        <img src="https://picsum.photos/seed/netflix/60/60" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
+                                        <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
+                                            <div class="w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-900">Netflix 4K</h3>
+                                        <p class="text-xs font-medium text-slate-400">프리미엄 요금제</p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
+                                    모집중
+                                </span>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="text-sm font-medium text-slate-900 mb-2">4,250원 <span class="text-slate-400 font-normal">/ 월</span></h4>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 50%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-slate-500 mt-1.5">
+                                    <span>2명 참여중</span>
+                                    <span class="font-medium text-indigo-600">2자리 남음</span>
+                                </div>
+                            </div>
+
+                            <button class="w-full inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800">
+                                파티 참여하기
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="group relative rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-indigo-200">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative">
+                                        <img src="https://picsum.photos/seed/disney/60/60" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-900">Disney+</h3>
+                                        <p class="text-xs font-medium text-slate-400">스탠다드 요금제</p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
+                                    마감
+                                </span>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="text-sm font-medium text-slate-900 mb-2">2,400원 <span class="text-slate-400 font-normal">/ 월</span></h4>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-slate-300 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-slate-500 mt-1.5">
+                                    <span>4명 참여중</span>
+                                    <span>모집 완료</span>
+                                </div>
+                            </div>
+
+                            <button disabled class="w-full inline-flex items-center justify-center rounded-md bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed">
+                                모집 마감
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="group relative rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-indigo-200">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative">
+                                        <img src="https://picsum.photos/seed/youtube/60/60" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
+                                        <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
+                                            <div class="w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-900">YouTube Premium</h3>
+                                        <p class="text-xs font-medium text-slate-400">가족 요금제</p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
+                                    급구
+                                </span>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="text-sm font-medium text-slate-900 mb-2">3,600원 <span class="text-slate-400 font-normal">/ 월</span></h4>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 80%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-slate-500 mt-1.5">
+                                    <span>4명 참여중</span>
+                                    <span class="font-medium text-red-500">마지막 1자리!</span>
+                                </div>
+                            </div>
+
+                            <button class="w-full inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800">
+                                파티 참여하기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center md:hidden">
+                    <button class="w-full inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                        전체 파티 보기
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-slate-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="bg-slate-900 text-white p-1 rounded">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-lg font-bold text-slate-900">MoA</span>
+                </div>
+                <p class="text-slate-400 text-sm">© 2024 MoA Inc. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i data-lucide="twitter" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

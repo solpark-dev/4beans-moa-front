@@ -47,7 +47,7 @@ export function useHeaderLogic() {
     }
   };
 
-  const isAdmin = user?.role === "ADMIN" || user?.email === "admin@admin.com";
+  const isAdmin = user?.role === "ADMIN";
 
   const profileImageUrl = user?.profileImage
     ? user.profileImage.startsWith("http")

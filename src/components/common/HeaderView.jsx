@@ -74,7 +74,7 @@ export default function HeaderView({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-sm h-20">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm h-20">
       <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           to={isAdmin ? "/admin/users" : "/"}
@@ -153,9 +153,8 @@ export default function HeaderView({
 
           {user ? (
             <div className="flex items-center gap-4">
-              {(user.email === "admin@admin.com" ||
-                user.email === "admin@moa.com") && (
-                <div className="hidden 2xl:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm">
+              {user?.role === "ADMIN" && (
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm">
                   <Switch
                     id="admin-mode"
                     checked={isAdminMode}
@@ -182,7 +181,10 @@ export default function HeaderView({
 
               <Separator orientation="vertical" className="h-8 bg-slate-200" />
 
-              <div className="flex items-center gap-3 px-1">
+              <Link
+                to="/mypage"
+                className="relative z-50 flex items-center gap-3 px-1 hover:opacity-80 transition cursor-pointer"
+              >
                 <Avatar className="h-11 w-11 border border-slate-200 bg-slate-50 shadow-sm">
                   <AvatarImage src={profileImageUrl} alt={displayNickname} />
                   <AvatarFallback className="bg-indigo-50 text-indigo-600 text-lg font-bold">
@@ -196,7 +198,7 @@ export default function HeaderView({
                   </span>
                   {renderProviderBadge(user.provider)}
                 </div>
-              </div>
+              </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -256,14 +258,6 @@ export default function HeaderView({
 
                   {isAdmin ? (
                     <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        onClick={handleAdminSwitch}
-                        className="py-2.5 font-medium text-slate-700 cursor-pointer"
-                      >
-                        <RefreshCw className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                        관리자 권한 전환
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="my-1" />
                       <DropdownMenuItem
                         onClick={logout}
                         className="py-2.5 text-red-600 bg-red-50/60 font-medium cursor-pointer"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,62 +11,59 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 const UpdateNotice = () => {
     const navigate = useNavigate();
     const { communityId } = useParams();
+    const { user } = useAuthStore();
     const [formData, setFormData] = useState({
-        userId: '',
         communityCodeId: 10,
         title: '',
         content: ''
     });
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const isAdmin = user?.role === 'ADMIN';
+    const userId = user?.userId || 'admin@moa.com';
 
     useEffect(() => {
-        // checkUserRole(); // 임시 비활성화
-        setIsAdmin(true); // 임시로 true 설정
-        
-        // userId 설정
-        const userId = sessionStorage.getItem('userId') || 'admin@moa.com';
-        setFormData(prev => ({
-            ...prev,
-            userId: userId
-        }));
+        const loadNoticeDetail = async () => {
+            try {
+                const response = await fetch(`/api/community/notice/${communityId}`);
+                const data = await response.json();
+                
+                setFormData({
+                    communityCodeId: data.communityCodeId,
+                    title: data.title,
+                    content: data.content
+                });
+                setIsLoading(false);
+            } catch (error) {
+                console.error('공지사항 로드 실패:', error);
+                alert('공지사항을 불러올 수 없습니다.');
+                navigate('/community/notice');
+            }
+        };
         
         loadNoticeDetail();
-    }, [communityId]);
+    }, [communityId, navigate]);
 
-    const checkUserRole = () => {
-        const userRole = sessionStorage.getItem('role');
-        const userId = sessionStorage.getItem('userId');
-        
-        if (userRole !== 'ADMIN') {
-            alert('관리자만 접근 가능합니다.');
-            navigate('/community/notice');
-            return;
-        }
-        
-        setIsAdmin(true);
-        setFormData(prev => ({
-            ...prev,
-            userId: userId
-        }));
-    };
+    if (!isAdmin) {
+        return (
+            <CommunityLayout>
+                <div className="text-center py-20">
+                    <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
+                    <Button onClick={() => navigate('/community/notice')}>
+                        목록으로 돌아가기
+                    </Button>
+                </div>
+            </CommunityLayout>
+        );
+    }
 
-    const loadNoticeDetail = async () => {
-        try {
-            const response = await fetch(`/api/community/notice/${communityId}`);
-            const data = await response.json();
-            
-            setFormData({
-                userId: data.userId,
-                communityCodeId: data.communityCodeId,
-                title: data.title,
-                content: data.content
-            });
-        } catch (error) {
-            console.error('공지사항 로드 실패:', error);
-            alert('공지사항을 불러올 수 없습니다.');
-            navigate('/community/notice');
-        }
-    };
+    if (isLoading) {
+        return (
+            <CommunityLayout>
+                <div className="text-center py-20 text-gray-500">로딩 중...</div>
+            </CommunityLayout>
+        );
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -101,7 +99,10 @@ const UpdateNotice = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    userId: userId
+                }),
             });
 
             if (response.ok) {
@@ -120,10 +121,6 @@ const UpdateNotice = () => {
         navigate(`/community/notice/${communityId}`);
     };
 
-    if (!isAdmin) {
-        return null;
-    }
-
     return (
         <CommunityLayout>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">공지사항 수정</h2>
@@ -138,7 +135,6 @@ const UpdateNotice = () => {
                                 onChange={(e) => handleCategoryChange(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                                <option value="4">FAQ</option>
                                 <option value="5">회원</option>
                                 <option value="6">결제</option>
                                 <option value="7">구독</option>

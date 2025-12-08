@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import InquiryAnswerModal from '../../components/community/InquiryAnswerModal';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { ImageIcon } from 'lucide-react';
 import {
     Pagination,
     PaginationContent,
@@ -15,6 +18,7 @@ import {
 
 const InquiryAdmin = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [inquiries, setInquiries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -22,24 +26,35 @@ const InquiryAdmin = () => {
     const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
     const pageSize = 10;
 
+    const isAdmin = user?.role === 'ADMIN';
+
     useEffect(() => {
-        // 임시: 권한 체크 비활성화
-        // checkAdmin();
-        loadAllInquiries(1);
-    }, []);
-
-    const checkAdmin = () => {
-        // 임시: 권한 체크 비활성화
-        // const userRole = sessionStorage.getItem('role');
+        const loadAllInquiries = async () => {
+            try {
+                const response = await fetch(`/api/community/inquiry?page=1&size=${pageSize}`);
+                
+                if (!response.ok) {
+                    console.error('API 응답 에러:', response.status);
+                    setInquiries([]);
+                    return;
+                }
+                
+                const data = await response.json();
+                setInquiries(data.content || []);
+                setCurrentPage(data.page || 1);
+                setTotalPages(data.totalPages || 0);
+            } catch (error) {
+                console.error('문의 목록 로드 실패:', error);
+                setInquiries([]);
+            }
+        };
         
-        // if (userRole !== 'ADMIN') {
-        //     alert('관리자만 접근 가능합니다.');
-        //     navigate('/community/inquiry');
-        //     return;
-        // }
-    };
+        if (isAdmin) {
+            loadAllInquiries();
+        }
+    }, [isAdmin]);
 
-    const loadAllInquiries = async (page) => {
+    const loadAllInquiriesByPage = async (page) => {
         try {
             const response = await fetch(`/api/community/inquiry?page=${page}&size=${pageSize}`);
             
@@ -59,44 +74,56 @@ const InquiryAdmin = () => {
         }
     };
 
-    const handleInquiryClick = (inquiry) => {
+    if (!isAdmin) {
+        return (
+            <CommunityLayout>
+                <div className="text-center py-20">
+                    <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
+                    <Button onClick={() => navigate('/community/inquiry')}>
+                        문의하기로 이동
+                    </Button>
+                </div>
+            </CommunityLayout>
+        );
+    }
+
+    const handleAnswerClick = (inquiry) => {
         setSelectedInquiry(inquiry);
         setIsAnswerModalOpen(true);
     };
 
-    const handleAnswerSubmit = async (inquiryId, answerContent) => {
+    const handleAnswerSubmit = async (communityId, answerContent) => {
+        const isUpdate = selectedInquiry?.answerContent;
+        const method = isUpdate ? 'PUT' : 'POST';
+        
         try {
-            // 테스트 코드 기준: POST /api/community/inquiry/answer 또는 PUT /api/community/inquiry/answer
-            const method = 'POST'; // 또는 'PUT' - 백엔드 확인 필요
-            
-            const response = await fetch(`/api/community/inquiry/answer`, {
+            const response = await fetch('/api/community/inquiry/answer', {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    communityId: inquiryId,
+                    communityId: communityId,
                     answerContent: answerContent
                 }),
             });
 
             if (response.ok) {
-                alert('답변이 저장되었습니다.');
-                loadAllInquiries(currentPage);
+                alert(isUpdate ? '답변이 수정되었습니다.' : '답변이 등록되었습니다.');
+                setIsAnswerModalOpen(false);
+                loadAllInquiriesByPage(currentPage);
             } else {
-                const errorText = await response.text();
-                console.error('답변 저장 실패:', errorText);
-                alert('답변 저장에 실패했습니다: ' + response.status);
+                alert('답변 처리에 실패했습니다.');
             }
         } catch (error) {
-            console.error('답변 저장 실패:', error);
-            alert('답변 저장 중 오류가 발생했습니다: ' + error.message);
+            console.error('답변 처리 실패:', error);
+            alert('답변 처리 중 오류가 발생했습니다.');
         }
     };
 
     const handlePageChange = (page) => {
         if (page < 1 || page > totalPages) return;
-        loadAllInquiries(page);
+        loadAllInquiriesByPage(page);
         window.scrollTo(0, 0);
     };
 
@@ -138,74 +165,60 @@ const InquiryAdmin = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">문의 관리</h2>
 
             <Card>
-                <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 border-b">
-                                <tr>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                                        번호
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        제목
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                                        작성자
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                                        카테고리
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                                        작성일
-                                    </th>
-                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                                        상태
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {inquiries.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
-                                            등록된 문의가 없습니다.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    inquiries.map((inquiry, index) => (
-                                        <tr
-                                            key={inquiry.communityId}
-                                            onClick={() => handleInquiryClick(inquiry)}
-                                            className="hover:bg-gray-50 cursor-pointer transition-colors"
-                                        >
-                                            <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                                {(currentPage - 1) * pageSize + index + 1}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {inquiry.title}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                                {inquiry.userId}
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <Badge variant="secondary" className="bg-blue-50 text-blue-600">
-                                                    {getCategoryName(inquiry.communityCodeId)}
-                                                </Badge>
-                                            </td>
-                                            <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                                {formatDate(inquiry.createdAt)}
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                {getStatusBadge(inquiry.answerStatus)}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 text-sm">
+                    <div className="col-span-1 text-center">번호</div>
+                    <div className="col-span-1 text-center">카테고리</div>
+                    <div className="col-span-4">제목</div>
+                    <div className="col-span-2 text-center">작성자</div>
+                    <div className="col-span-2 text-center">작성일</div>
+                    <div className="col-span-1 text-center">상태</div>
+                    <div className="col-span-1 text-center">관리</div>
+                </div>
+
+                {inquiries.length === 0 ? (
+                    <div className="py-20 text-center text-gray-500">
+                        등록된 문의가 없습니다.
                     </div>
-                </CardContent>
+                ) : (
+                    inquiries.map((inquiry, index) => (
+                        <div
+                            key={inquiry.communityId}
+                            className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 hover:bg-gray-50 items-center"
+                        >
+                            <div className="col-span-1 text-center text-gray-500">
+                                {(currentPage - 1) * pageSize + index + 1}
+                            </div>
+                            <div className="col-span-1 text-center">
+                                <Badge variant="outline">{getCategoryName(inquiry.communityCodeId)}</Badge>
+                            </div>
+                            <div className="col-span-4 text-gray-900 truncate flex items-center gap-2">
+                                {inquiry.title}
+                                {inquiry.fileOriginal && (
+                                    <ImageIcon className="w-4 h-4 text-gray-400" />
+                                )}
+                            </div>
+                            <div className="col-span-2 text-center text-gray-600 text-sm truncate">
+                                {inquiry.userId}
+                            </div>
+                            <div className="col-span-2 text-center text-gray-500 text-sm">
+                                {formatDate(inquiry.createdAt)}
+                            </div>
+                            <div className="col-span-1 text-center">
+                                {getStatusBadge(inquiry.answerStatus)}
+                            </div>
+                            <div className="col-span-1 text-center">
+                                <Button
+                                    size="sm"
+                                    variant={inquiry.answerStatus === '답변완료' ? 'outline' : 'default'}
+                                    onClick={() => handleAnswerClick(inquiry)}
+                                    className={inquiry.answerStatus !== '답변완료' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                                >
+                                    {inquiry.answerStatus === '답변완료' ? '수정' : '답변'}
+                                </Button>
+                            </div>
+                        </div>
+                    ))
+                )}
             </Card>
 
             {totalPages > 0 && (
@@ -214,7 +227,7 @@ const InquiryAdmin = () => {
                         <PaginationItem>
                             <PaginationPrevious 
                                 onClick={() => handlePageChange(currentPage - 1)}
-                                className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} [&>span]:hidden`}
+                                className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
                             />
                         </PaginationItem>
                         
@@ -233,7 +246,7 @@ const InquiryAdmin = () => {
                         <PaginationItem>
                             <PaginationNext 
                                 onClick={() => handlePageChange(currentPage + 1)}
-                                className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} [&>span]:hidden`}
+                                className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
                             />
                         </PaginationItem>
                     </PaginationContent>
