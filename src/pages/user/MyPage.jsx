@@ -1,7 +1,7 @@
 import React from "react";
 import { useMyPage } from "@/hooks/user/useMyPage";
+import { useLoginHistory } from "@/hooks/user/useLoginHistory";
 
-// shadcn-ui
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-// icons
 import {
   User,
   CreditCard,
@@ -28,14 +27,12 @@ import {
   Zap,
 } from "lucide-react";
 
-// QR
 import { QRCodeSVG } from "qrcode.react";
-
-// zustand OTP store
 import { useOtpStore } from "@/store/user/otpStore";
 
 export default function MyPage() {
   const { state, actions } = useMyPage();
+  const loginHistory = useLoginHistory(10);
 
   const { user, isAdmin, shortId, marketingAgreed, googleConn, kakaoConn } =
     state;
@@ -52,7 +49,6 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
-      {/* 상단 HERO 영역 */}
       <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
           <div className="max-w-xl text-center md:text-left">
@@ -71,7 +67,6 @@ export default function MyPage() {
             </p>
           </div>
 
-          {/* 상단 요약 카드 */}
           <Card className="bg-white/95 border border-indigo-100 shadow-xl rounded-3xl w-full max-w-md">
             <CardContent className="p-6 flex items-center gap-5">
               <div className="relative">
@@ -139,10 +134,8 @@ export default function MyPage() {
         </div>
       </section>
 
-      {/* 본문 영역 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
         <div className="flex flex-col lg:flex-row gap-8 mt-8 min-h-[520px]">
-          {/* 좌측 사이드 메뉴 */}
           <aside className="w-full lg:w-72 flex flex-col gap-4">
             <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-4">
@@ -206,7 +199,6 @@ export default function MyPage() {
             )}
           </aside>
 
-          {/* 우측 메인 정보 카드들 */}
           <main className="flex-1 flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <InfoCard
@@ -303,6 +295,8 @@ export default function MyPage() {
                 </div>
               </InfoCard>
             </div>
+
+            <LoginHistoryCard loginHistory={loginHistory} />
           </main>
         </div>
       </div>
@@ -363,10 +357,6 @@ export default function MyPage() {
     </div>
   );
 }
-
-// ----------------------------------------------------------------------
-// 아래 보조 컴포넌트들도 생략 없이 모두 포함되어 있습니다.
-// ----------------------------------------------------------------------
 
 function MenuButton({
   icon,
@@ -431,7 +421,7 @@ function SocialButton({ provider, isConnected, onClick }) {
   const baseGoogle =
     "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-white border-slate-200 text-slate-800 hover:bg-slate-50 rounded-xl";
   const baseKakao =
-    "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-[#FEE500] border-[#FCD34D] text-slate-900 hover:bg-[#FDE68A] rounded-xl";
+    "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-[#FEE500] border-[#FCD34D] text-slate-900 hover:bg[#FDE68A] rounded-xl";
 
   return (
     <Button
@@ -445,5 +435,146 @@ function SocialButton({ provider, isConnected, onClick }) {
         ? `${provider.toUpperCase()} 해제`
         : `${provider.toUpperCase()} 연동`}
     </Button>
+  );
+}
+
+function LoginHistoryCard({ loginHistory }) {
+  const {
+    state: { items, page, pages, pageCount, loading, totalCount },
+    actions: { goFirst, goPrev, goPage, goNextBlock, goLast },
+  } = loginHistory;
+
+  return (
+    <InfoCard title="LOGIN HISTORY" icon={<KeyRound className="w-4 h-4" />}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs text-slate-500">
+          최근 로그인 이력 {totalCount}건
+        </span>
+      </div>
+
+      {loading && (
+        <div className="py-8 text-center text-sm text-slate-500">
+          불러오는 중...
+        </div>
+      )}
+
+      {!loading && items.length === 0 && (
+        <div className="py-8 text-center text-sm text-slate-400">
+          아직 로그인 이력이 없습니다.
+        </div>
+      )}
+
+      {!loading && items.length > 0 && (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                    일시
+                  </th>
+                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                    결과
+                  </th>
+                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                    IP
+                  </th>
+                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                    타입
+                  </th>
+                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                    User-Agent
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, idx) => (
+                  <tr
+                    key={`${item.loginAt}-${idx}`}
+                    className="border-b border-slate-100 hover:bg-slate-50"
+                  >
+                    <td className="py-2 px-2 text-slate-800 whitespace-nowrap">
+                      {item.loginAtFormatted}
+                    </td>
+                    <td
+                      className={`py-2 px-2 font-semibold ${
+                        item.success ? "text-emerald-600" : "text-red-500"
+                      }`}
+                    >
+                      {item.successText}
+                    </td>
+                    <td className="py-2 px-2 text-slate-700 whitespace-nowrap">
+                      {item.loginIp || "-"}
+                    </td>
+                    <td className="py-2 px-2 text-slate-700 whitespace-nowrap">
+                      {item.loginType || "-"}
+                    </td>
+                    <td className="py-2 px-2 text-slate-500 max-w-[220px] truncate">
+                      {item.userAgent || "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 text-xs"
+              onClick={goFirst}
+              disabled={page <= 1}
+            >
+              {"<<"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 text-xs"
+              onClick={goPrev}
+              disabled={page <= 1}
+            >
+              {"<"}
+            </Button>
+            {pages.map((p) => (
+              <Button
+                key={p}
+                type="button"
+                variant={p === page ? "default" : "outline"}
+                className={`h-8 min-w-[2rem] text-xs ${
+                  p === page ? "bg-indigo-600 text-white" : "text-slate-700"
+                }`}
+                onClick={() => goPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 text-xs"
+              onClick={goNextBlock}
+              disabled={page >= pageCount}
+            >
+              {">"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 text-xs"
+              onClick={goLast}
+              disabled={page >= pageCount}
+            >
+              {">>"}
+            </Button>
+          </div>
+        </>
+      )}
+    </InfoCard>
   );
 }
