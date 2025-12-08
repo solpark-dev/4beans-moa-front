@@ -1,6 +1,7 @@
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -13,6 +14,7 @@ export default function PaymentDetailModal({ isOpen, onClose, payment }) {
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>결제 상세 정보</DialogTitle>
+                    <DialogDescription>결제 내역의 상세 정보입니다.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                     <div className="flex justify-between items-center border-b pb-4">
@@ -45,12 +47,16 @@ export default function PaymentDetailModal({ isOpen, onClose, payment }) {
                             <span className="text-gray-500">상태</span>
                             <span
                                 className={
-                                    payment.paymentStatus === "SUCCESS"
+                                    payment.paymentStatus === "COMPLETED"
                                         ? "text-green-600 font-bold"
-                                        : "text-red-600 font-bold"
+                                        : payment.paymentStatus === "FAILED"
+                                            ? "text-red-600 font-bold"
+                                            : "text-yellow-600 font-bold"
                                 }
                             >
-                                {payment.paymentStatus === "SUCCESS" ? "결제완료" : "결제실패"}
+                                {payment.paymentStatus === "COMPLETED" ? "결제완료"
+                                    : payment.paymentStatus === "FAILED" ? "결제실패"
+                                        : "처리중"}
                             </span>
                         </div>
                     </div>

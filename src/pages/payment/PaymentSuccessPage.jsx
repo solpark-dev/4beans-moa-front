@@ -64,7 +64,12 @@ export default function PaymentSuccessPage() {
                 } else if (type === "JOIN_PARTY") {
                     await joinParty(partyId, paymentData);
                     localStorage.removeItem("pendingPayment");
-                    navigate(`/party/${partyId}`);
+
+                    // ✨ 파티원은 월 구독료 자동 결제를 위해 빌링키 등록 필요
+                    // 결제 성공 후 자동으로 빌링키 등록 페이지로 리다이렉트
+                    localStorage.setItem("afterBillingRedirect", `/party/${partyId}`);
+                    localStorage.setItem("billingRegistrationReason", "party_join");
+                    navigate("/payment/billing/register");
                 } else {
                     throw new Error("알 수 없는 결제 유형입니다.");
                 }
@@ -111,22 +116,22 @@ export default function PaymentSuccessPage() {
     }, [navigate, searchParams]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-            <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50">
+            <div className="bg-white p-8 rounded-3xl shadow-lg text-center border border-stone-200">
                 {status === "processing" && (
                     <>
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <h2 className="text-xl font-bold">결제 확인 중입니다...</h2>
-                        <p className="text-gray-600 mt-2">잠시만 기다려주세요.</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ea580c] mx-auto mb-4"></div>
+                        <h2 className="text-xl font-extrabold text-gray-900">결제 확인 중입니다...</h2>
+                        <p className="text-stone-600 mt-2 font-semibold">잠시만 기다려주세요.</p>
                     </>
                 )}
                 {status === "fail" && (
                     <>
                         <div className="text-red-600 text-5xl mb-4">⚠️</div>
-                        <h2 className="text-xl font-bold">결제 처리에 실패했습니다.</h2>
+                        <h2 className="text-xl font-extrabold text-gray-900">결제 처리에 실패했습니다.</h2>
                         <button
                             onClick={() => navigate("/")}
-                            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                            className="mt-6 bg-[#ea580c] hover:bg-[#c2410c] text-white px-6 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
                         >
                             메인으로 돌아가기
                         </button>

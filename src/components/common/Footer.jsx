@@ -25,7 +25,7 @@ export default function Footer() {
           <h3 className="text-sm font-semibold text-gray-700 mb-3">고객지원</h3>
           <ul className="space-y-2 text-sm text-gray-500">
             <li>
-              <Link to="/support" className="hover:text-blue-600">
+              <Link to="/community/notice" className="hover:text-blue-600">
                 고객센터
               </Link>
             </li>

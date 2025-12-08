@@ -48,14 +48,16 @@ export default function PaymentHistoryList() {
                             </div>
                             <div className="text-right">
                                 <span
-                                    className={`inline-block px-2 py-1 text-xs font-bold rounded-full ${payment.paymentStatus === "SUCCESS"
+                                    className={`inline-block px-2 py-1 text-xs font-bold rounded-full ${payment.paymentStatus === "COMPLETED"
                                         ? "bg-green-100 text-green-700"
                                         : payment.paymentStatus === "FAILED"
                                             ? "bg-red-100 text-red-700"
-                                            : "bg-gray-100 text-gray-700"
+                                            : "bg-yellow-100 text-yellow-700"
                                         }`}
                                 >
-                                    {payment.paymentStatus === "SUCCESS" ? "결제완료" : "결제실패"}
+                                    {payment.paymentStatus === "COMPLETED" ? "결제완료"
+                                        : payment.paymentStatus === "FAILED" ? "결제실패"
+                                            : "처리중"}
                                 </span>
                             </div>
                         </div>

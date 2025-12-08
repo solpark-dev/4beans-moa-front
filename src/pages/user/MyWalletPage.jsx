@@ -4,6 +4,10 @@ import { ChevronRight, CreditCard, Building2, Wallet, Plus } from "lucide-react"
 import { getMyAccount, getMyCard } from "../../api/userApi";
 import { getMyDeposits } from "../../api/depositApi";
 import { useAuthStore } from "../../store/authStore";
+import { requestBillingAuth } from "../../services/paymentService";
+import { handleApiError } from "../../utils/errorHandler";
+import { toast } from "../../utils/toast";
+import { getBankLogo, getCardLogo, getBankTheme, getCardTheme } from "../../utils/logoHelper";
 
 export default function MyWalletPage() {
     const navigate = useNavigate();
@@ -44,6 +48,10 @@ export default function MyWalletPage() {
             setCard(cardRes?.data || null);
         } catch (error) {
             console.error("Failed to load wallet data:", error);
+
+            // Show error toast for wallet data loading failure
+            const errorInfo = handleApiError(error);
+            toast.error(errorInfo.message);
         } finally {
             setLoading(false);
         }
@@ -70,16 +78,43 @@ export default function MyWalletPage() {
         navigate("/user/financial-history?tab=payment");
     };
 
+    const handleRegisterCard = async () => {
+        try {
+            if (!user) {
+                toast.warning("로그인이 필요합니다");
+                navigate("/login");
+                return;
+            }
+
+            // Toss Payments 빌링 인증 요청
+            // customerKey는 사용자 고유 ID (userId)
+            await requestBillingAuth(user.userId);
+        } catch (error) {
+            // 사용자가 결제창을 취소한 경우 조용히 처리
+            const errorMessage = error?.message || "";
+            if (errorMessage.includes("취소") || errorMessage.includes("cancel")) {
+                console.log("사용자가 카드 등록을 취소했습니다.");
+                return;
+            }
+
+            console.error("Card registration failed:", error);
+
+            // Handle error with user-friendly message
+            const errorInfo = handleApiError(error);
+            toast.error(errorInfo.message);
+        }
+    };
+
     if (authLoading || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+            <div className="min-h-screen flex items-center justify-center bg-stone-50">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#ea580c]"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-stone-50 pb-20">
             {/* Header */}
             <div className="bg-white border-b">
                 <div className="max-w-md mx-auto px-6 py-5">
@@ -91,23 +126,23 @@ export default function MyWalletPage() {
                 {/* 보증금 카드 */}
                 <div
                     onClick={() => goHistory("deposit")}
-                    className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg cursor-pointer hover:shadow-xl transition-shadow relative overflow-hidden"
+                    className="bg-gradient-to-br from-[#ea580c] to-red-600 rounded-3xl p-6 text-white shadow-lg cursor-pointer hover:shadow-xl transition-shadow relative overflow-hidden"
                 >
                     <div className="relative z-10">
-                        <div className="flex items-center gap-2 text-blue-100 text-sm font-medium mb-1">
+                        <div className="flex items-center gap-2 text-[#ffedd5] text-sm font-semibold mb-1">
                             <Wallet className="w-4 h-4" />
                             보유 보증금
                         </div>
-                        <div className="text-4xl font-bold mb-4">
+                        <div className="text-4xl font-extrabold mb-4">
                             {totalDeposit.toLocaleString()}원
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-blue-100">
+                        <div className="flex items-center gap-1 text-sm text-[#ffedd5]">
                             상세 내역 보기 <ChevronRight className="w-4 h-4" />
                         </div>
                     </div>
                     {/* Background Decoration */}
-                    <div className="absolute -right-6 -bottom-10 w-32 h-32 bg-blue-400 rounded-full opacity-30 blur-2xl"></div>
-                    <div className="absolute -right-2 top-2 w-16 h-16 bg-blue-300 rounded-full opacity-20 blur-xl"></div>
+                    <div className="absolute -right-6 -bottom-10 w-32 h-32 bg-[#fb923c] rounded-full opacity-30 blur-2xl"></div>
+                    <div className="absolute -right-2 top-2 w-16 h-16 bg-[#fdba74] rounded-full opacity-20 blur-xl"></div>
                 </div>
 
                 {/* 정산 계좌 */}
@@ -116,20 +151,40 @@ export default function MyWalletPage() {
                         <h3 className="font-bold text-gray-900">정산 계좌</h3>
                         <button
                             onClick={handleViewAccountHistory}
-                            className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-xs text-[#ea580c] hover:text-[#c2410c] font-medium"
                         >
                             내역보기
                         </button>
                     </div>
                     <div
                         onClick={() => navigate("/user/account-register")}
-                        className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-blue-200 hover:shadow-md transition-all"
+                        className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-[#fed7aa] hover:shadow-md transition-all"
                     >
                         {account ? (
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                                    <Building2 className="w-6 h-6 text-blue-600" />
-                                </div>
+                                {(() => {
+                                    const logoPath = getBankLogo(account.bankName);
+                                    const theme = getBankTheme(account.bankName);
+
+                                    return (
+                                        <div className={`w-12 h-12 rounded-xl ${theme.bg} flex items-center justify-center overflow-hidden`}>
+                                            {logoPath ? (
+                                                <img
+                                                    src={logoPath}
+                                                    alt={account.bankName}
+                                                    className="w-full h-full object-contain p-1"
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextSibling.style.display = 'block';
+                                                    }}
+                                                />
+                                            ) : null}
+                                            <Building2
+                                                className={`w-6 h-6 ${theme.text} ${logoPath ? 'hidden' : ''}`}
+                                            />
+                                        </div>
+                                    );
+                                })()}
                                 <div className="flex-1">
                                     <div className="font-bold text-gray-900">
                                         {account.bankName}
@@ -155,20 +210,40 @@ export default function MyWalletPage() {
                         <h3 className="font-bold text-gray-900">결제 정보</h3>
                         <button
                             onClick={handleViewPaymentHistory}
-                            className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-xs text-[#ea580c] hover:text-[#c2410c] font-medium"
                         >
                             내역보기
                         </button>
                     </div>
                     <div
-                        onClick={() => alert("결제 수단 변경 기능은 추후 구현 예정입니다.")}
-                        className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-blue-200 hover:shadow-md transition-all"
+                        onClick={handleRegisterCard}
+                        className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 cursor-pointer hover:border-[#fed7aa] hover:shadow-md transition-all"
                     >
                         {card ? (
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center">
-                                    <CreditCard className="w-6 h-6 text-white" />
-                                </div>
+                                {(() => {
+                                    const logoPath = getCardLogo(card.cardCompany);
+                                    const theme = getCardTheme(card.cardCompany);
+
+                                    return (
+                                        <div className={`w-12 h-12 rounded-xl ${theme.bg} flex items-center justify-center overflow-hidden`}>
+                                            {logoPath ? (
+                                                <img
+                                                    src={logoPath}
+                                                    alt={card.cardCompany}
+                                                    className="w-full h-full object-contain p-1"
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextSibling.style.display = 'block';
+                                                    }}
+                                                />
+                                            ) : null}
+                                            <CreditCard
+                                                className={`w-6 h-6 ${theme.text} ${logoPath ? 'hidden' : ''}`}
+                                            />
+                                        </div>
+                                    );
+                                })()}
                                 <div className="flex-1">
                                     <div className="font-bold text-gray-900">
                                         {card.cardCompany}

@@ -43,8 +43,17 @@ import UpdateSubscription from "./pages/subscription/UpdateSubscription";
 import CancelSubscription from "./pages/subscription/CancelSubscription";
 import UserSubscriptionList from "./pages/subscription/UserSubscriptionList";
 import PaymentSuccessPage from "./pages/payment/PaymentSuccessPage";
+import BillingSuccessPage from "./pages/payment/BillingSuccessPage";
+import BillingRegisterPage from "./pages/payment/BillingRegisterPage";
 
-import SupportPage from "./pages/community/SupportPage";
+import ListNotice from "./pages/community/ListNotice";
+import GetNotice from "./pages/community/GetNotice";
+import AddNotice from "./pages/community/AddNotice";
+import UpdateNotice from "./pages/community/UpdateNotice";
+import ListFaq from "./pages/community/ListFaq";
+import AddFaq from "./pages/community/AddFaq";
+import Inquiry from "./pages/community/Inquiry";
+import InquiryAdmin from "./pages/community/InquiryAdmin";
 
 export default function App() {
   useGlobalLinkHandler();
@@ -94,6 +103,10 @@ export default function App() {
             element={<ProtectedRoute element={<MyWalletPage />} />}
           />
           <Route
+            path="/user/my-wallet"
+            element={<ProtectedRoute element={<MyWalletPage />} />}
+          />
+          <Route
             path="/user/account-register"
             element={<ProtectedRoute element={<AccountRegisterPage />} />}
           />
@@ -134,17 +147,17 @@ export default function App() {
           <Route
             path="/product/add"
             element={<ProtectedRoute element={<AddProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/edit"
             element={<ProtectedRoute element={<UpdateProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}
@@ -173,8 +186,31 @@ export default function App() {
           <Route path="/subscriptions" element={<GetProductList />} />
           <Route path="/my/subscriptions" element={<UserSubscriptionList />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route
+            path="/payment/billing/register"
+            element={<BillingRegisterPage />}
+          />
+          <Route
+            path="/payment/billing/success"
+            element={<BillingSuccessPage />}
+          />
 
-          <Route path="/support" element={<SupportPage />} />
+          <Route path="/community/notice" element={<ListNotice />} />
+          <Route
+            path="/community/notice/:communityId"
+            element={<GetNotice />}
+          />
+          <Route path="/community/notice/add" element={<AddNotice />} />
+          <Route
+            path="/community/notice/update/:communityId"
+            element={<UpdateNotice />}
+          />
+
+          <Route path="/community/faq" element={<ListFaq />} />
+          <Route path="/community/faq/add" element={<AddFaq />} />
+
+          <Route path="/community/inquiry" element={<Inquiry />} />
+          <Route path="/community/inquiry/admin" element={<InquiryAdmin />} />
         </Routes>
       </main>
 

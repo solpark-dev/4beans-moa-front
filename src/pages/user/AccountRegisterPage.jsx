@@ -24,12 +24,34 @@ export default function AccountRegisterPage() {
 
     // 콜백에서 돌아온 경우 (step=2)
     useEffect(() => {
+        let isMounted = true;
+
         const stepParam = searchParams.get("step");
+        const errorParam = searchParams.get("error");
+        const errorCode = searchParams.get("code");
+
+        // 사용자가 취소한 경우 - 내지갑으로 돌아가기
+        if (errorParam === "USER_CANCEL" || errorCode === "USER_CANCEL") {
+            navigate("/user/wallet");
+            return;
+        }
+
+        // 기타 에러
+        if (errorParam) {
+            setError(errorParam);
+            setStep(1);
+            return;
+        }
+
         if (stepParam === "2") {
             setStep(2);
             // 1원 입금 자동 실행
             sendVerification();
         }
+
+        return () => {
+            isMounted = false;
+        };
     }, [searchParams]);
 
     // 오픈뱅킹 인증 시작
@@ -142,7 +164,7 @@ export default function AccountRegisterPage() {
                         </button>
 
                         <button
-                            onClick={() => navigate("/user/my-wallet")}
+                            onClick={() => navigate("/user/wallet")}
                             className="w-full py-3 text-gray-500 hover:text-gray-700 text-sm"
                         >
                             취소
@@ -227,7 +249,7 @@ export default function AccountRegisterPage() {
                             </p>
                         </div>
                         <button
-                            onClick={() => navigate("/user/my-wallet")}
+                            onClick={() => navigate("/user/wallet")}
                             className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
                         >
                             완료
