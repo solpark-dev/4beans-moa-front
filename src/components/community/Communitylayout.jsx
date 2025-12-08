@@ -1,13 +1,29 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/authStore';
 
 const CommunityLayout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuthStore();
 
     const isActiveTab = (path) => {
         return location.pathname.includes(path);
+    };
+
+    const handleInquiryClick = () => {
+        if (!user) {
+            alert('로그인이 필요한 서비스입니다.');
+            navigate('/login');
+            return;
+        }
+        
+        if (user.role === 'ADMIN') {
+            navigate('/community/inquiry/admin');
+        } else {
+            navigate('/community/inquiry');
+        }
     };
 
     const tabs = [
@@ -15,27 +31,6 @@ const CommunityLayout = ({ children }) => {
         { name: '공지사항', path: '/community/notice' },
         { name: '문의하기', path: null, onClick: handleInquiryClick }
     ];
-
-    function handleInquiryClick() {
-        // 임시: 로그인 체크 비활성화
-        // const userRole = sessionStorage.getItem('role');
-        // const userId = sessionStorage.getItem('userId');
-        
-        // if (!userId) {
-        //     alert('로그인이 필요한 서비스입니다.');
-        //     navigate('/login');
-        //     return;
-        // }
-        
-        // if (userRole === 'ADMIN') {
-        //     navigate('/community/inquiry/admin');
-        // } else {
-        //     navigate('/community/inquiry');
-        // }
-        
-        // 임시: 무조건 유저 페이지로
-        navigate('/community/inquiry');
-    }
 
     return (
         <div className="min-h-screen bg-gray-50">

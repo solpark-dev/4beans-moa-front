@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import FaqItem from '../../components/community/FaqItem';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,23 +16,39 @@ import {
 
 const ListFaq = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [faqs, setFaqs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const [isAdmin, setIsAdmin] = useState(false);
     const pageSize = 10;
 
+    const isAdmin = user?.role === 'ADMIN';
+
     useEffect(() => {
-        checkUserRole();
-        loadFaqList(1);
+        const loadFaqList = async () => {
+            try {
+                const response = await fetch(`/api/community/faq?page=1&size=${pageSize}`);
+                
+                if (!response.ok) {
+                    console.error('API 응답 에러:', response.status);
+                    setFaqs([]);
+                    return;
+                }
+                
+                const data = await response.json();
+                setFaqs(data.content || []);
+                setCurrentPage(data.page || 1);
+                setTotalPages(data.totalPages || 0);
+            } catch (error) {
+                console.error('FAQ 목록 로드 실패:', error);
+                setFaqs([]);
+            }
+        };
+        
+        loadFaqList();
     }, []);
 
-    const checkUserRole = () => {
-        const userRole = sessionStorage.getItem('role');
-        setIsAdmin(userRole === 'ADMIN');
-    };
-
-    const loadFaqList = async (page) => {
+    const loadFaqListByPage = async (page) => {
         try {
             const response = await fetch(`/api/community/faq?page=${page}&size=${pageSize}`);
             
@@ -53,7 +70,7 @@ const ListFaq = () => {
 
     const handleUpdateFaq = async (faqId, formData) => {
         try {
-            const userId = sessionStorage.getItem('userId') || 'admin@moa.com';
+            const userId = user?.userId || 'admin@moa.com';
             
             const response = await fetch(`/api/community/faq/${faqId}`, {
                 method: 'PUT',
@@ -69,7 +86,7 @@ const ListFaq = () => {
 
             if (response.ok) {
                 alert('수정되었습니다.');
-                loadFaqList(currentPage);
+                loadFaqListByPage(currentPage);
                 return true;
             } else {
                 alert('수정에 실패했습니다.');
@@ -84,7 +101,7 @@ const ListFaq = () => {
 
     const handlePageChange = (page) => {
         if (page < 1 || page > totalPages) return;
-        loadFaqList(page);
+        loadFaqListByPage(page);
         window.scrollTo(0, 0);
     };
 

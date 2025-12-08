@@ -65,17 +65,18 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
                         <div>
                             <p className="text-sm font-medium text-gray-700 mb-2">첨부 이미지</p>
                             <img 
-                                src={`/uploads/${inquiry.fileUuid}`} 
+                                src={`/api/community/inquiry/image/${inquiry.fileUuid}`} 
                                 alt={inquiry.fileOriginal}
-                                className="max-w-full rounded-lg border"
+                                className="max-w-full max-h-64 rounded-lg border object-contain"
                             />
+                            <p className="text-xs text-gray-500 mt-1">{inquiry.fileOriginal}</p>
                         </div>
                     )}
 
                     {inquiry.answerContent && (
                         <div className="border-t pt-4">
                             <div className="bg-green-50 rounded-lg p-4">
-                                <p className="text-sm font-medium text-gray-700 mb-2">답변</p>
+                                <p className="text-sm font-medium text-green-700 mb-2">답변</p>
                                 <p className="text-gray-700 whitespace-pre-wrap">
                                     {inquiry.answerContent}
                                 </p>

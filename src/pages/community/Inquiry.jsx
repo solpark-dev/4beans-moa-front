@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
+import { useAuthStore } from '@/store/authStore';
 import InquiryDetailModal from '../../components/community/InquiryDetailModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,9 +17,11 @@ import {
     PaginationPrevious,
 } from '@/components/ui/pagination';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+
 const Inquiry = () => {
-    const navigate = useNavigate();
-    const [userId, setUserId] = useState('user001@gmail.com');
+    const { user } = useAuthStore();
     const [inquiries, setInquiries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -34,11 +36,37 @@ const Inquiry = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const pageSize = 5;
 
-    useEffect(() => {
-        loadMyInquiries(1);
-    }, []);
+    const userId = user?.userId;
 
-    const loadMyInquiries = async (page) => {
+    useEffect(() => {
+        const loadMyInquiries = async () => {
+            if (!userId) return;
+            
+            try {
+                const response = await fetch(`/api/community/inquiry/my?userId=${userId}&page=1&size=${pageSize}`);
+                
+                if (!response.ok) {
+                    console.error('API 응답 에러:', response.status);
+                    setInquiries([]);
+                    return;
+                }
+                
+                const data = await response.json();
+                setInquiries(data.content || []);
+                setCurrentPage(data.page || 1);
+                setTotalPages(data.totalPages || 0);
+            } catch (error) {
+                console.error('문의 목록 로드 실패:', error);
+                setInquiries([]);
+            }
+        };
+        
+        loadMyInquiries();
+    }, [userId]);
+
+    const loadMyInquiriesByPage = async (page) => {
+        if (!userId) return;
+        
         try {
             const response = await fetch(`/api/community/inquiry/my?userId=${userId}&page=${page}&size=${pageSize}`);
             
@@ -68,18 +96,31 @@ const Inquiry = () => {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                alert('이미지 파일만 업로드 가능합니다.');
-                return;
-            }
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            alert('JPG, PNG 파일만 업로드 가능합니다.');
+            e.target.value = '';
+            return;
         }
+
+        if (file.size > MAX_FILE_SIZE) {
+            alert('파일 크기는 10MB 이하만 가능합니다.');
+            e.target.value = '';
+            return;
+        }
+
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleRemoveImage = () => {
+        setImageFile(null);
+        setImagePreview(null);
     };
 
     const handleSubmit = async () => {
@@ -94,18 +135,19 @@ const Inquiry = () => {
         }
 
         try {
-            // 임시: JSON으로 전송 (파일 없이)
+            const submitData = new FormData();
+            submitData.append('userId', userId);
+            submitData.append('communityCodeId', formData.communityCodeId);
+            submitData.append('title', formData.title);
+            submitData.append('content', formData.content);
+            
+            if (imageFile) {
+                submitData.append('file', imageFile);
+            }
+
             const response = await fetch('/api/community/inquiry', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    communityCodeId: formData.communityCodeId,
-                    title: formData.title,
-                    content: formData.content
-                }),
+                body: submitData
             });
 
             if (response.ok) {
@@ -117,15 +159,15 @@ const Inquiry = () => {
                 });
                 setImageFile(null);
                 setImagePreview(null);
-                loadMyInquiries(currentPage);
+                loadMyInquiriesByPage(1);
             } else {
                 const errorText = await response.text();
                 console.error('등록 실패:', errorText);
-                alert('등록에 실패했습니다: ' + response.status);
+                alert('등록에 실패했습니다.');
             }
         } catch (error) {
             console.error('등록 실패:', error);
-            alert('등록 중 오류가 발생했습니다: ' + error.message);
+            alert('등록 중 오류가 발생했습니다.');
         }
     };
 
@@ -136,7 +178,7 @@ const Inquiry = () => {
 
     const handlePageChange = (page) => {
         if (page < 1 || page > totalPages) return;
-        loadMyInquiries(page);
+        loadMyInquiriesByPage(page);
         window.scrollTo(0, 0);
     };
 
@@ -227,20 +269,30 @@ const Inquiry = () => {
 
                             <div>
                                 <Label htmlFor="image">이미지 첨부</Label>
+                                <p className="text-xs text-gray-500 mb-1">JPG, PNG 파일만 가능 (최대 10MB)</p>
                                 <Input
                                     id="image"
                                     type="file"
-                                    accept="image/*"
+                                    accept=".jpg,.jpeg,.png"
                                     onChange={handleImageChange}
                                     className="mt-1"
                                 />
                                 {imagePreview && (
-                                    <div className="mt-2">
+                                    <div className="mt-2 relative">
                                         <img 
                                             src={imagePreview} 
                                             alt="미리보기" 
-                                            className="max-w-full h-auto rounded-lg border"
+                                            className="max-w-full h-auto rounded-lg border max-h-48 object-contain"
                                         />
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={handleRemoveImage}
+                                            className="absolute top-2 right-2"
+                                        >
+                                            삭제
+                                        </Button>
                                     </div>
                                 )}
                             </div>
