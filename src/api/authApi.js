@@ -7,6 +7,10 @@ export const login = (data) => httpClient.post("/auth/login", data);
 
 export const logout = () => httpClient.post("/auth/logout");
 
+export const signup = (data) => httpClient.post("/users/add", data);
+
+export const verifyEmail = (token) => httpClient.post(`/auth/verify-email?token=${token}`);
+
 export const checkCommon = (data) => httpClient.post("/users/check", data);
 
 export const checkPasswordFormat = (password) =>
@@ -19,9 +23,6 @@ export const startPassAuth = () => httpClient.get("/users/pass/start");
 
 export const verifyPassAuth = (data) =>
   httpClient.post("/users/pass/verify", data);
-
-export const verifyEmail = (token) =>
-  httpClient.get("/users/verify-email", { params: { token } });
 
 export const startRestoreVerify = (userId) =>
   httpClient.post("/users/restore/start", { userId });

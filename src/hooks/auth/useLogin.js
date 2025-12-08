@@ -39,7 +39,12 @@ export const useLoginPageLogic = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("로그인 중 오류가 발생했습니다.");
+
+      const apiError = error?.response?.data?.error;
+      const code = apiError?.code;
+      const message = apiError?.message || "로그인 중 오류가 발생했습니다.";
+
+      alert(code ? `[${code}] ${message}` : message);
     }
   }, [email, password, navigate, setTokens]);
 

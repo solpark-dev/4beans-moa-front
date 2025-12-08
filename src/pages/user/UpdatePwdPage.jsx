@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useUpdatePwdStore } from "@/store/user/updatePwdStore";
-import { useUpdatePwdLogic } from "@/services/logic/updatePwdLogic";
+import { useUpdatePwdLogic } from "@/hooks/user/useUpdatePassword";
 
 import {
   Dialog,

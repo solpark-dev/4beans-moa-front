@@ -1,4 +1,4 @@
-import { useFindId } from "@/services/logic/findIdLogic";
+import { useFindId } from "@/hooks/auth/useFindId";
 
 export default function FindIdPage() {
   const { step, foundEmail, isLoading, handlePassAuth } = useFindId();

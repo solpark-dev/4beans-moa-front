@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { initMyPage, myPageHandlers } from "@/services/logic/myPageLogic";
+import { initMyPage, myPageHandlers } from "@/hooks/user/useMyPage";
 import { useMyPageStore } from "@/store/user/myPageStore";
 
 import { Button } from "@/components/ui/button";

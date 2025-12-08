@@ -44,8 +44,8 @@ export const useAuthStore = create(
         try {
           const res = await httpClient.get("/users/me");
 
-          if (res.success) {
-            set({ user: res.data, loading: false });
+          if (res.success || res.data) {
+            set({ user: res.data || res, loading: false });
           } else {
             clearAuth();
           }

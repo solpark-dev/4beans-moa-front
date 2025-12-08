@@ -5,7 +5,7 @@ import {
   doPassVerification,
   saveUserInfo,
   checkNicknameDuplicate,
-} from "@/services/logic/updateUserLogic";
+} from "@/hooks/user/useUpdateUser";
 
 import { useUpdateUserStore } from "@/store/user/updateUserStore";
 

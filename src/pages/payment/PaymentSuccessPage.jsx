@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { processLeaderDeposit, joinParty, createParty } from "../../services/partyService";
+import { processLeaderDeposit, joinParty, createParty } from "../../api/partyApi";
 
 export default function PaymentSuccessPage() {
     const navigate = useNavigate();

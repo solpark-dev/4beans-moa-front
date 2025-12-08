@@ -1,4 +1,4 @@
-import { useLoginPageLogic } from "@/services/logic/loginPageLogic";
+import { useLoginPageLogic } from "@/hooks/auth/useLogin";
 import {
   Card,
   CardHeader,
