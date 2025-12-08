@@ -29,6 +29,7 @@ import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 import AdminUserListPage from "@/pages/admin/AdminUserListPage";
 import AdminUserDetailPage from "@/pages/admin/AdminUserDetailPage";
 import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
+import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -130,6 +131,7 @@ export default function App() {
             element={<ProtectedRoute element={<AddBlacklistPage />} />}
           />
           <Route path="/admin/users" element={<AdminUserListPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route
             path="/admin/users/:userId"
             element={<AdminUserDetailPage />}
@@ -147,17 +149,17 @@ export default function App() {
           <Route
             path="/product/add"
             element={<ProtectedRoute element={<AddProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/edit"
             element={<ProtectedRoute element={<UpdateProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}

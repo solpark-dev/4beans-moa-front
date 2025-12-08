@@ -98,6 +98,13 @@ export default function HeaderView({
         <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold text-slate-600">
           {isAdmin ? (
             <>
+              <Link
+                to="/admin/dashboard"
+                className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span>대시보드</span>
+              </Link>
               {user?.email !== "admin@moa.com" && (
                 <Link
                   to="/admin/users"
@@ -155,21 +162,21 @@ export default function HeaderView({
             <div className="flex items-center gap-4">
               {(user.email === "admin@admin.com" ||
                 user.email === "admin@moa.com") && (
-                <div className="hidden 2xl:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm">
-                  <Switch
-                    id="admin-mode"
-                    checked={isAdminMode}
-                    onCheckedChange={handleAdminSwitch}
-                    className="data-[state=checked]:bg-slate-900"
-                  />
-                  <Label
-                    htmlFor="admin-mode"
-                    className="text-[11px] font-bold text-slate-800 cursor-pointer tracking-[0.18em] uppercase"
-                  >
-                    {isAdminMode ? "SUP" : "MGR"}
-                  </Label>
-                </div>
-              )}
+                  <div className="hidden 2xl:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm">
+                    <Switch
+                      id="admin-mode"
+                      checked={isAdminMode}
+                      onCheckedChange={handleAdminSwitch}
+                      className="data-[state=checked]:bg-slate-900"
+                    />
+                    <Label
+                      htmlFor="admin-mode"
+                      className="text-[11px] font-bold text-slate-800 cursor-pointer tracking-[0.18em] uppercase"
+                    >
+                      {isAdminMode ? "SUP" : "MGR"}
+                    </Label>
+                  </div>
+                )}
 
               <Button
                 variant="ghost"
