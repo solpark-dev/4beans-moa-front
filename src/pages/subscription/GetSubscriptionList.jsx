@@ -1,20 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../api/httpClient';
+import { useAuthStore } from '../../store/authStore';
 
 const GetSubscriptionList = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("GetSubscriptionList Mounted. User:", user);
+
+        if (!user?.userId) {
+            console.warn("User ID missing in authStore, skipping fetch");
+            setLoading(false); // Fix: infinite loading if user is missing
+            return;
+        }
+
         const fetchSubscriptions = async () => {
             try {
+                console.log("Fetching subscriptions for userId:", user.userId);
                 setLoading(true);
-                const response = await httpClient.get('/subscription');
-                if (response.success) {
+                const response = await httpClient.get('/subscription', {
+                    params: { userId: user.userId }
+                });
+                console.log("Subscription Response:", response);
+
+                // Fix: Handle both raw array (current backend) and envelope pattern
+                if (Array.isArray(response)) {
+                    setSubscriptions(response);
+                } else if (response && response.success) {
                     setSubscriptions(response.data || []);
                 } else {
+                    console.warn("Unexpected response format:", response);
                     setSubscriptions([]);
                 }
             } catch (error) {
@@ -24,7 +43,7 @@ const GetSubscriptionList = () => {
             }
         };
         fetchSubscriptions();
-    }, []);
+    }, [user]);
 
     if (loading) return <div className="flex justify-center items-center h-64">Loading...</div>;
 
@@ -47,28 +66,28 @@ const GetSubscriptionList = () => {
                     {subscriptions.map(sub => (
                         <div
                             key={sub.subscriptionId}
-                            onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
+                            onClick={() => navigate(`/subscription/${sub.subscriptionId}`)}
                             className="bg-white border border-gray-200 p-5 rounded-xl flex items-center justify-between cursor-pointer hover:shadow-md transition-all hover:-translate-x-1"
                         >
                             <div className="flex items-center gap-5">
                                 <img
-                                    src={sub.product?.image || '/placeholder.png'}
-                                    alt={sub.product?.productName}
+                                    src={sub.productImage || '/placeholder.png'}
+                                    alt={sub.productName}
                                     className="w-16 h-16 rounded-lg object-cover bg-gray-100"
                                 />
                                 <div>
-                                    <h3 className="font-bold text-lg text-gray-900">{sub.product?.productName}</h3>
+                                    <h3 className="font-bold text-lg text-gray-900">{sub.productName}</h3>
                                     <p className="text-sm text-gray-500">
-                                        다음 결제일: <span className="font-medium text-gray-700">{sub.nextBillingDate}</span>
+                                        시작일: <span className="font-medium text-gray-700">{sub.startDate}</span>
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${sub.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${sub.subscriptionStatus === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                                     }`}>
-                                    {sub.status === 'ACTIVE' ? '이용중' : '해지됨'}
+                                    {sub.subscriptionStatus === 'ACTIVE' ? '이용중' : '해지됨'}
                                 </span>
-                                <p className="font-bold text-gray-900">{sub.product?.price?.toLocaleString()}원</p>
+                                <p className="font-bold text-gray-900">{sub.price?.toLocaleString()}원</p>
                             </div>
                         </div>
                     ))}

@@ -111,7 +111,7 @@ const AddSubscription = () => {
                         onClick={handleSubscribeClick}
                         className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
                     >
-                        결제하고 구독 시작하기
+                        구독 시작하기
                     </button>
                     <button
                         onClick={() => navigate(-1)}

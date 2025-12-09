@@ -13,18 +13,18 @@ const CancelSubscription = () => {
                     const response = await httpClient.post(`/subscription/${id}/cancel`);
                     if (response.success) {
                         alert('구독이 해지되었습니다.');
-                        navigate('/subscriptions');
+                        navigate('/subscription');
                     } else {
                         alert(response.error?.message || '구독 해지에 실패했습니다.');
-                        navigate(`/subscriptions/${id}`);
+                        navigate(`/subscription/${id}`);
                     }
                 } catch (error) {
                     console.error("Failed to cancel subscription", error);
                     alert('구독 해지에 실패했습니다.');
-                    navigate(`/subscriptions/${id}`);
+                    navigate(`/subscription/${id}`);
                 }
             } else {
-                navigate(`/subscriptions/${id}`);
+                navigate(`/subscription/${id}`);
             }
         };
 
