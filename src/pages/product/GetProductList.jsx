@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Coffee, X, Calendar, CalendarPlus, Sparkles, LayoutGrid, Bell, Users, Lightbulb, AlertTriangle } from 'lucide-react';
 import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
-import AddSubscriptionModal from '../../components/AddSubscriptionModal';
+import AddSubscriptionModal from '../../components/subscription/AddSubscriptionModal';
 
 // ProductDetailModal 컴포넌트
 const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe }) => {
