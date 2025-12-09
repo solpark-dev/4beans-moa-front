@@ -141,25 +141,35 @@ export default function PartyListPage() {
       {/* Filter Tabs */}
       <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-stone-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-2 py-4 overflow-x-auto">
-            {[
-              { value: "", label: "전체", emoji: "📋" },
-              { value: "RECRUITING", label: "모집중", emoji: "✨" },
-              { value: "ACTIVE", label: "진행중", emoji: "🚀" },
-            ].map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setFilterStatus(filter.value)}
-                className={`px-6 py-2.5 rounded-full font-semibold whitespace-nowrap transition-all duration-200 ${
-                  filterStatus === filter.value
-                    ? "bg-[#fff7ed] text-[#c2410c] border border-[#ffedd5] shadow-lg scale-105"
-                    : "bg-white text-stone-600 border border-stone-200 hover:bg-stone-50"
-                }`}
-              >
-                <span className="mr-2">{filter.emoji}</span>
-                {filter.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-between py-4">
+            <div className="flex gap-2 overflow-x-auto">
+              {[
+                { value: "", label: "전체", emoji: "📋" },
+                { value: "RECRUITING", label: "모집중", emoji: "✨" },
+                { value: "ACTIVE", label: "진행중", emoji: "🚀" },
+              ].map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setFilterStatus(filter.value)}
+                  className={`px-6 py-2.5 rounded-full font-semibold whitespace-nowrap transition-all duration-200 ${
+                    filterStatus === filter.value
+                      ? "bg-[#fff7ed] text-[#c2410c] border border-[#ffedd5] shadow-lg scale-105"
+                      : "bg-white text-stone-600 border border-stone-200 hover:bg-stone-50"
+                  }`}
+                >
+                  <span className="mr-2">{filter.emoji}</span>
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            {/* 파티 만들기 버튼 - 필터 탭 오른쪽 */}
+            <button
+              onClick={() => navigate("/party/create")}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+            >
+              <Sparkles className="w-4 h-4" />
+              파티 만들기
+            </button>
           </div>
         </div>
       </div>
@@ -342,15 +352,20 @@ export default function PartyListPage() {
             })}
           </div>
         )}
-      </div>
 
-      {/* Floating Create Button */}
-      <button
-        onClick={() => navigate("/party/create")}
-        className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-200 group z-50"
-      >
-        <Sparkles className="w-8 h-8 group-hover:rotate-12 transition-transform" />
-      </button>
+        {/* 파티 리스트 하단 - 파티 만들기 버튼 */}
+        {filteredParties.length > 0 && (
+          <div className="flex justify-center mt-12 mb-8">
+            <button
+              onClick={() => navigate("/party/create")}
+              className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-2xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+            >
+              <Sparkles className="w-6 h-6" />
+              새로운 파티 만들기
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -116,6 +116,38 @@ export default function PartyDetailPage() {
     }
   };
 
+  // 파티장 보증금 재결제
+  const handleDepositRetry = async () => {
+    if (!currentUser) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    try {
+      const amount = party.monthlyFee;
+
+      // localStorage에 결제 정보 저장 (결제 성공 후 사용)
+      localStorage.setItem(
+        "pendingPayment",
+        JSON.stringify({
+          type: "RETRY_DEPOSIT",
+          partyId: id,
+        })
+      );
+
+      // Toss Payments 결제 요청
+      await requestPayment(
+        `${party.productName} 파티 보증금 재결제`,
+        amount,
+        currentUser.nickname
+      );
+    } catch (error) {
+      console.error(error);
+      localStorage.removeItem("pendingPayment");
+      alert(error.message || "보증금 재결제에 실패했습니다.");
+    }
+  };
+
   if (!party) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -473,6 +505,17 @@ export default function PartyDetailPage() {
 
             {/* Action Buttons */}
             <div className="bg-white rounded-3xl shadow-lg p-8 space-y-4 sticky top-6">
+              {/* 파티장 보증금 재결제 버튼 (PENDING_PAYMENT 상태) */}
+              {isLeader && party.partyStatus === "PENDING_PAYMENT" && (
+                <button
+                  onClick={handleDepositRetry}
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black text-lg hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
+                >
+                  <CreditCard className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                  보증금 재결제
+                </button>
+              )}
+
               {!isMember && !isLeader && !isFull && (
                 <button
                   onClick={() => setIsJoinModalOpen(true)}

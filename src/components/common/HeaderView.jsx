@@ -100,15 +100,22 @@ export default function HeaderView({
         <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold text-slate-600">
           {isAdmin ? (
             <>
-              {/** SUP / MGR 관계없이 항상 동일한 관리자 메뉴 */}
               <Link
-                to="/admin/users"
+                to="/admin/dashboard"
                 className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
               >
-                <Users className="w-5 h-5" />
-                <span>회원 관리</span>
+                <LayoutDashboard className="w-5 h-5" />
+                <span>대시보드</span>
               </Link>
-
+              {user?.email !== "admin@moa.com" && (
+                <Link
+                  to="/admin/users"
+                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  <Users className="w-5 h-5" />
+                  <span>회원 관리</span>
+                </Link>
+              )}
               <Link
                 to="/admin/sales"
                 className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"

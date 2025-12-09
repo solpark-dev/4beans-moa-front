@@ -9,6 +9,7 @@ import {
 } from "../../hooks/party/partyService";
 import { requestPayment } from "../../utils/paymentHandler";
 import { useAuthStore } from "../../store/authStore";
+import { calculateEndDate, getTodayString } from "../../utils/dateUtils";
 import {
   Check,
   Calendar,
@@ -343,7 +344,7 @@ export default function PartyCreatePage() {
                   파티 기간을 설정하세요
                 </h2>
                 <p className="text-gray-600">
-                  파티 시작일과 종료일을 선택해주세요
+                  시작일과 구독 기간을 선택하면 종료일이 자동으로 계산됩니다
                 </p>
               </div>
 
@@ -364,6 +365,7 @@ export default function PartyCreatePage() {
               </div>
 
               <div className="space-y-6">
+                {/* 시작일 선택 */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-3">
                     <Calendar className="w-4 h-4 inline mr-2" />
@@ -371,34 +373,79 @@ export default function PartyCreatePage() {
                   </label>
                   <input
                     type="date"
-                    name="startDate"
-                    value={dates.startDate}
-                    onChange={handleDateChange}
-                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#fff7ed] focus:border-[#fff7ed] outline-none text-lg font-semibold transition-all"
-                    required
+                    min={getTodayString()}
+                    value={dates.startDate || ""}
+                    onChange={(e) => {
+                      const newStartDate = e.target.value;
+                      const newEndDate = dates.months 
+                        ? calculateEndDate(newStartDate, dates.months)
+                        : "";
+                      setDates({
+                        ...dates,
+                        startDate: newStartDate,
+                        endDate: newEndDate,
+                      });
+                    }}
+                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#ea580c] focus:border-[#ea580c] outline-none text-lg font-semibold transition-all"
                   />
+                </div>
+
+                {/* 구독 기간 선택 (슬라이더) */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-3">
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    구독 기간: <span className="text-[#ea580c]">{dates.months || 1}개월</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="12"
+                    value={dates.months || 1}
+                    onChange={(e) => {
+                      const newMonths = parseInt(e.target.value);
+                      const newEndDate = dates.startDate 
+                        ? calculateEndDate(dates.startDate, newMonths)
+                        : "";
+                      setDates({
+                        ...dates,
+                        months: newMonths,
+                        endDate: newEndDate,
+                      });
+                    }}
+                    className="w-full h-3 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#ea580c]"
+                  />
+                  <div className="flex justify-between text-xs text-stone-500 mt-2">
+                    <span>1개월</span>
+                    <span>6개월</span>
+                    <span>12개월</span>
+                  </div>
                   <div className="mt-3 flex items-start gap-2 bg-blue-50 p-3 rounded-lg">
                     <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-blue-800">
-                      매월 이 날짜에 파티원들의 결제가 진행됩니다
+                      최소 1개월부터 최대 12개월까지 선택 가능합니다. 매월 시작일에 파티원들의 결제가 진행됩니다.
                     </p>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">
-                    <Calendar className="w-4 h-4 inline mr-2" />
-                    파티 종료일
-                  </label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={dates.endDate}
-                    onChange={handleDateChange}
-                    className="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl focus:ring-2 focus:ring-[#fff7ed] focus:border-[#fff7ed] outline-none text-lg font-semibold transition-all"
-                    required
-                  />
-                </div>
+                {/* 자동 계산된 날짜 표시 */}
+                {dates.startDate && dates.endDate && (
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-6">
+                    <p className="text-sm font-bold text-emerald-700 mb-4">📅 자동 계산된 파티 기간</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white rounded-xl p-4 text-center">
+                        <p className="text-sm text-gray-500 mb-1">시작일</p>
+                        <p className="text-xl font-black text-gray-900">{dates.startDate}</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-4 text-center">
+                        <p className="text-sm text-gray-500 mb-1">종료일</p>
+                        <p className="text-xl font-black text-gray-900">{dates.endDate}</p>
+                      </div>
+                    </div>
+                    <p className="text-center text-sm text-emerald-600 mt-4 font-semibold">
+                      총 {dates.months}개월 구독
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between pt-6">
@@ -412,7 +459,8 @@ export default function PartyCreatePage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-xl font-black hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  disabled={!dates.startDate || !dates.months}
+                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#ea580c] to-[#c2410c] text-white rounded-xl font-black hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   다음
                   <ArrowRight className="w-5 h-5" />
