@@ -216,33 +216,6 @@ export default function AdminUserDetailPage() {
                 />
               </CardContent>
             </Card>
-
-            <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl">
-              <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-xs font-bold text-amber-700 uppercase tracking-[0.18em] flex items-center gap-1.5">
-                  <ShieldCheck className="w-3 h-3" />
-                  Admin Zone
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 flex flex-col gap-2">
-                <MenuButton
-                  icon={<User className="w-4 h-4" />}
-                  label="회원 목록"
-                  onClick={goBackList}
-                />
-                <MenuButton
-                  icon={<UserX className="w-4 h-4" />}
-                  label="블랙리스트 관리"
-                  onClick={() => window.location.assign("/admin/blacklist")}
-                  variant="destructive"
-                />
-                <MenuButton
-                  icon={<LayoutDashboard className="w-4 h-4" />}
-                  label="관리자 대시보드"
-                  onClick={() => window.location.assign("/admin")}
-                />
-              </CardContent>
-            </Card>
           </aside>
 
           <main className="flex-1 flex flex-col gap-6">
@@ -284,7 +257,7 @@ export default function AdminUserDetailPage() {
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-[0.16em]">
                     Linked Accounts
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-2">
                     <SocialButton
                       provider="google"
                       isConnected={!!googleConn}
@@ -356,24 +329,23 @@ function InfoRow({ label, value, valueClass = "text-slate-900" }) {
 function SocialButton({ provider, isConnected }) {
   const isGoogle = provider === "google";
 
-  const baseConnected =
-    "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-red-50 border-red-300 text-red-600 hover:bg-red-100 rounded-xl";
-  const baseGoogle =
-    "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-white border-slate-200 text-slate-800 hover:bg-slate-50 rounded-xl";
-  const baseKakao =
-    "flex-1 h-10 border text-xs font-bold transition-all duration-200 bg-[#FEE500] border-[#FCD34D] text-slate-900 hover:bg-[#FDE68A] rounded-xl";
+  const base =
+    "flex-1 h-10 rounded-xl border text-xs font-semibold flex items-center justify-between px-3";
+  const providerLabel = isGoogle ? "GOOGLE" : "KAKAO";
+
+  const providerStyle = isGoogle
+    ? "bg-white border-slate-200"
+    : "bg-[#FEE500] border-[#FCD34D]";
+
+  const statusText = isConnected ? "연동됨" : "미연동";
+  const statusClass = isConnected ? "text-emerald-600" : "text-slate-500";
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      className={
-        isConnected ? baseConnected : isGoogle ? baseGoogle : baseKakao
-      }
-    >
-      {isConnected
-        ? `${provider.toUpperCase()} 연동됨`
-        : `${provider.toUpperCase()} 미연동`}
-    </Button>
+    <div className={`${base} ${providerStyle}`}>
+      <span className="text-[11px] text-slate-500 uppercase tracking-[0.16em]">
+        {providerLabel}
+      </span>
+      <span className={`text-xs font-bold ${statusClass}`}>{statusText}</span>
+    </div>
   );
 }

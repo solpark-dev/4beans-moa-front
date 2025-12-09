@@ -35,6 +35,7 @@ export const useLoginPageLogic = () => {
   const { setTokens } = useAuthStore();
 
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [otpMode, setOtpMode] = useState("otp");
 
   const handleUnlockByCertification = useCallback(async () => {
     if (!email) {
@@ -105,12 +106,13 @@ export const useLoginPageLogic = () => {
       }
 
       const data = response.data;
-
       if (data.otpRequired) {
         setField("otpRequired", true);
         setField("otpModalOpen", true);
         setField("otpToken", data.otpToken);
+        setField("otpUserId", email);
         setField("otpCode", "");
+        setOtpMode("otp");
         return;
       }
 
@@ -154,26 +156,47 @@ export const useLoginPageLogic = () => {
   ]);
 
   const handleOtpChange = (value) => {
-    const onlyNumber = value.replace(/\D/g, "").slice(0, 6);
-    setField("otpCode", onlyNumber);
+    if (otpMode === "otp") {
+      const onlyNumber = value.replace(/\D/g, "").slice(0, 6);
+      setField("otpCode", onlyNumber);
+    } else {
+      setField("otpCode", value.trim().toUpperCase());
+    }
   };
 
   const handleOtpConfirm = useCallback(async () => {
-    if (!otpCode || otpCode.length !== 6) {
-      alert("6자리 OTP 코드를 입력해주세요.");
-      return;
+    if (otpMode === "otp") {
+      if (!otpCode || otpCode.length !== 6) {
+        alert("6자리 OTP 코드를 입력해주세요.");
+        return;
+      }
+    } else {
+      if (!otpCode) {
+        alert("백업 코드를 입력해주세요.");
+        return;
+      }
     }
 
     try {
-      const res = await httpClient.post("/auth/login/otp-verify", {
+      const url =
+        otpMode === "otp"
+          ? "/auth/login/otp-verify"
+          : "/auth/login/backup-verify";
+
+      const res = await httpClient.post(url, {
         code: otpCode,
         otpToken,
+        userId: email,
       });
 
       if (!res.success) {
         const apiError = res.error;
         const code = apiError?.code;
-        const message = apiError?.message || "OTP 인증에 실패했습니다.";
+        const defaultMessage =
+          otpMode === "otp"
+            ? "OTP 인증에 실패했습니다."
+            : "백업 코드 인증에 실패했습니다.";
+        const message = apiError?.message || defaultMessage;
         alert(code ? `[${code}] ${message}` : message);
         return;
       }
@@ -189,15 +212,20 @@ export const useLoginPageLogic = () => {
       }
 
       resetOtp();
+      setOtpMode("otp");
       navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
       const apiError = error?.response?.data?.error;
       const code = apiError?.code;
-      const message = apiError?.message || "OTP 인증 중 오류가 발생했습니다.";
+      const defaultMessage =
+        otpMode === "otp"
+          ? "OTP 인증 중 오류가 발생했습니다."
+          : "백업 코드 인증 중 오류가 발생했습니다.";
+      const message = apiError?.message || defaultMessage;
       alert(code ? `[${code}] ${message}` : message);
     }
-  }, [otpCode, otpToken, navigate, resetOtp, setTokens]);
+  }, [otpCode, otpToken, otpMode, navigate, resetOtp, setTokens]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -242,6 +270,7 @@ export const useLoginPageLogic = () => {
 
   const closeOtpModal = () => {
     resetOtp();
+    setOtpMode("otp");
   };
 
   useEffect(() => {
@@ -250,6 +279,16 @@ export const useLoginPageLogic = () => {
     }
   }, []);
 
+  const switchToOtpMode = () => {
+    setOtpMode("otp");
+    setField("otpCode", "");
+  };
+
+  const switchToBackupMode = () => {
+    setOtpMode("backup");
+    setField("otpCode", "");
+  };
+
   return {
     email,
     password,
@@ -257,6 +296,7 @@ export const useLoginPageLogic = () => {
     otpRequired,
     otpModalOpen,
     otpCode,
+    otpMode,
     setField,
     handleEmailLogin,
     handleKakaoLogin,
@@ -265,5 +305,7 @@ export const useLoginPageLogic = () => {
     handleOtpConfirm,
     closeOtpModal,
     handleUnlockByCertification,
+    switchToOtpMode,
+    switchToBackupMode,
   };
 };

@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 export default function LoginPage() {
@@ -23,6 +24,7 @@ export default function LoginPage() {
     remember,
     otpModalOpen,
     otpCode,
+    otpMode,
     setField,
     handleEmailLogin,
     handleKakaoLogin,
@@ -31,7 +33,11 @@ export default function LoginPage() {
     handleOtpConfirm,
     closeOtpModal,
     handleUnlockByCertification,
+    switchToOtpMode,
+    switchToBackupMode,
   } = useLoginPageLogic();
+
+  const isBackupMode = otpMode === "backup";
 
   return (
     <div className="w-full pb-20 bg-slate-50 text-slate-900">
@@ -225,19 +231,57 @@ export default function LoginPage() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Google OTP 인증</DialogTitle>
+            <DialogTitle>
+              <DialogDescription className="text-sm text-slate-500"></DialogDescription>
+              {isBackupMode ? "백업 코드로 로그인" : "Google OTP 인증"}
+            </DialogTitle>
           </DialogHeader>
+
           <div className="space-y-4">
+            <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-xs font-medium">
+              <button
+                type="button"
+                onClick={switchToOtpMode}
+                className={`flex-1 py-1.5 rounded-md ${
+                  isBackupMode
+                    ? "text-slate-500"
+                    : "bg-white text-slate-900 shadow-sm"
+                }`}
+              >
+                OTP 코드
+              </button>
+              <button
+                type="button"
+                onClick={switchToBackupMode}
+                className={`flex-1 py-1.5 rounded-md ${
+                  isBackupMode
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500"
+                }`}
+              >
+                백업 코드
+              </button>
+            </div>
+
             <p className="text-sm text-slate-600">
-              Google Authenticator 앱에 표시된 6자리 코드를 입력해주세요.
+              {isBackupMode
+                ? "휴대폰 없이 로그인해야 할 때, 마이페이지에서 발급받은 백업 코드를 입력해주세요."
+                : "Google Authenticator 앱에 표시된 6자리 코드를 입력해주세요."}
             </p>
+
             <Input
               value={otpCode}
-              maxLength={6}
-              inputMode="numeric"
+              maxLength={isBackupMode ? 16 : 6}
+              inputMode={isBackupMode ? "text" : "numeric"}
+              placeholder={
+                isBackupMode
+                  ? "백업 코드 입력 (예: X7K9-AB12)"
+                  : "6자리 숫자 입력"
+              }
               className="text-center tracking-[0.4em] text-lg"
               onChange={(e) => handleOtpChange(e.target.value)}
             />
+
             <Button
               className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg"
               onClick={handleOtpConfirm}

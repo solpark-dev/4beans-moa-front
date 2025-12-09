@@ -1,5 +1,4 @@
-// src/services/logic/admin/adminUserListLogic.js
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchAdminUsers } from "@/api/adminUserApi";
 import { useAdminUserStore } from "@/store/admin/adminUserStore";
@@ -11,6 +10,7 @@ export const useAdminUserListLogic = () => {
     users,
     page,
     size,
+    sort,
     totalPages,
     totalCount,
     filters,
@@ -18,23 +18,30 @@ export const useAdminUserListLogic = () => {
     error,
     setFilter,
     setPage,
+    setSort,
     setData,
     setLoading,
     setError,
     resetFilters,
   } = useAdminUserStore();
 
+  const [searchValue, setSearchValue] = useState(filters.q || "");
   const loadUsers = async (override) => {
     try {
       setLoading(true);
       setError(null);
 
       const currentPage = override?.page ?? page;
+      const currentSort = override?.sort ?? sort;
+      const currentStatus =
+        override?.status !== undefined ? override.status : filters.status;
+
       const params = {
         page: currentPage,
         size,
+        sort: currentSort,
         q: filters.q || undefined,
-        status: filters.status === "ALL" ? undefined : filters.status,
+        status: currentStatus === "ALL" ? undefined : currentStatus,
         regDateFrom: filters.joinStart || undefined,
         regDateTo: filters.joinEnd || undefined,
       };
@@ -55,12 +62,30 @@ export const useAdminUserListLogic = () => {
     }
   };
 
-  const handleSearchInputChange = (value) => {
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
     setFilter("q", value);
   };
 
-  const handleStatusChange = (value) => {
+  const handleSearchKeyDown = async (e) => {
+    if (e.key === "Enter") {
+      const trimmed = searchValue.trim();
+      if (trimmed === "") {
+        resetFilters();
+        setSearchValue("");
+        await loadUsers({ page: 1 });
+        return;
+      }
+      setPage(1);
+      await loadUsers({ page: 1 });
+    }
+  };
+
+  const handleStatusChange = async (value) => {
     setFilter("status", value);
+    setPage(1);
+    await loadUsers({ page: 1, status: value });
   };
 
   const handleJoinStartChange = (value) => {
@@ -76,20 +101,28 @@ export const useAdminUserListLogic = () => {
     await loadUsers({ page: 1 });
   };
 
-  const handleSearchEnter = async (value) => {
-    const trimmed = value.trim();
-    if (trimmed === "") {
-      resetFilters();
-      await loadUsers({ page: 1 });
-      return;
-    }
-    await handleSearchSubmit();
-  };
-
   const handlePageClick = async (pageNumber) => {
     if (pageNumber === page) return;
     setPage(pageNumber);
     await loadUsers({ page: pageNumber });
+  };
+
+  const handleSortToggle = async (field) => {
+    const sortParts = sort ? sort.split(",") : [];
+    const currentField = sortParts[0] || "";
+    const currentDir = sortParts[1] || "desc";
+
+    const isSameField = currentField === field;
+    const nextDir = isSameField && currentDir === "desc" ? "asc" : "desc";
+
+    const primaryField = field;
+    const secondaryField =
+      field === "lastLoginDate" ? "regDate" : "lastLoginDate";
+
+    const newSort = `${primaryField},${nextDir},${secondaryField},desc`;
+
+    setSort(newSort);
+    await loadUsers({ sort: newSort, page: 1 });
   };
 
   const changePageBlock = async (type) => {
@@ -121,6 +154,16 @@ export const useAdminUserListLogic = () => {
     }
   };
 
+  const handleEmailClick = (userId) => {
+    navigate(`/admin/users/${encodeURIComponent(userId)}`);
+  };
+
+  const handleReset = async () => {
+    resetFilters();
+    setSearchValue("");
+    await loadUsers({ page: 1, sort: "regDate,desc" });
+  };
+
   const getPageNumbers = () => {
     const pageUnit = 5;
     const currentBlock = Math.floor((page - 1) / pageUnit);
@@ -133,13 +176,9 @@ export const useAdminUserListLogic = () => {
     return pages;
   };
 
-  const handleEmailClick = (userId) => {
-    navigate(`/admin/users/${encodeURIComponent(userId)}`);
-  };
-
-  const handleReset = async () => {
-    resetFilters();
-    await loadUsers({ page: 1 });
+  const formatDate = (value) => {
+    if (!value) return "-";
+    return value.length > 10 ? value.substring(0, 10) : value;
   };
 
   useEffect(() => {
@@ -150,21 +189,29 @@ export const useAdminUserListLogic = () => {
     users,
     page,
     size,
+    sort,
     totalPages,
     totalCount,
     filters,
+    searchValue,
     loading,
     error,
-    handleSearchInputChange,
-    handleStatusChange,
-    handleJoinStartChange,
-    handleJoinEndChange,
-    handleSearchSubmit,
-    handleSearchEnter,
-    handlePageClick,
-    changePageBlock,
-    getPageNumbers,
-    handleEmailClick,
-    handleReset,
+    pageNumbers: getPageNumbers(),
+    handlers: {
+      handleSearchChange,
+      handleSearchKeyDown,
+      handleStatusChange,
+      handleJoinStartChange,
+      handleJoinEndChange,
+      handleSearchSubmit,
+      handlePageClick,
+      handleSortToggle,
+      changePageBlock,
+      handleEmailClick,
+      handleReset,
+    },
+    utils: {
+      formatDate,
+    },
   };
 };

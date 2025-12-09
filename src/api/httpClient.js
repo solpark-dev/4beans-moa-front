@@ -25,7 +25,7 @@ const processQueue = (error, token = null) => {
 };
 
 httpClient.interceptors.request.use(
-  (config) => {
+  async (config) => {
     const { accessToken } = useAuthStore.getState();
 
     if (accessToken) {
@@ -33,6 +33,8 @@ httpClient.interceptors.request.use(
         config.headers = {};
       }
       config.headers.Authorization = `Bearer ${accessToken}`;
+    } else {
+      console.warn("No access token found.");
     }
 
     return config;

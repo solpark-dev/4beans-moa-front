@@ -4,7 +4,6 @@ import { useAuthStore } from "@/store/authStore";
 import { useOtpStore } from "@/store/user/otpStore";
 import { otpHandlers } from "@/hooks/user/useOtp";
 
-// 날짜 포맷 헬퍼 함수
 function formatDate(value) {
   if (!value) return "";
   const d = new Date(value);
@@ -13,14 +12,12 @@ function formatDate(value) {
 }
 
 export const useMyPage = () => {
-  // 1. Store State
   const { user, setUser } = useAuthStore();
   const { enabled, modalOpen, qrUrl, code, loading, setEnabled } =
     useOtpStore();
 
   const otpActionHandlers = otpHandlers();
 
-  // 2. 초기 데이터 로드 (API 호출)
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -45,7 +42,6 @@ export const useMyPage = () => {
     fetchUserData();
   }, [setUser, setEnabled]);
 
-  // 3. Derived State (데이터 가공)
   const marketingAgreed = user
     ? user.agreeMarketing ?? user.marketing ?? false
     : false;
@@ -59,8 +55,6 @@ export const useMyPage = () => {
   );
 
   const isAdmin = user?.role === "ADMIN";
-
-  // 4. Event Handlers (Navigation & Logic)
   const handlers = {
     goSubscription: () => (window.location.href = "/subscription/list"),
     goMyParties: () => (window.location.href = "/my-parties"),
@@ -76,8 +70,6 @@ export const useMyPage = () => {
     goBlacklistAdd: (userId) =>
       (window.location.href = `/admin/blacklist/add?user=${userId}`),
     goDeleteUser: () => (window.location.href = "/mypage/delete"),
-
-    // 소셜 연동 로직
     oauthConnect: (provider) => {
       if (provider === "kakao") {
         if (!window.Kakao) {
@@ -113,7 +105,6 @@ export const useMyPage = () => {
     formatDate,
   };
 
-  // View 로직용 Wrapper Functions (UI에서 바로 호출하기 쉽게 가공)
   const handleGoogleClick = () => {
     if (googleConn) {
       handlers.oauthRelease(googleConn.oauthId);
@@ -136,7 +127,6 @@ export const useMyPage = () => {
     }
   };
 
-  // 5. Return Logic Object
   return {
     state: {
       user,

@@ -2,14 +2,13 @@
 import { Link } from "react-router-dom";
 import {
   Bell,
-  Search,
   LogOut,
   LayoutDashboard,
   Users,
   CreditCard,
+  Boxes,
   UserCircle,
   Trash2,
-  RefreshCw,
   Menu,
 } from "lucide-react";
 
@@ -75,97 +74,90 @@ export default function HeaderView({
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm h-20">
-      <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link
-          to={isAdmin ? "/admin/users" : "/"}
-          className="flex items-center gap-3 group"
-        >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-            <span className="text-white font-extrabold text-2xl tracking-tight">
-              M
-            </span>
-          </div>
+      <div className="w-full max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-10 min-w-0">
+          <Link
+            to={isAdmin ? "/admin/users" : "/"}
+            className="flex items-center gap-3 group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+              <span className="text-white font-extrabold text-2xl tracking-tight">
+                M
+              </span>
+            </div>
 
-          <div className="flex flex-col leading-none">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
-              MoA
-            </span>
+            <div className="flex flex-col leading-none">
+              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
+                MoA
+              </span>
+            </div>
+          </Link>
 
-            <span className="hidden sm:inline-block text-[11px] font-medium text-indigo-500/90 mt-0.5 tracking-[0.18em] uppercase">
-              Subscription Control Center
-            </span>
-          </div>
-        </Link>
+          <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold text-slate-600 mr-4">
+            {isAdmin ? (
+              <>
+                <Link
+                  to="/admin/dashboard"
+                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span>대시보드</span>
+                </Link>
 
-        <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold text-slate-600">
-          {isAdmin ? (
-            <>
-              <Link
-                to="/admin/dashboard"
-                className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
-              >
-                <LayoutDashboard className="w-5 h-5" />
-                <span>대시보드</span>
-              </Link>
-              {user?.email !== "admin@moa.com" && (
                 <Link
                   to="/admin/users"
-                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+                  className="flex items-center gap-2 whitespace-nowrap transition-colors hover:text-indigo-600"
                 >
                   <Users className="w-5 h-5" />
                   <span>회원 관리</span>
                 </Link>
-              )}
-              <Link
-                to="/admin/sales"
-                className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
-              >
-                <CreditCard className="w-5 h-5" />
-                <span>매출 조회</span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/product"
-                className="hover:text-indigo-600 transition-colors whitespace-nowrap"
-              >
-                구독상품
-              </Link>
 
-              <Link
-                to="/subscription"
-                className="hover:text-indigo-600 transition-colors whitespace-nowrap"
-              >
-                구독목록
-              </Link>
+                <Link
+                  to="/admin/sales"
+                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  <span>매출 조회</span>
+                </Link>
 
-              <Link
-                to="/party"
-                className="hover:text-indigo-600 transition-colors whitespace-nowrap"
-              >
-                파티 찾기
-              </Link>
-            </>
-          )}
-        </nav>
+                <Link
+                  to="/product"
+                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  <Boxes className="w-5 h-5" />
+                  <span>구독상품</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/product"
+                  className="hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  구독상품
+                </Link>
+                <Link
+                  to="/subscription"
+                  className="hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  구독목록
+                </Link>
+                <Link
+                  to="/party"
+                  className="hover:text-indigo-600 transition-colors whitespace-nowrap"
+                >
+                  파티 찾기
+                </Link>
+              </>
+            )}
+          </nav>
+        </div>
 
-        <div className="flex items-center gap-5">
-          <div className="hidden xl:flex items-center relative w-72 lg:w-80">
-            <Search className="absolute left-4 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder={
-                isAdmin ? "회원 검색..." : "넷플릭스, 디즈니+ 검색..."
-              }
-              className="w-full bg-slate-100/90 rounded-full pl-11 pr-4 py-2.5 text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:bg-white transition-all"
-            />
-          </div>
-
+        <div className="flex items-center gap-5 w-[320px] justify-end shrink-0">
           {user ? (
             <div className="flex items-center gap-4">
               {user?.role === "ADMIN" && (
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm">
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm w-[120px] justify-center shrink-0">
                   <Switch
                     id="admin-mode"
                     checked={isAdminMode}
@@ -174,7 +166,7 @@ export default function HeaderView({
                   />
                   <Label
                     htmlFor="admin-mode"
-                    className="text-[11px] font-bold text-slate-800 cursor-pointer tracking-[0.18em] uppercase"
+                    className="w-10 text-[11px] font-bold text-slate-800 cursor-pointer tracking-[0.18em] uppercase text-center shrink-0"
                   >
                     {isAdminMode ? "SUP" : "MGR"}
                   </Label>
@@ -263,6 +255,52 @@ export default function HeaderView({
                           파티 찾기
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator className="my-2" />
+                    </DropdownMenuGroup>
+                  )}
+
+                  {isAdmin && (
+                    <DropdownMenuGroup className="md:hidden">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/admin/dashboard"
+                          className="py-2.5 flex items-center font-medium text-slate-700"
+                        >
+                          <LayoutDashboard className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                          대시보드
+                        </Link>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/admin/users"
+                          className="py-2.5 flex items-center font-medium text-slate-700"
+                        >
+                          <Users className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                          회원 관리
+                        </Link>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/admin/sales"
+                          className="py-2.5 flex items-center font-medium text-slate-700"
+                        >
+                          <CreditCard className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                          매출 조회
+                        </Link>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/product"
+                          className="py-2.5 flex items-center font-medium text-slate-700"
+                        >
+                          <Boxes className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                          구독상품
+                        </Link>
+                      </DropdownMenuItem>
+
                       <DropdownMenuSeparator className="my-2" />
                     </DropdownMenuGroup>
                   )}

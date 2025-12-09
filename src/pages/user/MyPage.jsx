@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useMyPage } from "@/hooks/user/useMyPage";
 import { useLoginHistory } from "@/hooks/user/useLoginHistory";
+import { useBackupCodeModal } from "@/hooks/user/useBackupCodeModal";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -12,6 +13,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
@@ -36,6 +38,7 @@ export default function MyPage() {
 
   const { user, isAdmin, shortId, marketingAgreed, googleConn, kakaoConn } =
     state;
+
   const otp = {
     enabled: useOtpStore((s) => s.enabled),
     modalOpen: useOtpStore((s) => s.modalOpen),
@@ -44,6 +47,13 @@ export default function MyPage() {
     code: useOtpStore((s) => s.code),
     loading: useOtpStore((s) => s.loading),
   };
+  const backup = useBackupCodeModal();
+
+  useEffect(() => {
+    if (otp.enabled) {
+      backup.fetchExistingCodes();
+    }
+  }, [otp.enabled]);
 
   if (!user) return null;
 
@@ -279,16 +289,29 @@ export default function MyPage() {
                       )}
 
                       {otp.enabled && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-8 px-3 text-xs border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-lg"
-                          onClick={() => {
-                            actions.otp.prepareDisable();
-                          }}
-                        >
-                          OTP 해제
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={backup.loading || backup.issued}
+                            className={`h-8 px-3 text-xs ${
+                              backup.issued
+                                ? "border-slate-300 text-slate-400 cursor-not-allowed"
+                                : "border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
+                            } rounded-lg`}
+                            onClick={backup.issueBackupCodes}
+                          >
+                            {backup.issued ? "발급 완료" : "백업 코드 발급"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-3 text-xs border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-lg"
+                            onClick={actions.otp.prepareDisable}
+                          >
+                            OTP 해제
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -307,6 +330,11 @@ export default function MyPage() {
             <DialogTitle>
               {otp.mode === "disable" ? "Google OTP 해제" : "Google OTP 설정"}
             </DialogTitle>
+            <DialogDescription className="mt-2 text-sm text-slate-600 leading-relaxed">
+              {otp.mode === "disable"
+                ? "등록된 Google OTP를 해제하려면 앱에서 생성된 6자리 코드를 입력해주세요."
+                : "Google Authenticator 앱을 열고 QR 코드를 스캔한 뒤, 생성된 6자리 코드를 아래에 입력해주세요."}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
             {otp.mode === "enable" && otp.qrUrl && (
@@ -350,6 +378,75 @@ export default function MyPage() {
               >
                 인증 완료
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={backup.open}
+        onOpenChange={(open) => {
+          if (!open) backup.close();
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Google OTP 백업 코드</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600 leading-relaxed">
+              OTP 기기를 분실했을 때만 사용하는 일회용 로그인 코드입니다. 다른
+              사람과 공유하지 말고 안전한 곳에 보관하세요.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-64 overflow-y-auto space-y-1">
+              {backup.codes.length > 0 ? (
+                backup.codes.map((code, index) => (
+                  <div
+                    key={`${code}-${index}`}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <span className="font-mono tracking-widest text-slate-800">
+                      {code}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      #{String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="py-6 text-center text-sm text-slate-400">
+                  발급된 백업 코드가 없습니다.
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={backup.copyAll}
+                disabled={!backup.codes.length}
+              >
+                전체 복사
+              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={backup.downloadTxt}
+                  disabled={!backup.codes.length}
+                >
+                  TXT 저장
+                </Button>
+                <Button
+                  type="button"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  onClick={backup.close}
+                >
+                  닫기
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

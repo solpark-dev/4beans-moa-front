@@ -1,5 +1,3 @@
-// src/pages/admin/AdminUserListPage.jsx
-import { useState } from "react";
 import { useAdminUserListLogic } from "@/hooks/admin/useAdminUserList";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -22,97 +20,105 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import {
   Search,
   Filter,
   AlertTriangle,
   LayoutDashboard,
   Users,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
+
+const SortIcon = ({ currentSort, field }) => {
+  if (!currentSort) {
+    return <ArrowUpDown className="ml-2 h-3 w-3 text-slate-400" />;
+  }
+
+  const tokens = currentSort.split(",");
+  let dir = null;
+
+  for (let i = 0; i < tokens.length; i += 2) {
+    if (tokens[i] === field) {
+      dir = tokens[i + 1] || "desc";
+      break;
+    }
+  }
+
+  if (!dir) {
+    return <ArrowUpDown className="ml-2 h-3 w-3 text-slate-400" />;
+  }
+
+  return dir === "asc" ? (
+    <ArrowUp className="ml-2 h-3 w-3 text-indigo-600" />
+  ) : (
+    <ArrowDown className="ml-2 h-3 w-3 text-indigo-600" />
+  );
+};
+
+const StatusBadge = ({ status, blacklisted }) => {
+  if (blacklisted) {
+    return (
+      <Badge className="bg-red-500 hover:bg-red-600 text-xs font-semibold">
+        블랙리스트
+      </Badge>
+    );
+  }
+  const styles = {
+    BLOCK: "bg-orange-500 hover:bg-orange-600",
+    WITHDRAW: "bg-slate-400 hover:bg-slate-500",
+    PENDING: "bg-yellow-400 hover:bg-yellow-500 text-slate-900",
+    ACTIVE: "bg-emerald-500 hover:bg-emerald-600",
+  };
+  const labels = {
+    BLOCK: "이용제한",
+    WITHDRAW: "탈퇴",
+    PENDING: "미인증",
+    ACTIVE: "정상",
+  };
+  const key = status === "ACTIVE" || !styles[status] ? "ACTIVE" : status;
+
+  return (
+    <Badge className={`${styles[key]} text-xs font-semibold`}>
+      {labels[key]}
+    </Badge>
+  );
+};
 
 export default function AdminUserListPage() {
   const {
     users,
     page,
+    sort,
     totalPages,
     totalCount,
     filters,
+    searchValue,
     loading,
     error,
-    handleSearchInputChange,
-    handleStatusChange,
-    handleJoinStartChange,
-    handleJoinEndChange,
-    handleSearchSubmit,
-    handleSearchEnter,
-    handlePageClick,
-    changePageBlock,
-    getPageNumbers,
-    handleEmailClick,
-    handleReset,
+    pageNumbers,
+
+    handlers: {
+      handleSearchChange,
+      handleSearchKeyDown,
+      handleStatusChange,
+      handleJoinStartChange,
+      handleJoinEndChange,
+      handleSearchSubmit,
+      handlePageClick,
+      handleSortToggle,
+      changePageBlock,
+      handleEmailClick,
+      handleReset,
+    },
+
+    utils: { formatDate },
   } = useAdminUserListLogic();
-
-  const [searchValue, setSearchValue] = useState(filters.q);
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchValue(value);
-    handleSearchInputChange(value);
-  };
-
-  const handleSearchKeyDown = async (e) => {
-    if (e.key === "Enter") {
-      await handleSearchEnter(searchValue);
-    }
-  };
-
-  const formatDate = (value) => {
-    if (!value) return "-";
-    return value.length > 10 ? value.substring(0, 10) : value;
-  };
-
-  const renderStatusBadge = (status, blacklisted) => {
-    if (blacklisted) {
-      return (
-        <Badge className="bg-red-500 hover:bg-red-600 text-xs font-semibold">
-          블랙리스트
-        </Badge>
-      );
-    }
-    if (status === "BLOCK") {
-      return (
-        <Badge className="bg-orange-500 hover:bg-orange-600 text-xs font-semibold">
-          이용제한
-        </Badge>
-      );
-    }
-    if (status === "WITHDRAW") {
-      return (
-        <Badge className="bg-slate-400 hover:bg-slate-500 text-xs font-semibold">
-          탈퇴
-        </Badge>
-      );
-    }
-    if (status === "PENDING") {
-      return (
-        <Badge className="bg-yellow-400 hover:bg-yellow-500 text-xs font-semibold text-slate-900">
-          미인증
-        </Badge>
-      );
-    }
-    return (
-      <Badge className="bg-emerald-500 hover:bg-emerald-600 text-xs font-semibold">
-        정상
-      </Badge>
-    );
-  };
-
-  const pageNumbers = getPageNumbers();
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
-      {/* 상단 HERO 영역 (MyPage와 동일 톤) */}
+      {/* Header Section */}
       <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
           <div className="max-w-xl text-center md:text-left">
@@ -131,7 +137,6 @@ export default function AdminUserListPage() {
             </p>
           </div>
 
-          {/* 상단 요약 카드 */}
           <Card className="bg-white/95 border border-indigo-100 shadow-xl rounded-3xl w-full max-w-md">
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center gap-3">
@@ -150,41 +155,12 @@ export default function AdminUserListPage() {
                   </p>
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
-                  <Users className="w-4 h-4 text-indigo-500" />
-                  <div>
-                    <p className="text-slate-500">검색어</p>
-                    <p className="font-semibold text-slate-800 truncate">
-                      {filters.q || "전체"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
-                  <Filter className="w-4 h-4 text-indigo-500" />
-                  <div>
-                    <p className="text-slate-500">회원 상태</p>
-                    <p className="font-semibold text-slate-800">
-                      {filters.status === "ALL"
-                        ? "전체"
-                        : filters.status === "ACTIVE"
-                          ? "정상"
-                          : filters.status === "BLOCK"
-                            ? "이용제한"
-                            : filters.status === "WITHDRAW"
-                              ? "탈퇴"
-                              : "미인증"}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* 본문 영역 (테이블 카드) */}
+      {/* Main Table Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
         <div className="mt-8">
           <Card className="shadow-md border-slate-200 rounded-2xl">
@@ -204,7 +180,7 @@ export default function AdminUserListPage() {
                   <Filter className="w-4 h-4 text-slate-400" />
                   <Select
                     value={filters.status}
-                    onValueChange={(v) => handleStatusChange(v)}
+                    onValueChange={handleStatusChange}
                   >
                     <SelectTrigger className="w-32 h-9 text-sm">
                       <SelectValue placeholder="회원상태" />
@@ -273,17 +249,31 @@ export default function AdminUserListPage() {
                 <Table className="min-w-full">
                   <TableHeader className="bg-slate-50 border-b border-slate-200">
                     <TableRow>
-                      <TableHead className="w-72 text-left text-slate-700 text-sm">
+                      <TableHead className="w-72 text-left text-slate-700 text-sm font-semibold">
                         이메일(아이디)
                       </TableHead>
-                      <TableHead className="w-32 text-center text-slate-700 text-sm">
+                      <TableHead className="w-32 text-center text-slate-700 text-sm font-semibold">
                         회원상태
                       </TableHead>
-                      <TableHead className="w-40 text-center text-slate-700 text-sm">
-                        최근 로그인 일자
+                      <TableHead className="w-40 text-center p-0">
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleSortToggle("lastLoginDate")}
+                          className="w-full h-full rounded-none hover:bg-slate-100 text-slate-700 text-sm font-semibold flex items-center justify-center gap-1"
+                        >
+                          최근 로그인 일자
+                          <SortIcon currentSort={sort} field="lastLoginDate" />
+                        </Button>
                       </TableHead>
-                      <TableHead className="w-40 text-center text-slate-700 text-sm">
-                        가입일자
+                      <TableHead className="w-40 text-center p-0">
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleSortToggle("regDate")}
+                          className="w-full h-full rounded-none hover:bg-slate-100 text-slate-700 text-sm font-semibold flex items-center justify-center gap-1"
+                        >
+                          가입일자
+                          <SortIcon currentSort={sort} field="regDate" />
+                        </Button>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -327,17 +317,21 @@ export default function AdminUserListPage() {
                           <TableCell className="py-3 text-sm">
                             <button
                               type="button"
-                              className={`text-left font-medium ${user.blacklisted
-                                ? "text-red-500 hover:underline"
-                                : "text-slate-900 hover:text-indigo-600 hover:underline"
-                                }`}
+                              className={`text-left font-medium ${
+                                user.blacklisted
+                                  ? "text-red-500 hover:underline"
+                                  : "text-slate-900 hover:text-indigo-600 hover:underline"
+                              }`}
                               onClick={() => handleEmailClick(user.userId)}
                             >
                               {user.userId}
                             </button>
                           </TableCell>
                           <TableCell className="py-3 text-center">
-                            {renderStatusBadge(user.status, user.blacklisted)}
+                            <StatusBadge
+                              status={user.status}
+                              blacklisted={user.blacklisted}
+                            />
                           </TableCell>
                           <TableCell className="py-3 text-center text-sm text-slate-600">
                             {formatDate(user.lastLoginDate)}
@@ -351,6 +345,7 @@ export default function AdminUserListPage() {
                 </Table>
               </div>
 
+              {/* Pagination */}
               <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/70 rounded-b-2xl">
                 <div className="text-xs text-slate-500">
                   페이지 {page} / {totalPages || 1}
@@ -381,10 +376,11 @@ export default function AdminUserListPage() {
                       key={p}
                       variant={p === page ? "default" : "outline"}
                       size="icon"
-                      className={`h-8 w-8 text-xs ${p === page
-                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                        : "text-slate-700"
-                        }`}
+                      className={`h-8 w-8 text-xs ${
+                        p === page
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "text-slate-700"
+                      }`}
                       onClick={() => handlePageClick(p)}
                     >
                       {p}
