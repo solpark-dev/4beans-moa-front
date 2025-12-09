@@ -26,25 +26,27 @@ export function useHeaderLogic() {
   };
 
   const handleAdminSwitch = () => {
-    setIsAdminMode((prev) => !prev);
+    setIsAdminMode((prev) => {
+      const next = !prev;
 
-    if (user?.email === "admin@admin.com") {
-      setUser({
-        ...user,
-        email: "admin@moa.com",
-        nickname: "MoA관리자",
-        role: "ADMIN",
-      });
-      alert("일반 관리자 모드로 전환");
-    } else {
-      setUser({
-        ...user,
-        email: "admin@admin.com",
-        nickname: "슈퍼관리자",
-        role: "ADMIN",
-      });
-      alert("슈퍼 관리자 모드로 전환");
-    }
+      if (next) {
+        setUser({
+          ...user,
+          email: "admin@admin.com",
+          nickname: "슈퍼관리자",
+          role: "ADMIN",
+        });
+      } else {
+        setUser({
+          ...user,
+          email: "admin@moa.com",
+          nickname: "MoA관리자",
+          role: "ADMIN",
+        });
+      }
+
+      return next;
+    });
   };
 
   const isAdmin = user?.role === "ADMIN";

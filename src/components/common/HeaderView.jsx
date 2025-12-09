@@ -85,10 +85,12 @@ export default function HeaderView({
               M
             </span>
           </div>
+
           <div className="flex flex-col leading-none">
             <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
               MoA
             </span>
+
             <span className="hidden sm:inline-block text-[11px] font-medium text-indigo-500/90 mt-0.5 tracking-[0.18em] uppercase">
               Subscription Control Center
             </span>
@@ -98,15 +100,15 @@ export default function HeaderView({
         <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold text-slate-600">
           {isAdmin ? (
             <>
-              {user?.email !== "admin@moa.com" && (
-                <Link
-                  to="/admin/users"
-                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  <Users className="w-5 h-5" />
-                  <span>회원 관리</span>
-                </Link>
-              )}
+              {/** SUP / MGR 관계없이 항상 동일한 관리자 메뉴 */}
+              <Link
+                to="/admin/users"
+                className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
+              >
+                <Users className="w-5 h-5" />
+                <span>회원 관리</span>
+              </Link>
+
               <Link
                 to="/admin/sales"
                 className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
@@ -123,12 +125,14 @@ export default function HeaderView({
               >
                 구독상품
               </Link>
+
               <Link
                 to="/subscription"
                 className="hover:text-indigo-600 transition-colors whitespace-nowrap"
               >
                 구독목록
               </Link>
+
               <Link
                 to="/party"
                 className="hover:text-indigo-600 transition-colors whitespace-nowrap"
@@ -192,8 +196,8 @@ export default function HeaderView({
                   </AvatarFallback>
                 </Avatar>
 
-                <div className="hidden lg:flex flex-col gap-0.5">
-                  <span className="text-[15px] font-bold text-slate-900 leading-tight">
+                <div className="hidden lg:flex flex-col gap-0.5 w-28 overflow-hidden">
+                  <span className="text-[15px] font-bold text-slate-900 leading-tight truncate">
                     {displayNickname}
                   </span>
                   {renderProviderBadge(user.provider)}
