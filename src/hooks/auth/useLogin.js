@@ -257,7 +257,7 @@ export const useLoginPageLogic = () => {
     }
 
     window.Kakao.Auth.authorize({
-      redirectUri,
+      redirectUri: `${window.location.origin}/oauth/kakao`,
       state: "login",
     });
   };
@@ -268,7 +268,10 @@ export const useLoginPageLogic = () => {
       setGoogleLoading(true);
 
       const res = await httpClient.get("/oauth/google/auth", {
-        params: { mode: "login" },
+        params: {
+          mode: "login",
+          origin: window.location.origin,
+        },
       });
 
       if (!res.success) {

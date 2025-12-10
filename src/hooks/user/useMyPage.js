@@ -113,7 +113,7 @@ export const useMyPage = () => {
 
       if (provider === "google") {
         try {
-          const res = await httpClient.get("/api/oauth/google/auth", {
+          const res = await httpClient.get("/oauth/google/auth", {
             params: { mode: "connect" },
           });
 

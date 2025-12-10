@@ -15,7 +15,6 @@ export default function OAuthKakaoPage() {
 
   const navigate = useNavigate();
   const { setTokens, setUser, clearAuth } = useAuthStore();
-
   const didRunRef = useRef(false);
 
   useEffect(() => {
@@ -25,20 +24,13 @@ export default function OAuthKakaoPage() {
       return;
     }
 
-    if (didRunRef.current) {
-      return;
-    }
+    if (didRunRef.current) return;
     didRunRef.current = true;
 
     const run = async () => {
       try {
-        const paramsObj = { code, mode };
-        if (mode === "login") {
-          paramsObj.redirectUri = redirectUri;
-        }
-
         const res = await httpClient.get("/oauth/kakao/callback", {
-          params: paramsObj,
+          params: { code, mode, redirectUri },
         });
 
         if (!res.success) {
