@@ -37,6 +37,7 @@ export function otpHandlers() {
 
   const confirmOtp = async () => {
     const state = useOtpStore.getState();
+    const mode = state.mode;
 
     if (!state.code || state.code.length !== 6) {
       alert("6자리 코드를 입력해주세요.");
@@ -46,7 +47,7 @@ export function otpHandlers() {
     try {
       state.setField("loading", true);
 
-      if (state.mode === "enable") {
+      if (mode === "enable") {
         const res = await verifyOtp(state.code);
         if (!res.success) {
           alert(res.error?.message || "OTP 인증 실패");
@@ -54,7 +55,7 @@ export function otpHandlers() {
         }
       }
 
-      if (state.mode === "disable") {
+      if (mode === "disable") {
         const res = await disableOtpVerify(state.code);
         if (!res.success) {
           alert(res.error?.message || "OTP 해제 인증 실패");
@@ -65,13 +66,15 @@ export function otpHandlers() {
       const me = await httpClient.get("/users/me");
       if (me.success) useMyPageStore.getState().setUser(me.data);
 
-      alert(state.mode === "enable" ? "OTP 활성화 완료" : "OTP 해제 완료");
+      alert(mode === "enable" ? "OTP 활성화 완료" : "OTP 해제 완료");
 
-      state.setEnabled(state.mode === "enable");
       state.reset();
+      state.setEnabled(mode === "enable");
+      return { success: true, mode };
     } catch (e) {
       console.log(e);
       alert("OTP 처리 중 오류 발생");
+      return { success: false, mode };
     } finally {
       state.setField("loading", false);
     }

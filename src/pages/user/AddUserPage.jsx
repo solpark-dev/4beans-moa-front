@@ -16,21 +16,12 @@ export default function AddUserPage() {
   const {
     form,
     errors,
-    isSocial,
-    socialProvider,
     handleChange,
     handleBlur,
     handleImageChange,
     handlePassAuth,
     handleSubmit,
   } = useSignup();
-
-  const socialNameKo =
-    socialProvider === "google"
-      ? "구글"
-      : socialProvider === "kakao"
-      ? "카카오"
-      : "소셜";
 
   return (
     <div className="w-full pb-20 bg-slate-50 text-slate-900">
@@ -41,15 +32,16 @@ export default function AddUserPage() {
               <span className="flex h-2 w-2 rounded-full bg-emerald-300 mr-2" />
               MoA 신규 멤버 등록 · 구독 파티 합류 준비
             </div>
+
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-3 drop-shadow-md">
               MoA 회원가입으로
               <br />
               <span className="text-indigo-100">구독도 같이 나누자</span>
             </h2>
+
             <p className="text-sm sm:text-base text-indigo-50/90 max-w-md mx-auto lg:mx-0 leading-relaxed">
-              {isSocial
-                ? `${socialNameKo} 계정과 연동된 정보로, 필수 입력은 최소화하고 빠르게 가입할 수 있어요.`
-                : "이메일, 비밀번호, 휴대폰 번호만 정확히 입력하면 바로 파티에 합류할 수 있어요."}
+              이메일, 비밀번호, 휴대폰 번호만 정확히 입력하면 바로 파티에 합류할
+              수 있어요.
             </p>
           </div>
 
@@ -63,113 +55,98 @@ export default function AddUserPage() {
                     </span>
                     기본 정보 입력
                   </CardTitle>
+
                   <CardDescription className="text-gray-500 text-xs md:text-sm mt-1.5">
-                    {isSocial
-                      ? `${socialNameKo}에서 전달받은 정보를 기반으로 이메일/비밀번호 입력 없이 가입을 진행합니다.`
-                      : "이메일, 비밀번호, 휴대폰 번호를 입력하고 MoA 구독 파티에 참여해 보세요."}
+                    이메일, 비밀번호, 휴대폰 번호를 입력하고 MoA 구독 파티에
+                    참여해 보세요.
                   </CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-6 pt-6 px-6 pb-6">
-                  {isSocial && (
-                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs md:text-sm text-indigo-900">
-                      <p className="font-semibold">
-                        {socialNameKo} 소셜 회원가입
-                      </p>
-                      <p className="mt-1 text-indigo-900/80">
-                        {socialNameKo}에서 받은 인증 정보로 이메일/비밀번호는
-                        생략되고, 닉네임과 휴대폰 정보만 확인하면 가입이
-                        완료됩니다.
-                      </p>
-                    </div>
-                  )}
+                  {/* 이메일 */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="email"
+                      className="text-xs md:text-sm text-gray-800"
+                    >
+                      이메일(아이디)
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="예: moa@email.com"
+                      className="bg-white border border-gray-300 text-sm"
+                      value={form.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                    <p
+                      className={`text-xs mt-1 ${
+                        errors.email.isError ? "text-red-500" : "text-green-600"
+                      }`}
+                    >
+                      {errors.email.message}
+                    </p>
+                  </div>
 
-                  {!isSocial && (
-                    <>
-                      <div className="space-y-1.5">
-                        <Label
-                          htmlFor="email"
-                          className="text-xs md:text-sm text-gray-800"
-                        >
-                          이메일(아이디)
-                        </Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="예: moa@email.com"
-                          className="bg-white border border-gray-300 text-sm"
-                          value={form.email}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                        <p
-                          className={`text-xs mt-1 ${
-                            errors.email.isError
-                              ? "text-red-500"
-                              : "text-green-600"
-                          }`}
-                        >
-                          {errors.email.message}
-                        </p>
-                      </div>
+                  {/* 비밀번호 */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="password"
+                      className="text-xs md:text-sm text-gray-800"
+                    >
+                      비밀번호
+                    </Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="영문+숫자+특수문자 포함 8~20자"
+                      className="bg-white border border-gray-300 text-sm"
+                      value={form.password}
+                      onChange={handleChange}
+                    />
+                    <p
+                      className={`text-xs mt-1 ${
+                        errors.password.isError
+                          ? "text-red-500"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {errors.password.message}
+                    </p>
+                  </div>
 
-                      <div className="space-y-1.5">
-                        <Label
-                          htmlFor="password"
-                          className="text-xs md:text-sm text-gray-800"
-                        >
-                          비밀번호
-                        </Label>
-                        <Input
-                          id="password"
-                          name="password"
-                          type="password"
-                          placeholder="영문+숫자+특수문자 포함 8~20자"
-                          className="bg-white border border-gray-300 text-sm"
-                          value={form.password}
-                          onChange={handleChange}
-                        />
-                        <p
-                          className={`text-xs mt-1 ${
-                            errors.password.isError
-                              ? "text-red-500"
-                              : "text-green-600"
-                          }`}
-                        >
-                          {errors.password.message}
-                        </p>
-                      </div>
+                  {/* 비밀번호 확인 */}
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="passwordCheck"
+                      className="text-xs md:text-sm text-gray-800"
+                    >
+                      비밀번호 확인
+                    </Label>
+                    <Input
+                      id="passwordCheck"
+                      name="passwordCheck"
+                      type="password"
+                      placeholder="비밀번호를 한 번 더 입력"
+                      className="bg-white border border-gray-300 text-sm"
+                      value={form.passwordCheck}
+                      onChange={handleChange}
+                    />
+                    <p
+                      className={`text-xs mt-1 ${
+                        errors.passwordCheck.isError
+                          ? "text-red-500"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {errors.passwordCheck.message}
+                    </p>
+                  </div>
 
-                      <div className="space-y-1.5">
-                        <Label
-                          htmlFor="passwordCheck"
-                          className="text-xs md:text-sm text-gray-800"
-                        >
-                          비밀번호 확인
-                        </Label>
-                        <Input
-                          id="passwordCheck"
-                          name="passwordCheck"
-                          type="password"
-                          placeholder="비밀번호를 한 번 더 입력"
-                          className="bg-white border border-gray-300 text-sm"
-                          value={form.passwordCheck}
-                          onChange={handleChange}
-                        />
-                        <p
-                          className={`text-xs mt-1 ${
-                            errors.passwordCheck.isError
-                              ? "text-red-500"
-                              : "text-green-600"
-                          }`}
-                        >
-                          {errors.passwordCheck.message}
-                        </p>
-                      </div>
-                    </>
-                  )}
-
+                  {/* 닉네임 */}
                   <div className="space-y-1.5">
                     <Label
                       htmlFor="nickname"
@@ -197,6 +174,7 @@ export default function AddUserPage() {
                     </p>
                   </div>
 
+                  {/* 휴대폰 번호 + 본인인증 */}
                   <div className="space-y-1.5">
                     <Label
                       htmlFor="phone"
@@ -230,6 +208,7 @@ export default function AddUserPage() {
                     </p>
                   </div>
 
+                  {/* 프로필 이미지 */}
                   <div className="space-y-2">
                     <Label className="text-xs md:text-sm text-gray-800">
                       프로필 이미지
@@ -255,6 +234,7 @@ export default function AddUserPage() {
                     </div>
                   </div>
 
+                  {/* 마케팅 동의 */}
                   <div className="rounded-2xl border border-gray-100 bg-slate-50 px-4 py-3 text-xs md:text-sm text-gray-700 flex items-start gap-2">
                     <input
                       id="agreeMarketing"

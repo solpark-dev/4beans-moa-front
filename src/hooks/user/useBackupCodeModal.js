@@ -68,6 +68,12 @@ export function useBackupCodeModal() {
     }
   };
 
+  const openExistingCodes = async () => {
+    if (loading) return;
+    await fetchExistingCodes();
+    setOpen(true);
+  };
+
   const close = () => {
     reset();
   };
@@ -103,6 +109,7 @@ export function useBackupCodeModal() {
     loading,
     issued,
     issueBackupCodes,
+    openExistingCodes,
     close,
     copyAll,
     downloadTxt,

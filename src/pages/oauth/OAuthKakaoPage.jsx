@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useAuthStore } from "@/store/authStore";
@@ -7,10 +7,16 @@ import { fetchCurrentUser } from "@/api/authApi";
 export default function OAuthKakaoPage() {
   const [params] = useSearchParams();
   const code = params.get("code");
-  const mode = params.get("mode") || "login";
-  const navigate = useNavigate();
 
+  const rawMode = params.get("state") || params.get("mode") || "login";
+  const mode = rawMode === "connect" ? "connect" : "login";
+
+  const redirectUri = `${window.location.origin}${window.location.pathname}`;
+
+  const navigate = useNavigate();
   const { setTokens, setUser, clearAuth } = useAuthStore();
+
+  const didRunRef = useRef(false);
 
   useEffect(() => {
     if (!code) {
@@ -19,10 +25,15 @@ export default function OAuthKakaoPage() {
       return;
     }
 
+    if (didRunRef.current) {
+      return;
+    }
+    didRunRef.current = true;
+
     const run = async () => {
       try {
         const res = await httpClient.get("/oauth/kakao/callback", {
-          params: { code, mode },
+          params: { code, mode, redirectUri },
         });
 
         if (!res.success) {
@@ -118,7 +129,7 @@ export default function OAuthKakaoPage() {
 
         if (status === "NEED_REGISTER" && provider && providerUserId) {
           navigate(
-            `/signup?provider=${encodeURIComponent(
+            `/signup/social?provider=${encodeURIComponent(
               provider
             )}&providerUserId=${encodeURIComponent(providerUserId)}`,
             { replace: true }
@@ -144,7 +155,7 @@ export default function OAuthKakaoPage() {
     };
 
     run();
-  }, [code, mode, navigate, setTokens, setUser, clearAuth]);
+  }, [code, mode, redirectUri, navigate, setTokens, setUser, clearAuth]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">

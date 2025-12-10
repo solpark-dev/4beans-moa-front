@@ -54,7 +54,17 @@ export default function MyPage() {
       backup.fetchExistingCodes();
     }
   }, [otp.enabled]);
+  const handleOtpConfirm = async () => {
+    const result = await actions.otp.confirmOtp();
 
+    if (result?.success && result.mode === "enable") {
+      if (backup.issued) {
+        await backup.openExistingCodes();
+      } else {
+        await backup.issueBackupCodes();
+      }
+    }
+  };
   if (!user) return null;
 
   return (
@@ -293,15 +303,18 @@ export default function MyPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            disabled={backup.loading || backup.issued}
-                            className={`h-8 px-3 text-xs ${
+                            disabled={backup.loading}
+                            className="h-8 px-3 text-xs border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50 rounded-lg"
+                            onClick={
                               backup.issued
-                                ? "border-slate-300 text-slate-400 cursor-not-allowed"
-                                : "border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
-                            } rounded-lg`}
-                            onClick={backup.issueBackupCodes}
+                                ? backup.openExistingCodes
+                                : backup.issueBackupCodes
+                            }
                           >
                             {backup.issued ? "발급 완료" : "백업 코드 발급"}
+                            {backup.issued
+                              ? "백업 코드 보기"
+                              : "백업 코드 발급"}
                           </Button>
                           <Button
                             size="sm"
@@ -358,7 +371,7 @@ export default function MyPage() {
               onChange={(e) => actions.otp.changeCode(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  actions.otp.confirmOtp();
+                  handleOtpConfirm();
                 }
               }}
             />
@@ -372,7 +385,7 @@ export default function MyPage() {
               </Button>
               <Button
                 type="button"
-                onClick={actions.otp.confirmOtp}
+                onClick={handleOtpConfirm}
                 disabled={otp.loading || otp.code.length !== 6}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white"
               >

@@ -7,82 +7,111 @@ import { fetchCurrentUser } from "@/api/authApi";
 export default function OAuthGooglePage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { accessToken, setUser } = useAuthStore();
-
+  const { setUser, setTokens } = useAuthStore();
   const processedRef = useRef(false);
 
   useEffect(() => {
-    if (!accessToken) return;
-    if (processedRef.current) return;
-    processedRef.current = true;
+    const code = params.get("code");
+    const mode = params.get("state") || params.get("mode") || "login";
 
-    const status = params.get("status");
-    const providerUserId = params.get("providerUserId");
-    const provider = params.get("provider") || "google";
-    const userId = params.get("userId");
-    const mode = params.get("mode");
-
-    if (!providerUserId) {
+    if (!code) {
       alert("잘못된 접근입니다.");
       navigate("/", { replace: true });
       return;
     }
+    if (processedRef.current) return;
+    processedRef.current = true;
 
     const run = async () => {
-      if (mode === "connect") {
-        try {
-          await httpClient.post("/oauth/connect", { provider, providerUserId });
+      try {
+        const res = await httpClient.get("/oauth/google/callback", {
+          params: { code, mode },
+        });
+
+        if (!res?.success || !res.data) {
+          alert("구글 인증 처리에 실패했습니다.");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const {
+          status,
+          providerUserId,
+          userId,
+          provider,
+          accessToken,
+          refreshToken,
+          accessTokenExpiresIn,
+          fromUserId,
+        } = res.data;
+
+        if (mode === "connect") {
+          if (status === "NEED_TRANSFER") {
+            const ok = window.confirm(
+              "다른 계정에 연결된 구글 계정입니다. 현재 계정으로 연결을 이전하시겠습니까?"
+            );
+            if (!ok) {
+              navigate("/mypage", { replace: true });
+              return;
+            }
+
+            await httpClient.post("/oauth/transfer", {
+              provider,
+              providerUserId,
+              fromUserId,
+            });
+
+            const meRes = await fetchCurrentUser();
+            if (meRes.success) setUser(meRes.data);
+
+            alert("구글 계정 연결이 이전되었습니다.");
+            navigate("/mypage", { replace: true });
+            return;
+          }
+
+          if (status === "CONNECT") {
+            const meRes = await fetchCurrentUser();
+            if (meRes.success) setUser(meRes.data);
+            alert("구글 계정이 연동되었습니다.");
+            navigate("/mypage", { replace: true });
+            return;
+          }
+        }
+
+        if (status === "LOGIN" && userId && accessToken) {
+          setTokens({
+            accessToken,
+            refreshToken,
+            accessTokenExpiresIn,
+          });
 
           const meRes = await fetchCurrentUser();
           if (meRes.success) setUser(meRes.data);
 
-          alert("구글 계정이 성공적으로 연동되었습니다.");
-          navigate("/mypage", { replace: true });
-        } catch (e) {
-          console.error(e);
-          alert("계정 연동 실패");
-          navigate("/mypage", { replace: true });
+          navigate("/", { replace: true });
+          return;
         }
-        return;
-      }
 
-      if (status === "LOGIN" && userId) {
-        navigate(`/login?oauth=google&providerUserId=${providerUserId}`, {
-          replace: true,
-        });
-        return;
-      }
-
-      if (status === "NEED_REGISTER") {
-        if (!accessToken) {
+        if (status === "NEED_REGISTER") {
           navigate(
-            `/signup?provider=${provider}&providerUserId=${providerUserId}`,
+            `/signup/social?provider=google&providerUserId=${encodeURIComponent(
+              providerUserId
+            )}`,
             { replace: true }
           );
           return;
         }
 
-        try {
-          await httpClient.post("/oauth/connect", { provider, providerUserId });
-
-          const meRes = await fetchCurrentUser();
-          if (meRes.success) setUser(meRes.data);
-
-          alert("구글 계정이 성공적으로 연동되었습니다.");
-          navigate("/mypage", { replace: true });
-        } catch (e) {
-          console.error(e);
-          alert("계정 연동 실패");
-          navigate("/mypage", { replace: true });
-        }
-        return;
+        navigate("/", { replace: true });
+      } catch (e) {
+        console.error(e);
+        alert("구글 인증 처리 중 오류가 발생했습니다.");
+        navigate("/login", { replace: true });
       }
-
-      navigate("/", { replace: true });
     };
 
     run();
-  }, [accessToken, params, navigate, setUser]);
+  }, [params, navigate, setUser, setTokens]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">

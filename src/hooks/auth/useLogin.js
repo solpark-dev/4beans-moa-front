@@ -244,6 +244,9 @@ export const useLoginPageLogic = () => {
   }, [handleEmailLogin, handleOtpConfirm]);
 
   const handleKakaoLogin = () => {
+    const origin = window.location.origin;
+    const redirectUri = `${origin}/oauth/kakao`;
+
     if (!window.Kakao) {
       alert("카카오 SDK 로드 실패");
       return;
@@ -254,7 +257,8 @@ export const useLoginPageLogic = () => {
     }
 
     window.Kakao.Auth.authorize({
-      redirectUri: import.meta.env.VITE_KAKAO_REDIRECT_URI,
+      redirectUri,
+      state: "login",
     });
   };
 
@@ -262,7 +266,20 @@ export const useLoginPageLogic = () => {
     if (googleLoading) return;
     try {
       setGoogleLoading(true);
-      window.location.href = "/api/oauth/google/auth?mode=login";
+
+      const res = await httpClient.get("/oauth/google/auth", {
+        params: { mode: "login" },
+      });
+
+      if (!res.success) {
+        alert(res.error?.message || "구글 로그인 시작에 실패했습니다.");
+        return;
+      }
+
+      window.location.href = res.data.url;
+    } catch (e) {
+      console.error(e);
+      alert("구글 로그인 중 오류가 발생했습니다.");
     } finally {
       setGoogleLoading(false);
     }
