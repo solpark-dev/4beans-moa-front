@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useMyPage } from "@/hooks/user/useMyPage";
 import { useLoginHistory } from "@/hooks/user/useLoginHistory";
 import { useBackupCodeModal } from "@/hooks/user/useBackupCodeModal";
@@ -27,6 +27,7 @@ import {
   UserX,
   ShieldCheck,
   Zap,
+  History,
 } from "lucide-react";
 
 import { QRCodeSVG } from "qrcode.react";
@@ -35,6 +36,7 @@ import { useOtpStore } from "@/store/user/otpStore";
 export default function MyPage() {
   const { state, actions } = useMyPage();
   const loginHistory = useLoginHistory(10);
+  const loginHistoryRef = useRef(null);
 
   const {
     user,
@@ -193,6 +195,16 @@ export default function MyPage() {
                   label="내 지갑"
                   onClick={actions.goWallet}
                 />
+                <MenuButton
+                  icon={<History className="w-4 h-4" />}
+                  label="로그인 이력"
+                  onClick={() =>
+                    loginHistoryRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    })
+                  }
+                />
               </CardContent>
             </Card>
 
@@ -310,18 +322,19 @@ export default function MyPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            disabled={backup.loading}
-                            className="h-8 px-3 text-xs border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50 rounded-lg"
+                            disabled={backup.issued || backup.loading}
+                            className={`h-8 px-3 text-xs rounded-lg ${
+                              backup.issued
+                                ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                                : "border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
+                            }`}
                             onClick={
                               backup.issued
-                                ? backup.openExistingCodes
+                                ? undefined
                                 : backup.issueBackupCodes
                             }
                           >
                             {backup.issued ? "발급 완료" : "백업 코드 발급"}
-                            {backup.issued
-                              ? "백업 코드 보기"
-                              : "백업 코드 발급"}
                           </Button>
                           <Button
                             size="sm"
@@ -338,8 +351,6 @@ export default function MyPage() {
                 </div>
               </InfoCard>
             </div>
-
-            <LoginHistoryCard loginHistory={loginHistory} />
           </main>
         </div>
       </div>

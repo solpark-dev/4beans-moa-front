@@ -68,6 +68,13 @@ export function useBackupCodeModal() {
     }
   };
 
+  const openViewer = async () => {
+    if (loading) return;
+
+    await fetchExistingCodes();
+    setOpen(true);
+  };
+
   const openExistingCodes = async () => {
     if (loading) return;
     await fetchExistingCodes();
@@ -114,5 +121,6 @@ export function useBackupCodeModal() {
     copyAll,
     downloadTxt,
     fetchExistingCodes,
+    openViewer,
   };
 }

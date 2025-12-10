@@ -355,16 +355,6 @@ export default function HeaderView({
                         <LogOut className="mr-2 w-4.5 h-4.5 text-slate-500" />
                         로그아웃
                       </DropdownMenuItem>
-
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/mypage/delete"
-                          className="py-2.5 flex items-center font-medium text-red-600"
-                        >
-                          <Trash2 className="mr-2 w-4.5 h-4.5" />
-                          회원 탈퇴
-                        </Link>
-                      </DropdownMenuItem>
                     </DropdownMenuGroup>
                   )}
                 </DropdownMenuContent>
