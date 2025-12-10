@@ -47,6 +47,8 @@ function PartyCard({ party }) {
 }
 
 export default function TrendingParties() {
+  const visibleParties = MOCK_PARTIES.slice(0, 6);
+
   if (MOCK_PARTIES.length === 0) {
     return (
       <section className="max-w-7xl mx-auto px-4 pb-20">

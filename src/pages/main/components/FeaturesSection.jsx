@@ -61,9 +61,9 @@ export default function FeatureSection() {
               className="border border-gray-100 rounded-2xl p-6 shadow-[0_6px_16px_rgba(17,24,39,0.06)] hover:-translate-y-1 transition-all bg-white"
             >
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${feature.color}`}
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${feature.iconClass}`}
               >
-                {feature.icon}
+                <feature.icon className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold mb-2 text-gray-900">
                 {feature.title}
