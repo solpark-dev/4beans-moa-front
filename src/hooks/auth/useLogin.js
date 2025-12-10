@@ -35,6 +35,7 @@ export const useLoginPageLogic = () => {
   const { setTokens } = useAuthStore();
 
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [kakaoLoading, setKakaoLoading] = useState(false);
   const [otpMode, setOtpMode] = useState("otp");
 
   const handleUnlockByCertification = useCallback(async () => {
@@ -225,7 +226,7 @@ export const useLoginPageLogic = () => {
       const message = apiError?.message || defaultMessage;
       alert(code ? `[${code}] ${message}` : message);
     }
-  }, [otpCode, otpToken, otpMode, navigate, resetOtp, setTokens]);
+  }, [otpCode, otpToken, otpMode, navigate, resetOtp, setTokens, email]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -243,34 +244,39 @@ export const useLoginPageLogic = () => {
     return () => window.removeEventListener("keydown", handler);
   }, [handleEmailLogin, handleOtpConfirm]);
 
-  const handleKakaoLogin = () => {
-    const origin = window.location.origin;
-    const redirectUri = `${origin}/oauth/kakao`;
+  const handleKakaoLogin = useCallback(async () => {
+    if (kakaoLoading) return;
+    try {
+      setKakaoLoading(true);
+      const res = await httpClient.get("/oauth/kakao/auth", {
+        params: { mode: "login" },
+      });
 
-    if (!window.Kakao) {
-      alert("카카오 SDK 로드 실패");
-      return;
+      if (!res.success) {
+        alert(res.error?.message || "카카오 로그인 시작에 실패했습니다.");
+        return;
+      }
+
+      window.location.href = res.data.url;
+    } catch (e) {
+      console.error(e);
+      alert("카카오 로그인 중 오류가 발생했습니다.");
+    } finally {
+      setKakaoLoading(false);
     }
-
-    if (!window.Kakao.isInitialized()) {
-      window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
-    }
-
-    window.Kakao.Auth.authorize({
-      redirectUri: `${window.location.origin}/oauth/kakao`,
-      state: "login",
-    });
-  };
+  }, [kakaoLoading]);
 
   const handleGoogleLogin = useCallback(async () => {
     if (googleLoading) return;
     try {
       setGoogleLoading(true);
 
+      const redirectUri = "https://192.168.0.169.nip.io:5173/oauth/google";
+
       const res = await httpClient.get("/oauth/google/auth", {
         params: {
           mode: "login",
-          origin: window.location.origin,
+          redirectUri,
         },
       });
 
@@ -293,11 +299,7 @@ export const useLoginPageLogic = () => {
     setOtpMode("otp");
   };
 
-  useEffect(() => {
-    if (window.Kakao && !window.Kakao.isInitialized()) {
-      window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
-    }
-  }, []);
+  useEffect(() => {}, []);
 
   const switchToOtpMode = () => {
     setOtpMode("otp");
