@@ -67,6 +67,8 @@ export const usePartyStore = create((set, get) => ({
             const queryParams = {
                 page: currentPage,
                 size: 10, // 한 번에 가져올 개수
+                sort: params.sort || 'latest',
+                startDate: params.startDate || null,
                 ...params
             };
 

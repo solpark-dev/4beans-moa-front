@@ -12,43 +12,24 @@ export default function ServiceTypeFilter({ selectedProductId, onSelect }) {
     }, [products, loadProducts]);
 
     return (
-        <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-            <div className="flex gap-3">
-                {/* 전체 보기 버튼 */}
-                <button
-                    onClick={() => onSelect(null)}
-                    className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl border transition-all ${selectedProductId === null
-                            ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20"
-                            : "bg-white text-slate-500 border-slate-200 hover:border-indigo-200 hover:text-indigo-600"
-                        }`}
-                >
-                    <span className="font-bold whitespace-nowrap">전체</span>
-                </button>
-
-                {/* 서비스 목록 */}
+        <div className="relative">
+            <select
+                value={selectedProductId || ""}
+                onChange={(e) => onSelect(e.target.value ? Number(e.target.value) : null)}
+                className="appearance-none bg-slate-100 border border-slate-200 text-slate-700 text-sm font-semibold rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
+            >
+                <option value="">OTT 전체</option>
                 {products.map((product) => (
-                    <button
-                        key={product.productId}
-                        onClick={() => onSelect(product.productId)}
-                        className={`flex-shrink-0 flex items-center gap-3 px-5 py-2 rounded-2xl border transition-all ${selectedProductId === product.productId
-                                ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/30"
-                                : "bg-white text-slate-600 border-slate-200 hover:border-indigo-200 hover:shadow-md"
-                            }`}
-                    >
-                        {product.image ? (
-                            <img
-                                src={product.image}
-                                alt={product.productName}
-                                className="w-6 h-6 rounded-full object-cover bg-white shadow-sm"
-                            />
-                        ) : (
-                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">
-                                {product.productName?.[0]}
-                            </div>
-                        )}
-                        <span className="font-bold whitespace-nowrap">{product.productName}</span>
-                    </button>
+                    <option key={product.productId} value={product.productId}>
+                        {product.productName}
+                    </option>
                 ))}
+            </select>
+            {/* Custom Arrow Icon */}
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
             </div>
         </div>
     );

@@ -58,8 +58,8 @@ export default function PartyListPage() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedProductId, setSelectedProductId] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState("latest"); // latest, price_low, price_high, deadline
+  const [startDate, setStartDate] = useState(""); // 날짜 필터 추가
+  const [sortBy, setSortBy] = useState("latest"); // latest, start_date_asc, popularity, price_low...
 
   const myPartyIds = Array.isArray(myParties) ? myParties.map(p => p.partyId) : [];
   const isInitialLoading = loadingParties && list.length === 0;
@@ -74,14 +74,17 @@ export default function PartyListPage() {
 
   // 필터 변경 시 리스트 초기화 및 재검색
   useEffect(() => {
+    window.scrollTo(0, 0);
     const params = {
       keyword: debouncedQuery,
       partyStatus: selectedStatus || null,
-      productId: selectedProductId || null
+      productId: selectedProductId || null,
+      startDate: startDate || null,
+      sort: sortBy
     };
     loadParties(params, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, selectedStatus, selectedProductId]);
+  }, [debouncedQuery, selectedStatus, selectedProductId, startDate, sortBy]);
 
   // 내 파티 로드
   useEffect(() => {
@@ -98,11 +101,13 @@ export default function PartyListPage() {
       const params = {
         keyword: debouncedQuery,
         partyStatus: selectedStatus || null,
-        productId: selectedProductId || null
+        productId: selectedProductId || null,
+        startDate: startDate || null,
+        sort: sortBy
       };
       loadParties(params, false);
     }
-  }, [hasMore, loadingParties, debouncedQuery, selectedStatus, selectedProductId, loadParties]);
+  }, [hasMore, loadingParties, debouncedQuery, selectedStatus, selectedProductId, startDate, sortBy, loadParties]);
 
   useEffect(() => {
     const option = {
@@ -119,13 +124,13 @@ export default function PartyListPage() {
   const getStatusBadge = (party) => {
     const { partyStatus, maxMembers, currentMembers } = party;
 
-    // 🔥 1자리 남음 = 마감임박
+    // 🔥 1자리 남음 = 인기콘텐츠
     const remainingSlots = (maxMembers || 0) - (currentMembers || 0);
 
     if (partyStatus === 'RECRUITING' && remainingSlots === 1) {
       return {
         bg: "bg-orange-500 animate-pulse",
-        text: "🔥 마감임박",
+        text: "🔥 인기콘텐츠",
       };
     }
 
@@ -136,7 +141,7 @@ export default function PartyListPage() {
       },
       ACTIVE: {
         bg: "bg-emerald-500",
-        text: "진행중",
+        text: "파티중",
       },
       PENDING_PAYMENT: {
         bg: "bg-amber-500",
@@ -144,7 +149,7 @@ export default function PartyListPage() {
       },
       CLOSED: {
         bg: "bg-slate-400",
-        text: "마감",
+        text: "파티종료",
       },
     };
     return badges[partyStatus] || badges.RECRUITING;
@@ -167,31 +172,7 @@ export default function PartyListPage() {
     return `${year}.${month}.${day}`;
   };
 
-  // Sort parties based on selected option
-  const getSortedParties = (parties) => {
-    const sorted = [...parties];
 
-    switch (sortBy) {
-      case 'price_low':
-        return sorted.sort((a, b) => (a.monthlyFee || 0) - (b.monthlyFee || 0));
-
-      case 'price_high':
-        return sorted.sort((a, b) => (b.monthlyFee || 0) - (a.monthlyFee || 0));
-
-      case 'deadline':
-        // 마감임박 우선 (remainingSlots 적은 순)
-        return sorted.sort((a, b) => {
-          const remainingA = (a.maxMembers || 0) - (a.currentMembers || 0);
-          const remainingB = (b.maxMembers || 0) - (b.currentMembers || 0);
-          return remainingA - remainingB;
-        });
-
-      case 'latest':
-      default:
-        // 최신순 (partyId 내림차순, 또는 createdAt이 있으면 그걸로)
-        return sorted.sort((a, b) => (b.partyId || 0) - (a.partyId || 0));
-    }
-  };
 
   // Animation variants
   const containerVariants = {
@@ -280,56 +261,47 @@ export default function PartyListPage() {
               )}
             </div>
 
-            {/* Filters Row */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Status Filters */}
-              {[
-                { value: "", label: "전체" },
-                { value: "RECRUITING", label: "모집중" },
-                { value: "ACTIVE", label: "진행중" },
-              ].map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => setSelectedStatus(filter.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    selectedStatus === filter.value
+            {/* Filters Row - Wrapped */}
+            <div className="flex flex-col gap-4 mt-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Status Filters */}
+                {[
+                  { value: "", label: "전체" },
+                  { value: "RECRUITING", label: "모집중" },
+                  { value: "ACTIVE", label: "파티중" },
+                  { value: "CLOSED", label: "파티종료" },
+                ].map((filter) => (
+                  <button
+                    key={filter.value}
+                    onClick={() => setSelectedStatus(filter.value)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${selectedStatus === filter.value
                       ? "bg-slate-900 text-white"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
+                      }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
 
-              {/* More Filters Toggle */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="ml-auto px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1"
-              >
-                OTT 필터
-                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* OTT Service Dropdown */}
+                <ServiceTypeFilter
+                  selectedProductId={selectedProductId}
+                  onSelect={setSelectedProductId}
+                />
+
+                {/* Date Picker */}
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="appearance-none bg-slate-100 border border-slate-200 text-slate-700 text-sm font-semibold rounded-lg pl-3 pr-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
+                  />
+                </div>
+              </div>
             </div>
-
-            {/* OTT Service Filter - Collapsible */}
-            <AnimatePresence>
-              {showFilters && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="border-t border-slate-200 mt-4 pt-4">
-                    <ServiceTypeFilter
-                      selectedProductId={selectedProductId}
-                      onSelect={setSelectedProductId}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </motion.div>
 
@@ -339,12 +311,13 @@ export default function PartyListPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none bg-white border border-slate-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-all"
+              className="appearance-none bg-white border border-slate-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-all shadow-sm"
             >
               <option value="latest">최신순</option>
+              <option value="start_date_asc">파티 시작 빠른순</option>
+              <option value="popularity">인기 콘텐츠</option>
               <option value="price_low">가격 낮은순</option>
               <option value="price_high">가격 높은순</option>
-              <option value="deadline">마감 임박순</option>
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
@@ -382,6 +355,7 @@ export default function PartyListPage() {
                 setSearchQuery("");
                 setSelectedStatus("");
                 setSelectedProductId(null);
+                setStartDate("");
               }}
               className="text-blue-600 font-semibold hover:underline"
             >
@@ -395,7 +369,7 @@ export default function PartyListPage() {
             animate="visible"
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center"
           >
-            {getSortedParties(list).map((party) => {
+            {list.map((party) => {
               const badge = getStatusBadge(party);
               const isMyParty = myPartyIds.includes(party.partyId);
               const isLeader = user?.userId === party.partyLeaderId;
@@ -434,11 +408,10 @@ export default function PartyListPage() {
                     {/* My Party Badge Overlay - Top Left */}
                     {(isLeader || isMyParty) && (
                       <div className="absolute top-3 left-3">
-                        <span className={`px-2.5 py-1 rounded-md text-xs font-bold shadow-lg ${
-                          isLeader
-                            ? "bg-amber-400 text-amber-900"
-                            : "bg-white text-blue-600"
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-md text-xs font-bold shadow-lg ${isLeader
+                          ? "bg-amber-400 text-amber-900"
+                          : "bg-white text-blue-600"
+                          }`}>
                           {isLeader ? "👑 파티장" : "✓ 참여중"}
                         </span>
                       </div>
