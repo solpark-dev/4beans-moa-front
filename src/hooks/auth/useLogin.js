@@ -267,8 +267,13 @@ export const useLoginPageLogic = () => {
     try {
       setGoogleLoading(true);
 
+      const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+
       const res = await httpClient.get("/oauth/google/auth", {
-        params: { mode: "login" },
+        params: {
+          mode: "login",
+          redirect_uri: redirectUri,
+        },
       });
 
       if (!res.success) {
