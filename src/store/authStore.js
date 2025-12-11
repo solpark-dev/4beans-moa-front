@@ -1,6 +1,35 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import httpClient from "@/api/httpClient";
+import { useLoginStore } from "./user/loginStore";
+
+const PASSWORD_STORAGE_KEYS = [
+  "login-password",
+  "password",
+  "pwd",
+  "user-password",
+  "pwd-remember",
+];
+
+export const purgeLoginPasswords = () => {
+  [localStorage, sessionStorage].forEach((storage) => {
+    if (!storage) return;
+    PASSWORD_STORAGE_KEYS.forEach((key) => {
+      try {
+        storage.removeItem(key);
+      } catch {
+        // ignore
+      }
+    });
+  });
+
+  try {
+    useLoginStore.getState().setField("password", "");
+    useLoginStore.getState().setField("otpCode", "");
+  } catch {
+    // ignore store reset errors
+  }
+};
 
 export const useAuthStore = create(
   persist(
@@ -62,6 +91,7 @@ export const useAuthStore = create(
         } catch (error) {
           console.error("Logout Error:", error);
         } finally {
+          purgeLoginPasswords();
           get().clearAuth();
         }
       },

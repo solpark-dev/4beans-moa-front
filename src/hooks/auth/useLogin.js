@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useLoginStore } from "@/store/user/loginStore";
 import { useAuthStore } from "@/store/authStore";
+import {
+  login as apiLogin,
+  startPassAuth,
+  verifyPassAuth,
+} from "@/api/authApi";
+import { purgeLoginPasswords } from "@/store/authStore";
 
 const loadIamport = () =>
   new Promise((resolve, reject) => {
@@ -18,6 +24,40 @@ const loadIamport = () =>
     script.onerror = reject;
     document.body.appendChild(script);
   });
+
+export const PASSWORD_STORAGE_KEYS = [
+  "login-password",
+  "password",
+  "pwd",
+  "user-password",
+  "pwd-remember",
+];
+
+export const purgeLoginPasswordKeys = (primaryStorage, secondaryStorage) => {
+  const targets = PASSWORD_STORAGE_KEYS;
+  const storages = [primaryStorage, secondaryStorage].filter(Boolean);
+  storages.forEach((storage) => {
+    targets.forEach((key) => {
+      try {
+        storage.removeItem(key);
+      } catch (e) {
+        // ignore
+      }
+    });
+  });
+};
+
+export const applyRememberEmail = (storage, email, remember) => {
+  try {
+    if (remember) {
+      storage.setItem("login-email", email);
+    } else {
+      storage.removeItem("login-email");
+    }
+  } catch (e) {
+    console.warn("Remember email storage failed", e);
+  }
+};
 
 export const useLoginPageLogic = () => {
   const navigate = useNavigate();
@@ -36,10 +76,19 @@ export const useLoginPageLogic = () => {
 
   const [googleLoading, setGoogleLoading] = useState(false);
   const [otpMode, setOtpMode] = useState("otp");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    otp: "",
+  });
 
   const handleUnlockByCertification = useCallback(async () => {
-    if (!email) {
-      alert("먼저 이메일을 입력해주세요.");
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setErrors((prev) => ({ ...prev, email: "이메일을 입력해주세요." }));
       return;
     }
 
@@ -50,7 +99,7 @@ export const useLoginPageLogic = () => {
         return;
       }
 
-      const startRes = await httpClient.get("/users/pass/start");
+      const startRes = await startPassAuth();
       if (!startRes.success) {
         alert(startRes.error?.message || "본인인증 시작 실패");
         return;
@@ -66,9 +115,9 @@ export const useLoginPageLogic = () => {
         }
 
         try {
-          const verifyRes = await httpClient.post("/users/pass/verify", {
+          const verifyRes = await verifyPassAuth({
             imp_uid: rsp.imp_uid,
-            userId: email,
+            userId: trimmedEmail,
           });
 
           if (!verifyRes.success) {
@@ -84,24 +133,31 @@ export const useLoginPageLogic = () => {
       });
     } catch (e) {
       console.error(e);
-      alert("본인인증 도중 오류가 발생했습니다.");
+      alert("본인인증 진행 중 오류가 발생했습니다.");
     }
-  }, [email]);
+  }, [email, setErrors]);
 
   const handleEmailLogin = useCallback(async () => {
-    if (!email || !password) {
-      alert("이메일과 비밀번호를 입력해주세요.");
-      return;
-    }
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const nextErrors = { email: "", password: "", otp: "" };
+
+    if (!trimmedEmail) nextErrors.email = "이메일을 입력해주세요.";
+    if (!trimmedPassword) nextErrors.password = "비밀번호를 입력해주세요.";
+
+    setErrors(nextErrors);
+    if (nextErrors.email || nextErrors.password) return;
+    if (loginLoading) return;
 
     try {
-      const response = await httpClient.post("/auth/login", {
-        userId: email,
-        password,
+      setLoginLoading(true);
+      const response = await apiLogin({
+        userId: trimmedEmail,
+        password: trimmedPassword,
       });
 
       if (!response.success) {
-        alert("로그인 실패");
+        alert(response.error?.message || "로그인에 실패했습니다.");
         return;
       }
 
@@ -110,7 +166,7 @@ export const useLoginPageLogic = () => {
         setField("otpRequired", true);
         setField("otpModalOpen", true);
         setField("otpToken", data.otpToken);
-        setField("otpUserId", email);
+        setField("otpUserId", trimmedEmail);
         setField("otpCode", "");
         setOtpMode("otp");
         return;
@@ -126,6 +182,8 @@ export const useLoginPageLogic = () => {
         useAuthStore.getState().setUser(me.data);
       }
 
+      applyRememberEmail(localStorage, trimmedEmail, remember);
+      localStorage.setItem("remember", remember ? "true" : "false");
       navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
@@ -145,6 +203,8 @@ export const useLoginPageLogic = () => {
       }
 
       alert(code ? `[${code}] ${message}` : message);
+    } finally {
+      setLoginLoading(false);
     }
   }, [
     email,
@@ -153,9 +213,12 @@ export const useLoginPageLogic = () => {
     setTokens,
     setField,
     handleUnlockByCertification,
+    remember,
+    loginLoading,
   ]);
 
   const handleOtpChange = (value) => {
+    setErrors((prev) => ({ ...prev, otp: "" }));
     if (otpMode === "otp") {
       const onlyNumber = value.replace(/\D/g, "").slice(0, 6);
       setField("otpCode", onlyNumber);
@@ -165,19 +228,28 @@ export const useLoginPageLogic = () => {
   };
 
   const handleOtpConfirm = useCallback(async () => {
+    if (otpLoading) return;
+
     if (otpMode === "otp") {
       if (!otpCode || otpCode.length !== 6) {
-        alert("6자리 OTP 코드를 입력해주세요.");
+        setErrors((prev) => ({
+          ...prev,
+          otp: "6자리 OTP 코드를 입력해주세요.",
+        }));
         return;
       }
     } else {
       if (!otpCode) {
-        alert("백업 코드를 입력해주세요.");
+        setErrors((prev) => ({
+          ...prev,
+          otp: "백업 코드를 입력해주세요.",
+        }));
         return;
       }
     }
 
     try {
+      setOtpLoading(true);
       const url =
         otpMode === "otp"
           ? "/auth/login/otp-verify"
@@ -186,7 +258,7 @@ export const useLoginPageLogic = () => {
       const res = await httpClient.post(url, {
         code: otpCode,
         otpToken,
-        userId: email,
+        userId: email.trim(),
       });
 
       if (!res.success) {
@@ -220,12 +292,24 @@ export const useLoginPageLogic = () => {
       const code = apiError?.code;
       const defaultMessage =
         otpMode === "otp"
-          ? "OTP 인증 중 오류가 발생했습니다."
-          : "백업 코드 인증 중 오류가 발생했습니다.";
+          ? "OTP 인증 처리 중 오류가 발생했습니다."
+          : "백업 코드 인증 처리 중 오류가 발생했습니다.";
       const message = apiError?.message || defaultMessage;
       alert(code ? `[${code}] ${message}` : message);
+    } finally {
+      setOtpLoading(false);
     }
-  }, [otpCode, otpToken, otpMode, navigate, resetOtp, setTokens]);
+  }, [
+    otpCode,
+    otpToken,
+    otpMode,
+    navigate,
+    resetOtp,
+    setTokens,
+    setErrors,
+    otpLoading,
+    email,
+  ]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -272,19 +356,19 @@ export const useLoginPageLogic = () => {
       const res = await httpClient.get("/oauth/google/auth", {
         params: {
           mode: "login",
-          redirect_uri: redirectUri,
+          redirectUri: redirectUri,
         },
       });
 
       if (!res.success) {
-        alert(res.error?.message || "구글 로그인 시작에 실패했습니다.");
+        alert(res.error?.message || "구글 로그인 요청에 실패했습니다.");
         return;
       }
 
       window.location.href = res.data.url;
     } catch (e) {
       console.error(e);
-      alert("구글 로그인 중 오류가 발생했습니다.");
+      alert("구글 로그인 처리 중 오류가 발생했습니다.");
     } finally {
       setGoogleLoading(false);
     }
@@ -293,22 +377,52 @@ export const useLoginPageLogic = () => {
   const closeOtpModal = () => {
     resetOtp();
     setOtpMode("otp");
+    setErrors((prev) => ({ ...prev, otp: "" }));
   };
 
   useEffect(() => {
     if (window.Kakao && !window.Kakao.isInitialized()) {
       window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
     }
-  }, []);
+    // 초기 진입 시 민감 값 모두 초기화
+    setField("password", "");
+    setField("otpCode", "");
+    resetOtp();
+    setErrors({ email: "", password: "", otp: "" });
+    purgeLoginPasswords();
+
+    const savedRemember = localStorage.getItem("remember") === "true";
+    const savedEmail = localStorage.getItem("login-email");
+
+    if (savedRemember && savedEmail) {
+      setField("email", savedEmail);
+      setField("remember", true);
+    } else {
+      setField("remember", false);
+    }
+    purgeLoginPasswordKeys(localStorage, sessionStorage);
+  }, [setField]);
 
   const switchToOtpMode = () => {
     setOtpMode("otp");
     setField("otpCode", "");
+    setErrors((prev) => ({ ...prev, otp: "" }));
   };
 
   const switchToBackupMode = () => {
     setOtpMode("backup");
     setField("otpCode", "");
+    setErrors((prev) => ({ ...prev, otp: "" }));
+  };
+
+  const handleEmailChange = (value) => {
+    setErrors((prev) => ({ ...prev, email: "" }));
+    setField("email", value);
+  };
+
+  const handlePasswordChange = (value) => {
+    setErrors((prev) => ({ ...prev, password: "" }));
+    setField("password", value);
   };
 
   return {
@@ -329,5 +443,10 @@ export const useLoginPageLogic = () => {
     handleUnlockByCertification,
     switchToOtpMode,
     switchToBackupMode,
+    loginLoading,
+    otpLoading,
+    errors,
+    handleEmailChange,
+    handlePasswordChange,
   };
 };

@@ -5,8 +5,8 @@ import Footer from "./components/common/Footer";
 import { useGlobalLinkHandler } from "@/hooks/common/useGlobalLinkHandler";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
-import OAuthGooglePage from "./pages/oauth/OAuthGooglePage";
 import OAuthKakaoPage from "./pages/oauth/OAuthKakaoPage";
+import OAuthGooglePage from "./pages/oauth/OAuthGooglePage";
 import MainPage from "./pages/main/MainPage";
 import PartyListPage from "./pages/party/PartyListPage";
 import PartyCreatePage from "./pages/party/PartyCreatePage";
@@ -74,7 +74,8 @@ export default function App() {
   const { user } = useAuthStore();
 
   // 이스터 에그 대상 유저 확인
-  const showEasterEgg = user && (user.userId === 'usertest1' || user.userId === 'admintest');
+  const showEasterEgg =
+    user && (user.userId === "usertest1" || user.userId === "admintest");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -169,11 +170,10 @@ export default function App() {
           <Route path="/product" element={<GetProductList />} />
           <Route path="/product/:id" element={<GetProduct />} />
 
-
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}

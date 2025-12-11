@@ -31,12 +31,14 @@ export const useRemoveBlacklistLogic = () => {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     if (!userId) {
-      alert("회원 아이디 정보가 없습니다.");
+      alert("회원 정보가 없습니다.");
       return;
     }
-    if (!reason || !reason.trim()) {
-      alert("해제 사유를 입력해 주세요.");
+    const trimmedReason = (reason || "").trim();
+    if (!trimmedReason) {
+      alert("삭제 사유를 입력해주세요.");
       return;
     }
 
@@ -46,7 +48,7 @@ export const useRemoveBlacklistLogic = () => {
 
       const res = await deleteUserBlacklist({
         userId,
-        deleteReason: reason.trim(),
+        deleteReason: trimmedReason,
       });
 
       if (!res.success) {

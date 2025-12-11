@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useSignupStore } from "@/store/user/addUserStore";
-import { signup, checkCommon } from "@/api/authApi";
+import { signup, checkCommon, checkPhone } from "@/api/authApi";
 
 const BAD_WORDS = [
   "fuck",
@@ -186,6 +186,8 @@ export const useSignup = () => {
   const handlePassAuth = async () => {
     try {
       const start = await httpClient.get("/users/pass/start");
+      if (!start?.success) throw new Error(start?.error?.message || "본인인증 시작 실패");
+
       const { impCode, merchantUid } = start.data;
 
       if (!window.IMP) return alert("인증 모듈 로드 실패");
@@ -194,15 +196,38 @@ export const useSignup = () => {
       window.IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
         if (!rsp.success) return;
 
-        const verify = await httpClient.post("/users/pass/verify", {
-          imp_uid: rsp.imp_uid,
-        });
+        try {
+          const verify = await httpClient.post("/users/pass/verify", {
+            imp_uid: rsp.imp_uid,
+          });
 
-        const { phone, ci } = verify.data;
+          if (!verify?.success) {
+            throw new Error(verify?.error?.message || "본인인증 실패");
+          }
 
-        setField("phone", phone);
-        sessionStorage.setItem("PASS_CI", ci);
-        setErrorMessage("phone", "본인인증 성공!", false);
+          const { phone, ci } = verify.data;
+
+          // 휴대폰 중복 체크
+          const phoneCheck = await checkPhone(phone);
+          const available = phoneCheck?.data?.available ?? phoneCheck?.data?.data?.available;
+          if (!phoneCheck?.success || available === false) {
+            throw new Error(phoneCheck?.error?.message || "이미 등록된 번호입니다.");
+          }
+
+          setField("phone", phone);
+          sessionStorage.setItem("PASS_CI", ci);
+          setErrorMessage("phone", "본인인증 성공!", false);
+        } catch (err) {
+          sessionStorage.removeItem("PASS_CI");
+          setField("phone", "");
+          const message =
+            err?.message ||
+            err?.response?.data?.error?.message ||
+            err?.response?.data?.message ||
+            "본인인증 실패";
+          setErrorMessage("phone", message, true);
+          alert(message);
+        }
       });
     } catch {
       alert("본인인증 오류");
@@ -228,6 +253,7 @@ export const useSignup = () => {
       return alert("닉네임을 확인해주세요.");
 
     if (!form.phone) return alert("본인인증을 진행해주세요.");
+    if (errors.phone.isError) return alert(errors.phone.message || "휴대폰 번호를 확인해주세요.");
 
     const ci = sessionStorage.getItem("PASS_CI");
     if (!ci) return alert("본인인증 정보를 찾을 수 없습니다.");
@@ -247,11 +273,15 @@ export const useSignup = () => {
     };
 
     try {
-      await signup(payload);
+      const res = await signup(payload);
+      if (!res?.success) {
+        throw new Error(res?.error?.message || "회원가입 실패");
+      }
+
       alert("인증 이메일이 발송되었습니다.\n이메일을 확인해주세요.");
       navigate("/login");
     } catch (err) {
-      alert(err.response?.data?.message || "회원가입 실패");
+      alert(err?.message || err?.response?.data?.message || "회원가입 실패");
     }
   };
 

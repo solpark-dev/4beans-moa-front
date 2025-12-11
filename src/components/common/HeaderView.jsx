@@ -88,6 +88,87 @@ export default function HeaderView({
     }
   };
 
+  const renderMobileNavItems = (withSeparator = true) => {
+    const separator = withSeparator ? (
+      <DropdownMenuSeparator className="my-2" />
+    ) : null;
+
+    if (isAdmin) {
+      return (
+        <>
+          <DropdownMenuGroup className="md:hidden">
+            <DropdownMenuItem asChild>
+              <Link
+                to="/admin/dashboard"
+                className="py-2.5 flex items-center font-medium text-slate-700"
+              >
+                <LayoutDashboard className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                대시보드
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link
+                to="/admin/users"
+                className="py-2.5 flex items-center font-medium text-slate-700"
+              >
+                <Users className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                회원 관리
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link
+                to="/admin/sales"
+                className="py-2.5 flex items-center font-medium text-slate-700"
+              >
+                <CreditCard className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                매출 조회
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link
+                to="/product"
+                className="py-2.5 flex items-center font-medium text-slate-700"
+              >
+                <Boxes className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                구독상품
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          {separator}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <DropdownMenuGroup className="md:hidden">
+          <DropdownMenuItem asChild>
+            <Link to="/product" className="py-2.5 font-medium text-slate-700">
+              구독상품
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              to="/subscription"
+              className="py-2.5 font-medium text-slate-700"
+            >
+              구독목록
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/party" className="py-2.5 font-medium text-slate-700">
+              파티 찾기
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        {separator}
+      </>
+    );
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm h-20">
       <div className="w-full max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -238,81 +319,7 @@ export default function HeaderView({
                     </div>
                   </DropdownMenuLabel>
 
-                  {!isAdmin && (
-                    <DropdownMenuGroup className="md:hidden">
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/product"
-                          className="py-2.5 font-medium text-slate-700"
-                        >
-                          구독상품
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/subscription"
-                          className="py-2.5 font-medium text-slate-700"
-                        >
-                          구독목록
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/party"
-                          className="py-2.5 font-medium text-slate-700"
-                        >
-                          파티 찾기
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="my-2" />
-                    </DropdownMenuGroup>
-                  )}
-
-                  {isAdmin && (
-                    <DropdownMenuGroup className="md:hidden">
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/admin/dashboard"
-                          className="py-2.5 flex items-center font-medium text-slate-700"
-                        >
-                          <LayoutDashboard className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                          대시보드
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/admin/users"
-                          className="py-2.5 flex items-center font-medium text-slate-700"
-                        >
-                          <Users className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                          회원 관리
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/admin/sales"
-                          className="py-2.5 flex items-center font-medium text-slate-700"
-                        >
-                          <CreditCard className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                          매출 조회
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/product"
-                          className="py-2.5 flex items-center font-medium text-slate-700"
-                        >
-                          <Boxes className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                          구독상품
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator className="my-2" />
-                    </DropdownMenuGroup>
-                  )}
+                  {renderMobileNavItems()}
 
                   {isAdmin ? (
                     <DropdownMenuGroup>
@@ -362,6 +369,24 @@ export default function HeaderView({
             </div>
           ) : (
             <div className="flex items-center gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="md:hidden w-11 h-11 rounded-full border-slate-200 bg-white hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-colors"
+                  >
+                    <Menu className="w-6 h-6" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-64 p-2 mt-2 bg-white/95 border border-slate-200 rounded-2xl shadow-xl"
+                  align="end"
+                >
+                  {renderMobileNavItems(false)}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 variant="ghost"
                 asChild

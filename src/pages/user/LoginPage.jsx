@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLoginPageLogic } from "@/hooks/auth/useLogin";
 import {
   Card,
@@ -35,9 +36,21 @@ export default function LoginPage() {
     handleUnlockByCertification,
     switchToOtpMode,
     switchToBackupMode,
+    loginLoading,
+    otpLoading,
+    errors,
+    handleEmailChange,
+    handlePasswordChange,
   } = useLoginPageLogic();
 
   const isBackupMode = otpMode === "backup";
+  const isLoginDisabled =
+    loginLoading || !email.trim() || !password.trim();
+
+  // 컴포넌트 최초 렌더 직후 비밀번호 초기화 보강
+  useEffect(() => {
+    setField("password", "");
+  }, [setField]);
 
   return (
     <div className="w-full pb-20 bg-slate-50 text-slate-900">
@@ -49,13 +62,13 @@ export default function LoginPage() {
               MoA 계정으로 · 구독 파티에 로그인
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-3 drop-shadow-md">
-              다시 이어서 보기,
+              다시 이어보기,
               <br />
-              <span className="text-indigo-100">로그인 한 번이면 충분해요</span>
+              <span className="text-indigo-100">로그인부터 안전하게</span>
             </h1>
             <p className="text-sm sm:text-base text-indigo-50/90 max-w-md mx-auto lg:mx-0 leading-relaxed">
-              이메일이나 카카오, Google 계정 중 편한 방법으로 로그인하고 이어서
-              구독 파티를 관리해 보세요.
+              이메일, 카카오, Google 계정으로 로그인하고 구독 파티를 관리하세요.
+              입력 오류를 바로 보여주고, 인증 단계도 명확하게 안내합니다.
             </p>
           </div>
 
@@ -63,11 +76,11 @@ export default function LoginPage() {
             <Card className="w-full bg-white border border-gray-100 shadow-2xl rounded-3xl">
               <CardHeader className="pb-3 px-6 pt-6">
                 <CardTitle className="text-lg md:text-xl text-gray-900">
-                  이메일 로그인
+                  이메일로 로그인
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-5 px-6 pb-4">
+              <CardContent className="space-y-6 px-6 pb-4">
                 <div className="space-y-1">
                   <Label
                     htmlFor="loginEmail"
@@ -77,11 +90,14 @@ export default function LoginPage() {
                   </Label>
                   <Input
                     id="loginEmail"
-                    placeholder="이메일 입력"
+                    placeholder="이메일을 입력하세요"
                     value={email}
-                    onChange={(e) => setField("email", e.target.value)}
+                    onChange={(e) => handleEmailChange(e.target.value)}
                     className="bg-white border border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
                   />
+                  {errors.email && (
+                    <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1">
@@ -96,9 +112,14 @@ export default function LoginPage() {
                     type="password"
                     placeholder="비밀번호 입력"
                     value={password}
-                    onChange={(e) => setField("password", e.target.value)}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
                     className="bg-white border border-gray-300 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
                   />
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex justify-between items-center text-xs md:text-sm mt-1">
@@ -112,16 +133,16 @@ export default function LoginPage() {
                     <span>아이디 기억하기</span>
                   </label>
 
-                  <div className="flex gap-4">
+                  <div className="flex gap-3 text-indigo-100">
                     <button
-                      className="text-indigo-50/90 hover:text-white underline-offset-2 hover:underline text-xs md:text-sm"
+                      className="text-indigo-200 hover:text-indigo-50 hover:opacity-100 opacity-90 underline-offset-2 hover:underline text-xs md:text-sm font-medium"
                       role="link"
                       data-href="/signup"
                     >
                       회원가입
                     </button>
                     <button
-                      className="text-indigo-50/90 hover:text-white underline-offset-2 hover:underline text-xs md:text-sm"
+                      className="text-indigo-200 hover:text-indigo-50 hover:opacity-100 opacity-90 underline-offset-2 hover:underline text-xs md:text-sm font-medium"
                       role="link"
                       data-href="/find-email"
                     >
@@ -133,15 +154,16 @@ export default function LoginPage() {
                 <Button
                   id="btnLogin"
                   onClick={handleEmailLogin}
-                  className="w-full h-11 text-sm md:text-base font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="w-full h-11 text-sm md:text-base font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isLoginDisabled}
                 >
-                  로그인
+                  {loginLoading ? "로그인 중..." : "로그인"}
                 </Button>
 
                 <button
                   type="button"
                   onClick={handleUnlockByCertification}
-                  className="w-full text-[11px] text-indigo-100 hover:text-white text-right mt-1 underline-offset-2 hover:underline"
+                  className="w-full text-[11px] text-indigo-200 hover:text-indigo-50 hover:opacity-100 opacity-90 text-right mt-1 underline-offset-2 hover:underline font-medium"
                 >
                   본인인증으로 계정 잠금 해제
                 </button>
@@ -149,7 +171,7 @@ export default function LoginPage() {
                 <div className="flex items-center gap-3 pt-2">
                   <span className="h-px flex-1 bg-gray-200" />
                   <span className="text-[11px] text-gray-400">
-                    또는 다른 계정으로 계속하기
+                    다른 계정으로 계속하기
                   </span>
                   <span className="h-px flex-1 bg-gray-200" />
                 </div>
@@ -177,14 +199,15 @@ export default function LoginPage() {
                     </svg>
                   </div>
                   <span className="text-[#000000] text-[15px] font-semibold opacity-85">
-                    카카오 로그인
+                    카카오로 로그인
                   </span>
                 </button>
 
                 <button
                   id="btnGoogleLogin"
                   onClick={handleGoogleLogin}
-                  className="w-full h-[45px] bg-white border border-[#dadce0] hover:bg-[#f8faff] rounded-[10px] flex items-center justify-center relative transition-colors"
+                  className="w-full h-[45px] bg-white border border-[#dadce0] hover:bg-[#f8faff] rounded-[10px] flex items-center justify-center relative transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={loginLoading}
                 >
                   <div className="absolute left-[14px] flex items-center justify-center">
                     <svg
@@ -232,9 +255,11 @@ export default function LoginPage() {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              <DialogDescription className="text-sm text-slate-500"></DialogDescription>
               {isBackupMode ? "백업 코드로 로그인" : "Google OTP 인증"}
             </DialogTitle>
+            <DialogDescription className="text-sm text-slate-500">
+              로그인 완료를 위해 인증 코드를 입력해주세요.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -265,8 +290,8 @@ export default function LoginPage() {
 
             <p className="text-sm text-slate-600">
               {isBackupMode
-                ? "휴대폰 없이 로그인해야 할 때, 마이페이지에서 발급받은 백업 코드를 입력해주세요."
-                : "Google Authenticator 앱에 표시된 6자리 코드를 입력해주세요."}
+                ? "휴대폰이 없어도 로그인할 수 있는 백업 코드를 입력해주세요."
+                : "Google Authenticator 앱에 표시된 6자리 코드를 입력하세요."}
             </p>
 
             <Input
@@ -281,12 +306,16 @@ export default function LoginPage() {
               className="text-center tracking-[0.4em] text-lg"
               onChange={(e) => handleOtpChange(e.target.value)}
             />
+            {errors.otp && (
+              <p className="text-xs text-red-500 text-center">{errors.otp}</p>
+            )}
 
             <Button
-              className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg"
+              className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"
               onClick={handleOtpConfirm}
+              disabled={otpLoading || !otpCode.trim()}
             >
-              인증 완료
+              {otpLoading ? "인증 중..." : "인증 완료"}
             </Button>
           </div>
         </DialogContent>
