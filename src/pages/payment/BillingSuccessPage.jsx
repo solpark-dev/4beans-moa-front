@@ -1,8 +1,48 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { CheckCircle, XCircle, Loader2, Wallet, Sparkles } from "lucide-react";
 import httpClient from "../../api/httpClient";
 import { handlePaymentError, handleNetworkError } from "../../utils/errorHandler";
 import { toast } from "../../utils/toast";
+
+// Animated gradient background component for Variant T
+function AnimatedGradient() {
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+                className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
+                style={{
+                    background: "radial-gradient(circle, rgba(99,91,255,0.15) 0%, transparent 70%)",
+                }}
+                animate={{
+                    x: [0, 100, 0],
+                    y: [0, 50, 0],
+                }}
+                transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+            <motion.div
+                className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
+                style={{
+                    background: "radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)",
+                }}
+                animate={{
+                    x: [0, -100, 0],
+                    y: [0, -50, 0],
+                }}
+                transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+        </div>
+    );
+}
 
 export default function BillingSuccessPage() {
     const [searchParams] = useSearchParams();
@@ -101,73 +141,73 @@ export default function BillingSuccessPage() {
     };
 
     return (
-        <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-            <div className="max-w-md w-full mx-4">
-                <div className="bg-white rounded-3xl shadow-lg p-8 border border-stone-200">
+        <div className="min-h-screen bg-[#fafafa] flex items-center justify-center relative">
+            <AnimatedGradient />
+            <div className="max-w-md w-full mx-4 relative z-10">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-2xl shadow-lg shadow-[#635bff]/10 p-10 border border-gray-100"
+                >
                     {status === "processing" && (
                         <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-[#ea580c] border-t-transparent mb-4"></div>
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                className="mx-auto mb-6 w-16 h-16 flex items-center justify-center"
+                            >
+                                <Loader2 className="w-12 h-12 text-[#635bff]" />
+                            </motion.div>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
                                 {message}
                             </h2>
-                            <p className="text-stone-600 font-semibold">잠시만 기다려주세요...</p>
+                            <p className="text-gray-500 font-medium">잠시만 기다려주세요...</p>
                         </div>
                     )}
 
                     {status === "success" && (
                         <div className="text-center">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
-                                <svg
-                                    className="w-8 h-8 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                            </div>
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6"
+                            >
+                                <CheckCircle className="w-10 h-10 text-emerald-500" />
+                            </motion.div>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
                                 {message}
                             </h2>
-                            <p className="text-stone-600 font-semibold">지갑 페이지로 이동합니다...</p>
+                            <p className="text-gray-500 font-medium">페이지로 이동합니다...</p>
                         </div>
                     )}
 
                     {status === "error" && (
                         <div className="text-center">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
-                                <svg
-                                    className="w-8 h-8 text-red-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </div>
-                            <h2 className="text-2xl font-extrabold text-gray-900 mb-2">
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6"
+                            >
+                                <XCircle className="w-10 h-10 text-red-500" />
+                            </motion.div>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
                                 카드 등록 실패
                             </h2>
-                            <p className="text-stone-600 font-semibold mb-6">{message}</p>
-                            <button
+                            <p className="text-gray-500 font-medium mb-6">{message}</p>
+                            <motion.button
+                                whileHover={{ scale: 1.02, y: -1 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => navigate("/user/wallet")}
-                                className="px-6 py-3 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#635bff] hover:bg-[#5851e8] text-white rounded-full font-semibold shadow-lg shadow-[#635bff]/25 transition-all"
                             >
+                                <Wallet className="w-5 h-5" />
                                 지갑으로 돌아가기
-                            </button>
+                            </motion.button>
                         </div>
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );

@@ -21,6 +21,44 @@ import {
   AlertCircle
 } from "lucide-react";
 
+// Animated gradient background component for Variant T
+function AnimatedGradient() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <motion.div
+        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
+        style={{
+          background: "radial-gradient(circle, rgba(99,91,255,0.15) 0%, transparent 70%)",
+        }}
+        animate={{
+          x: [0, 100, 0],
+          y: [0, 50, 0],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+      <motion.div
+        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
+        style={{
+          background: "radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)",
+        }}
+        animate={{
+          x: [0, -100, 0],
+          y: [0, -50, 0],
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+    </div>
+  );
+}
+
 export default function PartyCreatePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -206,33 +244,38 @@ export default function PartyCreatePage() {
   if (isRestoring || authLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-2 border-blue-600 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#635bff] border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20">
-      {/* Hero Header - Matching PartyListPage style */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+    <div className="min-h-screen bg-[#fafafa] pb-20">
+      {/* Hero Header - Variant T Style */}
+      <div className="relative overflow-hidden bg-white border-b border-gray-100">
+        <AnimatedGradient />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-[#635bff]/10 text-[#635bff] rounded-full text-sm font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              파티장 혜택
+            </span>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               새 파티 만들기
             </h1>
-            <p className="text-lg text-slate-600">
+            <p className="text-lg text-gray-500">
               몇 분 만에 구독료 절약을 시작해보세요
             </p>
           </motion.div>
         </div>
       </div>
 
-      {/* Progress Stepper */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+      {/* Progress Stepper - Variant T Style */}
+      <div className="bg-white border-b border-gray-100 sticky top-20 z-30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             {steps.map((s, idx) => {
@@ -246,21 +289,21 @@ export default function PartyCreatePage() {
                     <motion.div
                       animate={{
                         scale: isActive ? 1.1 : 1,
-                        backgroundColor: isCompleted ? "#3b82f6" : isActive ? "#ffffff" : "#f1f5f9"
+                        backgroundColor: isCompleted ? "#635bff" : isActive ? "#ffffff" : "#f5f5f5"
                       }}
                       className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border-2 ${
                         isCompleted
-                          ? "border-blue-600 text-white shadow-lg"
+                          ? "border-[#635bff] text-white shadow-lg shadow-[#635bff]/25"
                           : isActive
-                          ? "border-blue-600 text-blue-600"
-                          : "border-slate-200 text-slate-400"
+                          ? "border-[#635bff] text-[#635bff]"
+                          : "border-gray-200 text-gray-400"
                       }`}
                     >
                       {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                     </motion.div>
                     <p
                       className={`mt-2 text-xs font-semibold ${
-                        isActive ? "text-blue-600" : "text-slate-400"
+                        isActive ? "text-[#635bff]" : "text-gray-400"
                       }`}
                     >
                       {s.label}
@@ -269,7 +312,7 @@ export default function PartyCreatePage() {
                   {idx < steps.length - 1 && (
                     <div
                       className={`h-0.5 flex-1 mx-2 transition-all duration-500 ${
-                        step > s.number ? "bg-blue-600" : "bg-slate-200"
+                        step > s.number ? "bg-[#635bff]" : "bg-gray-200"
                       }`}
                     ></div>
                   )}
@@ -294,13 +337,13 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-slate-900 mb-2">서비스 선택</h2>
-                <p className="text-slate-600">공유하고 싶은 구독 서비스를 선택해주세요</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">서비스 선택</h2>
+                <p className="text-gray-500">공유하고 싶은 구독 서비스를 선택해주세요</p>
               </div>
 
               {products.length === 0 ? (
-                <div className="text-center py-20 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                  <p className="text-slate-500">사용 가능한 상품이 없습니다</p>
+                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+                  <p className="text-gray-400">사용 가능한 상품이 없습니다</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -310,10 +353,10 @@ export default function PartyCreatePage() {
                       whileHover={{ y: -4, scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleProductSelect(product)}
-                      className="group bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-5 cursor-pointer transition-all hover:shadow-lg"
+                      className="group bg-white border border-gray-100 hover:border-[#635bff]/30 rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg hover:shadow-[#635bff]/10"
                     >
                       <div className="flex items-center gap-4 mb-3">
-                        <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl flex items-center justify-center overflow-hidden border border-slate-200">
+                        <div className="w-14 h-14 bg-gradient-to-br from-[#635bff]/10 to-[#00d4ff]/10 rounded-xl flex items-center justify-center overflow-hidden border border-gray-100">
                           {product.image ? (
                             <img
                               src={product.image}
@@ -321,18 +364,18 @@ export default function PartyCreatePage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <Sparkles className="w-6 h-6 text-blue-600" />
+                            <Sparkles className="w-6 h-6 text-[#635bff]" />
                           )}
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">
+                          <h3 className="font-bold text-gray-900 text-lg group-hover:text-[#635bff] transition-colors">
                             {product.productName}
                           </h3>
-                          <p className="text-sm text-slate-500 font-semibold">
+                          <p className="text-sm text-gray-500 font-semibold">
                             월 {product.price.toLocaleString()}원
                           </p>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-[#635bff] group-hover:translate-x-1 transition-all" />
                       </div>
                     </motion.div>
                   ))}
@@ -341,7 +384,7 @@ export default function PartyCreatePage() {
             </motion.div>
           )}
 
-          {/* Step 2: Date & Size - IMPROVED VERSION */}
+          {/* Step 2: Date & Size */}
           {step === 2 && (
             <motion.form
               key="step2"
@@ -353,29 +396,29 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-slate-900 mb-2">파티 설정</h2>
-                <p className="text-slate-600">인원과 기간을 설정해주세요</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">파티 설정</h2>
+                <p className="text-gray-500">인원과 기간을 설정해주세요</p>
               </div>
 
               {/* Selected Product Display */}
-              <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+              <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-[#635bff]/5 to-[#00d4ff]/5 rounded-2xl border border-[#635bff]/10">
                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                  <Sparkles className="w-6 h-6 text-blue-600" />
+                  <Sparkles className="w-6 h-6 text-[#635bff]" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-slate-900 text-lg">{selectedProduct.productName}</p>
-                  <p className="text-blue-600 font-semibold">
+                  <p className="font-bold text-gray-900 text-lg">{selectedProduct.productName}</p>
+                  <p className="text-[#635bff] font-semibold">
                     월 {selectedProduct.price.toLocaleString()}원
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-8 bg-white rounded-xl p-6 border border-slate-200">
+              <div className="space-y-8 bg-white rounded-2xl p-6 border border-gray-100">
                 {/* Max Members - 2, 3, 4 Button Selection */}
                 <div id="maxMembers">
-                  <label className="block text-sm font-bold text-slate-900 mb-4">
+                  <label className="block text-sm font-bold text-gray-900 mb-4">
                     <span className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-blue-600" />
+                      <Users className="w-5 h-5 text-[#635bff]" />
                       파티 인원
                     </span>
                   </label>
@@ -394,15 +437,15 @@ export default function PartyCreatePage() {
                           }}
                           className={`relative p-4 rounded-xl border-2 transition-all ${
                             isSelected
-                              ? "border-blue-500 bg-blue-50 shadow-md"
-                              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50"
+                              ? "border-[#635bff] bg-[#635bff]/5 shadow-md shadow-[#635bff]/10"
+                              : "border-gray-100 bg-white hover:border-[#635bff]/30 hover:bg-gray-50"
                           }`}
                         >
                           <div className="text-center">
-                            <div className={`text-2xl font-bold mb-1 ${isSelected ? "text-blue-600" : "text-slate-900"}`}>
+                            <div className={`text-2xl font-bold mb-1 ${isSelected ? "text-[#635bff]" : "text-gray-900"}`}>
                               {count}명
                             </div>
-                            <div className={`text-sm ${isSelected ? "text-blue-500" : "text-slate-500"}`}>
+                            <div className={`text-sm ${isSelected ? "text-[#635bff]/70" : "text-gray-500"}`}>
                               월 {perPersonFee.toLocaleString()}원
                             </div>
                           </div>
@@ -410,7 +453,7 @@ export default function PartyCreatePage() {
                             <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-[#635bff] rounded-full flex items-center justify-center shadow-lg shadow-[#635bff]/25"
                             >
                               <Check className="w-4 h-4 text-white" />
                             </motion.div>
@@ -424,7 +467,7 @@ export default function PartyCreatePage() {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-3 flex items-center gap-2 text-red-600 text-sm"
+                      className="mt-3 flex items-center gap-2 text-red-500 text-sm"
                     >
                       <AlertCircle className="w-4 h-4" />
                       <span>{errors.maxMembers}</span>
@@ -432,11 +475,11 @@ export default function PartyCreatePage() {
                   )}
                 </div>
 
-                {/* Start Date - Improved */}
+                {/* Start Date */}
                 <div id="startDate">
-                  <label className="block text-sm font-bold text-slate-900 mb-3">
+                  <label className="block text-sm font-bold text-gray-900 mb-3">
                     <span className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-purple-600" />
+                      <Calendar className="w-5 h-5 text-[#00d4ff]" />
                       시작일
                     </span>
                   </label>
@@ -452,13 +495,13 @@ export default function PartyCreatePage() {
                         setDates({ ...dates, startDate: start, endDate: end });
                         setErrors({ ...errors, startDate: "" });
                       }}
-                      className={`w-full bg-slate-50 border-2 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 transition-all font-semibold ${
-                        errors.startDate ? "border-red-300" : "border-slate-200 focus:border-blue-500"
+                      className={`w-full bg-gray-50 border-2 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 outline-none text-gray-900 transition-all font-semibold ${
+                        errors.startDate ? "border-red-300" : "border-gray-100 focus:border-[#635bff]"
                       }`}
                     />
                     {!dates.startDate && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-slate-400 text-sm font-medium">날짜를 선택하세요</span>
+                        <span className="text-gray-400 text-sm font-medium">날짜를 선택하세요</span>
                       </div>
                     )}
                   </div>
@@ -467,7 +510,7 @@ export default function PartyCreatePage() {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-3 flex items-center gap-2 text-red-600 text-sm"
+                      className="mt-3 flex items-center gap-2 text-red-500 text-sm"
                     >
                       <AlertCircle className="w-4 h-4" />
                       <span>{errors.startDate}</span>
@@ -477,9 +520,9 @@ export default function PartyCreatePage() {
 
                 {/* Duration - Slider + Quick Select */}
                 <div id="months">
-                  <label className="block text-sm font-bold text-slate-900 mb-4">
+                  <label className="block text-sm font-bold text-gray-900 mb-4">
                     <span className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-purple-600" />
+                      <Calendar className="w-5 h-5 text-[#00d4ff]" />
                       이용 기간
                     </span>
                   </label>
@@ -492,8 +535,8 @@ export default function PartyCreatePage() {
                       animate={{ scale: 1, opacity: 1 }}
                       className="inline-flex items-baseline gap-1"
                     >
-                      <span className="text-5xl font-bold text-purple-600">{dates.months}</span>
-                      <span className="text-xl text-slate-500">개월</span>
+                      <span className="text-5xl font-bold text-[#635bff]">{dates.months}</span>
+                      <span className="text-xl text-gray-400">개월</span>
                     </motion.div>
                   </div>
 
@@ -510,14 +553,14 @@ export default function PartyCreatePage() {
                         setDates({ ...dates, months: newMonths, endDate: end });
                         setErrors({ ...errors, months: "" });
                       }}
-                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-purple-600
+                      className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#635bff]
                         [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6
-                        [&::-webkit-slider-thumb]:bg-purple-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
-                        [&::-webkit-slider-thumb]:hover:bg-purple-700 [&::-webkit-slider-thumb]:transition-all
-                        [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-purple-600
+                        [&::-webkit-slider-thumb]:bg-[#635bff] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
+                        [&::-webkit-slider-thumb]:hover:bg-[#5851e8] [&::-webkit-slider-thumb]:transition-all
+                        [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-[#635bff]
                         [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-lg"
                     />
-                    <div className="flex justify-between text-xs text-slate-400 mt-1 px-1">
+                    <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">
                       <span>1개월</span>
                       <span>6개월</span>
                       <span>12개월</span>
@@ -535,10 +578,10 @@ export default function PartyCreatePage() {
                           setDates({ ...dates, months: month, endDate: end });
                           setErrors({ ...errors, months: "" });
                         }}
-                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                           dates.months === month
-                            ? "bg-purple-600 text-white shadow-md"
-                            : "bg-slate-100 text-slate-600 hover:bg-purple-50 hover:text-purple-600"
+                            ? "bg-[#635bff] text-white shadow-md shadow-[#635bff]/25"
+                            : "bg-gray-100 text-gray-600 hover:bg-[#635bff]/10 hover:text-[#635bff]"
                         }`}
                       >
                         {month === 3 && "3개월"}
@@ -552,7 +595,7 @@ export default function PartyCreatePage() {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-3 flex items-center gap-2 text-red-600 text-sm"
+                      className="mt-3 flex items-center gap-2 text-red-500 text-sm"
                     >
                       <AlertCircle className="w-4 h-4" />
                       <span>{errors.months}</span>
@@ -563,15 +606,15 @@ export default function PartyCreatePage() {
                   {(() => {
                     const monthlyPrice = selectedProduct.price;
                     const perPersonFee = Math.floor(monthlyPrice / maxMembers);
-                    const monthlySavings = monthlyPrice - perPersonFee; // 파티장이 매월 절약하는 금액
-                    const totalSavings = monthlySavings * dates.months; // 총 절약 금액
+                    const monthlySavings = monthlyPrice - perPersonFee;
+                    const totalSavings = monthlySavings * dates.months;
 
                     return (
                       <motion.div
                         key={`${maxMembers}-${dates.months}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200"
+                        className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100"
                       >
                         <div className="flex items-center gap-2 text-emerald-700 font-bold mb-3">
                           <Sparkles className="w-5 h-5" />
@@ -579,12 +622,12 @@ export default function PartyCreatePage() {
                         </div>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-slate-600">원래 구독료</span>
-                            <span className="text-slate-900">월 {monthlyPrice.toLocaleString()}원</span>
+                            <span className="text-gray-600">원래 구독료</span>
+                            <span className="text-gray-900">월 {monthlyPrice.toLocaleString()}원</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-600">파티 공유 후</span>
-                            <span className="text-slate-900">월 {perPersonFee.toLocaleString()}원</span>
+                            <span className="text-gray-600">파티 공유 후</span>
+                            <span className="text-gray-900">월 {perPersonFee.toLocaleString()}원</span>
                           </div>
                           <div className="flex justify-between text-emerald-600 font-semibold">
                             <span>매월 절약</span>
@@ -592,7 +635,7 @@ export default function PartyCreatePage() {
                           </div>
                           <div className="pt-2 mt-2 border-t border-emerald-200">
                             <div className="flex justify-between items-center">
-                              <span className="text-slate-700 font-semibold">{dates.months}개월 총 절약</span>
+                              <span className="text-gray-700 font-semibold">{dates.months}개월 총 절약</span>
                               <motion.span
                                 key={totalSavings}
                                 initial={{ scale: 1.2 }}
@@ -614,21 +657,21 @@ export default function PartyCreatePage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-5 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl"
+                    className="p-5 bg-gradient-to-r from-[#635bff]/5 to-[#00d4ff]/5 border border-[#635bff]/10 rounded-xl"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-slate-500 uppercase">계약 기간</span>
-                      <Check className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-gray-500 uppercase">계약 기간</span>
+                      <Check className="w-4 h-4 text-emerald-500" />
                     </div>
                     <div className="flex justify-between items-center">
                       <div className="text-center flex-1">
-                        <span className="block text-xs text-slate-500 mb-1">시작</span>
-                        <span className="block font-bold text-slate-900">{dates.startDate}</span>
+                        <span className="block text-xs text-gray-500 mb-1">시작</span>
+                        <span className="block font-bold text-gray-900">{dates.startDate}</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                      <ChevronRight className="w-5 h-5 text-gray-400" />
                       <div className="text-center flex-1">
-                        <span className="block text-xs text-slate-500 mb-1">종료</span>
-                        <span className="block font-bold text-slate-900">{dates.endDate}</span>
+                        <span className="block text-xs text-gray-500 mb-1">종료</span>
+                        <span className="block font-bold text-gray-900">{dates.endDate}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -639,17 +682,19 @@ export default function PartyCreatePage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-slate-500 hover:text-slate-700 font-semibold px-6 py-3 transition-colors"
+                  className="text-gray-500 hover:text-gray-700 font-semibold px-6 py-3 transition-colors"
                 >
                   이전
                 </button>
-                <button
+                <motion.button
                   type="submit"
-                  className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg transition-all flex items-center gap-2"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-8 py-3 bg-[#635bff] hover:bg-[#5851e8] text-white rounded-full font-semibold shadow-lg shadow-[#635bff]/25 transition-all flex items-center gap-2"
                 >
                   다음
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </motion.button>
               </div>
             </motion.form>
           )}
@@ -665,27 +710,27 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-slate-900 mb-2">보증금 결제</h2>
-                <p className="text-slate-600">파티 생성을 위해 보증금을 결제해주세요</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">보증금 결제</h2>
+                <p className="text-gray-500">파티 생성을 위해 보증금을 결제해주세요</p>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+              <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">서비스</span>
-                  <span className="text-slate-900 font-bold">{selectedProduct.productName}</span>
+                  <span className="text-gray-500">서비스</span>
+                  <span className="text-gray-900 font-bold">{selectedProduct.productName}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-4">
-                  <span className="text-slate-600">이용 기간</span>
-                  <span className="text-slate-900 font-bold">
+                <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-4">
+                  <span className="text-gray-500">이용 기간</span>
+                  <span className="text-gray-900 font-bold">
                     {dates.startDate} ~ {dates.endDate}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-4">
-                  <span className="text-slate-900 font-bold text-lg">총 보증금</span>
+                  <span className="text-gray-900 font-bold text-lg">총 보증금</span>
                   <div className="text-right">
-                    <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-3xl font-bold text-[#635bff]">
                       {selectedProduct.price.toLocaleString()}
-                      <span className="text-lg text-slate-500 ml-1">원</span>
+                      <span className="text-lg text-gray-400 ml-1">원</span>
                     </div>
                   </div>
                 </div>
@@ -699,14 +744,14 @@ export default function PartyCreatePage() {
               <div className="flex justify-between pt-4">
                 <button
                   onClick={() => setStep(2)}
-                  className="text-slate-500 hover:text-slate-700 font-semibold px-6 py-3 transition-colors"
+                  className="text-gray-500 hover:text-gray-700 font-semibold px-6 py-3 transition-colors"
                 >
                   이전
                 </button>
                 <RippleButton
                   onClick={handlePayment}
                   disabled={localLoading}
-                  className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg flex items-center gap-2 disabled:opacity-50 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="px-8 py-3 bg-[#635bff] hover:bg-[#5851e8] text-white rounded-full font-semibold shadow-lg shadow-[#635bff]/25 flex items-center gap-2 disabled:opacity-50 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {localLoading ? (
                     "처리중..."
@@ -733,16 +778,16 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-200">
-                  <Check className="w-8 h-8 text-emerald-600" />
+                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+                  <Check className="w-8 h-8 text-emerald-500" />
                 </div>
-                <h2 className="text-3xl font-bold text-slate-900 mb-2">결제 완료!</h2>
-                <p className="text-slate-600">공유할 계정 정보를 입력해주세요</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">결제 완료!</h2>
+                <p className="text-gray-500">공유할 계정 정보를 입력해주세요</p>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+              <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-3">
+                  <label className="block text-sm font-bold text-gray-900 mb-3">
                     아이디 (이메일)
                   </label>
                   <input
@@ -751,19 +796,19 @@ export default function PartyCreatePage() {
                     value={ottInfo.ottId}
                     onChange={handleOttChange}
                     placeholder="user@example.com"
-                    className="w-full bg-slate-50 border border-slate-300 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-900"
+                    className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] outline-none text-gray-900"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-3">비밀번호</label>
+                  <label className="block text-sm font-bold text-gray-900 mb-3">비밀번호</label>
                   <input
                     type="text"
                     name="ottPassword"
                     value={ottInfo.ottPassword}
                     onChange={handleOttChange}
                     placeholder="비밀번호 입력"
-                    className="w-full bg-slate-50 border border-slate-300 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-900"
+                    className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] outline-none text-gray-900"
                     required
                   />
                 </div>
@@ -771,7 +816,7 @@ export default function PartyCreatePage() {
 
               <RippleButton
                 type="submit"
-                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-lg transition-all transform hover:scale-[1.01] active:scale-[0.99]"
+                className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full font-bold shadow-lg shadow-emerald-500/25 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
               >
                 <Sparkles className="w-5 h-5 inline mr-2" />
                 파티 생성 완료

@@ -1,6 +1,46 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { CheckCircle, AlertCircle, Loader2, Home, Sparkles } from "lucide-react";
 import { processLeaderDeposit, joinParty, createParty } from "../../api/partyApi";
+
+// Animated gradient background component for Variant T
+function AnimatedGradient() {
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+                className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
+                style={{
+                    background: "radial-gradient(circle, rgba(99,91,255,0.15) 0%, transparent 70%)",
+                }}
+                animate={{
+                    x: [0, 100, 0],
+                    y: [0, 50, 0],
+                }}
+                transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+            <motion.div
+                className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
+                style={{
+                    background: "radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)",
+                }}
+                animate={{
+                    x: [0, -100, 0],
+                    y: [0, -50, 0],
+                }}
+                transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+        </div>
+    );
+}
 
 export default function PaymentSuccessPage() {
     const navigate = useNavigate();
@@ -86,18 +126,6 @@ export default function PaymentSuccessPage() {
                 if (error.response && error.response.data && error.response.data.code === "ALREADY_PROCESSED_PAYMENT") {
                     console.warn("Already processed payment, proceeding as success.");
                     localStorage.removeItem("pendingPayment");
-                    const pendingPayment = JSON.parse(localStorage.getItem("pendingPayment")); // 다시 읽어서 확인 (위에서 지웠으므로 null일 것임, 하지만 로직 흐름상 필요하면 변수 사용)
-                    // 위에서 pendingPayment 변수가 이미 있으므로 그것을 사용.
-                    // 단, type과 partyId는 위에서 이미 구조분해 할당 했음.
-
-                    // pendingPayment가 null이면 위에서 에러가 났을 것이므로 여기서는 type, partyId가 유효함.
-                    // 하지만 catch 블록이므로 스코프 문제 확인 필요. 
-                    // let { type, partyId } = pendingPayment; 는 try 블록 안에 있음.
-                    // 따라서 catch 블록에서는 접근 불가할 수 있음.
-                    // 해결책: try 블록 밖으로 변수 선언을 빼거나, catch 블록에서 다시 읽어야 함.
-                    // 하지만 localStorage에서 이미 지웠다면? 아님. 지우기 전임.
-
-                    // 코드를 재구성하여 try-catch 범위를 조정하거나, catch에서 로컬스토리지를 다시 읽어서 처리.
 
                     const storedPayment = JSON.parse(localStorage.getItem("pendingPayment"));
                     if (storedPayment) {
@@ -122,28 +150,64 @@ export default function PaymentSuccessPage() {
     }, [navigate, searchParams]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50">
-            <div className="bg-white p-8 rounded-3xl shadow-lg text-center border border-stone-200">
+        <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center relative">
+            <AnimatedGradient />
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white p-10 rounded-2xl shadow-lg shadow-[#635bff]/10 text-center border border-gray-100 relative z-10 max-w-md w-full mx-4"
+            >
                 {status === "processing" && (
                     <>
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ea580c] mx-auto mb-4"></div>
-                        <h2 className="text-xl font-extrabold text-gray-900">결제 확인 중입니다...</h2>
-                        <p className="text-stone-600 mt-2 font-semibold">잠시만 기다려주세요.</p>
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="mx-auto mb-6"
+                        >
+                            <Loader2 className="w-12 h-12 text-[#635bff]" />
+                        </motion.div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">결제 확인 중입니다...</h2>
+                        <p className="text-gray-500 font-medium">잠시만 기다려주세요.</p>
+                    </>
+                )}
+                {status === "success" && (
+                    <>
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                            className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6"
+                        >
+                            <CheckCircle className="w-10 h-10 text-emerald-500" />
+                        </motion.div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">결제가 완료되었습니다!</h2>
+                        <p className="text-gray-500 font-medium">다음 단계로 이동합니다...</p>
                     </>
                 )}
                 {status === "fail" && (
                     <>
-                        <div className="text-red-600 text-5xl mb-4">⚠️</div>
-                        <h2 className="text-xl font-extrabold text-gray-900">결제 처리에 실패했습니다.</h2>
-                        <button
-                            onClick={() => navigate("/")}
-                            className="mt-6 bg-[#ea580c] hover:bg-[#c2410c] text-white px-6 py-2 rounded-2xl font-bold hover:shadow-lg transition-all duration-200 hover:translate-y-1"
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                            className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6"
                         >
+                            <AlertCircle className="w-10 h-10 text-red-500" />
+                        </motion.div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">결제 처리에 실패했습니다</h2>
+                        <p className="text-gray-500 font-medium mb-6">다시 시도해주세요.</p>
+                        <motion.button
+                            whileHover={{ scale: 1.02, y: -1 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => navigate("/")}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#635bff] hover:bg-[#5851e8] text-white rounded-full font-semibold shadow-lg shadow-[#635bff]/25 transition-all"
+                        >
+                            <Home className="w-5 h-5" />
                             메인으로 돌아가기
-                        </button>
+                        </motion.button>
                     </>
                 )}
-            </div>
+            </motion.div>
         </div>
     );
 }
