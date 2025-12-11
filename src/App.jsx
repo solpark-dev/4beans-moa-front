@@ -48,6 +48,12 @@ import LandingPageK from "./pages/landing/LandingPageK";
 import LandingPageL from "./pages/landing/LandingPageL";
 import LandingPageM from "./pages/landing/LandingPageM";
 import LandingPageN from "./pages/landing/LandingPageN";
+import LandingPageO from "./pages/landing/LandingPageO";
+import LandingPageP from "./pages/landing/LandingPageP";
+import LandingPageQ from "./pages/landing/LandingPageQ";
+import LandingPageR from "./pages/landing/LandingPageR";
+import LandingPageS from "./pages/landing/LandingPageS";
+import LandingPageT from "./pages/landing/LandingPageT";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -252,6 +258,12 @@ export default function App() {
           <Route path="/landing/l" element={<LandingPageL />} />
           <Route path="/landing/m" element={<LandingPageM />} />
           <Route path="/landing/n" element={<LandingPageN />} />
+          <Route path="/landing/o" element={<LandingPageO />} />
+          <Route path="/landing/p" element={<LandingPageP />} />
+          <Route path="/landing/q" element={<LandingPageQ />} />
+          <Route path="/landing/r" element={<LandingPageR />} />
+          <Route path="/landing/s" element={<LandingPageS />} />
+          <Route path="/landing/t" element={<LandingPageT />} />
         </Routes>
       </main>
 
