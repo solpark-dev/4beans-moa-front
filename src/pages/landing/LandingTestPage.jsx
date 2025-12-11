@@ -131,6 +131,55 @@ export default function LandingTestPage() {
                         <span className="bg-gradient-to-r from-rose-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">Variant N</span><br />
                         <span className="text-sm font-normal text-slate-400">Dreamy Pastel (밝고 몽환적)</span>
                     </Link>
+
+                    <Link
+                        to="/landing/o"
+                        className="block w-full py-6 px-6 bg-yellow-400 hover:bg-yellow-300 text-black font-black rounded-lg shadow-md border-4 border-black transition duration-200"
+                        style={{ boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)' }}
+                    >
+                        Variant O<br />
+                        <span className="text-sm font-normal">Neo-Brutalist Pop (팝 & 바이브런트 개선)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/p"
+                        className="block w-full py-6 px-6 bg-[#FFF9F5] hover:bg-white text-gray-800 font-bold rounded-lg shadow-md border border-[#E8879B]/30 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-[#E8879B] via-[#F4A574] to-[#8BC5A7] bg-clip-text text-transparent">Variant P</span><br />
+                        <span className="text-sm font-normal text-gray-400">Geometric Gradient Flow (로고 색상)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/q"
+                        className="block w-full py-6 px-6 bg-[#0a0a0f] hover:bg-[#12121a] text-white font-bold rounded-lg shadow-md border border-purple-500/30 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">Variant Q</span><br />
+                        <span className="text-sm font-normal text-gray-400">Dark Glassmorphism (글래스모피즘)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/r"
+                        className="block w-full py-6 px-6 bg-[#08090a] hover:bg-[#101114] text-white font-bold rounded-lg shadow-md border border-pink-500/20 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Variant R</span><br />
+                        <span className="text-sm font-normal text-gray-400">Linear + Raycast (3D 큐브)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/s"
+                        className="block w-full py-6 px-6 bg-white hover:bg-gray-50 text-gray-900 font-bold rounded-lg shadow-md border border-gray-200 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Variant S</span><br />
+                        <span className="text-sm font-normal text-gray-500">Cal.com + Vercel (클린 SaaS)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/t"
+                        className="block w-full py-6 px-6 bg-white hover:bg-gray-50 text-gray-900 font-bold rounded-lg shadow-md border border-[#635bff]/20 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent">Variant T</span><br />
+                        <span className="text-sm font-normal text-gray-500">Notion + Figma + Stripe (프리미엄 SaaS)</span>
+                    </Link>
                 </div>
             </div>
         </div>
