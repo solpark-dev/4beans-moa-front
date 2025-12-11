@@ -40,6 +40,14 @@ import LandingPageC from "./pages/landing/LandingPageC";
 import LandingPageD from "./pages/landing/LandingPageD";
 import LandingPageE from "./pages/landing/LandingPageE";
 import LandingPageF from "./pages/landing/LandingPageF";
+import LandingPageG from "./pages/landing/LandingPageG";
+import LandingPageH from "./pages/landing/LandingPageH";
+import LandingPageI from "./pages/landing/LandingPageI";
+import LandingPageJ from "./pages/landing/LandingPageJ";
+import LandingPageK from "./pages/landing/LandingPageK";
+import LandingPageL from "./pages/landing/LandingPageL";
+import LandingPageM from "./pages/landing/LandingPageM";
+import LandingPageN from "./pages/landing/LandingPageN";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -236,6 +244,14 @@ export default function App() {
           <Route path="/landing/d" element={<LandingPageD />} />
           <Route path="/landing/e" element={<LandingPageE />} />
           <Route path="/landing/f" element={<LandingPageF />} />
+          <Route path="/landing/g" element={<LandingPageG />} />
+          <Route path="/landing/h" element={<LandingPageH />} />
+          <Route path="/landing/i" element={<LandingPageI />} />
+          <Route path="/landing/j" element={<LandingPageJ />} />
+          <Route path="/landing/k" element={<LandingPageK />} />
+          <Route path="/landing/l" element={<LandingPageL />} />
+          <Route path="/landing/m" element={<LandingPageM />} />
+          <Route path="/landing/n" element={<LandingPageN />} />
         </Routes>
       </main>
 

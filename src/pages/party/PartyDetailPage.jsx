@@ -6,6 +6,8 @@ import { useAuthStore } from "../../store/authStore";
 import { requestPayment } from "../../utils/paymentHandler";
 import LeavePartyWarningModal from "../../components/party/LeavePartyWarningModal";
 import UpdateOttModal from "../../components/party/UpdateOttModal";
+import RippleButton from "../../components/party/RippleButton";
+import { useConfetti } from "../../components/party/SuccessConfetti";
 import { fetchPartyMembers, leaveParty } from "../../hooks/party/partyService";
 import {
   Eye,
@@ -38,6 +40,7 @@ export default function PartyDetailPage() {
   const [isOttModalOpen, setIsOttModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [showOttInfo, setShowOttInfo] = useState(false);
+  const { triggerConfetti, ConfettiComponent } = useConfetti();
 
   useEffect(() => {
     loadPartyDetail(id);
@@ -161,47 +164,74 @@ export default function PartyDetailPage() {
           </button>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-            {/* Left: Party Info */}
+            {/* Left: Party Info with OTT Image */}
             <div className="flex-1">
-              {/* Badges */}
-              <div className="flex items-center gap-2 flex-wrap mb-4">
-                <span className={`${badge.bg} text-white px-3 py-1 rounded-md text-xs font-bold shadow-lg`}>
-                  {badge.text}
-                </span>
-                {isLeader && (
-                  <span className="bg-amber-400 text-amber-900 px-3 py-1 rounded-md text-xs font-bold shadow-lg">
-                    <Crown className="w-3 h-3 inline mr-1" />
-                    파티장
-                  </span>
-                )}
-                {isMember && !isLeader && (
-                  <span className="bg-white text-blue-600 px-3 py-1 rounded-md text-xs font-bold shadow-lg">
-                    <Check className="w-3 h-3 inline mr-1" />
-                    참여중
-                  </span>
-                )}
-              </div>
+              <div className="flex items-start gap-5">
+                {/* OTT Image */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-white shadow-lg border border-slate-200"
+                >
+                  {party.productImage ? (
+                    <img
+                      src={party.productImage}
+                      alt={party.productName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                      <span className="text-4xl md:text-5xl font-bold text-slate-300">
+                        {party.productName?.[0]}
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
 
-              {/* Title */}
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
-                {party.productName}
-              </h1>
+                {/* Party Info */}
+                <div className="flex-1 min-w-0">
+                  {/* Badges */}
+                  <div className="flex items-center gap-2 flex-wrap mb-3">
+                    <span className={`${badge.bg} text-white px-3 py-1 rounded-md text-xs font-bold shadow-lg`}>
+                      {badge.text}
+                    </span>
+                    {isLeader && (
+                      <span className="bg-amber-400 text-amber-900 px-3 py-1 rounded-md text-xs font-bold shadow-lg">
+                        <Crown className="w-3 h-3 inline mr-1" />
+                        파티장
+                      </span>
+                    )}
+                    {isMember && !isLeader && (
+                      <span className="bg-white text-blue-600 px-3 py-1 rounded-md text-xs font-bold shadow-lg">
+                        <Check className="w-3 h-3 inline mr-1" />
+                        참여중
+                      </span>
+                    )}
+                  </div>
 
-              {/* Leader Info */}
-              <div className="flex items-center gap-3 text-slate-600 mb-6">
-                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center ring-2 ring-white shadow-sm">
-                  <span className="text-sm font-bold text-slate-700">
-                    {party.leaderNickname?.[0]?.toUpperCase()}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">파티장</p>
-                  <p className="font-semibold text-slate-900">{party.leaderNickname}</p>
+                  {/* Title */}
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
+                    {party.productName}
+                  </h1>
+
+                  {/* Leader Info */}
+                  <div className="flex items-center gap-3 text-slate-600">
+                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center ring-2 ring-white shadow-sm">
+                      <span className="text-xs font-bold text-slate-700">
+                        {party.leaderNickname?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">파티장</p>
+                      <p className="text-sm font-semibold text-slate-900">{party.leaderNickname}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mt-6">
                 {/* Members */}
                 <motion.div
                   whileHover={{ y: -2 }}
@@ -282,12 +312,12 @@ export default function PartyDetailPage() {
 
               {/* Action Button */}
               {isLeader && party.partyStatus === "PENDING_PAYMENT" && (
-                <button
+                <RippleButton
                   onClick={handleDepositRetry}
                   className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold shadow-lg transition-all"
                 >
                   보증금 재결제
-                </button>
+                </RippleButton>
               )}
 
               {party.memberStatus === 'INACTIVE' ? (
@@ -295,24 +325,22 @@ export default function PartyDetailPage() {
                   재가입 불가
                 </div>
               ) : !isMember && !isLeader && !isFull && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <RippleButton
                   onClick={() => setIsJoinModalOpen(true)}
-                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg transition-all"
+                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <Sparkles className="w-4 h-4 inline mr-2" />
                   파티 가입하기
-                </motion.button>
+                </RippleButton>
               )}
 
               {isMember && !isLeader && (
-                <button
+                <RippleButton
                   onClick={() => setIsLeaveModalOpen(true)}
                   className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg font-semibold transition-all"
                 >
                   파티 탈퇴하기
-                </button>
+                </RippleButton>
               )}
 
               {isFull && !isMember && (
@@ -533,20 +561,24 @@ export default function PartyDetailPage() {
                 >
                   취소
                 </button>
-                <button
+                <RippleButton
                   onClick={() => {
                     setIsJoinModalOpen(false);
+                    triggerConfetti();
                     handleJoin();
                   }}
                   className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg transition-all"
                 >
                   가입하기
-                </button>
+                </RippleButton>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Confetti Effect */}
+      <ConfettiComponent />
     </div>
   );
 }
