@@ -33,45 +33,75 @@ const PaginationLink = ({
   className,
   isActive,
   size = "icon",
+  disabled,
   ...props
 }) => (
-  <a
+  <button
+    type="button"
     aria-current={isActive ? "page" : undefined}
-    className={cn(buttonVariants({
-      variant: isActive ? "outline" : "ghost",
-      size,
-    }), className)}
+    disabled={disabled}
+    className={cn(
+      "inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9",
+      isActive
+        ? "bg-white text-gray-900 border border-gray-300"
+        : "hover:bg-gray-100 text-gray-700",
+      disabled && "pointer-events-none opacity-50",
+      "cursor-pointer transition-colors",
+      className
+    )}
     {...props} />
 )
 PaginationLink.displayName = "PaginationLink"
 
 const PaginationPrevious = ({
   className,
+  disabled,
   ...props
 }) => (
-  <PaginationLink
-    aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 pl-2.5", className)}
+  <button
+    type="button"
+    aria-label="이전 페이지로 이동"
+    disabled={disabled}
+    className={cn(
+      buttonVariants({
+        variant: "ghost",
+        size: "default",
+      }),
+      "gap-1 pl-2.5",
+      disabled && "pointer-events-none opacity-50",
+      "cursor-pointer",
+      className
+    )}
     {...props}>
     <ChevronLeft className="h-4 w-4" />
-    <span>Previous</span>
-  </PaginationLink>
+    <span></span>
+  </button>
 )
 PaginationPrevious.displayName = "PaginationPrevious"
 
 const PaginationNext = ({
   className,
+  disabled,
   ...props
 }) => (
-  <PaginationLink
-    aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 pr-2.5", className)}
+  <button
+    type="button"
+    aria-label="다음 페이지로 이동"
+    disabled={disabled}
+    className={cn(
+      buttonVariants({
+        variant: "ghost",
+        size: "default",
+      }),
+      "gap-1 pr-2.5",
+      disabled && "pointer-events-none opacity-50",
+      "cursor-pointer",
+      className
+    )}
     {...props}>
-    <span>Next</span>
+    <span></span>
     <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
+  </button>
 )
 PaginationNext.displayName = "PaginationNext"
 
@@ -84,7 +114,7 @@ const PaginationEllipsis = ({
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}>
     <MoreHorizontal className="h-4 w-4" />
-    <span className="sr-only">More pages</span>
+    <span className="sr-only">더 많은 페이지</span>
   </span>
 )
 PaginationEllipsis.displayName = "PaginationEllipsis"

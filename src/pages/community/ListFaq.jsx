@@ -107,8 +107,14 @@ const ListFaq = () => {
 
     const renderPageNumbers = () => {
         const pages = [];
-        const startPage = Math.max(1, currentPage - 2);
-        const endPage = Math.min(totalPages, currentPage + 2);
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = startPage + maxVisible - 1;
+
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxVisible + 1);
+        }
 
         for (let i = startPage; i <= endPage; i++) {
             pages.push(i);
@@ -154,33 +160,28 @@ const ListFaq = () => {
                 <Pagination className="mt-8">
                     <PaginationContent>
                         <PaginationItem>
-                            <PaginationPrevious 
+                            <PaginationPrevious
                                 onClick={() => handlePageChange(currentPage - 1)}
-                                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                            >
-                                <span className="sr-only">이전</span>
-                            </PaginationPrevious>
+                                disabled={currentPage === 1}
+                            />
                         </PaginationItem>
-                        
+
                         {renderPageNumbers().map((pageNum) => (
                             <PaginationItem key={pageNum}>
                                 <PaginationLink
                                     onClick={() => handlePageChange(pageNum)}
                                     isActive={currentPage === pageNum}
-                                    className="cursor-pointer"
                                 >
                                     {pageNum}
                                 </PaginationLink>
                             </PaginationItem>
                         ))}
-                        
+
                         <PaginationItem>
-                            <PaginationNext 
+                            <PaginationNext
                                 onClick={() => handlePageChange(currentPage + 1)}
-                                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                            >
-                                <span className="sr-only">다음</span>
-                            </PaginationNext>
+                                disabled={currentPage === totalPages}
+                            />
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
