@@ -17,6 +17,7 @@ export const useMyPage = () => {
     useOtpStore();
 
   const otpActionHandlers = otpHandlers();
+
   const getLoginProviderLabel = (user) => {
     if (!user) return "EMAIL";
 
@@ -75,6 +76,7 @@ export const useMyPage = () => {
   const loginProviderLabel = getLoginProviderLabel(user);
 
   const isAdmin = user?.role === "ADMIN";
+
   const handlers = {
     goSubscription: () => (window.location.href = "/subscription/list"),
     goMyParties: () => (window.location.href = "/my-parties"),
@@ -92,42 +94,25 @@ export const useMyPage = () => {
     goDeleteUser: () => (window.location.href = "/mypage/delete"),
 
     oauthConnect: async (provider) => {
-      if (provider === "kakao") {
-        if (!window.Kakao) {
-          alert("카카오 인증을 사용할 수 없습니다.");
+      if (provider !== "kakao" && provider !== "google") return;
+
+      try {
+        const res = await httpClient.get(`/oauth/${provider}/auth`, {
+          params: { mode: "connect" },
+        });
+
+        if (!res.success) {
+          alert(
+            res.error?.message ||
+              `${provider.toUpperCase()} 연동을 시작하지 못했습니다.`
+          );
           return;
         }
-        if (!window.Kakao.isInitialized()) {
-          window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
-        }
 
-        const origin = window.location.origin;
-        const redirectUri = `${origin}/oauth/kakao`;
-
-        window.Kakao.Auth.authorize({
-          redirectUri,
-          state: "connect",
-        });
-        return;
-      }
-
-      if (provider === "google") {
-        try {
-          const res = await httpClient.get("/api/oauth/google/auth", {
-            params: { mode: "connect" },
-          });
-
-          if (!res.success) {
-            alert(res.error?.message || "구글 연동을 시작하지 못했습니다.");
-            return;
-          }
-
-          window.location.href = res.data.url;
-        } catch (e) {
-          console.error(e);
-          alert("구글 연동 중 오류가 발생했습니다.");
-        }
-        return;
+        window.location.href = res.data.url;
+      } catch (e) {
+        console.error(e);
+        alert(`${provider.toUpperCase()} 연동 중 오류가 발생했습니다.`);
       }
     },
 
@@ -137,6 +122,8 @@ export const useMyPage = () => {
         if (res.success) {
           alert("연동이 해제되었습니다.");
           window.location.reload();
+        } else {
+          alert(res.error?.message || "연동 해제에 실패했습니다.");
         }
       } catch (e) {
         console.error(e);
