@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useAdminUserDetailLogic } from "@/hooks/admin/useAdminUserDetail";
+import { useAdminLoginHistory } from "@/hooks/admin/useAdminLoginHistory";
 
 import { useMyPageStore } from "@/store/user/myPageStore";
 
@@ -32,6 +33,24 @@ export default function AdminUserDetailPage() {
     goBlacklistAdd,
     goLoginHistory,
   } = useAdminUserDetailLogic(userId);
+  const loginHistory = useAdminLoginHistory(userId);
+  const {
+    state: {
+      items: historyItems,
+      page: historyPage,
+      pages: historyPages,
+      pageCount: historyPageCount,
+      loading: historyLoading,
+      totalCount: historyTotalCount,
+    },
+    actions: {
+      goFirst: goHistoryFirst,
+      goPrev: goHistoryPrev,
+      goPage: goHistoryPage,
+      goNextBlock: goHistoryNextBlock,
+      goLast: goHistoryLast,
+    },
+  } = loginHistory;
 
   const { isAdmin } = useMyPageStore();
 
@@ -268,6 +287,146 @@ export default function AdminUserDetailPage() {
               </InfoCard>
             </div>
           </main>
+        </div>
+
+        <div className="mt-10">
+          <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl">
+            <CardHeader className="pb-4 border-b border-slate-200">
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-[0.18em] flex items-center gap-2">
+                <KeyRound className="w-4 h-4" />
+                LOGIN HISTORY
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {historyLoading && (
+                <div className="py-6 text-center text-sm text-slate-500">
+                  불러오는 중..
+                </div>
+              )}
+              {!historyLoading && historyItems.length === 0 && (
+                <div className="py-6 text-center text-sm text-slate-400">
+                  로그인 이력이 없습니다.
+                </div>
+              )}
+              {!historyLoading && historyItems.length > 0 && (
+                <>
+                  <div className="flex items-center justify-between mb-3 text-xs text-slate-500">
+                    <span>최근 로그인 이력 {historyTotalCount}건</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-200 bg-slate-50">
+                          <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                            일시
+                          </th>
+                          <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                            결과
+                          </th>
+                          <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                            IP
+                          </th>
+                          <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                            유형
+                          </th>
+                          <th className="py-2 px-2 text-left font-semibold text-slate-600">
+                            User-Agent
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {historyItems.map((item, idx) => (
+                          <tr
+                            key={`${item.loginAt}-${idx}`}
+                            className="border-b border-slate-100 hover:bg-slate-50"
+                          >
+                            <td className="py-2 px-2 text-slate-800 whitespace-nowrap">
+                              {item.loginAtFormatted}
+                            </td>
+                            <td
+                              className={`py-2 px-2 font-semibold ${
+                                item.success
+                                  ? "text-emerald-600"
+                                  : "text-red-500"
+                              }`}
+                            >
+                              {item.successText}
+                            </td>
+                            <td className="py-2 px-2 text-slate-700 whitespace-nowrap">
+                              {item.loginIp || "-"}
+                            </td>
+                            <td className="py-2 px-2 text-slate-700 whitespace-nowrap">
+                              {item.loginType || "-"}
+                            </td>
+                            <td className="py-2 px-2 text-slate-500 max-w-[220px] truncate">
+                              {item.userAgent || "-"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-4 flex items-center justify-center gap-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 text-xs"
+                      onClick={goHistoryFirst}
+                      disabled={historyPage <= 1}
+                    >
+                      {"<<"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 text-xs"
+                      onClick={goHistoryPrev}
+                      disabled={historyPage <= 1}
+                    >
+                      {"<"}
+                    </Button>
+                    {historyPages.map((p) => (
+                      <Button
+                        key={p}
+                        type="button"
+                        variant={p === historyPage ? "default" : "outline"}
+                        className={`h-8 min-w-[2rem] text-xs ${
+                          p === historyPage
+                            ? "bg-indigo-600 text-white"
+                            : "text-slate-700"
+                        }`}
+                        onClick={() => goHistoryPage(p)}
+                      >
+                        {p}
+                      </Button>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 text-xs"
+                      onClick={goHistoryNextBlock}
+                      disabled={historyPage >= historyPageCount}
+                    >
+                      {">"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 text-xs"
+                      onClick={goHistoryLast}
+                      disabled={historyPage >= historyPageCount}
+                    >
+                      {">>"}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

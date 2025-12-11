@@ -25,6 +25,9 @@ export const startPassAuth = () => httpClient.get("/users/pass/start");
 export const verifyPassAuth = (data) =>
   httpClient.post("/users/pass/verify", data);
 
+export const checkPhone = (phone) =>
+  httpClient.post("/users/check", { type: "phone", value: phone });
+
 export const startRestoreVerify = (userId) =>
   httpClient.post("/users/restore/start", { userId });
 

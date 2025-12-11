@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useAuthStore } from "@/store/authStore";
 import { useOtpStore } from "@/store/user/otpStore";
@@ -12,6 +13,7 @@ function formatDate(value) {
 }
 
 export const useMyPage = () => {
+  const navigate = useNavigate();
   const { user, setUser } = useAuthStore();
   const { enabled, modalOpen, qrUrl, code, loading, setEnabled } =
     useOtpStore();
@@ -45,7 +47,7 @@ export const useMyPage = () => {
 
         if (!success || !data) {
           alert("로그인이 필요합니다.");
-          window.location.href = "/login";
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -54,12 +56,14 @@ export const useMyPage = () => {
       } catch (e) {
         console.error(e);
         alert("로그인이 필요합니다.");
-        window.location.href = "/login";
+        navigate("/login", { replace: true });
       }
     };
 
-    fetchUserData();
-  }, [setUser, setEnabled]);
+    if (!user) {
+      fetchUserData();
+    }
+  }, [user, setUser, setEnabled, navigate]);
 
   const marketingAgreed = user
     ? user.agreeMarketing ?? user.marketing ?? false
@@ -78,20 +82,18 @@ export const useMyPage = () => {
   const isAdmin = user?.role === "ADMIN";
 
   const handlers = {
-    goSubscription: () => (window.location.href = "/subscription/list"),
-    goMyParties: () => (window.location.href = "/my-parties"),
-    goChangePwd: () => (window.location.href = "/mypage/password"),
-    goWallet: () => (window.location.href = "/user/wallet"),
-    goPayment: () => (window.location.href = "/payment/method/list"),
-    goFinancialHistory: () =>
-      (window.location.href = "/user/financial-history"),
-    goEditUser: () => (window.location.href = "/mypage/edit"),
-    goAdminUserList: () => (window.location.href = "/admin/users"),
-    goAdminBlacklist: () => (window.location.href = "/admin/blacklist"),
-    goAdminHome: () => (window.location.href = "/admin"),
-    goBlacklistAdd: (userId) =>
-      (window.location.href = `/admin/blacklist/add?user=${userId}`),
-    goDeleteUser: () => (window.location.href = "/mypage/delete"),
+    goSubscription: () => navigate("/subscription/list"),
+    goMyParties: () => navigate("/my-parties"),
+    goChangePwd: () => navigate("/mypage/password"),
+    goWallet: () => navigate("/user/wallet"),
+    goPayment: () => navigate("/payment/method/list"),
+    goFinancialHistory: () => navigate("/user/financial-history"),
+    goEditUser: () => navigate("/mypage/edit"),
+    goAdminUserList: () => navigate("/admin/users"),
+    goAdminBlacklist: () => navigate("/admin/blacklist"),
+    goAdminHome: () => navigate("/admin"),
+    goBlacklistAdd: (userId) => navigate(`/admin/blacklist/add?user=${userId}`),
+    goDeleteUser: () => navigate("/mypage/delete"),
 
     oauthConnect: async (provider) => {
       if (provider !== "kakao" && provider !== "google") return;

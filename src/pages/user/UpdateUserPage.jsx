@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   loadUserInfo,
   handleImageChange,
@@ -30,6 +31,7 @@ const BAD_WORDS = [
 ];
 
 export default function UpdateUserPage() {
+  const navigate = useNavigate();
   const fileRef = useRef();
 
   const [initialNickname, setInitialNickname] = useState("");
@@ -108,7 +110,7 @@ export default function UpdateUserPage() {
       });
 
       alert("회원정보가 수정되었습니다.");
-      window.location.href = "/mypage";
+      navigate("/mypage", { replace: true });
     } catch (err) {
       alert(err.message);
     }

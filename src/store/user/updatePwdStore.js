@@ -5,7 +5,7 @@ export const useUpdatePwdStore = create((set) => ({
   currentPassword: "",
   newPassword: "",
   newPasswordConfirm: "",
-  modalOpen: true,
+  modalOpen: false,
   stepVerified: false,
   error: {
     current: "",
@@ -25,4 +25,13 @@ export const useUpdatePwdStore = create((set) => ({
 
   setModal: (v) => set({ modalOpen: v }),
   setVerified: (v) => set({ stepVerified: v }),
+  resetAll: () =>
+    set({
+      currentPassword: "",
+      newPassword: "",
+      newPasswordConfirm: "",
+      modalOpen: false,
+      stepVerified: false,
+      error: { current: "", rule: "", confirm: "" },
+    }),
 }));

@@ -42,9 +42,9 @@ export default function ResetPwdPage() {
               id="resetGuide"
               className="text-gray-700 text-center leading-relaxed"
             >
-              PASS 버튼을 눌러 본인 인증을 먼저 진행해 주세요.
+              PASS 버튼을 눌러 본인 인증을 진행해 주세요.
               <br />
-              인증이 완료되면 새 비밀번호를 입력할 수 있습니다.
+              인증이 끝나면 새 비밀번호를 입력하실 수 있습니다.
             </p>
 
             <div className="flex justify-center">
@@ -64,7 +64,7 @@ export default function ResetPwdPage() {
                 id="resetNewPassword"
                 type="password"
                 className="w-full border rounded-lg p-3 mt-1"
-                placeholder="8~20자 / 영문+숫자 또는 특수문자 조합"
+                placeholder="8~20자 / 영문·숫자·특수문자 조합"
               />
             </div>
 
@@ -74,7 +74,7 @@ export default function ResetPwdPage() {
                 id="resetNewPasswordCheck"
                 type="password"
                 className="w-full border rounded-lg p-3 mt-1"
-                placeholder="다시 입력해주세요."
+                placeholder="다시 한 번 입력해주세요."
               />
             </div>
 
@@ -88,7 +88,7 @@ export default function ResetPwdPage() {
         </div>
 
         <p className="text-xs text-gray-400 text-center">
-          휴대폰 명의자와 회원 정보가 다를 경우 비밀번호 재설정이 제한될 수 있습니다.
+          휴대폰 명의가 다른 경우 비밀번호 재설정이 제한될 수 있습니다.
         </p>
       </div>
     </div>

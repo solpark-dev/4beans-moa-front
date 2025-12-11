@@ -21,8 +21,9 @@ export const useAdminLoginHistory = (userId, initialSize = 10) => {
     try {
       setLoading(true);
 
+      const encodedId = encodeURIComponent(userId);
       const res = await httpClient.get(
-        `/admin/users/${userId}/login-history`,
+        `/admin/users/${encodedId}/login-history`,
         {
           params: { page: targetPage, size },
         }

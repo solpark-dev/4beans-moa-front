@@ -41,12 +41,13 @@ export const useAddBlacklistLogic = () => {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     if (!userId) {
-      alert("회원 아이디(이메일)를 입력하세요.");
+      alert("회원 아이디를 입력해주세요.");
       return;
     }
     if (!reasonType) {
-      alert("사유 구분을 선택하세요.");
+      alert("사유 구분을 선택해주세요.");
       return;
     }
 
@@ -64,7 +65,7 @@ export const useAddBlacklistLogic = () => {
         throw new Error(body.error?.message || "블랙리스트 등록에 실패했습니다.");
       }
 
-      alert("블랙리스트가 등록되었습니다.");
+      alert("블랙리스트에 등록되었습니다.");
       navigate(`/admin/users/${encodeURIComponent(userId)}`);
       reset();
     } catch (e) {
