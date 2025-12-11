@@ -15,24 +15,49 @@ export const useUpdatePwdLogic = () => {
     setModal,
     setVerified,
     resetAll,
+    clearErrors,
   } = useUpdatePwdStore();
 
   const [loading, setLoading] = useState(false);
 
-  const clearErrors = useCallback(() => {
-    setError("current", "");
-    setError("rule", "");
-    setError("confirm", "");
-  }, [setError]);
-
   const handleChange = useCallback(
     (key, value) => {
       setField(key, value);
-      if (key === "currentPassword") setError("current", "");
-      if (key === "newPassword") setError("rule", "");
-      if (key === "newPasswordConfirm") setError("confirm", "");
+
+      if (key === "currentPassword") {
+        setError("current", "");
+        return;
+      }
+
+      if (key === "newPassword") {
+        const nextPassword = value;
+        if (nextPassword && !PASSWORD_RULE.test(nextPassword)) {
+          setError(
+            "rule",
+            "영문, 숫자, 특수문자를 포함한 8~20자를 입력해주세요."
+          );
+        } else {
+          setError("rule", "");
+        }
+
+        if (newPasswordConfirm && nextPassword !== newPasswordConfirm) {
+          setError("confirm", "비밀번호가 서로 일치하지 않습니다.");
+        } else {
+          setError("confirm", "");
+        }
+        return;
+      }
+
+      if (key === "newPasswordConfirm") {
+        const nextConfirm = value;
+        if (newPassword && nextConfirm && newPassword !== nextConfirm) {
+          setError("confirm", "비밀번호가 서로 일치하지 않습니다.");
+        } else {
+          setError("confirm", "");
+        }
+      }
     },
-    [setError, setField]
+    [newPassword, newPasswordConfirm, setError, setField]
   );
 
   const validateCurrent = useCallback(() => {
@@ -51,7 +76,10 @@ export const useUpdatePwdLogic = () => {
       setError("rule", "새 비밀번호를 입력해주세요.");
       valid = false;
     } else if (!PASSWORD_RULE.test(newPassword)) {
-      setError("rule", "영문, 숫자, 특수문자를 포함해 8~20자로 입력해주세요.");
+      setError(
+        "rule",
+        "영문, 숫자, 특수문자를 포함한 8~20자를 입력해주세요."
+      );
       valid = false;
     } else {
       setError("rule", "");
@@ -71,11 +99,12 @@ export const useUpdatePwdLogic = () => {
   }, [newPassword, newPasswordConfirm, setError]);
 
   const verify = useCallback(() => {
+    clearErrors();
     if (!validateCurrent()) return false;
     setVerified(true);
     setModal(false);
     return true;
-  }, [setModal, setVerified, validateCurrent]);
+  }, [clearErrors, setModal, setVerified, validateCurrent]);
 
   const update = useCallback(async () => {
     clearErrors();
@@ -98,7 +127,10 @@ export const useUpdatePwdLogic = () => {
       });
 
       if (!res?.success) {
-        alert(res?.error?.message || "비밀번호 변경에 실패했습니다.");
+        const message =
+          res?.error?.message || "비밀번호 변경에 실패했습니다.";
+        setError("current", message);
+        alert(message);
         return false;
       }
 
@@ -108,10 +140,11 @@ export const useUpdatePwdLogic = () => {
       return true;
     } catch (err) {
       console.error(err);
-      alert(
+      const message =
         err?.response?.data?.error?.message ||
-          "비밀번호 변경 중 오류가 발생했습니다."
-      );
+        "비밀번호 변경 처리 중 오류가 발생했습니다.";
+      setError("current", message);
+      alert(message);
       return false;
     } finally {
       setLoading(false);
@@ -122,6 +155,7 @@ export const useUpdatePwdLogic = () => {
     newPassword,
     newPasswordConfirm,
     resetAll,
+    setError,
     setModal,
     stepVerified,
     validateCurrent,

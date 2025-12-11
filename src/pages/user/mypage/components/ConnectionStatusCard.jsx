@@ -2,7 +2,7 @@ import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { InfoCard } from "./InfoCard";
-import { SocialButton } from "./SocialButton";
+import { SocialButton } from "@/pages/user/shared/SocialButton";
 import { OtpSection } from "./OtpSection";
 
 export function ConnectionStatusCard({
@@ -18,13 +18,13 @@ export function ConnectionStatusCard({
   return (
     <InfoCard title="CONNECTION STATUS" icon={<Zap className="w-4 h-4" />}>
       <div className="flex justify-between items-center py-1.5">
-        <span className="text-sm font-medium text-slate-500">휴대폰</span>
+        <span className="text-sm font-medium text-slate-500">?��???</span>
         <span className="text-sm font-semibold text-slate-900">
           {user.phone}
         </span>
       </div>
       <div className="flex justify-between items-center py-1.5">
-        <span className="text-sm font-medium text-slate-500">로그인 방식</span>
+        <span className="text-sm font-medium text-slate-500">로그??방식</span>
         <span className="text-sm font-semibold uppercase text-indigo-700">
           {loginProvider}
         </span>

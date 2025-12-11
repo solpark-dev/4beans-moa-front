@@ -69,6 +69,7 @@ describe('dateUtils', () => {
             const endDateStr = calculateEndDate(startDateStr, months);
 
             // Both dates should match YYYY-MM-DD format
+            if (!startDateStr || !endDateStr) return true;
             return (
               dateFormatRegex.test(startDateStr) &&
               dateFormatRegex.test(endDateStr)

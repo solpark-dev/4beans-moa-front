@@ -183,6 +183,10 @@ export const useLoginPageLogic = () => {
       }
 
       applyRememberEmail(localStorage, trimmedEmail, remember);
+      purgeLoginPasswordKeys(localStorage, sessionStorage);
+      setField("password", "");
+      setField("otpCode", "");
+      resetOtp();
       localStorage.setItem("remember", remember ? "true" : "false");
       navigate("/", { replace: true });
     } catch (error) {
@@ -215,6 +219,7 @@ export const useLoginPageLogic = () => {
     handleUnlockByCertification,
     remember,
     loginLoading,
+    resetOtp,
   ]);
 
   const handleOtpChange = (value) => {
@@ -398,6 +403,7 @@ export const useLoginPageLogic = () => {
       setField("email", savedEmail);
       setField("remember", true);
     } else {
+      setField("email", "");
       setField("remember", false);
     }
     purgeLoginPasswordKeys(localStorage, sessionStorage);

@@ -28,6 +28,7 @@ export default function UpdatePwdPage() {
     error,
     setModal,
     resetAll,
+    openModal,
   } = useUpdatePwdStore();
 
   const { verify, update, handleChange, loading } = useUpdatePwdLogic();
@@ -35,16 +36,15 @@ export default function UpdatePwdPage() {
   const isUpdateDisabled =
     loading || !newPassword.trim() || !newPasswordConfirm.trim();
 
-  const closeModal = () => {
+  const closeAndExit = () => {
     resetAll();
     window.history.back();
   };
 
   useEffect(() => {
-    resetAll();
-    setModal(true);
+    openModal();
     return () => resetAll();
-  }, [resetAll, setModal]);
+  }, [openModal, resetAll]);
 
   useEffect(() => {
     const handleEnter = (e) => {
@@ -61,6 +61,20 @@ export default function UpdatePwdPage() {
     return () => window.removeEventListener("keydown", handleEnter);
   }, [stepVerified, update, verify]);
 
+  const handleDialogChange = (open) => {
+    if (open) {
+      openModal();
+      return;
+    }
+
+    if (stepVerified) {
+      setModal(false);
+      return;
+    }
+
+    closeAndExit();
+  };
+
   return (
     <div className="w-full min-h-screen bg-slate-50 text-slate-900">
       <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-20 px-4">
@@ -75,9 +89,8 @@ export default function UpdatePwdPage() {
               비밀번호 변경
             </h2>
             <p className="text-sm sm:text-base text-indigo-50/90 leading-relaxed max-w-md mx-auto lg:mx-0">
-              계정을 안전하게 사용하려면 현재 비밀번호 확인 후 새 비밀번호를
-              설정하세요. 단단한 비밀번호와 깔끔한 화면으로 변경 과정을
-              정돈했습니다.
+              안전하게 사용하려면 현재 비밀번호를 확인하고 새 비밀번호를 설정해 주세요.
+              잘못된 비밀번호를 입력하면 재인증이 필요할 수 있습니다.
             </p>
           </div>
 
@@ -102,9 +115,9 @@ export default function UpdatePwdPage() {
 
                 {!stepVerified && (
                   <div className="text-center py-6 text-sm text-slate-500">
-                    먼저 팝업에서 현재 비밀번호를 입력해 본인을 확인해 주세요.
+                    먼저 팝업에서 현재 비밀번호를 입력해 본인 인증을 해주세요.
                     <br className="hidden sm:block" />
-                    확인이 끝나면 새 비밀번호를 바로 설정할 수 있습니다.
+                    인증이 끝나면 새 비밀번호로 전환할 수 있습니다.
                   </div>
                 )}
 
@@ -121,7 +134,7 @@ export default function UpdatePwdPage() {
                           handleChange("newPassword", e.target.value)
                         }
                         className="mt-1 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
-                        placeholder="영문·숫자·특수문자 포함 8~20자"
+                        placeholder="영문·숫자·특수문자 포함 8~20자 입력"
                       />
                       {error.rule && (
                         <p className="text-red-500 text-xs mt-1">
@@ -165,7 +178,7 @@ export default function UpdatePwdPage() {
         </div>
       </section>
 
-      <Dialog open={modalOpen} onOpenChange={closeModal}>
+      <Dialog open={modalOpen} onOpenChange={handleDialogChange}>
         <DialogContent className="max-w-sm bg-white border border-slate-200 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-slate-900 flex items-center gap-2">
@@ -173,7 +186,7 @@ export default function UpdatePwdPage() {
               현재 비밀번호 확인
             </DialogTitle>
             <DialogDescription className="text-slate-600 text-sm">
-              본인 확인을 위해 현재 사용 중인 비밀번호를 입력해 주세요.
+              본인 인증을 위해 현재 사용 중인 비밀번호를 입력해주세요.
             </DialogDescription>
           </DialogHeader>
 
