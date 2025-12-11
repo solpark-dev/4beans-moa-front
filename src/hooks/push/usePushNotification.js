@@ -24,6 +24,10 @@ export const usePushNotification = () => {
     try {
       const response = await pushApi.getMyPushList(pageNum, 10);
       const newData = response.content || [];
+
+      console.log("알림 데이터:", newData);
+      console.log("sentAt 값들:", newData.map(n => n.sentAt));
+      
       setNotifications(prev => append ? [...prev, ...newData] : newData);
       setHasMore(newData.length === 10);
       setPage(pageNum);

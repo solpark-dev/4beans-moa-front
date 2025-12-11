@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, CalendarPlus, Sparkles, LayoutGrid, Bell, Users, Lightbulb } from 'lucide-react';
 import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
+import UpdateProductModal from '../../components/product/UpdateProductModal';
 
 const GetProduct = () => {
     const { id } = useParams();
@@ -11,25 +12,27 @@ const GetProduct = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const fetchProduct = async () => {
+        try {
+            setLoading(true);
+            const response = await httpClient.get(`/product/${id}`);
+            if (response.success) {
+                setProduct(response.data);
+            } else {
+                throw new Error(response.error?.message || "Failed to fetch product");
+            }
+        } catch (error) {
+            console.error("Failed to fetch product", error);
+            alert("상품 정보를 불러오는데 실패했습니다.");
+            navigate('/product');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                setLoading(true);
-                const response = await httpClient.get(`/product/${id}`);
-                if (response.success) {
-                    setProduct(response.data);
-                } else {
-                    throw new Error(response.error?.message || "Failed to fetch product");
-                }
-            } catch (error) {
-                console.error("Failed to fetch product", error);
-                alert("상품 정보를 불러오는데 실패했습니다.");
-                navigate('/product');
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchProduct();
     }, [id, navigate]);
 
@@ -177,7 +180,7 @@ const GetProduct = () => {
                         {user?.role === 'ADMIN' ? (
                             <>
                                 <button
-                                    onClick={() => navigate(`/product/${id}/edit`)}
+                                    onClick={() => setIsEditModalOpen(true)}
                                     className="flex-1 bg-white border border-stone-300 text-stone-700 py-3.5 rounded-xl font-bold hover:bg-stone-50 transition-colors"
                                 >
                                     수정하기
@@ -209,7 +212,18 @@ const GetProduct = () => {
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Update Product Modal */}
+            <UpdateProductModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                productId={id}
+                initialData={product}
+                onSuccess={() => {
+                    navigate('/product');
+                }}
+            />
+        </div >
     );
 };
 

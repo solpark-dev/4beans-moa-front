@@ -4,9 +4,11 @@ import { Search, Coffee, X, Calendar, CalendarPlus, Sparkles, LayoutGrid, Bell, 
 import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 import AddSubscriptionModal from '../../components/subscription/AddSubscriptionModal';
+import AddProductModal from '../../components/product/AddProductModal';
+import UpdateProductModal from '../../components/product/UpdateProductModal';
 
 // ProductDetailModal 컴포넌트
-const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe }) => {
+const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onEdit }) => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(''); // 종료일 (선택사항)
 
@@ -172,7 +174,7 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe }) =
               <button
                 onClick={() => {
                   onClose();
-                  navigate(`/product/${product.productId}/edit`);
+                  onEdit(product);
                 }}
                 className="flex-1 py-3.5 bg-white border border-stone-300 text-stone-700 rounded-2xl font-bold hover:bg-stone-50 transition-colors"
               >
@@ -228,33 +230,38 @@ const GetProductList = () => {
   // Modal State
   const [viewingProduct, setViewingProduct] = useState(null);
   const [subscribingData, setSubscribingData] = useState(null); // { productId, startDate, endDate }
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      const [productRes, categoryRes] = await Promise.all([
+        httpClient.get('/product'),
+        httpClient.get('/product/categorie')
+      ]);
+
+      if (productRes.success) {
+        setAllProducts(productRes.data || []);
+        // 필터링 상태가 유지되도록 여기서 setFilteredProducts를 직접하지 않고
+        // dependency useEffect가 처리하게 두거나, 여기서도 반영해야 함.
+        // 하지만 allProducts가 바뀌면 아래 useEffect([searchKeyword, selectedCategory, allProducts])가 돌아서 업데이트 됨.
+      }
+
+      if (categoryRes.success) {
+        setCategories(categoryRes.data || []);
+      }
+
+    } catch (error) {
+      console.error("Failed to fetch data", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch Initial Data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const [productRes, categoryRes] = await Promise.all([
-          httpClient.get('/product'),
-          httpClient.get('/product/categorie')
-        ]);
-
-        if (productRes.success) {
-          setAllProducts(productRes.data || []);
-          setFilteredProducts(productRes.data || []);
-        }
-
-        if (categoryRes.success) {
-          setCategories(categoryRes.data || []);
-        }
-
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
@@ -295,7 +302,7 @@ const GetProductList = () => {
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             구독 상품
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF4E5] text-[#B95000] animate-bounce shadow-sm ml-2">
-              <Coffee className="w-3 h-3" />
+              {/* <Coffee className="w-3 h-3" /> */}
               개인 구독 관리
             </span>
           </h1>
@@ -303,7 +310,7 @@ const GetProductList = () => {
         </div>
         {user?.role === 'ADMIN' && (
           <button
-            onClick={() => navigate('/product/add')}
+            onClick={() => setIsAddProductModalOpen(true)}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2"
           >
             <span>+</span> 상품 등록
@@ -420,7 +427,7 @@ const GetProductList = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/product/${product.productId}/edit`);
+                        setEditingProduct(product);
                       }}
                       className="bg-stone-900 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-stone-700 transition-colors"
                     >
@@ -453,6 +460,7 @@ const GetProductList = () => {
           user={user}
           navigate={navigate}
           onSubscribe={(data) => setSubscribingData(data)}
+          onEdit={(product) => setEditingProduct(product)}
         />
       )}
 
@@ -470,6 +478,26 @@ const GetProductList = () => {
           }}
         />
       )}
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={isAddProductModalOpen}
+        onClose={() => setIsAddProductModalOpen(false)}
+        onSuccess={() => {
+          fetchData(); // 목록 갱신
+        }}
+      />
+
+      {/* Update Product Modal */}
+      <UpdateProductModal
+        isOpen={!!editingProduct}
+        onClose={() => setEditingProduct(null)}
+        productId={editingProduct?.productId}
+        initialData={editingProduct}
+        onSuccess={() => {
+          fetchData(); // 목록 갱신
+        }}
+      />
     </div>
   );
 };

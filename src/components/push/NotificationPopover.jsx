@@ -127,7 +127,7 @@ export default function NotificationPopover({ children }) {
           </div>
         </div>
 
-        <ScrollArea className="max-h-[400px]">
+        <ScrollArea className="h-[400px]">
           {isLoading && notifications.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
@@ -139,53 +139,48 @@ export default function NotificationPopover({ children }) {
             </div>
           ) : (
             <div className="py-2">
-              {todayNotifications.length > 0 && (
-                <div className="px-4 py-2">
-                  <p className="text-xs font-semibold text-slate-500 mb-2">
-                    오늘 받은 알림
-                  </p>
-                  <Accordion
-                    type="single"
-                    collapsible
-                    value={expandedId?.toString()}
-                    onValueChange={(val) =>
-                      handleToggleExpand(val ? parseInt(val) : null)
-                    }
-                  >
+              <Accordion
+                type="single"
+                collapsible
+                value={expandedId?.toString()}
+                onValueChange={(val) =>
+                  handleToggleExpand(val ? parseInt(val) : null)
+                }
+              >
+                {todayNotifications.length > 0 && (
+                  <div className="px-4 py-2">
+                    <p className="text-xs font-semibold text-slate-500 mb-2">
+                      오늘 받은 알림
+                    </p>
                     {todayNotifications.map((notification) => (
                       <NotificationItem
                         key={notification.pushId}
                         notification={notification}
                         onDelete={handleDelete}
+                        onToggle={handleToggleExpand}
+                        isExpanded={expandedId === notification.pushId}
                       />
                     ))}
-                  </Accordion>
-                </div>
-              )}
+                  </div>
+                )}
 
-              {previousNotifications.length > 0 && (
-                <div className="px-4 py-2">
-                  <p className="text-xs font-semibold text-slate-500 mb-2">
-                    이전 알림
-                  </p>
-                  <Accordion
-                    type="single"
-                    collapsible
-                    value={expandedId?.toString()}
-                    onValueChange={(val) =>
-                      handleToggleExpand(val ? parseInt(val) : null)
-                    }
-                  >
+                {previousNotifications.length > 0 && (
+                  <div className="px-4 py-2">
+                    <p className="text-xs font-semibold text-slate-500 mb-2">
+                      이전 알림
+                    </p>
                     {previousNotifications.map((notification) => (
                       <NotificationItem
                         key={notification.pushId}
                         notification={notification}
                         onDelete={handleDelete}
+                        onToggle={handleToggleExpand}
+                        isExpanded={expandedId === notification.pushId}
                       />
                     ))}
-                  </Accordion>
-                </div>
-              )}
+                  </div>
+                )}
+              </Accordion>
 
               {hasMore && (
                 <div className="px-4 pb-3">
@@ -213,7 +208,7 @@ export default function NotificationPopover({ children }) {
   );
 }
 
-const NotificationItem = ({ notification, onDelete }) => {
+const NotificationItem = ({ notification, onDelete, onToggle, isExpanded }) => {
   const isUnread = notification.isRead === "N";
 
   return (
@@ -225,15 +220,18 @@ const NotificationItem = ({ notification, onDelete }) => {
           : "bg-white border-slate-100"
       }`}
     >
-      <AccordionTrigger className="px-3 py-2.5 hover:no-underline hover:bg-slate-50/50 [&[data-state=open]]:bg-slate-50/50">
-        <div className="flex items-start gap-3 w-full">
+      <div 
+        className="flex items-center w-full px-3 py-2.5 cursor-pointer group hover:bg-slate-50/50 transition-colors"
+        onClick={() => onToggle(notification.pushId)}
+      >
+        <div className="flex items-start gap-3 flex-1">
           <span className="text-lg flex-shrink-0">
             {getPushIcon(notification.pushCode)}
           </span>
-          <div className="flex-1 text-left min-w-0">
+          <div className="text-left">
             <div className="flex items-center gap-2">
               <p
-                className={`text-sm truncate ${
+                className={`text-sm ${
                   isUnread
                     ? "font-semibold text-slate-900"
                     : "font-medium text-slate-700"
@@ -249,16 +247,26 @@ const NotificationItem = ({ notification, onDelete }) => {
               {formatDate(notification.sentAt)}
             </p>
           </div>
+        </div>
+        <div className="flex items-center gap-1 ml-auto flex-shrink-0">
+          <ChevronDown 
+            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+              isExpanded ? "rotate-180" : ""
+            }`} 
+          />
           <Button
             variant="ghost"
             size="icon"
-            onClick={(e) => onDelete(notification.pushId, e)}
-            className="h-7 w-7 text-slate-400 hover:text-red-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(notification.pushId, e);
+            }}
+            className="h-7 w-7 text-slate-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
-      </AccordionTrigger>
+      </div>
       <AccordionContent className="px-3 pb-3 pt-0">
         <div className="pl-8 pr-2">
           <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">

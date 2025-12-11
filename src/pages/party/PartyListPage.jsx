@@ -1,23 +1,48 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePartyStore } from "../../store/party/partyStore";
 import { useAuthStore } from "../../store/authStore";
 import ServiceTypeFilter from "../../components/party/ServiceTypeFilter";
 import {
   Sparkles,
   Search,
-  ArrowRight,
-  ShieldCheck,
   Calendar,
   Clock,
-  Filter,
-  X
+  X,
+  ChevronDown
 } from "lucide-react";
+
+// Custom hook for scroll direction detection
+function useScrollDirection() {
+  const [scrollDirection, setScrollDirection] = useState("up");
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setScrollDirection("down");
+      } else if (currentScrollY < lastScrollY) {
+        setScrollDirection("up");
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  return scrollDirection;
+}
 
 export default function PartyListPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const observerTarget = useRef(null);
+  const scrollDirection = useScrollDirection();
 
   // Zustand Store
   const {
@@ -31,11 +56,12 @@ export default function PartyListPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState(""); // "" | "RECRUITING" | "ACTIVE"
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [startDate, setStartDate] = useState(""); // 날짜 필터 추가
+  const [sortBy, setSortBy] = useState("latest"); // latest, start_date_asc, popularity, price_low...
 
   const myPartyIds = Array.isArray(myParties) ? myParties.map(p => p.partyId) : [];
-  // 최초 로딩만 스피너 표시 (추가 로딩은 하단 스피너)
   const isInitialLoading = loadingParties && list.length === 0;
 
   // 검색어 디바운싱
@@ -48,15 +74,17 @@ export default function PartyListPage() {
 
   // 필터 변경 시 리스트 초기화 및 재검색
   useEffect(() => {
+    window.scrollTo(0, 0);
     const params = {
       keyword: debouncedQuery,
       partyStatus: selectedStatus || null,
-      productId: selectedProductId || null
+      productId: selectedProductId || null,
+      startDate: startDate || null,
+      sort: sortBy
     };
-    loadParties(params, true); // true = 초기화
-
+    loadParties(params, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, selectedStatus, selectedProductId]);
+  }, [debouncedQuery, selectedStatus, selectedProductId, startDate, sortBy]);
 
   // 내 파티 로드
   useEffect(() => {
@@ -73,11 +101,13 @@ export default function PartyListPage() {
       const params = {
         keyword: debouncedQuery,
         partyStatus: selectedStatus || null,
-        productId: selectedProductId || null
+        productId: selectedProductId || null,
+        startDate: startDate || null,
+        sort: sortBy
       };
-      loadParties(params, false); // false = 추가 로드
+      loadParties(params, false);
     }
-  }, [hasMore, loadingParties, debouncedQuery, selectedStatus, selectedProductId, loadParties]);
+  }, [hasMore, loadingParties, debouncedQuery, selectedStatus, selectedProductId, startDate, sortBy, loadParties]);
 
   useEffect(() => {
     const option = {
@@ -91,31 +121,38 @@ export default function PartyListPage() {
     return () => observer.disconnect();
   }, [handleObserver]);
 
+  const getStatusBadge = (party) => {
+    const { partyStatus, maxMembers, currentMembers } = party;
 
-  const getStatusBadge = (status) => {
+    // 🔥 1자리 남음 = 인기콘텐츠
+    const remainingSlots = (maxMembers || 0) - (currentMembers || 0);
+
+    if (partyStatus === 'RECRUITING' && remainingSlots === 1) {
+      return {
+        bg: "bg-orange-500 animate-pulse",
+        text: "🔥 인기콘텐츠",
+      };
+    }
+
     const badges = {
       RECRUITING: {
-        bg: "bg-indigo-50 text-indigo-700 border-indigo-100",
+        bg: "bg-blue-500",
         text: "모집중",
-        dot: "bg-indigo-500",
       },
       ACTIVE: {
-        bg: "bg-emerald-50 text-emerald-700 border-emerald-100",
-        text: "진행중",
-        dot: "bg-emerald-500",
+        bg: "bg-emerald-500",
+        text: "파티중",
       },
       PENDING_PAYMENT: {
-        bg: "bg-amber-50 text-amber-700 border-amber-100",
+        bg: "bg-amber-500",
         text: "결제대기",
-        dot: "bg-amber-500",
       },
       CLOSED: {
-        bg: "bg-slate-100 text-slate-500 border-slate-200",
-        text: "마감",
-        dot: "bg-slate-400",
+        bg: "bg-slate-400",
+        text: "파티종료",
       },
     };
-    return badges[status] || badges.RECRUITING;
+    return badges[partyStatus] || badges.RECRUITING;
   };
 
   const formatDate = (dateData) => {
@@ -124,74 +161,93 @@ export default function PartyListPage() {
     // 배열 형태 처리 [yyyy, MM, dd]
     if (Array.isArray(dateData)) {
       const [year, month, day] = dateData;
-      return `${year}년 ${month}월 ${day}일`;
+      return `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
     }
 
     // 문자열 형태 처리
-    return new Date(dateData).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    const date = new Date(dateData);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
+
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.25,
+        ease: [0.4, 0.0, 0.2, 1]
+      }
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      {/* Header Section */}
-      <div className="relative overflow-hidden border-b border-indigo-100 bg-white/60 backdrop-blur-xl transition-all duration-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div className="animate-fade-in-up">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase shadow-sm">
-                  파티 찾기
-                </span>
-                <span className="flex items-center gap-1 text-slate-500 text-xs font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
-                  안전한 매칭
-                </span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                나에게 맞는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 animate-gradient-x">파티</span>를 찾아보세요
-              </h1>
-              <p className="mt-4 text-lg text-slate-500 font-medium max-w-xl leading-relaxed">
-                검증된 파티에 참여하여 프리미엄 구독 서비스를 이용하세요.<br className="hidden md:block" />
-                월 구독료를 최대 75%까지 절약할 수 있습니다.
-              </p>
-            </div>
+    <div className="min-h-screen bg-white pb-20">
+      {/* Hero Section - Softer, Cleaner */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="text-center max-w-3xl mx-auto">
+            {/* Main Title */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+              함께 나누면
+              <br className="sm:hidden" />
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                {" "}더 저렴하게
+              </span>
+            </h1>
 
-            <div className="w-full md:w-auto flex flex-col items-end gap-3">
-              <button
-                onClick={() => navigate("/party/create")}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 px-6 py-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 hover:-translate-y-1 hover:shadow-indigo-500/30 active:scale-95"
-              >
-                <Sparkles className="w-4 h-4 text-white" />
-                파티 만들기
-              </button>
-            </div>
+            <p className="text-base md:text-lg text-slate-600 mb-8">
+              Netflix, Disney+, Wavve 등 프리미엄 OTT 서비스를 최대 75%까지 절약하세요
+            </p>
+
+            {/* CTA Button */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/party/create")}
+              className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-all"
+            >
+              <Sparkles className="w-4 h-4" />
+              파티 만들기
+            </motion.button>
           </div>
         </div>
-
-        {/* Decorative Background Elements */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-50/50 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none mix-blend-multiply opacity-70"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-50/50 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none mix-blend-multiply opacity-70"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-        {/* Search & Filter Bar */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-[2rem] p-4 shadow-xl shadow-slate-200/50 border border-white/50 flex flex-col gap-6 mb-12 ring-1 ring-slate-900/5">
-
-          {/* Top Row: Search & Status Filter */}
-          <div className="flex flex-col md:flex-row gap-4 items-center w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Search & Filter Bar - Hide on scroll down, show on scroll up */}
+        <motion.div
+          initial={{ y: 0 }}
+          animate={{ y: scrollDirection === "down" ? -120 : 0 }}
+          transition={{ duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }}
+          className="sticky top-4 z-30 my-6"
+        >
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
             {/* Search Input */}
-            <div className="relative w-full flex-[2]">
+            <div className="relative mb-4">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-slate-400" />
               </div>
               <input
                 type="text"
-                className="block w-full pl-11 pr-10 py-3.5 border border-slate-200 rounded-2xl bg-slate-50/50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium hover:bg-slate-50"
-                placeholder="파티 이름, 방장 닉네임 검색..."
+                className="block w-full pl-11 pr-10 py-3 border border-slate-200 rounded-lg bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                placeholder="파티 이름, 방장 닉네임 검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -205,182 +261,199 @@ export default function PartyListPage() {
               )}
             </div>
 
-            {/* Status Filter Tabs */}
-            <div className="flex p-1.5 bg-slate-100/80 rounded-2xl w-full md:w-auto flex-shrink-0">
-              {[
-                { value: "", label: "전체" },
-                { value: "RECRUITING", label: "모집중" },
-                { value: "ACTIVE", label: "진행중" },
-              ].map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => setSelectedStatus(filter.value)}
-                  className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${selectedStatus === filter.value
-                    ? "bg-white text-indigo-600 shadow-sm ring-1 ring-slate-900/5"
-                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
-                    }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
+            {/* Filters Row - Wrapped */}
+            <div className="flex flex-col gap-4 mt-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Status Filters */}
+                {[
+                  { value: "", label: "전체" },
+                  { value: "RECRUITING", label: "모집중" },
+                  { value: "ACTIVE", label: "파티중" },
+                  { value: "CLOSED", label: "파티종료" },
+                ].map((filter) => (
+                  <button
+                    key={filter.value}
+                    onClick={() => setSelectedStatus(filter.value)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${selectedStatus === filter.value
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* OTT Service Dropdown */}
+                <ServiceTypeFilter
+                  selectedProductId={selectedProductId}
+                  onSelect={setSelectedProductId}
+                />
+
+                {/* Date Picker */}
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="appearance-none bg-slate-100 border border-slate-200 text-slate-700 text-sm font-semibold rounded-lg pl-3 pr-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer min-w-[140px]"
+                  />
+                </div>
+              </div>
             </div>
           </div>
+        </motion.div>
 
-          {/* Bottom Row: Service Type Filter */}
-          <div className="w-full border-t border-slate-100 pt-4">
-            <div className="flex items-center gap-2 mb-3 px-1">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">서비스 필터</span>
-            </div>
-            <ServiceTypeFilter
-              selectedProductId={selectedProductId}
-              onSelect={setSelectedProductId}
-            />
+        {/* Sort Dropdown - Below Filter Bar */}
+        <div className="flex justify-end mb-6">
+          <div className="relative inline-block">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="appearance-none bg-white border border-slate-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-all shadow-sm"
+            >
+              <option value="latest">최신순</option>
+              <option value="start_date_asc">파티 시작 빠른순</option>
+              <option value="popularity">인기 콘텐츠</option>
+              <option value="price_low">가격 낮은순</option>
+              <option value="price_high">가격 높은순</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
         </div>
 
-        {/* Parties Grid */}
+        {/* Parties Grid - 3 columns max, vertical card layout with spacing */}
         {isInitialLoading ? (
-          // Skeleton Loading
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          // Shimmer Loading
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-[2rem] p-6 h-[300px] animate-pulse border border-slate-100 shadow-sm">
-                <div className="flex gap-4 mb-6">
-                  <div className="w-16 h-16 bg-slate-100 rounded-2xl"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-slate-100 rounded w-1/3"></div>
-                    <div className="h-4 bg-slate-100 rounded w-1/4"></div>
-                  </div>
+              <div key={i} className="w-full max-w-sm bg-white border border-slate-100 rounded-xl overflow-hidden animate-pulse min-h-[320px]">
+                <div className="w-full h-48 bg-slate-200" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-slate-200 rounded w-3/4" />
+                  <div className="h-3 bg-slate-200 rounded w-full" />
+                  <div className="h-5 bg-slate-200 rounded w-1/2" />
                 </div>
-                <div className="space-y-3 mb-6">
-                  <div className="h-6 bg-slate-100 rounded w-3/4"></div>
-                  <div className="h-4 bg-slate-100 rounded w-1/2"></div>
-                </div>
-                <div className="h-10 bg-slate-100 rounded-xl mt-auto"></div>
               </div>
             ))}
           </div>
         ) : list.length === 0 ? (
           // Empty State
-          <div className="text-center py-32 bg-white rounded-[2.5rem] border border-dashed border-slate-200 shadow-sm">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 ring-1 ring-slate-900/5 shadow-inner">
+          <div className="text-center py-16 bg-white rounded-xl">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-slate-400" />
             </div>
-            <p className="text-xl text-slate-900 font-bold mb-2">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
               조건에 맞는 파티가 없습니다
-            </p>
-            <p className="text-slate-500">
-              다른 검색어로 시도하거나 필터를 변경해보세요.
+            </h3>
+            <p className="text-slate-500 mb-4">
+              다른 검색어나 필터를 시도해보세요
             </p>
             <button
-              onClick={() => { setSearchQuery(""); setSelectedStatus(""); setSelectedProductId(null); }}
-              className="mt-6 text-indigo-600 font-bold hover:underline"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedStatus("");
+                setSelectedProductId(null);
+                setStartDate("");
+              }}
+              className="text-blue-600 font-semibold hover:underline"
             >
               필터 초기화
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center"
+          >
             {list.map((party) => {
-              const badge = getStatusBadge(party.partyStatus);
+              const badge = getStatusBadge(party);
               const isMyParty = myPartyIds.includes(party.partyId);
               const isLeader = user?.userId === party.partyLeaderId;
 
               return (
-                <div
+                <motion.div
                   key={party.partyId}
+                  variants={itemVariants}
+                  whileHover={{ y: -4, transition: { duration: 0.3 } }}
                   onClick={() => navigate(`/party/${party.partyId}`)}
-                  className="group relative bg-white rounded-[2rem] p-6 border border-slate-200 hover:border-indigo-300 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 cursor-pointer"
+                  className="w-full max-w-sm group relative bg-white border border-slate-100 rounded-xl overflow-hidden cursor-pointer hover:border-slate-200 hover:shadow-lg transition-all duration-300 flex flex-col min-h-[320px]"
                 >
-                  <div className="flex flex-col h-full">
-                    {/* Top: Image & Status */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 shadow-sm border border-slate-100 flex-shrink-0">
-                        {party.productImage ? (
-                          <img
-                            src={party.productImage}
-                            alt={party.productName}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100 text-xs font-bold">
-                            {party.productName?.[0]}
-                          </div>
-                        )}
+                  {/* OTT Image - Top (60% of card) */}
+                  <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 flex-shrink-0">
+                    {party.productImage ? (
+                      <img
+                        src={party.productImage}
+                        alt={party.productName}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-6xl font-bold text-slate-300">
+                          {party.productName?.[0]}
+                        </span>
                       </div>
+                    )}
 
-                      <div className="flex items-center gap-2">
-                        {/* My Status Badge */}
-                        {(isLeader || isMyParty) && (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full border ${isLeader
-                            ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                            : "bg-indigo-50 text-indigo-700 border-indigo-200"
-                            }`}>
-                            {isLeader ? "👑 파티장" : "✅ 참여중"}
-                          </span>
-                        )}
-
-                        <div className={`px-3 py-1 rounded-full border flex items-center gap-1.5 ${badge.bg}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}></div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider">{badge.text}</span>
-                        </div>
-                      </div>
+                    {/* Status Badge Overlay - Top Right */}
+                    <div className="absolute top-3 right-3">
+                      <span className={`${badge.bg} text-white px-2.5 py-1 rounded-md text-xs font-bold shadow-lg`}>
+                        {badge.text}
+                      </span>
                     </div>
 
-                    {/* Middle: Info */}
-                    <div className="flex-1 mb-6">
-                      <h3 className="text-xl font-bold mb-1 truncate text-slate-900 group-hover:text-indigo-600 transition-colors">
-                        {party.productName}
-                      </h3>
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">월 정기 구독</span>
-                        <span className="text-xs font-medium text-slate-400">방장: {party.leaderNickname}</span>
+                    {/* My Party Badge Overlay - Top Left */}
+                    {(isLeader || isMyParty) && (
+                      <div className="absolute top-3 left-3">
+                        <span className={`px-2.5 py-1 rounded-md text-xs font-bold shadow-lg ${isLeader
+                          ? "bg-amber-400 text-amber-900"
+                          : "bg-white text-blue-600"
+                          }`}>
+                          {isLeader ? "👑 파티장" : "✓ 참여중"}
+                        </span>
                       </div>
+                    )}
+                  </div>
 
-                      <div className="space-y-2.5">
-                        <div className="flex items-center justify-between text-sm group/date">
-                          <span className="text-slate-500 flex items-center gap-2 transition-colors group-hover/date:text-slate-600">
-                            <Calendar className="w-4 h-4 text-slate-400 group-hover/date:text-indigo-500" /> 시작
-                          </span>
-                          <span className="font-medium text-slate-700">{formatDate(party.startDate)}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm group/date">
-                          <span className="text-slate-500 flex items-center gap-2 transition-colors group-hover/date:text-slate-600">
-                            <Clock className="w-4 h-4 text-slate-400 group-hover/date:text-indigo-500" /> 종료
-                          </span>
-                          <span className="font-medium text-slate-700">{formatDate(party.endDate)}</span>
-                        </div>
-                      </div>
+                  {/* Content Below Image (40% of card) */}
+                  <div className="p-4 flex flex-col flex-grow">
+                    {/* Service Name */}
+                    <h3 className="text-base font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {party.productName}
+                    </h3>
+
+                    {/* Dates */}
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-auto">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{formatDate(party.startDate)}</span>
+                      <span>~</span>
+                      <span>{formatDate(party.endDate)}</span>
                     </div>
 
-                    {/* Bottom: Price & Action */}
-                    <div className="pt-5 border-t border-slate-100">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-slate-500 font-medium mb-0.5">월 분담금</p>
-                          <p className="text-lg font-black text-slate-900 tracking-tight">
-                            {party.monthlyFee?.toLocaleString()}원
-                          </p>
-                        </div>
-
-                        <button className="bg-slate-100 text-slate-600 rounded-xl p-3 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-indigo-500/20">
-                          <ArrowRight className="w-5 h-5" />
-                        </button>
-                      </div>
+                    {/* Price - Push to bottom */}
+                    <div className="flex items-baseline gap-1 mt-3 pt-3 border-t border-slate-100">
+                      <span className="text-sm text-slate-600 font-medium">월</span>
+                      <span className="text-xl font-bold text-slate-900">
+                        {party.monthlyFee?.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-slate-600 font-medium">원</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
 
         {/* Infinite Scroll Loader */}
         <div ref={observerTarget} className="h-20 flex items-center justify-center mt-8">
           {loadingParties && !isInitialLoading && (
-            <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-300 border-t-indigo-500"></div>
-              Loading more...
+            <div className="flex items-center gap-2 text-slate-500 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-slate-300 border-t-blue-600" />
+              로딩 중...
             </div>
           )}
         </div>

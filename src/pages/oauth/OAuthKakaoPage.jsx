@@ -7,15 +7,12 @@ import { fetchCurrentUser } from "@/api/authApi";
 export default function OAuthKakaoPage() {
   const [params] = useSearchParams();
   const code = params.get("code");
-
   const rawMode = params.get("state") || params.get("mode") || "login";
   const mode = rawMode === "connect" ? "connect" : "login";
-
-  const redirectUri = `${window.location.origin}${window.location.pathname}`;
+  const origin = window.location.origin;
 
   const navigate = useNavigate();
   const { setTokens, setUser, clearAuth } = useAuthStore();
-
   const didRunRef = useRef(false);
 
   useEffect(() => {
@@ -25,20 +22,13 @@ export default function OAuthKakaoPage() {
       return;
     }
 
-    if (didRunRef.current) {
-      return;
-    }
+    if (didRunRef.current) return;
     didRunRef.current = true;
 
     const run = async () => {
       try {
-        const paramsObj = { code, mode };
-        if (mode === "login") {
-          paramsObj.redirectUri = redirectUri;
-        }
-
         const res = await httpClient.get("/oauth/kakao/callback", {
-          params: paramsObj,
+          params: { code, mode, origin },
         });
 
         if (!res.success) {
@@ -160,7 +150,7 @@ export default function OAuthKakaoPage() {
     };
 
     run();
-  }, [code, mode, redirectUri, navigate, setTokens, setUser, clearAuth]);
+  }, [code, mode, navigate, setTokens, setUser, clearAuth]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">

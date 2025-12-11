@@ -35,8 +35,7 @@ import AddUserSocialPage from "@/pages/user/AddUserSocialPage";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
-import AddProduct from "./pages/product/AddProduct";
-import UpdateProduct from "./pages/product/UpdateProduct";
+
 import DeleteProduct from "./pages/product/DeleteProduct";
 
 import AddSubscription from "./pages/subscription/AddSubscription";
@@ -162,17 +161,7 @@ export default function App() {
           <Route path="/product" element={<GetProductList />} />
           <Route path="/product/:id" element={<GetProduct />} />
 
-          {/* Product (Admin) */}
-          <Route
-            path="/product/add"
-            element={<ProtectedRoute element={<AddProduct />} />}
-            // TODO: Add role check for ADMIN
-          />
-          <Route
-            path="/product/:id/edit"
-            element={<ProtectedRoute element={<UpdateProduct />} />}
-            // TODO: Add role check for ADMIN
-          />
+
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
