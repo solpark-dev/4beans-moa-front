@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { RadioGroup } from "@headlessui/react";
 import { usePartyStore } from "../../store/party/partyStore";
 import { useAuthStore } from "../../store/authStore";
 import { requestPayment } from "../../utils/paymentHandler";
 import { calculateEndDate, getTodayString } from "../../utils/dateUtils";
 import { updateOttAccount, fetchPartyDetail } from "../../hooks/party/partyService";
+import RippleButton from "../../components/party/RippleButton";
+import { useConfetti } from "../../components/party/SuccessConfetti";
 import {
   Check,
   Calendar,
@@ -41,6 +42,7 @@ export default function PartyCreatePage() {
   const [localLoading, setLocalLoading] = useState(false);
   const [isRestoring, setIsRestoring] = useState(!!searchParams.get("step"));
   const [errors, setErrors] = useState({});
+  const { triggerConfetti, ConfettiComponent } = useConfetti();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -182,8 +184,11 @@ export default function PartyCreatePage() {
 
     try {
       await updateOttAccount(createdPartyId, ottInfo);
-      alert("파티가 생성되었습니다!");
-      navigate(`/party/${createdPartyId}`);
+      triggerConfetti();
+      setTimeout(() => {
+        alert("파티가 생성되었습니다!");
+        navigate(`/party/${createdPartyId}`);
+      }, 500);
     } catch (error) {
       console.error(error);
       alert("계정 정보 저장에 실패했습니다.");
@@ -197,12 +202,6 @@ export default function PartyCreatePage() {
     { number: 4, label: "계정 정보", icon: Lock },
   ];
 
-  const durationOptions = [
-    { months: 1, label: "1개월", popular: false },
-    { months: 3, label: "3개월", popular: true },
-    { months: 6, label: "6개월", popular: false },
-    { months: 12, label: "12개월", popular: false },
-  ];
 
   if (isRestoring || authLoading) {
     return (
@@ -372,7 +371,7 @@ export default function PartyCreatePage() {
               </div>
 
               <div className="space-y-8 bg-white rounded-xl p-6 border border-slate-200">
-                {/* Max Members - Button Group */}
+                {/* Max Members - 2, 3, 4 Button Selection */}
                 <div id="maxMembers">
                   <label className="block text-sm font-bold text-slate-900 mb-4">
                     <span className="flex items-center gap-2">
@@ -381,43 +380,45 @@ export default function PartyCreatePage() {
                     </span>
                   </label>
 
-                  <RadioGroup value={maxMembers} onChange={setMaxMembers}>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {[2, 3, 4, selectedProduct.maxUserCount].filter((n, i, arr) => arr.indexOf(n) === i && n <= selectedProduct.maxUserCount).map((count) => (
-                        <RadioGroup.Option
+                  <div className="grid grid-cols-3 gap-3">
+                    {[2, 3, 4].map((count) => {
+                      const isSelected = maxMembers === count;
+                      const perPersonFee = Math.floor(selectedProduct.price / count);
+                      return (
+                        <button
                           key={count}
-                          value={count}
-                          className={({ checked }) =>
-                            `cursor-pointer rounded-xl p-4 border-2 transition-all ${
-                              checked
-                                ? "border-blue-600 bg-blue-50 shadow-md"
-                                : "border-slate-200 hover:border-blue-300 bg-white"
-                            }`
-                          }
+                          type="button"
+                          onClick={() => {
+                            setMaxMembers(count);
+                            setErrors({ ...errors, maxMembers: "" });
+                          }}
+                          className={`relative p-4 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-50 shadow-md"
+                              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50"
+                          }`}
                         >
-                          {({ checked }) => (
-                            <div className="text-center">
-                              <div className={`text-2xl font-bold mb-1 ${checked ? "text-blue-600" : "text-slate-900"}`}>
-                                {count}
-                              </div>
-                              <div className={`text-xs font-semibold ${checked ? "text-blue-600" : "text-slate-500"}`}>
-                                {count}명
-                              </div>
-                              {checked && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="mt-2 flex justify-center"
-                                >
-                                  <Check className="w-5 h-5 text-blue-600" />
-                                </motion.div>
-                              )}
+                          <div className="text-center">
+                            <div className={`text-2xl font-bold mb-1 ${isSelected ? "text-blue-600" : "text-slate-900"}`}>
+                              {count}명
                             </div>
+                            <div className={`text-sm ${isSelected ? "text-blue-500" : "text-slate-500"}`}>
+                              월 {perPersonFee.toLocaleString()}원
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+                            >
+                              <Check className="w-4 h-4 text-white" />
+                            </motion.div>
                           )}
-                        </RadioGroup.Option>
-                      ))}
-                    </div>
-                  </RadioGroup>
+                        </button>
+                      );
+                    })}
+                  </div>
 
                   {errors.maxMembers && (
                     <motion.div
@@ -429,11 +430,6 @@ export default function PartyCreatePage() {
                       <span>{errors.maxMembers}</span>
                     </motion.div>
                   )}
-
-                  <div className="mt-3 p-3 bg-slate-50 rounded-lg text-xs text-slate-600">
-                    <Info className="w-4 h-4 inline mr-1" />
-                    1인당 월 {Math.floor(selectedProduct.price / maxMembers).toLocaleString()}원
-                  </div>
                 </div>
 
                 {/* Start Date - Improved */}
@@ -479,63 +475,78 @@ export default function PartyCreatePage() {
                   )}
                 </div>
 
-                {/* Duration - Button Group */}
+                {/* Duration - Slider + Quick Select */}
                 <div id="months">
                   <label className="block text-sm font-bold text-slate-900 mb-4">
                     <span className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-pink-600" />
+                      <Calendar className="w-5 h-5 text-purple-600" />
                       이용 기간
                     </span>
                   </label>
 
-                  <RadioGroup value={dates.months} onChange={(value) => {
-                    const end = dates.startDate ? calculateEndDate(dates.startDate, value) : "";
-                    setDates({ ...dates, months: value, endDate: end });
-                    setErrors({ ...errors, months: "" });
-                  }}>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {durationOptions.map((option) => (
-                        <RadioGroup.Option
-                          key={option.months}
-                          value={option.months}
-                          className={({ checked }) =>
-                            `cursor-pointer rounded-xl p-4 border-2 transition-all relative ${
-                              checked
-                                ? "border-pink-600 bg-pink-50 shadow-md"
-                                : "border-slate-200 hover:border-pink-300 bg-white"
-                            }`
-                          }
-                        >
-                          {({ checked }) => (
-                            <>
-                              {option.popular && (
-                                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                  인기
-                                </div>
-                              )}
-                              <div className="text-center">
-                                <div className={`text-2xl font-bold mb-1 ${checked ? "text-pink-600" : "text-slate-900"}`}>
-                                  {option.months}
-                                </div>
-                                <div className={`text-xs font-semibold ${checked ? "text-pink-600" : "text-slate-500"}`}>
-                                  개월
-                                </div>
-                                {checked && (
-                                  <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    className="mt-2 flex justify-center"
-                                  >
-                                    <Check className="w-5 h-5 text-pink-600" />
-                                  </motion.div>
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </RadioGroup.Option>
-                      ))}
+                  {/* Current Selection Display */}
+                  <div className="text-center mb-6">
+                    <motion.div
+                      key={dates.months}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="inline-flex items-baseline gap-1"
+                    >
+                      <span className="text-5xl font-bold text-purple-600">{dates.months}</span>
+                      <span className="text-xl text-slate-500">개월</span>
+                    </motion.div>
+                  </div>
+
+                  {/* Slider */}
+                  <div className="px-2 mb-4">
+                    <input
+                      type="range"
+                      min={1}
+                      max={12}
+                      value={dates.months}
+                      onChange={(e) => {
+                        const newMonths = parseInt(e.target.value);
+                        const end = dates.startDate ? calculateEndDate(dates.startDate, newMonths) : "";
+                        setDates({ ...dates, months: newMonths, endDate: end });
+                        setErrors({ ...errors, months: "" });
+                      }}
+                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-purple-600
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6
+                        [&::-webkit-slider-thumb]:bg-purple-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
+                        [&::-webkit-slider-thumb]:hover:bg-purple-700 [&::-webkit-slider-thumb]:transition-all
+                        [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-purple-600
+                        [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-lg"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400 mt-1 px-1">
+                      <span>1개월</span>
+                      <span>6개월</span>
+                      <span>12개월</span>
                     </div>
-                  </RadioGroup>
+                  </div>
+
+                  {/* Quick Select Buttons */}
+                  <div className="flex gap-2 justify-center">
+                    {[3, 6, 12].map((month) => (
+                      <button
+                        key={month}
+                        type="button"
+                        onClick={() => {
+                          const end = dates.startDate ? calculateEndDate(dates.startDate, month) : "";
+                          setDates({ ...dates, months: month, endDate: end });
+                          setErrors({ ...errors, months: "" });
+                        }}
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                          dates.months === month
+                            ? "bg-purple-600 text-white shadow-md"
+                            : "bg-slate-100 text-slate-600 hover:bg-purple-50 hover:text-purple-600"
+                        }`}
+                      >
+                        {month === 3 && "3개월"}
+                        {month === 6 && "6개월"}
+                        {month === 12 && "1년"}
+                      </button>
+                    ))}
+                  </div>
 
                   {errors.months && (
                     <motion.div
@@ -548,10 +559,54 @@ export default function PartyCreatePage() {
                     </motion.div>
                   )}
 
-                  <div className="mt-3 p-3 bg-slate-50 rounded-lg text-xs text-slate-600">
-                    <Info className="w-4 h-4 inline mr-1" />
-                    총 {(selectedProduct.price * dates.months).toLocaleString()}원 (월 {selectedProduct.price.toLocaleString()}원 × {dates.months}개월)
-                  </div>
+                  {/* Savings Calculation */}
+                  {(() => {
+                    const monthlyPrice = selectedProduct.price;
+                    const perPersonFee = Math.floor(monthlyPrice / maxMembers);
+                    const monthlySavings = monthlyPrice - perPersonFee; // 파티장이 매월 절약하는 금액
+                    const totalSavings = monthlySavings * dates.months; // 총 절약 금액
+
+                    return (
+                      <motion.div
+                        key={`${maxMembers}-${dates.months}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200"
+                      >
+                        <div className="flex items-center gap-2 text-emerald-700 font-bold mb-3">
+                          <Sparkles className="w-5 h-5" />
+                          파티장 절약 혜택
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">원래 구독료</span>
+                            <span className="text-slate-900">월 {monthlyPrice.toLocaleString()}원</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">파티 공유 후</span>
+                            <span className="text-slate-900">월 {perPersonFee.toLocaleString()}원</span>
+                          </div>
+                          <div className="flex justify-between text-emerald-600 font-semibold">
+                            <span>매월 절약</span>
+                            <span>-{monthlySavings.toLocaleString()}원</span>
+                          </div>
+                          <div className="pt-2 mt-2 border-t border-emerald-200">
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-700 font-semibold">{dates.months}개월 총 절약</span>
+                              <motion.span
+                                key={totalSavings}
+                                initial={{ scale: 1.2 }}
+                                animate={{ scale: 1 }}
+                                className="text-xl font-bold text-emerald-600"
+                              >
+                                -{totalSavings.toLocaleString()}원
+                              </motion.span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })()}
                 </div>
 
                 {/* Result Preview */}
@@ -648,10 +703,10 @@ export default function PartyCreatePage() {
                 >
                   이전
                 </button>
-                <button
+                <RippleButton
                   onClick={handlePayment}
                   disabled={localLoading}
-                  className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg flex items-center gap-2 disabled:opacity-50 transition-all"
+                  className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-lg flex items-center gap-2 disabled:opacity-50 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {localLoading ? (
                     "처리중..."
@@ -661,7 +716,7 @@ export default function PartyCreatePage() {
                       결제하기
                     </>
                   )}
-                </button>
+                </RippleButton>
               </div>
             </motion.div>
           )}
@@ -714,17 +769,20 @@ export default function PartyCreatePage() {
                 </div>
               </div>
 
-              <button
+              <RippleButton
                 type="submit"
-                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-lg transition-all"
+                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-lg transition-all transform hover:scale-[1.01] active:scale-[0.99]"
               >
                 <Sparkles className="w-5 h-5 inline mr-2" />
                 파티 생성 완료
-              </button>
+              </RippleButton>
             </motion.form>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Confetti Effect */}
+      <ConfettiComponent />
     </div>
   );
 }

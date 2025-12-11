@@ -67,6 +67,70 @@ export default function LandingTestPage() {
                         Variant F<br />
                         <span className="text-sm font-normal text-gray-400">스트리밍 서비스 스타일 (OTT)</span>
                     </Link>
+
+                    <Link
+                        to="/landing/g"
+                        className="block w-full py-6 px-6 bg-slate-950 hover:bg-slate-900 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 font-bold rounded-lg shadow-md border border-cyan-500/30 transition duration-200"
+                    >
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">Variant G</span><br />
+                        <span className="text-sm font-normal text-slate-400">Aurora Glassmorphism (몽환적)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/h"
+                        className="block w-full py-6 px-6 bg-[#fafafa] hover:bg-white text-[#0a0a0a] font-black rounded-lg shadow-md border-2 border-[#0a0a0a] transition duration-200"
+                    >
+                        Variant H<br />
+                        <span className="text-sm font-normal text-gray-500">Editorial Magazine (고급 잡지)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/i"
+                        className="block w-full py-6 px-6 bg-[#0a0a0f] hover:bg-[#15151f] text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-400 font-black rounded-lg shadow-md border border-cyan-500/50 transition duration-200"
+                    >
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-400">Variant I</span><br />
+                        <span className="text-sm font-normal text-gray-400">Neon Cyberpunk (미래적)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/j"
+                        className="block w-full py-6 px-6 bg-[#faf8f5] hover:bg-white text-[#4a6741] font-bold rounded-lg shadow-md border-2 border-[#c5d9c0] transition duration-200"
+                    >
+                        Variant J<br />
+                        <span className="text-sm font-normal text-[#6b6b6b]">Organic Nature (자연 친화적)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/k"
+                        className="block w-full py-6 px-6 bg-[#0f0a08] hover:bg-[#1a0f0a] text-[#c9a962] font-serif font-light rounded-lg shadow-md border border-[#c9a962]/30 transition duration-200"
+                    >
+                        Variant K<br />
+                        <span className="text-sm font-normal text-[#a39890]">Cinematic Luxury (럭셔리)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/l"
+                        className="block w-full py-6 px-6 bg-white hover:bg-[#f8fafc] text-[#1a1a2e] font-bold rounded-lg shadow-md border border-[#a78bfa]/30 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-[#a78bfa] via-[#f9a8d4] to-[#6ee7b7] bg-clip-text text-transparent">Variant L</span><br />
+                        <span className="text-sm font-normal text-[#64748b]">Scroll Story (스토리텔링)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/m"
+                        className="block w-full py-6 px-6 bg-[#0a0a0f] hover:bg-[#12121a] text-white font-bold rounded-lg shadow-md border border-blue-500/30 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Variant M</span><br />
+                        <span className="text-sm font-normal text-gray-400">Bento Grid + 3D Spatial (공간감 그리드)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/n"
+                        className="block w-full py-6 px-6 bg-[#fffbf7] hover:bg-white text-slate-800 font-bold rounded-lg shadow-md border border-rose-200 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-rose-500 via-pink-500 to-violet-500 bg-clip-text text-transparent">Variant N</span><br />
+                        <span className="text-sm font-normal text-slate-400">Dreamy Pastel (밝고 몽환적)</span>
+                    </Link>
                 </div>
             </div>
         </div>

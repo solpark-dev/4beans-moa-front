@@ -43,6 +43,8 @@ export default function PartyListPage() {
   const { user } = useAuthStore();
   const observerTarget = useRef(null);
   const scrollDirection = useScrollDirection();
+  const isFirstRender = useRef(true);
+  const observerEnabled = useRef(false);
 
   // Zustand Store
   const {
@@ -64,6 +66,21 @@ export default function PartyListPage() {
   const myPartyIds = Array.isArray(myParties) ? myParties.map(p => p.partyId) : [];
   const isInitialLoading = loadingParties && list.length === 0;
 
+  // 페이지 마운트 시 스크롤 위치 초기화 및 Observer 지연 활성화
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    // Observer를 500ms 후에 활성화 (스크롤 위치 안정화 후)
+    const timer = setTimeout(() => {
+      observerEnabled.current = true;
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      observerEnabled.current = false;
+    };
+  }, []);
+
   // 검색어 디바운싱
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -74,7 +91,12 @@ export default function PartyListPage() {
 
   // 필터 변경 시 리스트 초기화 및 재검색
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // 첫 렌더링이 아닐 때만 스크롤 초기화
+    if (!isFirstRender.current) {
+      window.scrollTo(0, 0);
+    }
+    isFirstRender.current = false;
+
     const params = {
       keyword: debouncedQuery,
       partyStatus: selectedStatus || null,
@@ -97,7 +119,8 @@ export default function PartyListPage() {
   // 무한 스크롤 Observer
   const handleObserver = useCallback((entries) => {
     const target = entries[0];
-    if (target.isIntersecting && hasMore && !loadingParties) {
+    // Observer가 활성화되었고, 화면에 보이고, 더 로드할 데이터가 있고, 로딩 중이 아닐 때만 실행
+    if (observerEnabled.current && target.isIntersecting && hasMore && !loadingParties) {
       const params = {
         keyword: debouncedQuery,
         partyStatus: selectedStatus || null,
@@ -379,7 +402,15 @@ export default function PartyListPage() {
                   key={party.partyId}
                   variants={itemVariants}
                   whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                  onClick={() => navigate(`/party/${party.partyId}`)}
+                  onClick={() => {
+                    if (!user) {
+                      if (window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+                        navigate("/login");
+                      }
+                      return;
+                    }
+                    navigate(`/party/${party.partyId}`);
+                  }}
                   className="w-full max-w-sm group relative bg-white border border-slate-100 rounded-xl overflow-hidden cursor-pointer hover:border-slate-200 hover:shadow-lg transition-all duration-300 flex flex-col min-h-[320px]"
                 >
                   {/* OTT Image - Top (60% of card) */}
