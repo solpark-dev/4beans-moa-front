@@ -174,12 +174,8 @@ export const useLoginPageLogic = () => {
 
       const { accessToken, refreshToken, accessTokenExpiresIn } = data;
 
-      setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
-
-      const me = await httpClient.get("/users/me");
-
-      if (me?.success) {
-        useAuthStore.getState().setUser(me.data);
+      if (accessToken && refreshToken) {
+        setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
       }
 
       applyRememberEmail(localStorage, trimmedEmail, remember);
@@ -280,12 +276,8 @@ export const useLoginPageLogic = () => {
 
       const { accessToken, refreshToken, accessTokenExpiresIn } = res.data;
 
-      setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
-
-      const me = await httpClient.get("/users/me");
-
-      if (me?.success) {
-        useAuthStore.getState().setUser(me.data);
+      if (accessToken && refreshToken) {
+        setTokens({ accessToken, refreshToken, accessTokenExpiresIn });
       }
 
       resetOtp();
