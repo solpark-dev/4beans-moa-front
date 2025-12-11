@@ -7,26 +7,10 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { formatDate, getCategoryName } from '../../utils/communityUtils';
 
 const InquiryAnswerModalContent = ({ inquiry, onClose, onAnswerSubmit }) => {
     const [answerContent, setAnswerContent] = useState(inquiry?.answerContent || '');
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        const date = new Date(dateString);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    };
-
-    const getCategoryName = (codeId) => {
-        const categories = {
-            1: '회원',
-            2: '결제',
-            3: '기타'
-        };
-        return categories[codeId] || '기타';
-    };
 
     const handleSubmit = async () => {
         if (!answerContent.trim()) {
@@ -40,36 +24,36 @@ const InquiryAnswerModalContent = ({ inquiry, onClose, onAnswerSubmit }) => {
     return (
         <>
             <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-[#1e3a5f]">
                     {inquiry.answerContent ? '답변 수정' : '답변 작성'}
                 </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-600">
+                    <span className="px-2 py-1 text-xs font-medium rounded bg-[#1e3a5f]/10 text-[#1e3a5f]">
                         {getCategoryName(inquiry.communityCodeId)}
-                    </Badge>
+                    </span>
                     <span className="text-sm text-gray-500">
                         {formatDate(inquiry.createdAt)}
                     </span>
                 </div>
 
                 <div>
-                    <h3 className="font-semibold text-lg mb-2">{inquiry.title}</h3>
+                    <h3 className="font-bold text-lg text-[#1e3a5f] mb-1">{inquiry.title}</h3>
                     <p className="text-sm text-gray-500">작성자: {inquiry.userId}</p>
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">문의 내용</p>
-                    <p className="text-gray-700 whitespace-pre-wrap">
+                    <p className="text-sm font-medium text-gray-600 mb-2">문의 내용</p>
+                    <p className="text-[#1e3a5f] whitespace-pre-wrap">
                         {inquiry.content}
                     </p>
                 </div>
 
                 {inquiry.fileOriginal && (
                     <div>
-                        <p className="text-sm font-medium text-gray-700 mb-2">첨부 이미지</p>
+                        <p className="text-sm font-medium text-gray-600 mb-2">첨부 이미지</p>
                         <img 
                             src={`/api/community/inquiry/image/${inquiry.fileUuid}`} 
                             alt={inquiry.fileOriginal}
@@ -80,26 +64,30 @@ const InquiryAnswerModalContent = ({ inquiry, onClose, onAnswerSubmit }) => {
                 )}
 
                 <div className="border-t pt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[#1e3a5f] mb-2">
                         답변 작성
                     </label>
-                    <Textarea
+                    <textarea
                         value={answerContent}
                         onChange={(e) => setAnswerContent(e.target.value)}
                         placeholder="답변 내용을 입력하세요"
                         rows={8}
-                        className="w-full"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[#1e3a5f] focus:ring-1 focus:ring-[#1e3a5f] focus:outline-none text-[#1e3a5f] placeholder-gray-400 resize-none"
                     />
                 </div>
             </div>
 
             <DialogFooter>
-                <Button variant="outline" onClick={onClose}>
+                <Button 
+                    variant="outline" 
+                    onClick={onClose}
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
                     취소
                 </Button>
                 <Button 
                     onClick={handleSubmit}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#1e3a5f] hover:bg-[#152a45] text-white"
                 >
                     {inquiry.answerContent ? '수정' : '등록'}
                 </Button>

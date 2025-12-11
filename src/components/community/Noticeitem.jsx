@@ -1,33 +1,32 @@
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
 
-const NoticeItem = ({ notice, index, onClick }) => {
-    const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        const date = new Date(dateString);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    };
+const NoticeItem = ({ notice, index, formatDate, onClick }) => {
+    const noticeId = notice.communityId || notice.id;
+    const isImportant = notice.title.includes('[공지') || notice.title.includes('공지]');
 
     return (
-        <div
-            onClick={() => onClick(notice.communityId, index)}
-            className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors items-center"
+        <div 
+            onClick={onClick}
+            className="grid grid-cols-12 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
         >
             <div className="col-span-1 text-center">
-                <span className="font-bold text-blue-600 text-lg">{index}</span>
+                {isImportant ? (
+                    <span className="inline-block px-2 py-0.5 text-xs font-medium bg-[#e91e63] text-white rounded">
+                        공지
+                    </span>
+                ) : (
+                    <span className="text-sm text-gray-500">{index}</span>
+                )}
             </div>
-            <div className="col-span-2 text-center">
-                <Badge variant="secondary" className="bg-blue-50 text-blue-600 hover:bg-blue-100">
-                    {notice.categoryName}
-                </Badge>
+            <div className="col-span-7 px-4">
+                <span className="text-[#1e3a5f] hover:text-[#e91e63] transition-colors">
+                    {notice.title}
+                </span>
             </div>
-            <div className="col-span-6 font-medium text-gray-900 truncate">
-                {notice.title}
-            </div>
-            <div className="col-span-2 text-center text-gray-500 text-sm">
+            <div className="col-span-2 text-center text-sm text-gray-500">
                 {formatDate(notice.createdAt)}
             </div>
-            <div className="col-span-1 text-center text-gray-500 text-sm">
+            <div className="col-span-2 text-center text-sm text-gray-500">
                 {notice.viewCount || 0}
             </div>
         </div>

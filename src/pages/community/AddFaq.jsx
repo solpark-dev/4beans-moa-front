@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 const AddFaq = () => {
     const navigate = useNavigate();
@@ -25,7 +24,10 @@ const AddFaq = () => {
             <CommunityLayout>
                 <div className="text-center py-20">
                     <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
-                    <Button onClick={() => navigate('/community/faq')}>
+                    <Button 
+                        onClick={() => navigate('/community/faq')}
+                        className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
+                    >
                         목록으로 돌아가기
                     </Button>
                 </div>
@@ -71,7 +73,6 @@ const AddFaq = () => {
                 alert('등록에 실패했습니다.');
             }
         } catch (error) {
-            console.error('등록 실패:', error);
             alert('등록 중 오류가 발생했습니다.');
         }
     };
@@ -82,51 +83,64 @@ const AddFaq = () => {
 
     return (
         <CommunityLayout>
-            <div className="max-w-4xl mx-auto">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">FAQ 등록</h2>
+            <div className="max-w-2xl mx-auto pt-8">
+                <h2 className="text-2xl font-bold text-[#1e3a5f] text-center mb-10">
+                    FAQ 등록
+                </h2>
                 
-                <Card>
-                    <CardContent className="p-8 space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="title">질문 제목</Label>
-                            <Input
-                                id="title"
-                                name="title"
-                                type="text"
-                                placeholder="질문 제목을 입력하세요"
-                                value={formData.title}
-                                onChange={handleChange}
-                            />
-                        </div>
+                <div className="space-y-8">
+                    <div className="space-y-3">
+                        <Label 
+                            htmlFor="title"
+                            className="text-sm font-medium text-[#1e3a5f]"
+                        >
+                            질문 제목
+                        </Label>
+                        <Input
+                            id="title"
+                            name="title"
+                            type="text"
+                            placeholder="질문 제목을 입력하세요"
+                            value={formData.title}
+                            onChange={handleChange}
+                            className="border-0 border-b border-gray-300 rounded-none px-0 focus:border-[#1e3a5f] focus:ring-0"
+                        />
+                    </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="content">답변 내용</Label>
-                            <Textarea
-                                id="content"
-                                name="content"
-                                placeholder="답변 내용을 입력하세요"
-                                value={formData.content}
-                                onChange={handleChange}
-                                rows={10}
-                            />
-                        </div>
-                    </CardContent>
+                    <div className="space-y-3">
+                        <Label 
+                            htmlFor="content"
+                            className="text-sm font-medium text-[#1e3a5f]"
+                        >
+                            답변 내용
+                        </Label>
+                        <Textarea
+                            id="content"
+                            name="content"
+                            placeholder="답변 내용을 입력하세요"
+                            value={formData.content}
+                            onChange={handleChange}
+                            rows={10}
+                            className="border border-gray-300 rounded-lg focus:border-[#1e3a5f] focus:ring-0 resize-none"
+                        />
+                    </div>
 
-                    <CardFooter className="flex justify-end gap-3 px-8 py-6 bg-gray-50">
+                    <div className="flex justify-center gap-4 pt-6">
                         <Button
                             variant="outline"
                             onClick={handleCancel}
+                            className="w-32 border-gray-300 text-gray-600 hover:bg-gray-50"
                         >
                             취소
                         </Button>
                         <Button
                             onClick={handleSubmit}
-                            className="bg-blue-600 hover:bg-blue-700"
+                            className="w-32 bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
                         >
-                            FAQ 등록
+                            등록
                         </Button>
-                    </CardFooter>
-                </Card>
+                    </div>
+                </div>
             </div>
         </CommunityLayout>
     );

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
 
 const CommunityLayout = ({ children }) => {
@@ -9,6 +8,9 @@ const CommunityLayout = ({ children }) => {
     const { user } = useAuthStore();
 
     const isActiveTab = (path) => {
+        if (path === '/community/inquiry') {
+            return location.pathname.includes('/community/inquiry');
+        }
         return location.pathname.includes(path);
     };
 
@@ -27,35 +29,45 @@ const CommunityLayout = ({ children }) => {
     };
 
     const tabs = [
-        { name: 'FAQ', path: '/community/faq' },
-        { name: '공지사항', path: '/community/notice' },
-        { name: '문의하기', path: null, onClick: handleInquiryClick }
+        { name: 'FAQ', path: '/community/faq', onClick: null },
+        { name: '공지사항', path: '/community/notice', onClick: null },
+        { name: '1:1 문의', path: '/community/inquiry', onClick: handleInquiryClick }
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="bg-white border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">
+        <div className="min-h-screen bg-white">
+            <div className="border-b border-gray-200">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-8">
+                    <h1 className="text-4xl font-bold text-center text-[#1e3a5f] tracking-tight">
                         고객센터
                     </h1>
-                    
-                    <div className="flex justify-center gap-2">
-                        {tabs.map((tab) => (
-                            <Button
-                                key={tab.name}
-                                variant={isActiveTab(tab.path || '/community/inquiry') ? 'default' : 'ghost'}
-                                onClick={() => tab.onClick ? tab.onClick() : navigate(tab.path)}
-                                className={isActiveTab(tab.path || '/community/inquiry') ? 'bg-blue-600 hover:bg-blue-700' : ''}
-                            >
-                                {tab.name}
-                            </Button>
-                        ))}
-                    </div>
+                </div>
+                
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <nav className="flex justify-center gap-12">
+                        {tabs.map((tab) => {
+                            const isActive = isActiveTab(tab.path);
+                            return (
+                                <button
+                                    key={tab.name}
+                                    onClick={() => tab.onClick ? tab.onClick() : navigate(tab.path)}
+                                    className={`
+                                        pb-4 text-base font-medium transition-all duration-200
+                                        ${isActive 
+                                            ? 'text-[#e91e63] border-b-2 border-[#e91e63]' 
+                                            : 'text-[#1e3a5f] hover:text-[#e91e63]'
+                                        }
+                                    `}
+                                >
+                                    {tab.name}
+                                </button>
+                            );
+                        })}
+                    </nav>
                 </div>
             </div>
 
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {children}
             </div>
         </div>

@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import NoticeItem from '../../components/community/NoticeItem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Search } from 'lucide-react';
 import {
     Pagination,
     PaginationContent,
@@ -19,73 +19,57 @@ const ListNotice = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const [notices, setNotices] = useState([]);
+    const [filteredNotices, setFilteredNotices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const [searchType, setSearchType] = useState('title');
     const [searchKeyword, setSearchKeyword] = useState('');
-
-    const isAdmin = user?.role === 'ADMIN';
     const pageSize = 10;
 
+    const isAdmin = user?.role === 'ADMIN';
+
     useEffect(() => {
-        const loadNoticeList = async () => {
-            try {
-                const response = await fetch(`/api/community/notice?page=1&size=${pageSize}`);
-                
-                if (!response.ok) {
-                    console.error('API 응답 에러:', response.status);
-                    setNotices([]);
-                    return;
-                }
-                
-                const data = await response.json();
-                setNotices(data.content || []);
-                setCurrentPage(data.page || 1);
-                setTotalPages(data.totalPages || 0);
-            } catch (error) {
-                console.error('공지사항 목록 로드 실패:', error);
-                setNotices([]);
-            }
-        };
-        
         loadNoticeList();
     }, []);
 
-    const loadNoticeListByPage = async (page) => {
+    const loadNoticeList = async () => {
         try {
-            const response = await fetch(`/api/community/notice?page=${page}&size=${pageSize}`);
+            const response = await fetch(`/api/community/notice?page=1&size=100`);
             
             if (!response.ok) {
-                console.error('API 응답 에러:', response.status);
                 setNotices([]);
                 return;
             }
             
             const data = await response.json();
-            setNotices(data.content || []);
-            setCurrentPage(data.page || 1);
-            setTotalPages(data.totalPages || 0);
+            const sortedNotices = (data.content || []).sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            setNotices(sortedNotices);
+            setFilteredNotices(sortedNotices);
+            updatePagination(sortedNotices);
         } catch (error) {
-            console.error('공지사항 목록 로드 실패:', error);
             setNotices([]);
         }
     };
 
-    const handleSearch = async () => {
+    const updatePagination = (data) => {
+        setTotalPages(Math.ceil(data.length / pageSize));
+        setCurrentPage(1);
+    };
+
+    const handleSearch = () => {
         if (!searchKeyword.trim()) {
-            alert('검색어를 입력하세요');
+            setFilteredNotices(notices);
+            updatePagination(notices);
             return;
         }
 
-        try {
-            const response = await fetch(`/api/community/notice/search?keyword=${searchKeyword}&page=1&size=${pageSize}`);
-            const data = await response.json();
-            setNotices(data.content);
-            setCurrentPage(data.page);
-            setTotalPages(data.totalPages);
-        } catch (error) {
-            console.error('검색 실패:', error);
-        }
+        const filtered = notices.filter(notice =>
+            notice.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+            notice.content.toLowerCase().includes(searchKeyword.toLowerCase())
+        );
+        setFilteredNotices(filtered);
+        updatePagination(filtered);
     };
 
     const handleKeyPress = (e) => {
@@ -96,15 +80,14 @@ const ListNotice = () => {
 
     const handlePageChange = (page) => {
         if (page < 1 || page > totalPages) return;
-        loadNoticeListByPage(page);
+        setCurrentPage(page);
+        window.scrollTo(0, 0);
     };
 
-    const goToDetail = (communityId, displayIndex) => {
-        navigate(`/community/notice/${communityId}?index=${displayIndex}`);
-    };
-
-    const goToAdd = () => {
-        navigate('/community/notice/add');
+    const getCurrentPageData = () => {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        return filteredNotices.slice(startIndex, endIndex);
     };
 
     const renderPageNumbers = () => {
@@ -124,100 +107,118 @@ const ListNotice = () => {
         return pages;
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\. /g, '.').replace(/\.$/, '');
+    };
+
+    const getNoticeId = (notice) => {
+        return notice.communityId || notice.id;
+    };
+
+    const handleNoticeClick = (notice) => {
+        const id = getNoticeId(notice);
+        if (id) {
+            navigate(`/community/notice/${id}`);
+        }
+    };
+
     return (
         <CommunityLayout>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">공지사항</h2>
-
-            <Card className="mb-6">
-                <CardContent className="p-5">
-                    <div className="flex gap-3">
-                        <select
-                            value={searchType}
-                            onChange={(e) => setSearchType(e.target.value)}
-                            className="w-[140px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="title">제목</option>
-                            <option value="category">카테고리</option>
-                        </select>
+            <div className="pt-8">
+                <div className="flex items-center justify-end mb-6 pb-4 border-b border-gray-200">
+                    <div className="relative">
                         <Input
                             type="text"
-                            placeholder="검색어를 입력하세요"
+                            placeholder=""
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            className="flex-1"
+                            className="w-56 pr-10 border-0 border-b border-gray-300 rounded-none focus:border-[#1e3a5f] focus:ring-0 bg-transparent"
                         />
-                        <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
-                            검색
-                        </Button>
+                        <button 
+                            onClick={handleSearch}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1e3a5f]"
+                        >
+                            <Search className="w-5 h-5" />
+                        </button>
                     </div>
-                </CardContent>
-            </Card>
-
-            <div className="flex justify-between items-center mb-6">
-                <div></div>
-                {isAdmin && (
-                    <Button onClick={goToAdd} className="bg-blue-600 hover:bg-blue-700">
-                        공지 등록
-                    </Button>
-                )}
+                </div>
             </div>
 
-            <Card>
-                <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-700 text-sm">
+            <div className="border-t border-gray-300">
+                <div className="grid grid-cols-12 py-3 border-b border-gray-200 text-sm font-medium text-gray-500">
                     <div className="col-span-1 text-center">번호</div>
-                    <div className="col-span-2 text-center">카테고리</div>
-                    <div className="col-span-6">제목</div>
-                    <div className="col-span-2 text-center">작성일</div>
-                    <div className="col-span-1 text-center">조회수</div>
+                    <div className="col-span-7 text-center">제목</div>
+                    <div className="col-span-2 text-center">등록일</div>
+                    <div className="col-span-2 text-center">조회수</div>
                 </div>
 
-                {notices.length === 0 ? (
-                    <div className="py-20 text-center text-gray-500">
+                {getCurrentPageData().length === 0 ? (
+                    <div className="py-16 text-center text-gray-400">
                         등록된 공지사항이 없습니다.
                     </div>
                 ) : (
-                    notices.map((notice, index) => (
+                    getCurrentPageData().map((notice, index) => (
                         <NoticeItem
-                            key={notice.communityId}
+                            key={getNoticeId(notice)}
                             notice={notice}
-                            index={(currentPage - 1) * pageSize + index + 1}
-                            onClick={goToDetail}
+                            index={filteredNotices.length - ((currentPage - 1) * pageSize + index)}
+                            formatDate={formatDate}
+                            onClick={() => handleNoticeClick(notice)}
                         />
                     ))
                 )}
-            </Card>
+            </div>
 
-            {totalPages > 0 && (
-                <Pagination className="mt-8">
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            />
-                        </PaginationItem>
-
-                        {renderPageNumbers().map((pageNum) => (
-                            <PaginationItem key={pageNum}>
-                                <PaginationLink
-                                    onClick={() => handlePageChange(pageNum)}
-                                    isActive={currentPage === pageNum}
-                                >
-                                    {pageNum}
-                                </PaginationLink>
+            <div className="flex items-center justify-center mt-8 relative">
+                {totalPages > 1 && (
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="text-[#1e3a5f]"
+                                />
                             </PaginationItem>
-                        ))}
 
-                        <PaginationItem>
-                            <PaginationNext
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                            />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            )}
+                            {renderPageNumbers().map((pageNum) => (
+                                <PaginationItem key={pageNum}>
+                                    <PaginationLink
+                                        onClick={() => handlePageChange(pageNum)}
+                                        isActive={currentPage === pageNum}
+                                        className={currentPage === pageNum ? 'bg-[#1e3a5f] text-white' : 'text-[#1e3a5f]'}
+                                    >
+                                        {pageNum}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            ))}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="text-[#1e3a5f]"
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                )}
+
+                {isAdmin && (
+                    <Button 
+                        onClick={() => navigate('/community/notice/add')}
+                        className="absolute right-0 bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
+                    >
+                        등록
+                    </Button>
+                )}
+            </div>
         </CommunityLayout>
     );
 };
