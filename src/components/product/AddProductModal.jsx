@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, X } from 'lucide-react';
-import httpClient from '../../api/httpClient';
+import { createProduct } from '../../api/productApi';
+import { useDragAndDrop } from '../../hooks/common/useDragAndDrop';
+import { useProductForm } from '../../hooks/product/useProductForm';
+import { useProductImage } from '../../hooks/product/useProductImage';
 import {
     Dialog,
     DialogContent,
@@ -12,18 +15,24 @@ import {
 import { Button } from '@/components/ui/button';
 
 const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
-    const [categories, setCategories] = useState([]);
-    const [formData, setFormData] = useState({
-        productName: '',
-        price: '',
-        categoryId: '',
-        image: '',
-        productStatus: 'ACTIVE'
-    });
+    const {
+        formData,
+        setFormData,
+        handleChange,
+        categories,
+        resetForm: resetProductForm
+    } = useProductForm();
 
-    // 이미지 파일 관리 state
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
+    const {
+        selectedFile,
+        setSelectedFile,
+        previewUrl,
+        setPreviewUrl,
+        handleFileChange,
+        handleRemoveImage,
+        uploadImageIfSelected
+    } = useProductImage();
+
     const [loading, setLoading] = useState(false);
 
     // 커스텀 알림(모달) 관리 state
@@ -46,77 +55,19 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
     // 모달이 열릴 때마다 form 초기화 (선택 사항)
     useEffect(() => {
         if (isOpen) {
-            setFormData({
-                productName: '',
-                price: '',
-                categoryId: '',
-                image: '',
-                productStatus: 'ACTIVE'
-            });
+            resetProductForm();
             setSelectedFile(null);
             setPreviewUrl(null);
             setLoading(false);
         }
     }, [isOpen]);
 
-    useEffect(() => {
-        // 카테고리 목록 불러오기
-        const fetchCategories = async () => {
-            try {
-                const response = await httpClient.get('/product/categorie');
-                if (response.success) {
-                    setCategories(response.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch categories", error);
-            }
-        };
-        if (isOpen) {
-            fetchCategories();
-        }
-    }, [isOpen]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e) => {
-        if (selectedFile) {
-            e.preventDefault();
-            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
-            return;
-        }
-
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 10 * 1024 * 1024) {
-                showAlert("파일 사이즈는 10MB를 초과할 수 없습니다.");
-                e.target.value = '';
-                return;
-            }
-
-            setSelectedFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleInputClick = (e) => {
+    // input click handler wrapper
+    const onInputClick = (e) => {
         if (selectedFile) {
             e.preventDefault();
             showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
         }
-    };
-
-    const handleRemoveImage = () => {
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        const fileInput = document.getElementById('modal-image-upload');
-        if (fileInput) fileInput.value = '';
     };
 
     const handleSubmit = async (e) => {
@@ -126,21 +77,10 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
         setLoading(true);
 
         try {
-            let imageUrl = formData.image;
+            // 1. 이미지 업로드
+            const imageUrl = await uploadImageIfSelected(formData.image);
 
-            if (selectedFile) {
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', selectedFile);
-
-                const uploadResponse = await httpClient.post('/product/upload', uploadFormData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-
-                imageUrl = uploadResponse;
-            }
-
+            // 2. 상품 등록
             const productPayload = {
                 ...formData,
                 price: Number(formData.price),
@@ -148,15 +88,10 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
                 image: imageUrl
             };
 
-            const response = await httpClient.post('/product', productPayload);
+            const response = await createProduct(productPayload);
 
             if (response === undefined || response === '' || response?.success) {
-                // 성공 시
                 onSuccess?.();
-                // 알림 대신 바로 닫거나 상위에서 처리할 수도 있지만, 
-                // 기존 UX 유지 차원에서 알림 후 닫기
-                // 하지만 onSuccess가 리프레시 포함하므로, 여기서 알림 띄우고 닫는게 나음.
-                // 여기서는 onSuccess 호출하고 닫습니다. (알림은 생략하거나 필요시 추가)
                 onClose();
             } else {
                 showAlert(response?.error?.message || '상품 등록에 실패했습니다.', '오류');
@@ -170,95 +105,28 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
-    // 드래그 앤 드롭
-    const [isDragging, setIsDragging] = useState(false);
-    const dragCounter = useRef(0);
-    const hasFileRef = useRef(false);
-
-    useEffect(() => {
-        hasFileRef.current = !!selectedFile;
-    }, [selectedFile]);
-
-    const formatBytes = (bytes, decimals = 2) => {
-        if (!+bytes) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-    };
-
-    // 드래그 이벤트는 모달 내부 영역에 한정하는 것이 좋으나, 
-    // 전체 화면 드래그 UX를 유지하려면 window 이벤트 사용.
-    // 다만 다이얼로그 위에 다이얼로그가 뜨면 복잡해질 수 있음.
-    // 여기서는 DialogContent 내부 div에 ref를 걸거나 window 사용.
-    // 기존 UX 유지를 위해 window 사용하되, isOpen 일때만 동작하도록.
-
-    useEffect(() => {
+    // 드래그 앤 드롭 (Hook 사용)
+    const onFileDrop = (file) => {
         if (!isOpen) return;
 
-        const handleDragEnter = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current++;
-            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-                setIsDragging(true);
-            }
+        if (selectedFile || previewUrl) {
+            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
+            return;
+        }
+
+        setSelectedFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result);
         };
+        reader.readAsDataURL(file);
+    };
 
-        const handleDragLeave = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current--;
-            if (dragCounter.current === 0) {
-                setIsDragging(false);
-            }
-        };
-
-        const handleDragOver = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        };
-
-        const handleDrop = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsDragging(false);
-            dragCounter.current = 0;
-
-            if (hasFileRef.current) {
-                showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
-                return;
-            }
-
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                if (file.size > 10 * 1024 * 1024) {
-                    showAlert("파일 사이즈는 10MB를 초과할 수 없습니다.");
-                    return;
-                }
-
-                setSelectedFile(file);
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setPreviewUrl(reader.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        window.addEventListener('dragenter', handleDragEnter);
-        window.addEventListener('dragleave', handleDragLeave);
-        window.addEventListener('dragover', handleDragOver);
-        window.addEventListener('drop', handleDrop);
-
-        return () => {
-            window.removeEventListener('dragenter', handleDragEnter);
-            window.removeEventListener('dragleave', handleDragLeave);
-            window.removeEventListener('dragover', handleDragOver);
-            window.removeEventListener('drop', handleDrop);
-        };
-    }, [isOpen]);
+    const { isDragging } = useDragAndDrop({
+        onFileDrop,
+        onError: (msg) => isOpen && showAlert(msg), // isOpen일 때만 에러 표시
+        enabled: isOpen
+    });
 
 
     return (
@@ -349,8 +217,8 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
                                                 id="modal-image-upload"
                                                 type="file"
                                                 accept="image/*"
-                                                onChange={handleFileChange}
-                                                onClick={handleInputClick}
+                                                onChange={(e) => handleFileChange(e, showAlert)}
+                                                onClick={onInputClick}
                                                 className="hidden"
                                             />
                                             <label
@@ -381,13 +249,13 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
                                                 <div className="text-white">
                                                     <p className="font-bold truncate text-lg mb-1">{selectedFile?.name}</p>
                                                     <p className="text-stone-300 text-sm font-medium bg-white/20 inline-block px-2 py-1 rounded-lg backdrop-blur-sm">
-                                                        {selectedFile?.size && formatBytes(selectedFile.size)}
+                                                        {selectedFile?.size && (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB'}
                                                     </p>
                                                 </div>
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={handleRemoveImage}
+                                                onClick={() => handleRemoveImage('modal-image-upload')}
                                                 className="absolute top-4 right-4 p-2.5 bg-white/90 hover:bg-white text-stone-700 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
                                             >
                                                 <X className="w-5 h-5" />

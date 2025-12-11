@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, X } from 'lucide-react';
-import httpClient from '../../api/httpClient';
+import { updateProduct, getProduct } from '../../api/productApi';
+import { useDragAndDrop } from '../../hooks/common/useDragAndDrop';
+import { useProductForm } from '../../hooks/product/useProductForm';
+import { useProductImage } from '../../hooks/product/useProductImage';
 import {
     Dialog,
     DialogContent,
@@ -12,17 +15,23 @@ import {
 import { Button } from '@/components/ui/button';
 
 const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData }) => {
-    const [categories, setCategories] = useState([]);
-    const [formData, setFormData] = useState({
-        productName: '',
-        price: '',
-        categoryId: '',
-        image: '',
-        productStatus: 'ACTIVE'
-    });
+    const {
+        formData,
+        setFormData,
+        handleChange,
+        categories
+    } = useProductForm(initialData);
 
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
+    const {
+        selectedFile,
+        setSelectedFile,
+        previewUrl,
+        setPreviewUrl,
+        handleFileChange,
+        handleRemoveImage,
+        uploadImageIfSelected
+    } = useProductImage(initialData?.image);
+
     const [loading, setLoading] = useState(false);
 
     const [alertInfo, setAlertInfo] = useState({
@@ -46,18 +55,14 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
         if (isOpen && productId) {
             // 1. Initial Data로 즉시 렌더링
             if (initialData) {
-                setFormData({
-                    productName: initialData.productName || '',
-                    price: initialData.price || '',
-                    categoryId: initialData.categoryId || '',
-                    image: initialData.image || '',
-                    productStatus: initialData.productStatus || 'ACTIVE'
-                });
+                // useProductForm 내부에서 initialData 변경 감지하여 처리됨
+                // 단, 이미지 처리는 별도
                 if (initialData.image) {
-                    setPreviewUrl(initialData.image);
+                    // useProductImage 내부에서 처리되지만, 명시적으로 업데이트
+                    // (initialData가 prop으로 들어오면 hook 내부 useEffect가 동작)
                 }
             } else {
-                // initialData가 없을 때만 초기화 (깜빡임 방지)
+                // initialData가 없으면 초기화
                 setFormData({
                     productName: '',
                     price: '',
@@ -75,18 +80,10 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                     // 데이터가 없으면 로딩 표시
                     if (!initialData) setLoading(true);
 
-                    // Fetch Categories
-                    const catResponse = await httpClient.get('/product/categorie');
-                    if (catResponse.success) {
-                        setCategories(catResponse.data);
-                    }
-
                     // Fetch Product Data
-                    const prodResponse = await httpClient.get(`/product/${productId}`);
+                    const prodResponse = await getProduct(productId);
                     if (prodResponse.success) {
                         const product = prodResponse.data;
-                        // 폼 데이터 최신화 (사용자가 이미 입력을 시작했으면 덮어쓰지 않는게 좋지만, 
-                        // 여기서는 단순함을 위해 최신 데이터로 업데이트)
                         setFormData({
                             productName: product.productName,
                             price: product.price,
@@ -110,56 +107,12 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
         }
     }, [isOpen, productId, initialData]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e) => {
-        if (selectedFile) {
-            e.preventDefault();
-            showAlert("이미지가 이미 지정되어 있습니다. 새로운 이미지를 업로드하려면 'X' 버튼을 눌러 기존 이미지를 삭제해주세요.");
-            return;
-        }
-
-        if (!selectedFile && previewUrl && !formData.image.startsWith('blob:')) {
-            if (previewUrl) {
-                e.preventDefault();
-                showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
-                return;
-            }
-        }
-
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 10 * 1024 * 1024) {
-                showAlert("파일 사이즈는 10MB를 초과할 수 없습니다.");
-                e.target.value = '';
-                return;
-            }
-
-            setSelectedFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleInputClick = (e) => {
+    // input click handler wrapper
+    const onInputClick = (e) => {
         if (selectedFile || previewUrl) {
             e.preventDefault();
             showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
         }
-    };
-
-    const handleRemoveImage = () => {
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        setFormData(prev => ({ ...prev, image: '' }));
-        const fileInput = document.getElementById('update-modal-image-upload');
-        if (fileInput) fileInput.value = '';
     };
 
     const handleSubmit = async (e) => {
@@ -169,21 +122,10 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
         setLoading(true);
 
         try {
-            let imageUrl = formData.image;
+            // 1. 이미지 업로드 (변경된 경우)
+            const imageUrl = await uploadImageIfSelected(formData.image);
 
-            if (selectedFile) {
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', selectedFile);
-
-                const uploadResponse = await httpClient.post('/product/upload', uploadFormData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-
-                imageUrl = uploadResponse;
-            }
-
+            // 2. 상품 수정 요청
             const productPayload = {
                 ...formData,
                 productId: Number(productId),
@@ -192,7 +134,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                 image: imageUrl
             };
 
-            const response = await httpClient.put('/product', productPayload);
+            const response = await updateProduct(productPayload);
 
             if (response === undefined || response === '' || response?.success) {
                 onSuccess?.();
@@ -209,15 +151,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
         }
     };
 
-    // Drag and Drop
-    const [isDragging, setIsDragging] = useState(false);
-    const dragCounter = useRef(0);
-    const hasFileRef = useRef(false);
-
-    useEffect(() => {
-        hasFileRef.current = !!(selectedFile || previewUrl);
-    }, [selectedFile, previewUrl]);
-
+    // 유틸리티 함수
     const formatBytes = (bytes, decimals = 2) => {
         if (!+bytes) return '0 Bytes';
         const k = 1024;
@@ -227,71 +161,30 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
     };
 
-    useEffect(() => {
+    // Drag and Drop (Hook 사용)
+    const onFileDrop = (file) => {
         if (!isOpen) return;
 
-        const handleDragEnter = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current++;
-            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-                setIsDragging(true);
-            }
+        if (selectedFile || previewUrl) {
+            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
+            return;
+        }
+
+        setSelectedFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result);
         };
+        reader.readAsDataURL(file);
+    };
 
-        const handleDragLeave = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current--;
-            if (dragCounter.current === 0) {
-                setIsDragging(false);
-            }
-        };
+    const { isDragging } = useDragAndDrop({
+        onFileDrop,
+        onError: (msg) => isOpen && showAlert(msg),
+        enabled: isOpen
+    });
 
-        const handleDragOver = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        };
-
-        const handleDrop = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsDragging(false);
-            dragCounter.current = 0;
-
-            if (hasFileRef.current) {
-                showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
-                return;
-            }
-
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                if (file.size > 10 * 1024 * 1024) {
-                    showAlert("파일 사이즈는 10MB를 초과할 수 없습니다.");
-                    return;
-                }
-
-                setSelectedFile(file);
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setPreviewUrl(reader.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        window.addEventListener('dragenter', handleDragEnter);
-        window.addEventListener('dragleave', handleDragLeave);
-        window.addEventListener('dragover', handleDragOver);
-        window.addEventListener('drop', handleDrop);
-
-        return () => {
-            window.removeEventListener('dragenter', handleDragEnter);
-            window.removeEventListener('dragleave', handleDragLeave);
-            window.removeEventListener('dragover', handleDragOver);
-            window.removeEventListener('drop', handleDrop);
-        };
-    }, [isOpen]);
+    // 기존 hasFileRef 등의 로직은 hook 내부로 갈음됨 (하지만 '파일 있음' 체크는 onFileDrop에서 수행)
 
     return (
         <>
@@ -399,8 +292,8 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                                 id="update-modal-image-upload"
                                                 type="file"
                                                 accept="image/*"
-                                                onChange={handleFileChange}
-                                                onClick={handleInputClick}
+                                                onChange={(e) => handleFileChange(e, showAlert)}
+                                                onClick={onInputClick}
                                                 className="hidden"
                                             />
                                             <label
@@ -433,7 +326,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                                         <>
                                                             <p className="font-bold truncate text-lg mb-1">{selectedFile.name}</p>
                                                             <p className="text-stone-300 text-sm font-medium bg-white/20 inline-block px-2 py-1 rounded-lg backdrop-blur-sm">
-                                                                {formatBytes(selectedFile.size)}
+                                                                {selectedFile?.size && (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB'}
                                                             </p>
                                                         </>
                                                     ) : (
@@ -443,7 +336,11 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={handleRemoveImage}
+                                                onClick={() => {
+                                                    handleRemoveImage('update-modal-image-upload');
+                                                    // 이미지 제거 시 formData 업데이트도 필요 (훅에서 처리 안될 경우)
+                                                    setFormData(prev => ({ ...prev, image: '' }));
+                                                }}
                                                 className="absolute top-4 right-4 p-2.5 bg-white/90 hover:bg-white text-stone-700 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
                                             >
                                                 <X className="w-5 h-5" />

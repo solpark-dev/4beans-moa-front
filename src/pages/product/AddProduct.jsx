@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X, ImageIcon } from 'lucide-react';
-import httpClient from '../../api/httpClient';
+import { createProduct } from '../../api/productApi';
+import { useDragAndDrop } from '../../hooks/common/useDragAndDrop';
+import { useProductForm } from '../../hooks/product/useProductForm';
+import { useProductImage } from '../../hooks/product/useProductImage';
 import {
     Dialog,
     DialogContent,
@@ -14,18 +17,23 @@ import { Button } from '@/components/ui/button';
 
 const AddProduct = () => {
     const navigate = useNavigate();
-    const [categories, setCategories] = useState([]);
-    const [formData, setFormData] = useState({
-        productName: '',
-        price: '',
-        categoryId: '',
-        image: '',
-        productStatus: 'ACTIVE'
-    });
 
-    // 이미지 파일 관리 state
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
+    const {
+        formData,
+        handleChange,
+        categories
+    } = useProductForm();
+
+    const {
+        selectedFile,
+        setSelectedFile,
+        previewUrl,
+        setPreviewUrl,
+        handleFileChange,
+        handleRemoveImage,
+        uploadImageIfSelected
+    } = useProductImage();
+
     const [loading, setLoading] = useState(false);
 
     // 커스텀 알림(모달) 관리 state
@@ -45,73 +53,12 @@ const AddProduct = () => {
         });
     };
 
-    useEffect(() => {
-        // 카테고리 목록 불러오기
-        const fetchCategories = async () => {
-            try {
-                const response = await httpClient.get('/product/categorie');
-                if (response.success) {
-                    setCategories(response.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch categories", error);
-            }
-        };
-        fetchCategories();
-    }, []);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e) => {
-        // 이미 파일이 있는데 선택창을 통해 또 선택했을 경우 체크
-        if (selectedFile) {
-            e.preventDefault();
-            // input value 초기화는 어렵지만, UX상 경고
-            // 주의: 여기서 preventDefault는 change 이벤트를 막지 못할 수 있음.
-            // 하지만 로직상 체크하여 selectedFile 업데이트를 안하면 됨.
-            // 다만, 브라우저 파일 인풋은 이미 파일이 바뀐 상태일 것임.
-            // 사용자 요구사항 "알림이 떠야해"를 충족하기 위해 confirm 후 교체 혹은 alert 후 차단.
-            // "1장만 업로드 가능하니까... 알림이 떠야해" -> 교체 허용 여부는 명시 안됨. 
-            // "파일이 지정된 이후에 또 파일을 올리려고 하면 알림이 떠야해" -> 막으라는 뉘앙스가 강함.
-            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
-            return;
-        }
-
-        const file = e.target.files[0];
-        if (file) {
-            // 용량 체크 (10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                showAlert("파일 사이즈는 10MB를 초과할 수 없습니다.");
-                e.target.value = ''; // input 초기화
-                return;
-            }
-
-            setSelectedFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // 파일 인풋 클릭 핸들러 추가
-    const handleInputClick = (e) => {
+    // input click handler wrapper
+    const onInputClick = (e) => {
         if (selectedFile) {
             e.preventDefault();
             showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
         }
-    };
-
-    const handleRemoveImage = () => {
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        // 파일 선택 input 초기화를 위해 id 사용 또는 ref 사용 가능하나 단순화
-        const fileInput = document.getElementById('image-upload');
-        if (fileInput) fileInput.value = '';
     };
 
     const handleSubmit = async (e) => {
@@ -121,25 +68,8 @@ const AddProduct = () => {
         setLoading(true);
 
         try {
-            let imageUrl = formData.image; // 기본적으로 입력된 URL이 있다면 사용 (하위 호환)
-
-            // 1. 이미지가 선택되었다면 업로드 수행
-            if (selectedFile) {
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', selectedFile);
-
-                // 이미지 업로드 API 호출
-                // 주의: 백엔드 Controller가 String 그대로 반환하므로 httpClient 기본 설정에 따라 response 자체가 URL일 수 있음
-                // 하지만 httpClient interceptor가 response.data를 반환하므로, String body가 반환됨
-                const uploadResponse = await httpClient.post('/product/upload', uploadFormData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-
-                // 업로드된 URL 사용
-                imageUrl = uploadResponse;
-            }
+            // 1. 이미지 업로드 (선택된 경우)
+            const imageUrl = await uploadImageIfSelected(formData.image);
 
             // 2. 상품 등록 요청
             const productPayload = {
@@ -149,11 +79,8 @@ const AddProduct = () => {
                 image: imageUrl
             };
 
-            const response = await httpClient.post('/product', productPayload);
+            const response = await createProduct(productPayload);
 
-            // 백엔드가 void를 반환하므로 response가 비어있거나 success 필드가 없을 수 있음
-            // 에러가 발생하지 않았다면 성공으로 간주
-            // 만약 ApiResponse로 래핑되어 있다면 response.success 확인
             if (response === undefined || response === '' || response?.success) {
                 showAlert('상품이 성공적으로 등록되었습니다.', '성공', () => navigate('/product'));
             } else {
@@ -168,90 +95,27 @@ const AddProduct = () => {
         }
     };
 
-    // 드래그 앤 드롭 핸들러 (Global)
-    const [isDragging, setIsDragging] = useState(false);
-    const dragCounter = React.useRef(0);
-    const hasFileRef = React.useRef(false);
+    // 드래그 앤 드롭 핸들러 (Hook 사용)
+    const onFileDrop = (file) => {
+        // 파일이 이미 있는지 확인
+        if (selectedFile || previewUrl) {
+            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
+            return;
+        }
 
-    useEffect(() => {
-        hasFileRef.current = !!selectedFile;
-    }, [selectedFile]);
-
-    const formatBytes = (bytes, decimals = 2) => {
-        if (!+bytes) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        setSelectedFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
     };
 
-    useEffect(() => {
-        const handleDragEnter = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current++;
-            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-                setIsDragging(true);
-            }
-        };
-
-        const handleDragLeave = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCounter.current--;
-            if (dragCounter.current === 0) {
-                setIsDragging(false);
-            }
-        };
-
-        const handleDragOver = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        };
-
-        const handleDrop = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsDragging(false);
-            dragCounter.current = 0;
-
-            // 파일이 이미 있는지 확인
-            if (hasFileRef.current) {
-                showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
-                return;
-            }
-
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                // 용량 체크 (10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    showAlert("파일 사이즈는 10MB를 초과할 수 없습니다.");
-                    return;
-                }
-
-                setSelectedFile(file);
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setPreviewUrl(reader.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        // Window 이벤트 등록
-        window.addEventListener('dragenter', handleDragEnter);
-        window.addEventListener('dragleave', handleDragLeave);
-        window.addEventListener('dragover', handleDragOver);
-        window.addEventListener('drop', handleDrop);
-
-        return () => {
-            window.removeEventListener('dragenter', handleDragEnter);
-            window.removeEventListener('dragleave', handleDragLeave);
-            window.removeEventListener('dragover', handleDragOver);
-            window.removeEventListener('drop', handleDrop);
-        };
-    }, []);
+    const { isDragging } = useDragAndDrop({
+        onFileDrop,
+        onError: (msg) => showAlert(msg),
+        enabled: true
+    });
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-2xl relative">
@@ -334,8 +198,8 @@ const AddProduct = () => {
                                     id="image-upload"
                                     type="file"
                                     accept="image/*"
-                                    onChange={handleFileChange}
-                                    onClick={handleInputClick}
+                                    onChange={(e) => handleFileChange(e, showAlert)}
+                                    onClick={onInputClick}
                                     className="hidden"
                                 />
                                 <label
@@ -366,13 +230,13 @@ const AddProduct = () => {
                                     <div className="text-white">
                                         <p className="font-bold truncate text-lg mb-1">{selectedFile?.name}</p>
                                         <p className="text-stone-300 text-sm font-medium bg-white/20 inline-block px-2 py-1 rounded-lg backdrop-blur-sm">
-                                            {selectedFile?.size && formatBytes(selectedFile.size)}
+                                            {selectedFile?.size && (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB'}
                                         </p>
                                     </div>
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={handleRemoveImage}
+                                    onClick={() => handleRemoveImage('image-upload')}
                                     className="absolute top-4 right-4 p-2.5 bg-white/90 hover:bg-white text-stone-700 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
                                 >
                                     <X className="w-5 h-5" />
