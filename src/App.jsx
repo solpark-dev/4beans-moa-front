@@ -12,6 +12,7 @@ import PartyListPage from "./pages/party/PartyListPage";
 import PartyCreatePage from "./pages/party/PartyCreatePage";
 import PartyDetailPage from "./pages/party/PartyDetailPage";
 import PartyListPageO from "./pages/party/PartyListPageO";
+import PartyListPageZO3 from "./pages/party/PartyListPageZO3";
 
 import AddUserPage from "./pages/user/register/AddUserPage";
 import LoginPage from "./pages/user/login/LoginPage";
@@ -24,7 +25,7 @@ import EmailVerifiedPage from "./pages/user/register/EmailVerifiedPage";
 import UpdateUserPage from "./pages/user/mypage/UpdateUserPage";
 import FinancialHistoryPage from "./pages/user/FinancialHistoryPage";
 import MyWalletPage from "./pages/user/MyWalletPage";
-import AccountRegisterPage from "./pages/user/register/AccountRegisterPage";
+import BankVerificationPage from "./pages/account/BankVerificationPage";
 import MyPartyListPage from "./pages/party/MyPartyListPage";
 import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 import AdminUserListPage from "@/pages/admin/AdminUserListPage";
@@ -131,6 +132,7 @@ export default function App() {
           <Route path="/party/create" element={<PartyCreatePage />} />
           <Route path="/party/:id" element={<PartyDetailPage />} />
           <Route path="/party-test/o" element={<PartyListPageO />} />
+          <Route path="/party-test/zo3" element={<PartyListPageZO3 />} />
 
           {/* ===== OAuth 콜백 MUST BE PUBLIC ===== */}
           <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
@@ -171,11 +173,15 @@ export default function App() {
           />
           <Route
             path="/user/account-register"
-            element={<ProtectedRoute element={<AccountRegisterPage />} />}
+            element={<ProtectedRoute element={<BankVerificationPage />} />}
           />
           <Route
             path="/user/account-verify"
-            element={<ProtectedRoute element={<AccountRegisterPage />} />}
+            element={<ProtectedRoute element={<BankVerificationPage />} />}
+          />
+          <Route
+            path="/account/verify"
+            element={<ProtectedRoute element={<BankVerificationPage />} />}
           />
           <Route
             path="/my-parties"
