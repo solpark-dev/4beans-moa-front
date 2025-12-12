@@ -233,6 +233,69 @@ export default function LandingTestPage() {
                         <span className="text-xs font-normal bg-white/20 px-2 py-0.5 rounded-full ml-2">NEW</span><br />
                         <span className="text-sm font-normal text-white/80">Framer Style (인터랙티브 플레이풀)</span>
                     </Link>
+
+                    {/* 신규 추가 랜딩 페이지 */}
+                    <div className="col-span-1 md:col-span-2 mt-6 pt-6 border-t border-gray-200">
+                        <p className="text-sm text-gray-500 mb-4 font-medium">신규 추가</p>
+                    </div>
+
+                    <Link
+                        to="/landing/hyundai"
+                        className="block w-full py-6 px-6 bg-black hover:bg-neutral-900 text-white font-bold rounded-lg shadow-md transition duration-200"
+                    >
+                        <span className="text-[#EA002C]">Hyundai Card</span>
+                        <span className="text-xs font-normal bg-[#EA002C] text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="text-sm font-normal text-gray-400">Premium Minimal Black (현대카드 스타일)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/o2"
+                        className="block w-full py-6 px-6 bg-[#FDFBF7] hover:bg-white text-stone-900 font-bold rounded-lg shadow-md border-2 border-stone-200 transition duration-200"
+                    >
+                        <span className="text-rose-400">Variant O2</span>
+                        <span className="text-xs font-normal bg-rose-400 text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="text-sm font-normal text-stone-400">Soft Brutalism (Variant O 톤다운)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/o3"
+                        className="block w-full py-6 px-6 bg-slate-50 hover:bg-white text-black font-black rounded-lg shadow-md border-4 border-black transition duration-200"
+                        style={{ boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)' }}
+                    >
+                        <span className="text-pink-500">Variant O3</span>
+                        <span className="text-xs font-normal bg-pink-500 text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="text-sm font-normal text-gray-500">Neo-Brutalist Pop Calm (팝 + 차분한 배경)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/memphis"
+                        className="block w-full py-6 px-6 bg-[#FFF5E6] hover:bg-white text-black font-black rounded-lg shadow-md border-4 border-black transition duration-200"
+                        style={{ boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)' }}
+                    >
+                        <span className="text-[#FF6B6B]">Memphis</span>
+                        <span className="text-xs font-normal bg-[#4ECDC4] text-black px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="text-sm font-normal text-gray-600">80s Memphis Design (복고 팝, 기하학)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/collage"
+                        className="block w-full py-6 px-6 bg-[#FDF6E3] hover:bg-white text-gray-800 font-bold rounded-lg shadow-md border-2 border-pink-300 transition duration-200"
+                    >
+                        <span className="text-pink-500">Collage</span>
+                        <span className="text-xs font-normal bg-pink-400 text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="text-sm font-normal text-gray-500">Scrapbook Style (다이어리, Y2K 감성)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/riso"
+                        className="block w-full py-6 px-6 bg-[#F5F0E6] hover:bg-white text-gray-800 font-bold rounded-lg shadow-md transition duration-200 relative overflow-hidden"
+                    >
+                        <div className="absolute inset-0 bg-[#0078BF] opacity-10 translate-x-1 translate-y-1" />
+                        <div className="absolute inset-0 bg-[#FF6B9D] opacity-10" />
+                        <span className="relative text-[#0078BF] font-black">Risograph</span>
+                        <span className="relative text-xs font-normal bg-[#FF6B9D] text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="relative text-sm font-normal text-gray-500">Print Style (오버프린트, 그레인 텍스처)</span>
+                    </Link>
                 </div>
             </div>
         </div>

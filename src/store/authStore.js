@@ -96,9 +96,15 @@ export const useAuthStore = create(
         }
       },
     }),
-    {
-      name: "auth-storage",
-      storage: createJSONStorage(() => localStorage),
-    }
+      {
+        name: "auth-storage",
+        storage: createJSONStorage(() => localStorage),
+        partialize: (state) => ({
+          user: state.user,
+          accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
+          accessTokenExpiresIn: state.accessTokenExpiresIn,
+        }),
+      }
   )
 );
