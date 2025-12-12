@@ -61,6 +61,12 @@ import LandingPageW from "./pages/landing/LandingPageW";
 import LandingPageX from "./pages/landing/LandingPageX";
 import LandingPageY from "./pages/landing/LandingPageY";
 import LandingPageZ from "./pages/landing/LandingPageZ";
+import LandingPageHyundai from "./pages/landing/LandingPageHyundai";
+import LandingPageO2 from "./pages/landing/LandingPageO2";
+import LandingPageO3 from "./pages/landing/LandingPageO3";
+import LandingPageMemphis from "./pages/landing/LandingPageMemphis";
+import LandingPageCollage from "./pages/landing/LandingPageCollage";
+import LandingPageRiso from "./pages/landing/LandingPageRiso";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -94,7 +100,7 @@ export default function App() {
   useGlobalLinkHandler();
   const { user } = useAuthStore();
 
-  // ?�스???�그 ?�???��? ?�인
+  // ?�스???�그 ?�???��? ?�인
   const showEasterEgg =
     user && (user.userId === "usertest1" || user.userId === "admintest");
 
@@ -106,7 +112,7 @@ export default function App() {
 
       <main className="flex-1 pt-20">
         <Routes>
-          {/* 메인/?�티 */}
+          {/* 메인/?�티 */}
           <Route path="/" element={<MainPage />} />
           <Route path="/party" element={<PartyListPage />} />
           <Route path="/party/create" element={<PartyCreatePage />} />
@@ -117,7 +123,7 @@ export default function App() {
           <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
           <Route path="/oauth/google" element={<OAuthGooglePage />} />
 
-          {/* User ?�메??(Public) */}
+          {/* User ?�메??(Public) */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<AddUserPage />} />
           <Route path="/find-email" element={<FindIdPage />} />
@@ -125,7 +131,7 @@ export default function App() {
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
           <Route path="/signup/social" element={<AddUserSocialPage />} />
 
-          {/* User ?�메??(Private - ProtectedRoute ?�용) */}
+          {/* User ?�메??(Private - ProtectedRoute ?�용) */}
           <Route
             path="/mypage"
             element={<ProtectedRoute element={<MyPage />} />}
@@ -163,7 +169,7 @@ export default function App() {
             element={<ProtectedRoute element={<MyPartyListPage />} />}
           />
 
-          {/* ??[?�정 2] 복잡??조건부 ?�더링을 ProtectedRoute�??�일 */}
+          {/* ??[?�정 2] 복잡??조건부 ?�더링을 ProtectedRoute�??�일 */}
           <Route
             path="/mypage/edit"
             element={<ProtectedRoute element={<UpdateUserPage />} />}
@@ -220,7 +226,7 @@ export default function App() {
             element={<ProtectedRoute element={<CancelSubscription />} />}
           />
 
-          {/* 고객?�터/커�??�티 & 기�? */}
+          {/* 고객?�터/커�??�티 & 기�? */}
           <Route path="/subscriptions" element={<GetProductList />} />
           <Route path="/my/subscriptions" element={<UserSubscriptionList />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
@@ -278,6 +284,12 @@ export default function App() {
           <Route path="/landing/x" element={<LandingPageX />} />
           <Route path="/landing/y" element={<LandingPageY />} />
           <Route path="/landing/z" element={<LandingPageZ />} />
+          <Route path="/landing/hyundai" element={<LandingPageHyundai />} />
+          <Route path="/landing/o2" element={<LandingPageO2 />} />
+          <Route path="/landing/o3" element={<LandingPageO3 />} />
+          <Route path="/landing/memphis" element={<LandingPageMemphis />} />
+          <Route path="/landing/collage" element={<LandingPageCollage />} />
+          <Route path="/landing/riso" element={<LandingPageRiso />} />
         </Routes>
       </main>
 
