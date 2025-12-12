@@ -1,7 +1,7 @@
 import React from 'react';
 
 const NoticeItem = ({ notice, index, formatDate, onClick }) => {
-    const noticeId = notice.communityId || notice.id;
+    const NoticeId = notice.communityId || notice.id;
     const isImportant = notice.title.includes('[공지') || notice.title.includes('공지]');
 
     return (

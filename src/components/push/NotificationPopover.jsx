@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell, Check, Trash2, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import usePushNotification from "@/hooks/push/usePushNotification";
+import AdminPushModal from "@/components/push/AdminPushModal";
+import { useAuthStore } from "@/store/authStore";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -43,11 +46,39 @@ const getPushIcon = (pushCode) => {
     DEPOSIT_REFUND: "💸",
     SETTLEMENT_MONTHLY: "📊",
     INQUIRY_ANSWER: "💬",
+    PAY_SUCCESS: "💳",
+    PAY_FAILED_RETRY: "⚠️",
+    PAY_FAILED_BALANCE: "💸",
+    PAY_FAILED_LIMIT: "📊",
+    PAY_FAILED_CARD: "💳",
+    PAY_FINAL_FAILED: "❌",
+    PAY_UPCOMING: "📅",
+    PAY_RETRY_SUCCESS: "✅",
+    PAY_MEMBER_FAILED_LEADER: "👤",
+    PAY_TIMEOUT: "⏰",
+    DEPOSIT_REFUNDED: "💰",
+    DEPOSIT_FORFEITED: "🚫",
+    REFUND_SUCCESS: "✅",
+    SETTLE_COMPLETED: "💵",
+    SETTLE_FAILED: "❌",
+    ACCOUNT_REQUIRED: "🏦",
+    VERIFY_REQUESTED: "🔢",
+    ACCOUNT_VERIFIED: "✅",
+    VERIFY_EXPIRED: "⏰",
+    VERIFY_EXCEEDED: "🚫",
+    PARTY_CLOSED: "🏁",
+    PARTY_MEMBER_JOIN: "👋",
+    PARTY_MEMBER_WITHDRAW: "👋",
   };
   return iconMap[pushCode] || "🔔";
 };
 
 export default function NotificationPopover({ children }) {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "ADMIN";
+  
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
   const {
     notifications,
     unreadCount,
@@ -75,6 +106,33 @@ export default function NotificationPopover({ children }) {
     return date.toDateString() !== today.toDateString();
   });
 
+  // 관리자일 경우: 큰 모달 띄우기
+  if (isAdmin) {
+    return (
+      <>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsAdminModalOpen(true)}
+          className="relative rounded-full w-11 h-11 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+        >
+          <Bell className="w-6 h-6" />
+          {unreadCount > 0 && (
+            <span className="absolute top-2 right-2 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-[10px] font-bold text-white px-1">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </Button>
+
+        <AdminPushModal
+          isOpen={isAdminModalOpen}
+          onClose={() => setIsAdminModalOpen(false)}
+        />
+      </>
+    );
+  }
+
+  // 일반 유저: 기존 팝오버
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
