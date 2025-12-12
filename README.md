@@ -170,14 +170,51 @@ flowchart LR
         B --> C{전원 성공?}
         C -->|Yes| D[파티장 정산금 계산]
         C -->|No| E[미납자 알림]
-        E --> F[3회 재시도]
-        F -->|실패| G[강제 탈퇴 처리]
-        D --> H[파티장 계좌 입금]
+        E --> F[4회 재시도]
+        F -->|4회 실패| G[파티 일시정지]
+        D --> H{계좌 등록됨?}
+        H -->|Yes| I[파티장 계좌 입금]
+        H -->|No| J[계좌 등록 요청]
     end
 
     subgraph Calculation["정산 계산"]
-        I[월 구독료] --> J[플랫폼 수수료 5%]
-        J --> K[파티장 수령액]
+        K[월 구독료] --> L[플랫폼 수수료 15%]
+        L --> M[파티장 수령액]
+    end
+```
+
+<br>
+
+---
+
+## 예외 처리 시스템
+
+```mermaid
+flowchart TB
+    subgraph UserDeletion["사용자 탈퇴 처리"]
+        A[사용자 탈퇴 요청] --> B{역할 확인}
+        B -->|파티장| C[파티 해산 처리]
+        C --> D[모집중: 파티 DISBANDED]
+        C --> E[이용중: 파티원 보증금 환불]
+        B -->|파티원| F[멤버십 해제]
+        F --> G[보증금 환불 처리]
+        G --> H[파티장에게 알림]
+    end
+
+    subgraph PaymentFailure["결제 실패 처리"]
+        I[월 구독료 결제] --> J{결제 성공?}
+        J -->|실패| K[재시도 스케줄링]
+        K --> L{재시도 횟수}
+        L -->|4회 미만| M[다음 날 재시도]
+        L -->|4회 실패| N[파티 SUSPENDED]
+        N --> O[전체 멤버 알림]
+    end
+
+    subgraph SettlementException["정산 예외 처리"]
+        P[정산 생성] --> Q{파티장 계좌?}
+        Q -->|미등록| R[PENDING_ACCOUNT]
+        R --> S[계좌 등록 요청 알림]
+        Q -->|등록됨| T[정산 진행]
     end
 ```
 
@@ -282,9 +319,10 @@ erDiagram
 | 기능 | 설명 |
 |------|------|
 | 빌링키 등록 | 토스페이먼츠 카드 자동결제 |
-| 월간 자동결제 | 매월 결제일 자동 청구 |
-| 결제 실패 처리 | 3회 재시도 → 알림 → 강제 탈퇴 |
-| 보증금 관리 | 가입 시 납부, 탈퇴 시 환불 |
+| 월간 자동결제 | 매월 결제일 자동 청구 (파티 상태 검증 포함) |
+| 결제 실패 처리 | 4회 재시도 → 파티 일시정지 (SUSPENDED) |
+| 보증금 관리 | 가입 시 납부, 탈퇴 시 환불/몰수 처리 |
+| 환불 에러 분류 | 재시도 가능/불가능 에러 자동 분류 |
 
 ### 4. 보안 기능
 | 기능 | 설명 |
@@ -424,10 +462,17 @@ erDiagram
 - 보증금 결제 및 환불 처리
 - 월간 자동결제 스케줄러
 - 파티장 정산 시스템
+- **예외 처리 시스템 (v2.0)**
+  - 사용자 탈퇴 이벤트 핸들러
+  - 결제 4회 실패 시 파티 SUSPENDED 처리
+  - 정산 계좌 미등록 시 PENDING_ACCOUNT 처리
+  - 환불 API 에러 분류 및 재시도 로직
 
 #### 기술적 챌린지
 - 동시 토큰 갱신 시 Promise Queue 패턴 적용
-- 결제 실패 시 재시도 로직 및 알림 처리
+- 결제 실패 시 재시도 로직 및 파티 일시정지 처리
+- Spring Event 기반 사용자 탈퇴 이벤트 처리
+- 토스페이먼츠 에러 코드별 재시도 가능 여부 분류
 
 ---
 
@@ -494,23 +539,70 @@ const processQueue = (error, token = null) => {
 
 ---
 
-### 2. 결제 실패 처리
+### 2. 결제 실패 처리 및 파티 일시정지
 
 **문제 상황**
 - 카드 한도 초과, 잔액 부족 등으로 월간 자동결제 실패
-- 실패한 결제에 대한 처리 로직 필요
+- 실패한 결제에 대한 체계적인 처리 로직 필요
+- 결제 전 파티 상태 검증 필요 (해산/일시정지 파티 결제 방지)
 
 **해결 방법**
 ```java
-@Scheduled(cron = "0 0 9 * * *")  // 매일 오전 9시
-public void retryFailedPayments() {
-    // 실패 건 조회 → 최대 3회 재시도 → 알림 발송
+// 1. 결제 전 파티 상태 검증
+private boolean isPartyPaymentEligible(Party party) {
+    return switch (party.getPartyStatus()) {
+        case ACTIVE -> true;  // 정상 이용 중인 파티만 결제
+        case RECRUITING, PENDING_PAYMENT, SUSPENDED, DISBANDED, CLOSED -> false;
+    };
+}
+
+// 2. 4회 결제 실패 시 파티 일시정지
+public void suspendPartyOnPaymentFailure(Integer partyId) {
+    partyDao.updatePartyStatus(partyId, PartyStatus.SUSPENDED.name());
+    // 파티장 및 모든 멤버에게 PARTY_SUSPENDED 푸시 알림
+}
+
+// 3. 환불 API 에러 분류 (재시도 가능 여부 판단)
+private boolean isRetryableError(String errorCode) {
+    return switch (errorCode) {
+        case "ALREADY_CANCELED", "INVALID_CANCEL_AMOUNT" -> false;  // 영구 실패
+        default -> true;  // 재시도 가능
+    };
 }
 ```
 
 **결과**
-- 3회 재시도 후에도 실패 시 관리자 알림
-- 미납 지속 시 자동 파티 탈퇴 처리
+- 4회 재시도 후에도 실패 시 파티 자동 일시정지
+- 결제 처리 중 파티 상태 실시간 검증
+- 토스페이먼츠 에러 코드별 자동 분류 및 처리
+
+---
+
+### 3. 사용자 탈퇴 시 파티 처리
+
+**문제 상황**
+- 파티장이 탈퇴하면 파티원들은 어떻게 되는가?
+- 파티원이 탈퇴하면 보증금은 어떻게 처리되는가?
+
+**해결 방법**
+```java
+// Spring Event 기반 비동기 처리
+@EventListener
+@Async
+@Transactional
+public void handleUserDeleted(UserDeletedEvent event) {
+    // 1. 파티장으로서의 파티 처리 (DISBANDED로 변경)
+    handleLeaderParties(event.getUserId());
+
+    // 2. 파티원으로서의 멤버십 처리 (보증금 환불)
+    handleMemberParties(event.getUserId());
+}
+```
+
+**결과**
+- 파티장 탈퇴 시 파티 자동 해산 + 전체 멤버 보증금 환불
+- 파티원 탈퇴 시 보증금 환불 + 파티장에게 알림
+- 이벤트 기반 처리로 서비스 간 결합도 감소
 
 <br>
 

@@ -296,6 +296,172 @@ export default function LandingTestPage() {
                         <span className="relative text-xs font-normal bg-[#FF6B9D] text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
                         <span className="relative text-sm font-normal text-gray-500">Print Style (오버프린트, 그레인 텍스처)</span>
                     </Link>
+
+                    <Link
+                        to="/landing/riso2"
+                        className="block w-full py-6 px-6 bg-[#F5F0E6] hover:bg-white text-gray-800 font-bold rounded-lg shadow-md transition duration-200 relative overflow-hidden border border-gray-200"
+                    >
+                        {/* Riso Preview Decoration */}
+                        <div className="absolute top-0 right-0 p-4 opacity-20">
+                            <div className="w-16 h-16 bg-[#0078BF] rounded-full mix-blend-multiply absolute top-0 right-0 translate-x-1/4 -translate-y-1/4" />
+                            <div className="w-16 h-16 bg-[#FF48B0] rounded-full mix-blend-multiply absolute top-0 right-0" />
+                        </div>
+
+                        <span className="relative text-[#0078BF] font-black mix-blend-multiply text-xl">Variant R</span>
+                        <span className="relative text-xs font-normal bg-[#FF48B0] text-white px-2 py-0.5 rounded-full ml-2">NEW</span><br />
+                        <span className="relative text-sm font-normal text-gray-600">Digital Risograph (감성적, 텍스처, 잉크)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/particles"
+                        className="block w-full py-6 px-6 bg-[#050505] hover:bg-[#0a0a0a] text-white font-bold rounded-lg shadow-md border border-cyan-500/30 transition duration-200"
+                    >
+                        <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">Variant N</span><br />
+                        <span className="text-sm font-normal text-gray-400">Neural Stream (Canvas Interactive)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/physics"
+                        className="block w-full py-6 px-6 bg-[#FDFBF7] hover:bg-white text-gray-800 font-bold rounded-lg shadow-md border border-orange-100 transition duration-200"
+                    >
+                        <span className="text-[#FF9AA2]">Variant P</span><br />
+                        <span className="text-sm font-normal text-gray-500">Playful Physics (밝음, 물리엔진, 인터랙티브)</span>
+                    </Link>
+
+                    <Link
+                        to="/landing/qq"
+                        className="block w-full py-6 px-6 bg-[#FDFBF9] hover:bg-white text-gray-900 font-bold rounded-lg shadow-md border border-[#E8879B]/20 transition duration-200"
+                    >
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="bg-gradient-to-r from-[#E8879B] to-[#F4A574] bg-clip-text text-transparent text-xl">Variant Q</span>
+                            <span className="bg-[#111] text-white text-xs px-2 py-1 rounded-full">TRENDY</span>
+                        </div>
+                        <span className="text-sm font-normal text-gray-500">Kinetic Logo + Bento Grid (최신 트렌드 집약체)</span>
+                    </Link>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-1 md:col-span-2 mt-8 border-t pt-8">
+                        <Link
+                            to="/landing/swiss"
+                            className="block w-full py-8 px-6 bg-white hover:bg-gray-50 text-black font-black text-2xl border-4 border-black transition-transform hover:-translate-y-1"
+                        >
+                            Variant T
+                            <span className="block text-sm font-normal text-gray-500 mt-2 font-mono uppercase tracking-widest">
+                                Swiss Editorial (성수동 힙스터 스타일)
+                            </span>
+                        </Link>
+
+                        <Link
+                            to="/landing/retro"
+                            className="block w-full py-8 px-6 bg-[#008080] hover:bg-[#009090] text-white font-bold text-2xl border-4 border-[#C0C0C0] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_black]"
+                        >
+                            <span className="flex items-center gap-2">
+                                <span className="italic font-serif">Variant W95</span>
+                                <span className="text-xs bg-[#C0C0C0] text-black px-1 border border-black shadow-[1px_1px_0_white]">OS</span>
+                            </span>
+                            <span className="block text-sm font-normal text-gray-200 mt-2 font-mono">
+                                Retro Desktop (윈도우 95 감성)
+                            </span>
+                        </Link>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-1 md:col-span-2 mt-8 border-t border-gray-200 pt-8">
+                            <Link
+                                to="/landing/cinematic"
+                                className="block w-full py-8 px-6 bg-black hover:bg-neutral-900 text-white font-serif rounded-lg shadow-xl border border-gray-800 transition-transform hover:-translate-y-1"
+                            >
+                                <span className="text-2xl font-bold tracking-widest">Variant C</span>
+                                <span className="block text-sm font-sans text-gray-500 mt-2 uppercase tracking-wide">
+                                    Cinematic Noir (영화관 같은 압도적 몰입감)
+                                </span>
+                            </Link>
+
+                            <Link
+                                to="/landing/solar"
+                                className="block w-full py-8 px-6 bg-[#F7F3E8] hover:bg-[#F0EAD6] text-[#344E41] font-sans rounded-[2rem] shadow-sm border border-[#A3B18A]/30 transition-transform hover:-translate-y-1"
+                            >
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-2xl font-bold">Variant S</span>
+                                    <span className="bg-[#588157] text-white text-xs px-2 py-1 rounded-full">HEALING</span>
+                                </div>
+                                <span className="block text-sm text-[#5F6F5E]">
+                                    Solarpunk Garden (유기적 형태와 힐링)
+                                </span>
+                            </Link>
+
+                            {/* ... 기존 링크들 ... */}
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-1 md:col-span-2 mt-8 border-t border-gray-200 pt-8">
+                                {/* G: Spatial */}
+                                <Link to="/landing/spatial" className="group relative block w-full py-8 px-6 bg-black overflow-hidden rounded-2xl shadow-2xl border border-white/10 transition-all hover:scale-[1.02]">
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.3),transparent_70%)] opacity-50 group-hover:opacity-100 transition-opacity" />
+                                    <div className="relative z-10 text-center">
+                                        <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-blue-200">Variant G</span>
+                                        <span className="block text-sm text-blue-200 mt-2 font-medium">Spatial Glass (비전 프로 스타일)</span>
+                                    </div>
+                                </Link>
+
+                                {/* M: Chat */}
+                                <Link to="/landing/chat" className="block w-full py-8 px-6 bg-[#F2F4F7] hover:bg-[#E8EAF0] text-gray-800 rounded-2xl shadow-sm border border-gray-200 transition-all hover:scale-[1.02]">
+                                    <div className="flex flex-col gap-2">
+                                        <div className="bg-white p-3 rounded-tl-xl rounded-tr-xl rounded-br-xl w-fit shadow-sm text-sm">🍿 넷플릭스 너무 비싸...</div>
+                                        <div className="bg-blue-500 text-white p-3 rounded-tl-xl rounded-tr-xl rounded-bl-xl w-fit self-end shadow-sm text-sm">💸 MoA로 4천원에 ㄱㄱ</div>
+                                    </div>
+                                    <div className="mt-4 text-center">
+                                        <span className="text-xl font-bold text-blue-600">Variant M</span>
+                                        <span className="block text-sm text-gray-500 mt-1 font-medium">Chat Stream (메신저 스타일)</span>
+                                    </div>
+                                </Link>
+
+                                {/* L: Linear */}
+                                <Link to="/landing/linear" className="group block w-full py-8 px-6 bg-[#050505] hover:bg-[#0A0A0A] text-white rounded-xl shadow-2xl border border-white/10 transition-all hover:scale-[1.02] relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-transparent to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-x" />
+                                    <div className="relative z-10 text-center">
+                                        <div className="flex justify-center items-center gap-2 mb-2">
+                                            <span className="text-2xl font-bold tracking-tight">Variant L</span>
+                                            <kbd className="px-1.5 py-0.5 bg-[#222] border border-white/10 rounded text-xs font-mono text-gray-400 group-hover:text-white transition-colors">⌘K</kbd>
+                                        </div>
+                                        <span className="block text-sm text-gray-500 group-hover:text-gray-300 mt-2 font-medium">Linear SaaS (키보드 퍼스트)</span>
+                                    </div>
+                                </Link>
+
+                                <Link
+                                    to="/landing/glass-light"
+                                    className="group block w-full py-8 px-6 bg-gradient-to-br from-white to-slate-100 hover:to-white text-slate-800 rounded-2xl shadow-lg border border-white/50 transition-all hover:shadow-xl hover:-translate-y-1 relative overflow-hidden"
+                                >
+                                    {/* Decorative background blob */}
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/50 rounded-full blur-2xl -mr-10 -mt-10 transition-all group-hover:bg-purple-300/50" />
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Variant G-Light</span>
+                                            <span className="bg-white/80 border border-white backdrop-blur text-slate-600 text-xs px-2 py-1 rounded-full shadow-sm">KOREAN</span>
+                                        </div>
+                                        <span className="block text-sm text-slate-500 font-medium">
+                                            Crystal Clear Glass (밝고 투명한 글래스모피즘)
+                                        </span>
+                                    </div>
+                                </Link>
+
+                                <Link
+                                    to="/landing/parallax"
+                                    className="group block w-full py-8 px-6 bg-[#f5f5f7] hover:bg-white text-[#1d1d1f] rounded-2xl shadow-lg border border-gray-200 transition-all hover:shadow-xl hover:-translate-y-1 relative overflow-hidden"
+                                >
+                                    {/* Decorative parallax orbs */}
+                                    <div className="absolute top-0 left-0 w-20 h-20 bg-blue-200/40 rounded-full blur-xl -ml-6 -mt-6 transition-transform group-hover:translate-x-2 group-hover:translate-y-2" />
+                                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-orange-200/40 rounded-full blur-xl -mr-8 -mb-8 transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2" />
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] via-[#5856D6] to-[#AF52DE]">Variant Parallax</span>
+                                            <span className="bg-[#007AFF] text-white text-xs px-2 py-1 rounded-full shadow-sm">NEW</span>
+                                        </div>
+                                        <span className="block text-sm text-[#86868b] font-medium">
+                                            Liquid Depth (iOS 스타일 패럴랙스 스크롤링)
+                                        </span>
+                                    </div>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -12,6 +12,7 @@ import PartyListPage from "./pages/party/PartyListPage";
 import PartyCreatePage from "./pages/party/PartyCreatePage";
 import PartyDetailPage from "./pages/party/PartyDetailPage";
 import PartyListPageO from "./pages/party/PartyListPageO";
+import PartyListPageZO3 from "./pages/party/PartyListPageZO3";
 
 import AddUserPage from "./pages/user/register/AddUserPage";
 import LoginPage from "./pages/user/login/LoginPage";
@@ -24,7 +25,7 @@ import EmailVerifiedPage from "./pages/user/register/EmailVerifiedPage";
 import UpdateUserPage from "./pages/user/mypage/UpdateUserPage";
 import FinancialHistoryPage from "./pages/user/FinancialHistoryPage";
 import MyWalletPage from "./pages/user/MyWalletPage";
-import AccountRegisterPage from "./pages/user/register/AccountRegisterPage";
+import BankVerificationPage from "./pages/account/BankVerificationPage";
 import MyPartyListPage from "./pages/party/MyPartyListPage";
 import AddBlacklistPage from "./pages/admin/AddBlacklistPage";
 import AdminUserListPage from "@/pages/admin/AdminUserListPage";
@@ -61,12 +62,25 @@ import LandingPageW from "./pages/landing/LandingPageW";
 import LandingPageX from "./pages/landing/LandingPageX";
 import LandingPageY from "./pages/landing/LandingPageY";
 import LandingPageZ from "./pages/landing/LandingPageZ";
-import LandingPageHyundai from "./pages/landing/LandingPageHyundai";
-import LandingPageO2 from "./pages/landing/LandingPageO2";
-import LandingPageO3 from "./pages/landing/LandingPageO3";
-import LandingPageMemphis from "./pages/landing/LandingPageMemphis";
-import LandingPageCollage from "./pages/landing/LandingPageCollage";
-import LandingPageRiso from "./pages/landing/LandingPageRiso";
+import LandingPageZHyundai from "./pages/landing/LandingPageZHyundai";
+import LandingPageZO2 from "./pages/landing/LandingPageZO2";
+import LandingPageZO3 from "./pages/landing/LandingPageZO3";
+import LandingPageZMemphis from "./pages/landing/LandingPageZMemphis";
+import LandingPageZCollage from "./pages/landing/LandingPageZCollage";
+import LandingPageZRiso from "./pages/landing/LandingPageZRiso";
+import LandingPageZRiso2 from "./pages/landing/LandingPageZRiso2";
+import LandingPageZParticles from "./pages/landing/LandingPageZParticles";
+import LandingPageZPhysics from "./pages/landing/LandingPageZPhysics";
+import LandingPageZQQ from "./pages/landing/LandingPageZQQ";
+import LandingPageZRetro from "./pages/landing/LandingPageZRetro";
+import LandingPageZSwiss from "./pages/landing/LandingPageZSwiss";
+import LandingPageZCinematic from "./pages/landing/LandingPageZCinematic";
+import LandingPageZSolar from "./pages/landing/LandingPageZSolar";
+import LandingPageZSpatial from "./pages/landing/LandingPageZSpatial";
+import LandingPageZChat from "./pages/landing/LandingPageZChat";
+import LandingPageZLinear from "./pages/landing/LandingPageZLinear";
+import LandingPageZGlassLight from "./pages/landing/LandingPageZGlassLight";
+import LandingPageZParallax from "./pages/landing/LandingPageZParallax";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -118,6 +132,7 @@ export default function App() {
           <Route path="/party/create" element={<PartyCreatePage />} />
           <Route path="/party/:id" element={<PartyDetailPage />} />
           <Route path="/party-test/o" element={<PartyListPageO />} />
+          <Route path="/party-test/zo3" element={<PartyListPageZO3 />} />
 
           {/* ===== OAuth 콜백 MUST BE PUBLIC ===== */}
           <Route path="/oauth/kakao" element={<OAuthKakaoPage />} />
@@ -158,11 +173,15 @@ export default function App() {
           />
           <Route
             path="/user/account-register"
-            element={<ProtectedRoute element={<AccountRegisterPage />} />}
+            element={<ProtectedRoute element={<BankVerificationPage />} />}
           />
           <Route
             path="/user/account-verify"
-            element={<ProtectedRoute element={<AccountRegisterPage />} />}
+            element={<ProtectedRoute element={<BankVerificationPage />} />}
+          />
+          <Route
+            path="/account/verify"
+            element={<ProtectedRoute element={<BankVerificationPage />} />}
           />
           <Route
             path="/my-parties"
@@ -201,7 +220,7 @@ export default function App() {
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
 
           {/* Subscription (User) */}
@@ -284,12 +303,25 @@ export default function App() {
           <Route path="/landing/x" element={<LandingPageX />} />
           <Route path="/landing/y" element={<LandingPageY />} />
           <Route path="/landing/z" element={<LandingPageZ />} />
-          <Route path="/landing/hyundai" element={<LandingPageHyundai />} />
-          <Route path="/landing/o2" element={<LandingPageO2 />} />
-          <Route path="/landing/o3" element={<LandingPageO3 />} />
-          <Route path="/landing/memphis" element={<LandingPageMemphis />} />
-          <Route path="/landing/collage" element={<LandingPageCollage />} />
-          <Route path="/landing/riso" element={<LandingPageRiso />} />
+          <Route path="/landing/hyundai" element={<LandingPageZHyundai />} />
+          <Route path="/landing/o2" element={<LandingPageZO2 />} />
+          <Route path="/landing/o3" element={<LandingPageZO3 />} />
+          <Route path="/landing/memphis" element={<LandingPageZMemphis />} />
+          <Route path="/landing/collage" element={<LandingPageZCollage />} />
+          <Route path="/landing/riso" element={<LandingPageZRiso />} />
+          <Route path="/landing/riso2" element={<LandingPageZRiso2 />} />
+          <Route path="/landing/particles" element={<LandingPageZParticles />} />
+          <Route path="/landing/physics" element={<LandingPageZPhysics />} />
+          <Route path="/landing/qq" element={<LandingPageZQQ />} />
+          <Route path="/landing/swiss" element={<LandingPageZSwiss />} />
+          <Route path="/landing/retro" element={<LandingPageZRetro />} />
+          <Route path="/landing/cinematic" element={<LandingPageZCinematic />} />
+          <Route path="/landing/solar" element={<LandingPageZSolar />} />
+          <Route path="/landing/spatial" element={<LandingPageZSpatial />} />
+          <Route path="/landing/chat" element={<LandingPageZChat />} />
+          <Route path="/landing/linear" element={<LandingPageZLinear />} />
+          <Route path="/landing/glass-light" element={<LandingPageZGlassLight />} />
+          <Route path="/landing/parallax" element={<LandingPageZParallax />} />
         </Routes>
       </main>
 
