@@ -1,6 +1,5 @@
 import { create } from "zustand";
 
-console.log("🔥 loginStore loaded");
 export const useLoginStore = create((set) => ({
   email: "",
   password: "",

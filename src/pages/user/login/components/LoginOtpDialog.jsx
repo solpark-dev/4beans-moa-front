@@ -27,25 +27,26 @@ export function LoginOtpDialog({
         if (!next) onOpenChange();
       }}
     >
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>
-            {isBackupMode ? "백업 코드로 로그인" : "Google OTP 인증"}
-          </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500">
-            로그인 완료를 위해 인증 코드를 입력해주세요.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-sm p-0">
+        <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-[28px]">
+          <DialogHeader className="px-8 pt-8 pb-2">
+            <DialogTitle className="text-lg font-black text-slate-900">
+              {isBackupMode
+                ? "백업 코드로 인증을 진행해주세요"
+                : "Google OTP 인증"}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-500">
+              보안을 위해 추가 인증이 필요합니다. 인증 코드 또는 백업 코드를
+              사용해 본인 인증을 완료해주세요.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-xs font-medium">
+          <div className="flex justify-center gap-3 px-6 pb-4">
             <button
               type="button"
               onClick={onSwitchOtp}
-              className={`flex-1 py-1.5 rounded-md ${
-                isBackupMode
-                  ? "text-slate-500"
-                  : "bg-white text-slate-900 shadow-sm"
+              className={`flex-1 py-2 rounded-2xl border-2 border-black font-black text-[11px] uppercase tracking-[0.3em] ${
+                isBackupMode ? "text-slate-500" : "bg-white text-slate-900"
               }`}
             >
               OTP 코드
@@ -53,43 +54,46 @@ export function LoginOtpDialog({
             <button
               type="button"
               onClick={onSwitchBackup}
-              className={`flex-1 py-1.5 rounded-md ${
-                isBackupMode
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500"
+              className={`flex-1 py-2 rounded-2xl border-2 border-black font-black text-[11px] uppercase tracking-[0.3em] ${
+                isBackupMode ? "bg-white text-slate-900" : "text-slate-500"
               }`}
             >
               백업 코드
             </button>
           </div>
 
-          <p className="text-sm text-slate-600">
-            {isBackupMode
-              ? "휴대폰이 없어도 로그인할 수 있는 백업 코드를 입력해주세요."
-              : "Google Authenticator 앱에 표시된 6자리 코드를 입력하세요."}
-          </p>
+          <div className="space-y-4 px-8 pb-6">
+            <p className="text-sm text-slate-500 text-center">
+              {isBackupMode
+                ? "OTP 앱을 사용할 수 없는 경우 백업 코드를 입력해주세요."
+                : "Google Authenticator 앱에 표시된 6자리 코드를 입력해주세요."}
+            </p>
 
-          <Input
-            value={otpCode}
-            maxLength={isBackupMode ? 16 : 6}
-            inputMode={isBackupMode ? "text" : "numeric"}
-            placeholder={
-              isBackupMode ? "백업 코드 입력 (예: X7K9-AB12)" : "6자리 숫자 입력"
-            }
-            className="text-center tracking-[0.4em] text-lg"
-            onChange={(e) => onChangeCode(e.target.value)}
-          />
-          {errors.otp && (
-            <p className="text-xs text-red-500 text-center">{errors.otp}</p>
-          )}
+            <Input
+              value={otpCode}
+              maxLength={isBackupMode ? 16 : 6}
+              inputMode={isBackupMode ? "text" : "numeric"}
+              placeholder={
+                isBackupMode
+                  ? "백업 코드 입력 (예: X7K9-AB12)"
+                  : "6자리 인증 코드 입력"
+              }
+              className="text-center tracking-[0.4em] text-lg border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              onChange={(e) => onChangeCode(e.target.value)}
+            />
 
-          <Button
-            className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"
-            onClick={onConfirm}
-            disabled={loading || !otpCode.trim()}
-          >
-            {loading ? "인증 중..." : "인증 완료"}
-          </Button>
+            {errors.otp && (
+              <p className="text-xs text-red-500 text-center">{errors.otp}</p>
+            )}
+
+            <Button
+              className="w-full h-12 bg-indigo-600 text-white font-black rounded-2xl border-4 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]"
+              onClick={onConfirm}
+              disabled={loading || !otpCode.trim()}
+            >
+              {loading ? "인증 중..." : "인증 완료"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

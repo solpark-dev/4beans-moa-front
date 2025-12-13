@@ -1,10 +1,11 @@
-// src/hooks/admin/useAdminUserDetail.js
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useCallback, useEffect } from "react";
 import { getAdminUserDetail } from "@/api/adminUserApi";
 
 export const useAdminUserDetailLogic = (userId) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,20 +39,31 @@ export const useAdminUserDetailLogic = (userId) => {
     load();
   }, [load]);
 
-  const goBackList = () => navigate("/admin/users");
+  const goBackList = () => {
+    const from = location.state?.from;
+    navigate(from || "/admin/users");
+  };
 
-  const goLoginHistory = () =>
-    navigate(`/admin/users/${encodeURIComponent(userId)}/login-history`);
+  const goLoginHistory = () => {
+    navigate(`/admin/users/${encodeURIComponent(userId)}/login-history`, {
+      state: { from: location.state?.from || "/admin/users" },
+    });
+  };
 
   const goBlacklistAdd = () => {
     if (!user) return;
 
+    const from = location.state?.from || "/admin/users";
+
     if (user.blacklisted) {
       navigate(
-        `/admin/blacklist/delete?user=${encodeURIComponent(user.userId)}`
+        `/admin/blacklist/delete?user=${encodeURIComponent(user.userId)}`,
+        { state: { from } }
       );
     } else {
-      navigate(`/admin/blacklist/add?user=${encodeURIComponent(user.userId)}`);
+      navigate(`/admin/blacklist/add?user=${encodeURIComponent(user.userId)}`, {
+        state: { from },
+      });
     }
   };
 

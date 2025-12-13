@@ -3,6 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { fetchAdminUsers } from "@/api/adminUserApi";
 import { useAdminUserStore } from "@/store/admin/adminUserStore";
 
+const DEFAULT_DIR = "desc";
+
+const normalizeSort = (sortStr) => {
+  const map = { lastLoginDate: DEFAULT_DIR, regDate: DEFAULT_DIR };
+
+  if (!sortStr) return map;
+
+  const tokens = String(sortStr)
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  for (let i = 0; i < tokens.length; i += 2) {
+    const field = tokens[i];
+    const dirRaw = (tokens[i + 1] || DEFAULT_DIR).toLowerCase();
+    const dir = dirRaw === "asc" ? "asc" : "desc";
+
+    if (field === "lastLoginDate" || field === "regDate") {
+      map[field] = dir;
+    }
+  }
+
+  return map;
+};
+
+const buildSort = (map) =>
+  `lastLoginDate,${map.lastLoginDate},regDate,${map.regDate}`;
+
 export const useAdminUserListLogic = () => {
   const navigate = useNavigate();
 
@@ -26,6 +54,7 @@ export const useAdminUserListLogic = () => {
   } = useAdminUserStore();
 
   const [searchValue, setSearchValue] = useState(filters.q || "");
+
   const loadUsers = async (override) => {
     try {
       setLoading(true);
@@ -33,17 +62,28 @@ export const useAdminUserListLogic = () => {
 
       const currentPage = override?.page ?? page;
       const currentSort = override?.sort ?? sort;
+      const currentQ =
+        override?.q !== undefined ? override.q : filters.q || undefined;
+
       const currentStatus =
         override?.status !== undefined ? override.status : filters.status;
+
+      const currentJoinStart =
+        override?.joinStart !== undefined
+          ? override.joinStart
+          : filters.joinStart;
+
+      const currentJoinEnd =
+        override?.joinEnd !== undefined ? override.joinEnd : filters.joinEnd;
 
       const params = {
         page: currentPage,
         size,
         sort: currentSort,
-        q: filters.q || undefined,
+        q: currentQ || undefined,
         status: currentStatus === "ALL" ? undefined : currentStatus,
-        regDateFrom: filters.joinStart || undefined,
-        regDateTo: filters.joinEnd || undefined,
+        regDateFrom: currentJoinStart || undefined,
+        regDateTo: currentJoinEnd || undefined,
       };
 
       const body = await fetchAdminUsers(params);
@@ -69,17 +109,20 @@ export const useAdminUserListLogic = () => {
   };
 
   const handleSearchKeyDown = async (e) => {
-    if (e.key === "Enter") {
-      const trimmed = searchValue.trim();
-      if (trimmed === "") {
-        resetFilters();
-        setSearchValue("");
-        await loadUsers({ page: 1 });
-        return;
-      }
+    if (e.key !== "Enter") return;
+
+    const trimmed = searchValue.trim();
+
+    if (trimmed === "") {
+      resetFilters();
+      setSearchValue("");
       setPage(1);
-      await loadUsers({ page: 1 });
+      await loadUsers({ page: 1, q: undefined });
+      return;
     }
+
+    setPage(1);
+    await loadUsers({ page: 1, q: trimmed });
   };
 
   const handleStatusChange = async (value) => {
@@ -97,8 +140,9 @@ export const useAdminUserListLogic = () => {
   };
 
   const handleSearchSubmit = async () => {
+    const trimmed = searchValue.trim();
     setPage(1);
-    await loadUsers({ page: 1 });
+    await loadUsers({ page: 1, q: trimmed === "" ? undefined : trimmed });
   };
 
   const handlePageClick = async (pageNumber) => {
@@ -108,50 +152,36 @@ export const useAdminUserListLogic = () => {
   };
 
   const handleSortToggle = async (field) => {
-    const sortParts = sort ? sort.split(",") : [];
-    const currentField = sortParts[0] || "";
-    const currentDir = sortParts[1] || "desc";
+    const current = normalizeSort(sort);
+    const nextDir = current[field] === "desc" ? "asc" : "desc";
 
-    const isSameField = currentField === field;
-    const nextDir = isSameField && currentDir === "desc" ? "asc" : "desc";
+    const nextMap = {
+      ...current,
+      [field]: nextDir,
+    };
 
-    const primaryField = field;
-    const secondaryField =
-      field === "lastLoginDate" ? "regDate" : "lastLoginDate";
-
-    const newSort = `${primaryField},${nextDir},${secondaryField},desc`;
+    const newSort = buildSort(nextMap);
 
     setSort(newSort);
+    setPage(1);
     await loadUsers({ sort: newSort, page: 1 });
   };
 
   const changePageBlock = async (type) => {
-    const pageUnit = 5;
-    const currentPage = page;
     const total = totalPages || 1;
+    const currentPage = page;
     let targetPage = currentPage;
 
-    if (type === "first") {
-      targetPage = 1;
-    } else if (type === "last") {
-      targetPage = total;
-    } else {
-      const currentBlock = Math.floor((currentPage - 1) / pageUnit);
-      if (type === "prevBlock") {
-        if (currentBlock === 0) return;
-        targetPage = currentBlock * pageUnit;
-        if (targetPage < 1) targetPage = 1;
-      } else if (type === "nextBlock") {
-        const nextBlockStart = currentBlock * pageUnit + pageUnit + 1;
-        if (nextBlockStart > total) return;
-        targetPage = nextBlockStart;
-      }
-    }
+    if (type === "first") targetPage = 1;
+    else if (type === "last") targetPage = total;
+    else if (type === "prevBlock") targetPage = Math.max(1, currentPage - 1);
+    else if (type === "nextBlock")
+      targetPage = Math.min(total, currentPage + 1);
 
-    if (targetPage !== currentPage) {
-      setPage(targetPage);
-      await loadUsers({ page: targetPage });
-    }
+    if (targetPage === currentPage) return;
+
+    setPage(targetPage);
+    await loadUsers({ page: targetPage });
   };
 
   const handleEmailClick = (userId) => {
@@ -161,7 +191,11 @@ export const useAdminUserListLogic = () => {
   const handleReset = async () => {
     resetFilters();
     setSearchValue("");
-    await loadUsers({ page: 1, sort: "regDate,desc" });
+    const base = normalizeSort(sort);
+    const newSort = buildSort(base);
+    setSort(newSort);
+    setPage(1);
+    await loadUsers({ page: 1, sort: newSort, q: undefined, status: "ALL" });
   };
 
   const getPageNumbers = () => {
@@ -170,9 +204,7 @@ export const useAdminUserListLogic = () => {
     const start = currentBlock * pageUnit + 1;
     const end = Math.min(start + pageUnit - 1, totalPages || 1);
     const pages = [];
-    for (let p = start; p <= end; p += 1) {
-      pages.push(p);
-    }
+    for (let p = start; p <= end; p += 1) pages.push(p);
     return pages;
   };
 
@@ -182,7 +214,7 @@ export const useAdminUserListLogic = () => {
   };
 
   useEffect(() => {
-    loadUsers({ page: 1 });
+    loadUsers();
   }, []);
 
   return {
@@ -210,8 +242,6 @@ export const useAdminUserListLogic = () => {
       handleEmailClick,
       handleReset,
     },
-    utils: {
-      formatDate,
-    },
+    utils: { formatDate },
   };
 };

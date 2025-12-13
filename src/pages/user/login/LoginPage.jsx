@@ -7,11 +7,12 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-
-import { LoginHero } from "./components/LoginHero";
 import { LoginForm } from "./components/LoginForm";
 import { SocialLoginButtons } from "./components/SocialLoginButtons";
 import { LoginOtpDialog } from "./components/LoginOtpDialog";
+
+const CARD_STYLE =
+  "bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-[32px] overflow-hidden";
 
 export default function LoginPage() {
   const {
@@ -46,44 +47,40 @@ export default function LoginPage() {
   }, [setField]);
 
   return (
-    <div className="w-full pb-20 bg-slate-50 text-slate-900">
-      <section className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-20 px-4 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
-          <LoginHero />
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      <section className="min-h-screen flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <Card className={CARD_STYLE}>
+            <CardHeader className="px-10 pt-10 pb-4 border-b border-black/30">
+              <CardTitle className="text-2xl font-black tracking-tight text-slate-900 text-center">
+                Login
+              </CardTitle>
+            </CardHeader>
 
-          <div className="w-full max-w-md">
-            <Card className="w-full bg-white border border-gray-100 shadow-2xl rounded-3xl">
-              <CardHeader className="pb-3 px-6 pt-6">
-                <CardTitle className="text-lg md:text-xl text-gray-900">
-                  이메일로 로그인
-                </CardTitle>
-              </CardHeader>
+            <CardContent className="px-10 pt-6 pb-6 space-y-6">
+              <LoginForm
+                email={email}
+                password={password}
+                remember={remember}
+                errors={errors}
+                onEmailChange={handleEmailChange}
+                onPasswordChange={handlePasswordChange}
+                onRememberChange={(v) => setField("remember", v)}
+                onSubmit={handleEmailLogin}
+                onUnlock={handleUnlockByCertification}
+                isLoginDisabled={isLoginDisabled}
+                loginLoading={loginLoading}
+              />
+            </CardContent>
 
-              <CardContent className="space-y-6 px-6 pb-4">
-                <LoginForm
-                  email={email}
-                  password={password}
-                  remember={remember}
-                  errors={errors}
-                  onEmailChange={handleEmailChange}
-                  onPasswordChange={handlePasswordChange}
-                  onRememberChange={(v) => setField("remember", v)}
-                  onSubmit={handleEmailLogin}
-                  onUnlock={handleUnlockByCertification}
-                  isLoginDisabled={isLoginDisabled}
-                  loginLoading={loginLoading}
-                />
-              </CardContent>
-
-              <CardFooter className="px-6 pb-6 pt-0 flex flex-col gap-3">
-                <SocialLoginButtons
-                  onKakao={handleKakaoLogin}
-                  onGoogle={handleGoogleLogin}
-                  loginLoading={loginLoading}
-                />
-              </CardFooter>
-            </Card>
-          </div>
+            <CardFooter className="flex flex-col gap-3 px-10 pb-10 pt-0">
+              <SocialLoginButtons
+                onKakao={handleKakaoLogin}
+                onGoogle={handleGoogleLogin}
+                loginLoading={loginLoading}
+              />
+            </CardFooter>
+          </Card>
         </div>
       </section>
 
