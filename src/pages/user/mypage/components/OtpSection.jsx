@@ -20,7 +20,7 @@ export function OtpSection({ otp, backup, actions }) {
           {!otp.enabled && (
             <Button
               size="sm"
-              className="h-8 px-3 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+              className="h-9 px-4 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
               onClick={actions.otp.openSetup}
             >
               OTP 설정
@@ -33,10 +33,10 @@ export function OtpSection({ otp, backup, actions }) {
                 size="sm"
                 variant="outline"
                 disabled={backup.issued || backup.loading}
-                className={`h-8 px-3 text-xs rounded-lg ${
+                className={`h-9 px-4 text-xs rounded-xl ${
                   backup.issued
                     ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
-                    : "border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
+                    : "border-gray-200 text-indigo-700 bg-white hover:bg-indigo-50"
                 }`}
                 onClick={backup.issued ? undefined : backup.issueBackupCodes}
               >
@@ -45,7 +45,7 @@ export function OtpSection({ otp, backup, actions }) {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 px-3 text-xs border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-lg"
+                className="h-9 px-4 text-xs border-gray-200 text-red-600 bg-white hover:bg-red-50 rounded-xl"
                 onClick={actions.otp.prepareDisable}
               >
                 OTP 해제

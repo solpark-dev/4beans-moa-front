@@ -15,26 +15,27 @@ let failedQueue = [];
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
+    if (error) prom.reject(error);
+    else prom.resolve(token);
   });
   failedQueue = [];
 };
 
+/* =========================
+ * REQUEST INTERCEPTOR
+ * ========================= */
 httpClient.interceptors.request.use(
-  async (config) => {
+  (config) => {
+    // ✅ 비로그인 API는 JWT 완전 제외
+    if (config.skipAuth) {
+      return config;
+    }
+
     const { accessToken } = useAuthStore.getState();
 
     if (accessToken) {
-      if (!config.headers) {
-        config.headers = {};
-      }
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${accessToken}`;
-    } else {
-      console.warn("No access token found.");
     }
 
     return config;
@@ -42,11 +43,19 @@ httpClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+/* =========================
+ * RESPONSE INTERCEPTOR
+ * ========================= */
 httpClient.interceptors.response.use(
   (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
-    const status = error.response ? error.response.status : null;
+    const status = error.response?.status;
+
+    // ✅ skipAuth 요청은 refresh 로직 절대 타지 않음
+    if (originalRequest?.skipAuth) {
+      return Promise.reject(error);
+    }
 
     if (
       status === 401 &&
@@ -89,7 +98,7 @@ httpClient.interceptors.response.use(
         if (!apiRes.success) {
           clearAuth();
           processQueue(
-            new Error(apiRes.error?.message || "토큰 갱신에 실패했습니다."),
+            new Error(apiRes.error?.message || "토큰 갱신 실패"),
             null
           );
           return Promise.reject(error);

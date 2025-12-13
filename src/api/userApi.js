@@ -8,19 +8,12 @@ export const getUser = () =>
 export const getUserList = (params) =>
   httpClient.get("/users/list", { params });
 
-/* =========================== 등록 =========================== */
-export const addUser = (data) =>
-  httpClient.post("/users/add", data);
-
 /* =========================== 수정 =========================== */
 export const updateUser = (data) =>
   httpClient.post("/users/update", data);
 
 export const updatePwd = (data) =>
   httpClient.post("/users/updatePwd", data);
-
-export const updatePhoneByPassAuth = (data) =>
-  httpClient.put("/users/phone", data);
 
 export const uploadProfileImage = (formData) =>
   httpClient.post("/users/uploadProfileImage", formData, {
@@ -32,10 +25,10 @@ export const resetPwdByOldApi = (data) =>
   httpClient.post("/users/resetPwd", data);
 
 export const startResetPwdByToken = (data) =>
-  httpClient.post("/users/password/reset/start", data);
+  httpClient.post("/users/resetPwd/start", data);
 
 export const resetPwdByToken = (data) =>
-  httpClient.post("/users/password/reset", data);
+  httpClient.post("/users/resetPwd", data);
 
 /* =========================== 삭제(탈퇴) =========================== */
 export const withdrawUser = (data) =>

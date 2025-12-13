@@ -4,14 +4,14 @@ import { MenuButton } from "./MenuButton";
 
 export function AdminMenu({ actions }) {
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl">
-      <CardHeader className="pb-2 pt-4 px-4">
-        <CardTitle className="text-xs font-bold text-amber-700 uppercase tracking-[0.18em] flex items-center gap-1.5">
-          <ShieldCheck className="w-3 h-3" />
+    <Card className="bg-white border border-gray-100 shadow-2xl rounded-3xl">
+      <CardHeader className="pb-2 pt-6 px-6">
+        <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+          <ShieldCheck className="w-4 h-4" />
           Admin Zone
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 flex flex-col gap-2">
+      <CardContent className="p-6 flex flex-col gap-2">
         <MenuButton
           icon={<User className="w-4 h-4" />}
           label="회원 관리"

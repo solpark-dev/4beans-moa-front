@@ -7,7 +7,7 @@ export const login = (data) => httpClient.post("/auth/login", data);
 
 export const logout = () => httpClient.post("/auth/logout");
 
-export const signup = (data) => httpClient.post("/users/add", data);
+export const signup = (data) => httpClient.post("/signup/add", data);
 
 export const oauthKakaoCallback = (params) =>
   httpClient.get("/oauth/kakao/callback", { params });
@@ -23,7 +23,8 @@ export const oauthConnectByPhone = (data) =>
 export const verifyEmail = (token) =>
   httpClient.post(`/auth/verify-email?token=${token}`);
 
-export const checkCommon = (data) => httpClient.post("/users/check", data);
+export const checkCommon = (data) =>
+  httpClient.post("/signup/check", data);
 
 export const checkPasswordFormat = (password) =>
   httpClient.post("/users/checkPasswordFormat", { password });
@@ -31,13 +32,14 @@ export const checkPasswordFormat = (password) =>
 export const checkPasswordConfirm = (password, passwordConfirm) =>
   httpClient.post("/users/checkPasswordConfirm", { password, passwordConfirm });
 
-export const startPassAuth = () => httpClient.get("/users/pass/start");
+export const startPassAuth = () =>
+  httpClient.get("/signup/pass/start");
 
 export const verifyPassAuth = (data) =>
-  httpClient.post("/users/pass/verify", data);
+  httpClient.post("/signup/pass/verify", data);
 
 export const checkPhone = (phone) =>
-  httpClient.post("/users/check", { type: "phone", value: phone });
+  httpClient.post("/signup/check", { type: "phone", value: phone });
 
 export const startRestoreVerify = (userId) =>
   httpClient.post("/users/restore/start", { userId });

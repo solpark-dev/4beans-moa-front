@@ -73,14 +73,14 @@ export const useSocialSignup = () => {
   /* PASS 인증 */
   const handlePassAuth = async () => {
     try {
-      const start = await httpClient.get("/users/pass/start");
+      const start = await httpClient.get("/signup/pass/start");
       const { impCode, merchantUid } = start.data;
 
       window.IMP.init(impCode);
       window.IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
         if (!rsp.success) return;
 
-        const verify = await httpClient.post("/users/pass/verify", {
+        const verify = await httpClient.post("/signup/pass/verify", {
           imp_uid: rsp.imp_uid,
         });
 

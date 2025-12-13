@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useAuthStore } from "@/store/authStore";
@@ -45,7 +45,7 @@ export const useMyPage = () => {
         const { success, data } = res;
 
         if (!success || !data) {
-          alert("로그인이 필요합니다");
+          alert("Login required. Please sign in again.");
           navigate("/login", { replace: true });
           return;
         }
@@ -54,7 +54,7 @@ export const useMyPage = () => {
         setEnabled(!!data.otpEnabled);
       } catch (e) {
         console.error(e);
-        alert("로그인이 필요합니다");
+        alert("Login required. Please sign in again.");
         navigate("/login", { replace: true });
       }
     };
@@ -95,48 +95,23 @@ export const useMyPage = () => {
     goDeleteUser: () => navigate("/mypage/delete"),
 
     oauthConnect: async (provider) => {
-      try {
-        const redirectUri =
-          provider === "google"
-            ? import.meta.env.VITE_GOOGLE_REDIRECT_URI
-            : import.meta.env.VITE_KAKAO_REDIRECT_URI;
-
-        const res = await httpClient.get(`/oauth/${provider}/auth`, {
-          params: { mode: "connect", redirectUri },
-        });
-
-        const url =
-          res?.data?.url ||
-          res?.data?.data?.url ||
-          res?.data?.data?.authUrl ||
-          "";
-
-        if (!url) {
-          throw new Error("Missing auth redirect url");
-        }
-
-        window.location.href = url;
-      } catch (err) {
-        console.error("OAuth Connect Error:", err);
-        alert(
-          "소셜 계정 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"
-        );
-      }
+      window.location.href =
+        `https://moamoa.cloud:8443/api/oauth/${provider}/auth?mode=connect`;
     },
 
-    oauthRelease: async (oauthId) => {
+        oauthRelease: async (oauthId) => {
       try {
         const res = await httpClient.post("/oauth/release", { oauthId });
 
         if (res.success) {
-          alert("연동이 해제되었습니다");
+          alert("Social account has been unlinked.");
           window.location.reload();
         } else {
-          alert(res.error?.message || "연동 해제에 실패했습니다");
+          alert(res.error?.message || "Failed to unlink social account.");
         }
       } catch (e) {
         console.error(e);
-        alert("연동 해제 중 오류가 발생했습니다");
+        alert("An error occurred while unlinking the social account.");
       }
     },
 
@@ -185,3 +160,7 @@ export const useMyPage = () => {
     },
   };
 };
+
+
+
+

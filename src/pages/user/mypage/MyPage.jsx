@@ -62,31 +62,33 @@ export default function MyPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
-      <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
-          <div className="max-w-xl text-center md:text-left">
+    <div className="w-full pb-20 bg-slate-50 text-slate-900">
+      <section className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-12 px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="text-center lg:text-left max-w-2xl">
             <div className="inline-flex items-center rounded-full border border-white/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold mb-4 backdrop-blur">
               <span className="flex h-2 w-2 rounded-full bg-emerald-300 mr-2" />
               MoA 계정 관리자 · ID: {shortId}
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-3 drop-shadow-md">
-              나의 구독, 파티, 계정까지
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-3 drop-shadow-md">
+              나의 구독, 보안, 계정까지
               <br />
               <span className="text-indigo-100">한곳에서 관리해요</span>
             </h2>
-            <p className="text-sm sm:text-base text-indigo-50/90 leading-relaxed max-w-md mx-auto md:mx-0">
-              로그인 정보, 비밀번호, 소셜 연동 관리가 모두 여기서 가능합니다.
-              안전한 계정 관리를 위해 정보를 최신 상태로 유지하세요.
+            <p className="text-sm sm:text-base text-indigo-50/90 leading-relaxed max-w-md mx-auto lg:mx-0">
+              로그인정보, 비밀번호, 소셜 연동 관리도 모두 여기에서 가능합니다.
+              안전한 계정 관리를 위해 필요한 최신 상태를 확인해보세요.
             </p>
           </div>
 
-          <ProfileCard
-            user={user}
-            isAdmin={isAdmin}
-            shortId={shortId}
-            actions={actions}
-          />
+          <div className="w-full max-w-xl">
+            <ProfileCard
+              user={user}
+              isAdmin={isAdmin}
+              shortId={shortId}
+              actions={actions}
+            />
+          </div>
         </div>
       </section>
 

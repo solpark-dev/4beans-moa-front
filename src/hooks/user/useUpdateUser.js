@@ -1,6 +1,7 @@
 // src/services/logic/updateUserLogic.js
 import httpClient from "@/api/httpClient";
 import { useUpdateUserStore } from "@/store/user/updateUserStore";
+import { useAuthStore } from "@/store/authStore";
 
 export async function loadUserInfo() {
   try {
@@ -18,18 +19,19 @@ export async function loadUserInfo() {
   }
 }
 
-// 🟢 [이미지 미리보기 처리]
 export function handleImageChange(file) {
   if (!file) return;
   const url = URL.createObjectURL(file);
   useUpdateUserStore.getState().setField("previewImage", url);
 }
 
-// 🟢 [닉네임 중복 체크]
 export async function checkNicknameDuplicate(nickname) {
   if (!nickname) return false;
   try {
-    const res = await httpClient.post("/users/check", { type: "nickname", value: nickname });
+    const res = await httpClient.post("/signup/check", {
+      type: "nickname",
+      value: nickname,
+    });
     return res.data.available;
   } catch {
     return false;
@@ -46,7 +48,7 @@ export async function uploadProfileImage(file) {
     headers: { "Content-Type": "multipart/form-data" },
   });
 
-  if (res.success) return res.data; // 업로드된 이미지 URL 반환
+  if (res.success) return res.data;
   throw new Error(res.error?.message || "프로필 업로드 실패");
 }
 
@@ -81,7 +83,6 @@ export async function doPassVerification() {
   });
 }
 
-// 🟢 [회원정보 저장 - 마케팅 동의 추가]
 export async function saveUserInfo({ nickname, phone, agreeMarketing, file }) {
   let profileUrl = useUpdateUserStore.getState().profileImage || null;
 
@@ -92,11 +93,16 @@ export async function saveUserInfo({ nickname, phone, agreeMarketing, file }) {
   const res = await httpClient.post("/users/update", {
     nickname,
     phone,
-    agreeMarketing, // 🔥 추가됨
+    agreeMarketing,
     profileImage: profileUrl,
   });
 
   if (!res.success) throw new Error(res.error?.message || "회원정보 수정 실패");
 
+  const updatedUser = res.data;
+
+  useAuthStore.getState().setUser(updatedUser);
+
+  useUpdateUserStore.getState().setUserData(updatedUser);
   return true;
 }

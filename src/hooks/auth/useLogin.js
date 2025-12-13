@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useLoginStore } from "@/store/user/loginStore";
@@ -54,7 +54,7 @@ export const applyRememberEmail = (storage, email, remember) => {
       storage.removeItem("login-email");
     }
   } catch (e) {
-    console.warn("이메일 저장 실패", e);
+    console.warn("Failed to save login email", e);
   }
 };
 
@@ -89,7 +89,7 @@ export const useLoginPageLogic = () => {
     if (!trimmedEmail) {
       setErrors((prev) => ({
         ...prev,
-        email: "이메일을 입력해주세요.",
+        email: "Please enter your email.",
       }));
       return;
     }
@@ -97,13 +97,13 @@ export const useLoginPageLogic = () => {
     try {
       const IMP = await loadIamport();
       if (!IMP) {
-        alert("본인인증 모듈 로드 실패");
+        alert("Failed to load identity verification module.");
         return;
       }
 
       const startRes = await startPassAuth();
       if (!startRes.success) {
-        alert(startRes.error?.message || "본인인증 시작 실패");
+        alert(startRes.error?.message || "Identity verification start failed.");
         return;
       }
 
@@ -112,7 +112,7 @@ export const useLoginPageLogic = () => {
 
       IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
         if (!rsp.success) {
-          alert("본인인증이 취소되었거나 실패했습니다.");
+          alert("Identity verification was canceled.");
           return;
         }
 
@@ -123,19 +123,23 @@ export const useLoginPageLogic = () => {
           });
 
           if (!verifyRes.success) {
-            alert(verifyRes.error?.message || "본인인증 검증 실패");
+            alert(
+              verifyRes.error?.message || "Identity verification check failed."
+            );
             return;
           }
 
-          alert("본인인증 완료! 계정 잠금이 해제되었습니다.");
+          alert(
+            "Identity verification complete. Your account has been unlocked."
+          );
         } catch (e) {
           console.error(e);
-          alert("본인인증 검증 중 오류가 발생했습니다.");
+          alert("Error during identity verification check.");
         }
       });
     } catch (e) {
       console.error(e);
-      alert("본인인증 진행 중 오류가 발생했습니다.");
+      alert("Error during identity verification.");
     }
   }, [email]);
 
@@ -144,8 +148,8 @@ export const useLoginPageLogic = () => {
     const trimmedPassword = password.trim();
     const nextErrors = { email: "", password: "", otp: "" };
 
-    if (!trimmedEmail) nextErrors.email = "이메일을 입력해주세요.";
-    if (!trimmedPassword) nextErrors.password = "비밀번호를 입력해주세요.";
+    if (!trimmedEmail) nextErrors.email = "Please enter your email.";
+    if (!trimmedPassword) nextErrors.password = "Please enter your password.";
 
     setErrors(nextErrors);
     if (nextErrors.email || nextErrors.password) return;
@@ -159,7 +163,7 @@ export const useLoginPageLogic = () => {
       });
 
       if (!response.success) {
-        alert(response.error?.message || "로그인에 실패했습니다.");
+        alert(response.error?.message || "Login failed.");
         return;
       }
 
@@ -193,11 +197,11 @@ export const useLoginPageLogic = () => {
     } catch (error) {
       const apiError = error?.response?.data?.error;
       const code = apiError?.code;
-      const message = apiError?.message || "로그인 중 오류가 발생했습니다.";
+      const message = apiError?.message || "Login processing error.";
 
-      if (code === "E403" && message.includes("로그인 5회 실패")) {
+      if (code === "E403" && message.includes("Login failed 5 times")) {
         const start = window.confirm(
-          "로그인 5회 실패로 계정이 잠겼습니다.\n본인인증으로 즉시 해제하시겠습니까?"
+          "Login failed 5 times and your account may be locked. Verify your identity now?"
         );
         if (start) {
           await handleUnlockByCertification();
@@ -227,7 +231,7 @@ export const useLoginPageLogic = () => {
     if (otpMode === "otp" && (!otpCode || otpCode.length !== 6)) {
       setErrors((prev) => ({
         ...prev,
-        otp: "6자리 OTP 코드를 입력해주세요.",
+        otp: "Please enter the 6-digit OTP code.",
       }));
       return;
     }
@@ -247,7 +251,7 @@ export const useLoginPageLogic = () => {
       });
 
       if (!res.success) {
-        alert(res.error?.message || "OTP 인증 실패");
+        alert(res.error?.message || "OTP verification failed.");
         return;
       }
 
@@ -263,7 +267,7 @@ export const useLoginPageLogic = () => {
       navigate("/", { replace: true });
     } catch (e) {
       console.error(e);
-      alert("OTP 인증 처리 중 오류가 발생했습니다.");
+      alert("An error occurred while processing OTP verification.");
     } finally {
       setOtpLoading(false);
     }
@@ -327,28 +331,40 @@ export const useLoginPageLogic = () => {
       setField("password", value);
     },
 
-    handleKakaoLogin: () => {
-      const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI;
-      if (!window.Kakao) {
-        alert("카카오 SDK 로드 실패");
-        return;
+    handleKakaoLogin: async () => {
+      try {
+        const res = await httpClient.get("/oauth/kakao/auth", {
+          params: { mode: "login" },
+        });
+
+        if (!res?.success) {
+          alert(res?.error?.message || "Kakao login failed.");
+          return;
+        }
+
+        const kakaoUrl = res.data.url;
+        window.location.href = kakaoUrl;
+      } catch (e) {
+        console.error(e);
+        alert("Failed to start Kakao login.");
       }
-      if (!window.Kakao.isInitialized()) {
-        window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
-      }
-      window.Kakao.Auth.authorize({
-        redirectUri,
-        state: "login",
-      });
     },
 
     handleGoogleLogin: async () => {
-      const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
-      const res = await httpClient.get("/oauth/google/auth", {
-        params: { mode: "login", redirectUri },
-      });
-      if (res.success) {
+      try {
+        const res = await httpClient.get("/oauth/google/auth", {
+          params: { mode: "login" },
+        });
+
+        if (!res?.success) {
+          alert(res?.error?.message || "Google login failed.");
+          return;
+        }
+
         window.location.href = res.data.url;
+      } catch (e) {
+        console.error(e);
+        alert("Failed to start Google login.");
       }
     },
 

@@ -7,7 +7,7 @@ export function ProfileCard({ user, isAdmin, shortId, actions }) {
   if (!user) return null;
 
   return (
-    <Card className="bg-white/95 border border-indigo-100 shadow-xl rounded-3xl w-full max-w-md">
+    <Card className="bg-white border border-gray-100 shadow-2xl rounded-3xl w-full">
       <CardContent className="p-6 flex items-center gap-5">
         <div className="relative">
           <Avatar className="w-20 h-20 border border-slate-200 bg-slate-100">
@@ -51,7 +51,7 @@ export function ProfileCard({ user, isAdmin, shortId, actions }) {
             <Button
               type="button"
               onClick={actions.goEditUser}
-              className="h-9 px-4 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+              className="h-10 px-4 text-xs md:text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
             >
               회원정보 수정
             </Button>
@@ -59,7 +59,7 @@ export function ProfileCard({ user, isAdmin, shortId, actions }) {
               type="button"
               onClick={actions.goChangePwd}
               variant="outline"
-              className="h-9 px-4 text-xs border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50 rounded-lg"
+              className="h-10 px-4 text-xs md:text-sm font-bold border border-gray-200 text-indigo-700 bg-white hover:bg-indigo-50 rounded-xl"
             >
               비밀번호 변경
             </Button>
@@ -67,7 +67,7 @@ export function ProfileCard({ user, isAdmin, shortId, actions }) {
               type="button"
               onClick={actions.goDeleteUser}
               variant="outline"
-              className="h-9 px-4 text-xs border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-lg"
+              className="h-10 px-4 text-xs md:text-sm font-bold border border-gray-200 text-red-600 bg-white hover:bg-red-50 rounded-xl"
             >
               회원 탈퇴
             </Button>
