@@ -1,210 +1,253 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  loadUserInfo,
-  handleImageChange,
-  doPassVerification,
-  saveUserInfo,
-  checkNicknameDuplicate,
-} from "@/hooks/user/useUpdateUser";
-
-import { useUpdateUserStore } from "@/store/user/updateUserStore";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
-import { KeyRound, Mail, User, Phone, Upload, BellRing } from "lucide-react";
+import {
+  KeyRound,
+  Mail,
+  User,
+  Phone,
+  Upload,
+  BellRing,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import useUpdateUser from "@/hooks/user/useUpdateUser";
 
-const BAD_WORDS = [
-  "fuck",
-  "shit",
-  "bitch",
-  "개새",
-  "씨발",
-  "병신",
-  "지랄",
-  "좆",
-  "썅",
-];
+function Sticker({
+  children,
+  color = "bg-white",
+  rotate = 0,
+  className = "",
+  withShadow = true,
+}) {
+  return (
+    <motion.div
+      whileHover={withShadow ? { scale: 1.02, x: 2, y: 2 } : undefined}
+      whileTap={withShadow ? { scale: 0.98, x: 0, y: 0 } : undefined}
+      style={{ rotate }}
+      className={`
+        ${color}
+        border-4 border-black
+        ${withShadow ? "shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]" : ""}
+        transition-all duration-200
+        ${className}
+      `}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function PopButton({
+  children,
+  color = "bg-pink-500 text-white",
+  className = "",
+  ...props
+}) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.02, x: 2, y: 2 }}
+      whileTap={{ scale: 0.98, x: 0, y: 0 }}
+      className={`
+        ${color}
+        font-black
+        border-4 border-black
+        shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
+        transition-all duration-200
+        rounded-2xl
+        ${className}
+      `}
+      {...props}
+    >
+      {children}
+    </motion.button>
+  );
+}
 
 export default function UpdateUserPage() {
-  const navigate = useNavigate();
-  const fileRef = useRef();
-
-  const [initialNickname, setInitialNickname] = useState("");
-  const [nickMsg, setNickMsg] = useState({ text: "", isError: false });
-
-  const { email, nickname, phone, previewImage, agreeMarketing, setField } =
-    useUpdateUserStore();
-
-  useEffect(() => {
-    const fetch = async () => {
-      await loadUserInfo();
-      const current = useUpdateUserStore.getState().nickname;
-      setInitialNickname(current);
-    };
-    fetch();
-  }, []);
-
-  const validateNickname = async (currentNickname) => {
-    const v = currentNickname.trim();
-
-    if (!v) {
-      setNickMsg({ text: "닉네임을 입력해주세요.", isError: true });
-      return false;
-    }
-
-    const reg = /^[A-Za-z0-9가-힣]{2,10}$/;
-    if (!reg.test(v)) {
-      setNickMsg({
-        text: "닉네임은 2~10자, 한글/영문/숫자만 가능합니다.",
-        isError: true,
-      });
-      return false;
-    }
-
-    const lower = v.toLowerCase();
-    for (const bad of BAD_WORDS) {
-      if (lower.includes(bad)) {
-        setNickMsg({
-          text: "부적절한 단어가 포함되어 있습니다.",
-          isError: true,
-        });
-        return false;
-      }
-    }
-
-    if (v !== initialNickname) {
-      const isAvailable = await checkNicknameDuplicate(v);
-      if (!isAvailable) {
-        setNickMsg({ text: "이미 사용 중인 닉네임입니다.", isError: true });
-        return false;
-      }
-    }
-
-    setNickMsg({ text: "사용 가능한 닉네임입니다.", isError: false });
-    return true;
-  };
-
-  const handleNicknameBlur = () => {
-    validateNickname(nickname);
-  };
-
-  const onSave = async () => {
-    try {
-      const isValid = await validateNickname(nickname);
-      if (!isValid) {
-        return;
-      }
-
-      const file = fileRef.current?.files?.[0] || null;
-
-      await saveUserInfo({
-        nickname,
-        phone,
-        agreeMarketing,
-        file,
-      });
-
-      alert("회원정보가 수정되었습니다.");
-      navigate("/mypage", { replace: true });
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const onPassVerify = async () => {
-    try {
-      const data = await doPassVerification();
-      setField("phone", data.phone);
-      alert("본인인증 성공. 휴대폰 번호 변경됨.");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const onImageSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      handleImageChange(file);
-    }
-  };
-
-  const displayImage = previewImage
-    ? previewImage.startsWith("blob:") || previewImage.startsWith("http")
-      ? previewImage
-      : `https://localhost:8443${previewImage}`
-    : "https://static.thenounproject.com/png/363633-200.png";
+  const {
+    fileRef,
+    email,
+    nickname,
+    phone,
+    agreeMarketing,
+    displayImage,
+    nickMsg,
+    openFilePicker,
+    onImageSelect,
+    onNicknameChange,
+    onNicknameBlur,
+    onAgreeMarketingChange,
+    onPassVerify,
+    onSave,
+    goMypage,
+  } = useUpdateUser();
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 text-slate-900">
-      {/* 상단 HERO 영역 */}
-      <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-16 px-4">
-        <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-10">
-          <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center rounded-full border border-white/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold mb-4 backdrop-blur">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-300 mr-2" />
-              MoA 계정 · 회원정보 수정
-            </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold leading-tight mb-3 drop-shadow-md">
-              <span className="flex items-center justify-center lg:justify-start gap-2">
-                <KeyRound className="w-7 h-7 text-indigo-100" />
-                <span>프로필과 연락처를</span>
-              </span>
-              <span className="block mt-1 text-indigo-100">
-                항상 최신 상태로 유지하세요
-              </span>
-            </h2>
-            <p className="text-sm sm:text-base text-indigo-50/90 leading-relaxed max-w-md mx-auto lg:mx-0">
-              닉네임, 휴대폰 번호, 프로필 이미지를 한 번에 관리하고 마케팅 정보
-              수신 여부도 편하게 설정할 수 있어요.
-            </p>
-          </div>
+    <div className="min-h-screen bg-slate-50 text-black overflow-hidden">
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, #000 1.5px, transparent 1.5px)",
+          backgroundSize: "20px 20px",
+        }}
+      />
 
-          {/* 오른쪽 카드 */}
-          <div className="flex-1 w-full max-w-md">
-            <Card className="w-full bg-white border border-slate-200 shadow-2xl rounded-3xl">
-              <CardHeader className="text-center pb-2 border-b border-slate-200 pt-6 px-6">
-                <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">
-                  회원정보 수정
-                </CardTitle>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1.5">
-                  닉네임, 휴대폰 번호, 프로필 이미지 및 마케팅 수신 동의를
-                  수정할 수 있습니다.
+      <nav className="relative z-50 px-6 md:px-12 py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="relative"
+          >
+            <Sticker
+              color="bg-white"
+              rotate={0}
+              className="px-4 py-2 rounded-xl"
+            >
+              <span className="text-2xl font-black tracking-tight">MoA!</span>
+            </Sticker>
+          </motion.div>
+          <div />
+        </div>
+      </nav>
+
+      <section className="relative px-6 md:px-12 pt-6 pb-16">
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, delay: 0.4 }}
+          className="absolute top-44 left-[6%] hidden lg:block"
+        >
+          <Sticker
+            color="bg-lime-400"
+            rotate={-6}
+            className="px-3 py-1 rounded-lg"
+          >
+            <span className="font-bold text-sm">SAFE ✅</span>
+          </Sticker>
+        </motion.div>
+
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-start">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center lg:text-left"
+          >
+            <Sticker
+              color="bg-white"
+              rotate={0}
+              className="inline-block px-5 py-3 rounded-2xl mb-6"
+            >
+              <span className="inline-flex items-center gap-2 font-black">
+                <KeyRound className="w-5 h-5" />
+                회원정보 수정
+              </span>
+            </Sticker>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.85] tracking-tighter mb-6"
+            >
+              <span className="block">UPDATE</span>
+              <span className="block">
+                <span className="text-cyan-400 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                  YOUR
+                </span>
+              </span>
+              <span className="block text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                PROFILE!
+              </span>
+            </motion.h1>
+
+            <div className="space-y-4 max-w-xl mx-auto lg:mx-0">
+              <Sticker
+                color="bg-white"
+                rotate={0}
+                className="px-5 py-3 rounded-2xl"
+              >
+                <p className="text-lg md:text-xl font-bold">
+                  닉네임 · 휴대폰 · 이미지 · 마케팅 수신까지 한 번에 🎯
                 </p>
-              </CardHeader>
+              </Sticker>
 
-              <CardContent className="space-y-7 p-6">
-                {/* 프로필 이미지 */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                <Sticker
+                  color="bg-lime-400"
+                  rotate={0}
+                  className="px-4 py-2 rounded-xl"
+                >
+                  <span className="font-black">빠르게</span>
+                </Sticker>
+                <Sticker
+                  color="bg-cyan-400"
+                  rotate={0}
+                  className="px-4 py-2 rounded-xl"
+                >
+                  <span className="font-black">깔끔하게</span>
+                </Sticker>
+                <Sticker
+                  color="bg-pink-500"
+                  rotate={0}
+                  className="px-4 py-2 rounded-xl"
+                >
+                  <span className="font-black text-white">안전하게</span>
+                </Sticker>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="relative"
+          >
+            <Sticker
+              color="bg-white"
+              rotate={0}
+              className="rounded-[2.5rem] p-6 md:p-8"
+            >
+              <div className="space-y-7">
                 <div className="flex flex-col items-center gap-4">
                   <div
                     className="relative group cursor-pointer"
-                    onClick={() => fileRef.current?.click()}
+                    onClick={openFilePicker}
                   >
-                    <Avatar className="w-24 h-24 border border-slate-200 bg-slate-100 transition-all duration-200 group-hover:scale-105">
-                      <AvatarImage
-                        src={displayImage}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-slate-200 text-slate-600">
-                        <User className="w-8 h-8" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Upload className="w-6 h-6 text-white" />
+                    <div className="rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                      <Avatar className="w-24 h-24 bg-slate-100">
+                        <AvatarImage
+                          src={displayImage}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="bg-slate-200 text-slate-700">
+                          <User className="w-8 h-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-24 h-24 rounded-full bg-black/35 flex items-center justify-center border-4 border-black">
+                        <Upload className="w-6 h-6 text-white" />
+                      </div>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs border-slate-300 text-slate-700 hover:bg-slate-50"
-                    onClick={() => fileRef.current?.click()}
+
+                  <PopButton
+                    type="button"
+                    color="bg-white text-black"
+                    className="text-sm px-5 py-2 rounded-xl"
+                    onClick={openFilePicker}
                   >
-                    이미지 변경
-                  </Button>
+                    <span className="inline-flex items-center gap-2">
+                      이미지 변경 <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </PopButton>
+
                   <input
                     ref={fileRef}
                     type="file"
@@ -214,93 +257,145 @@ export default function UpdateUserPage() {
                   />
                 </div>
 
-                {/* 이메일 */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-slate-700 uppercase flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5" /> 이메일 (ID)
+                  <Label className="text-xs font-black uppercase flex items-center gap-2">
+                    <Sticker
+                      withShadow={false}
+                      color="bg-cyan-400"
+                      rotate={0}
+                      className="px-2 py-1 rounded-lg"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                    </Sticker>
+                    이메일 (ID)
                   </Label>
                   <Input
                     readOnly
                     value={email || ""}
-                    className="bg-slate-100 border border-slate-300 text-slate-600 focus-visible:ring-0 cursor-not-allowed text-sm"
+                    className="bg-slate-100 border-4 border-black rounded-2xl font-bold text-gray-700 focus-visible:ring-0 cursor-not-allowed shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   />
                 </div>
 
-                {/* 닉네임 */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-indigo-700 uppercase flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5" /> 닉네임
+                  <Label className="text-xs font-black uppercase flex items-center gap-2">
+                    <Sticker
+                      withShadow={false}
+                      color="bg-pink-500"
+                      rotate={0}
+                      className="px-2 py-1 rounded-lg"
+                    >
+                      <User className="w-3.5 h-3.5 text-white" />
+                    </Sticker>
+                    닉네임
                   </Label>
                   <Input
                     value={nickname || ""}
-                    onChange={(e) => {
-                      setField("nickname", e.target.value);
-                      setNickMsg({ text: "", isError: false });
-                    }}
-                    onBlur={handleNicknameBlur}
-                    className="bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 transition-all text-sm"
+                    onChange={(e) => onNicknameChange(e.target.value)}
+                    onBlur={onNicknameBlur}
                     placeholder="변경할 닉네임 입력"
+                    className="bg-white border-4 border-black rounded-2xl font-bold placeholder:text-gray-400 focus-visible:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   />
                   {nickMsg.text && (
-                    <p
-                      className={`text-xs ${
-                        nickMsg.isError ? "text-red-500" : "text-emerald-600"
-                      }`}
+                    <Sticker
+                      color={nickMsg.isError ? "bg-white" : "bg-lime-400"}
+                      rotate={0}
+                      className="px-3 py-2 rounded-xl inline-block"
+                      withShadow={false}
                     >
-                      {nickMsg.text}
-                    </p>
+                      <p
+                        className={`text-sm font-black ${
+                          nickMsg.isError ? "text-red-600" : "text-black"
+                        }`}
+                      >
+                        {nickMsg.text}
+                      </p>
+                    </Sticker>
                   )}
                 </div>
 
-                {/* 휴대폰 번호 + PASS */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-indigo-700 uppercase flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5" /> 휴대폰 번호
+                  <Label className="text-xs font-black uppercase flex items-center gap-2">
+                    <Sticker
+                      withShadow={false}
+                      color="bg-lime-400"
+                      rotate={0}
+                      className="px-2 py-1 rounded-lg"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                    </Sticker>
+                    휴대폰 번호
                   </Label>
-                  <div className="flex gap-2">
+
+                  <div className="flex gap-3 items-stretch">
                     <Input
                       value={phone || ""}
                       readOnly
-                      className="flex-1 bg-slate-100 border border-slate-300 text-slate-700 focus-visible:ring-0 text-sm"
+                      className="flex-1 bg-slate-100 border-4 border-black rounded-2xl font-bold text-gray-800 focus-visible:ring-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                     />
-                    <Button
+                    <PopButton
+                      type="button"
                       onClick={onPassVerify}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4"
+                      color="bg-black text-white"
+                      className="px-5 py-3 text-sm rounded-2xl"
                     >
                       본인인증
-                    </Button>
+                    </PopButton>
                   </div>
                 </div>
 
-                {/* 마케팅 수신 동의 */}
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50">
-                  <div className="space-y-0.5">
-                    <Label className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                      <BellRing className="w-4 h-4 text-indigo-600" /> 마케팅
-                      정보 수신 동의
-                    </Label>
-                    <p className="text-xs text-slate-500">
-                      이벤트 및 혜택 정보를 이메일·문자로 받아보시겠습니까?
-                    </p>
+                <div className="border-4 border-black rounded-3xl p-5 bg-slate-100 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Sticker
+                          withShadow={false}
+                          color="bg-cyan-400"
+                          rotate={0}
+                          className="px-2 py-1 rounded-lg"
+                        >
+                          <BellRing className="w-4 h-4" />
+                        </Sticker>
+                        <span className="text-sm md:text-base font-black">
+                          마케팅 정보 수신 동의
+                        </span>
+                      </div>
+                      <p className="text-xs md:text-sm font-bold text-gray-600">
+                        이벤트 및 혜택 정보를 이메일·문자로 받아보시겠습니까?
+                      </p>
+                    </div>
+
+                    <Switch
+                      checked={agreeMarketing}
+                      onCheckedChange={onAgreeMarketingChange}
+                      className="data-[state=checked]:bg-pink-500 data-[state=unchecked]:bg-black/40"
+                    />
                   </div>
-                  <Switch
-                    checked={agreeMarketing}
-                    onCheckedChange={(checked) =>
-                      setField("agreeMarketing", checked)
-                    }
-                    className="data-[state=checked]:bg-indigo-600"
-                  />
                 </div>
 
-                <Button
-                  className="w-full h-11 text-sm md:text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm rounded-xl"
-                  onClick={onSave}
-                >
-                  저장하기
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                <div className="pt-2 flex items-stretch gap-4">
+                  <PopButton
+                    type="button"
+                    onClick={goMypage}
+                    color="bg-white text-black"
+                    className="flex-1 text-lg py-4 rounded-2xl"
+                  >
+                    마이페이지
+                  </PopButton>
+
+                  <PopButton
+                    type="button"
+                    onClick={onSave}
+                    color="bg-pink-500 text-white"
+                    className="flex-1 text-lg py-4 rounded-2xl"
+                  >
+                    <span className="inline-flex items-center justify-center gap-3">
+                      저장하기 <Sparkles className="w-6 h-6" />
+                    </span>
+                  </PopButton>
+                </div>
+              </div>
+            </Sticker>
+          </motion.div>
         </div>
       </section>
     </div>

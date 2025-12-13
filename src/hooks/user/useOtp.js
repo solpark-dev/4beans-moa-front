@@ -1,10 +1,21 @@
-import { setupOtp, verifyOtp, disableOtpVerify } from "@/api/authApi";
+import { setupOtp, verifyOtp, disableOtpVerify, fetchCurrentUser } from "@/api/authApi";
 import { useOtpStore } from "@/store/user/otpStore";
 import { useMyPageStore } from "@/store/user/myPageStore";
 import { useAuthStore } from "@/store/authStore";
 
 export function otpHandlers() {
   const openSetup = async () => {
+    const authStore = useAuthStore.getState();
+
+    if (!authStore.accessToken) {
+      await authStore.fetchSession();
+    }
+
+    if (!useAuthStore.getState().accessToken) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
     try {
       const store = useOtpStore.getState();
       store.setField("loading", true);
@@ -63,9 +74,19 @@ export function otpHandlers() {
         }
       }
 
-      await useAuthStore.getState().fetchSession();
-      const authedUser = useAuthStore.getState().user;
-      if (authedUser) useMyPageStore.getState().setUser(authedUser);
+      const sessionRes = await fetchCurrentUser();
+      if (sessionRes?.success && sessionRes?.data) {
+        useAuthStore.getState().setUser(sessionRes.data);
+        useOtpStore.getState().setEnabled(!!sessionRes.data.otpEnabled);
+        useMyPageStore.getState().setUser(sessionRes.data);
+      } else {
+        await useAuthStore.getState().fetchSession();
+        const authedUser = useAuthStore.getState().user;
+        if (authedUser) {
+          useOtpStore.getState().setEnabled(!!authedUser.otpEnabled);
+          useMyPageStore.getState().setUser(authedUser);
+        }
+      }
 
       alert(mode === "enable" ? "OTP 활성화 완료" : "OTP 해제 완료");
 

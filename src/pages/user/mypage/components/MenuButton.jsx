@@ -14,13 +14,17 @@ export function MenuButton({
       onClick={onClick}
       className={`
         w-full justify-start h-12 px-4 text-sm font-bold rounded-xl
-        border transition-all duration-200
+        border-2 transition-all duration-200
         ${
           active
-            ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
-            : "bg-white text-slate-800 border-gray-200 hover:bg-gray-50"
+            ? "bg-indigo-600 text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            : "bg-white text-slate-800 border-black hover:bg-gray-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.7)]"
         }
-        ${isDestructive ? "text-red-600 hover:bg-red-50 border-red-200" : ""}
+        ${
+          isDestructive
+            ? "text-red-600 hover:bg-red-50 border-black"
+            : ""
+        }
       `}
     >
       <span className="mr-3 opacity-80">{icon}</span>

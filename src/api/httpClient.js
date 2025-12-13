@@ -3,7 +3,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
 const httpClient = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.PROD ? "https://moamoa.cloud/api" : "/api",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json; charset=UTF-8",

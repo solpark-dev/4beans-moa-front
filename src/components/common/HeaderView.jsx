@@ -1,13 +1,12 @@
+// src/components/layout/HeaderView.jsx
 import { Link } from "react-router-dom";
 import {
-  Bell,
   LogOut,
   LayoutDashboard,
   Users,
   CreditCard,
   Boxes,
   UserCircle,
-  Trash2,
   Menu,
 } from "lucide-react";
 
@@ -28,6 +27,27 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import NotificationPopover from "@/components/push/NotificationPopover";
 
+function Sticker({ children, color = "bg-white", className = "" }) {
+  return (
+    <div
+      className={`${color} border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-150 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function NavPill({ to, children }) {
+  return (
+    <Link
+      to={to}
+      className="px-4 py-2 font-black text-[15px] border-2 border-black rounded-xl bg-white hover:bg-black hover:text-white transition-colors whitespace-nowrap"
+    >
+      {children}
+    </Link>
+  );
+}
+
 export default function HeaderView({
   user,
   isAdmin,
@@ -42,8 +62,8 @@ export default function HeaderView({
   const renderProviderBadge = () => {
     if (isAdmin) {
       return (
-        <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 h-5 text-[10px] px-1.5">
-          ADMINISTRATOR
+        <Badge className="bg-lime-400 text-black border-2 border-black h-6 text-[11px] px-2 font-black rounded-lg">
+          ADMIN
         </Badge>
       );
     }
@@ -66,22 +86,19 @@ export default function HeaderView({
     switch (provider) {
       case "kakao":
         return (
-          <Badge className="bg-[#FEE500] text-black h-5 text-[10px] px-1.5 border border-yellow-300">
+          <Badge className="bg-[#FEE500] text-black border-2 border-black h-6 text-[11px] px-2 font-black rounded-lg">
             KAKAO
           </Badge>
         );
       case "google":
         return (
-          <Badge
-            variant="outline"
-            className="bg-white text-slate-700 border-slate-300 h-5 text-[10px] px-1.5"
-          >
+          <Badge className="bg-white text-black border-2 border-black h-6 text-[11px] px-2 font-black rounded-lg">
             GOOGLE
           </Badge>
         );
       default:
         return (
-          <Badge className="bg-slate-100 text-slate-700 border border-slate-200 h-5 text-[10px] px-1.5">
+          <Badge className="bg-slate-100 text-black border-2 border-black h-6 text-[11px] px-2 font-black rounded-lg">
             EMAIL
           </Badge>
         );
@@ -90,49 +107,61 @@ export default function HeaderView({
 
   const renderMobileNavItems = (withSeparator = true) => {
     const separator = withSeparator ? (
-      <DropdownMenuSeparator className="my-2" />
+      <DropdownMenuSeparator className="my-2 bg-black/20" />
     ) : null;
 
     if (isAdmin) {
       return (
         <>
           <DropdownMenuGroup className="md:hidden">
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer focus:bg-transparent"
+            >
               <Link
                 to="/admin/dashboard"
-                className="py-2.5 flex items-center font-medium text-slate-700"
+                className="py-2.5 flex items-center gap-2 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors"
               >
-                <LayoutDashboard className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                <LayoutDashboard className="w-5 h-5" />
                 대시보드
               </Link>
             </DropdownMenuItem>
 
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer focus:bg-transparent"
+            >
               <Link
                 to="/admin/users"
-                className="py-2.5 flex items-center font-medium text-slate-700"
+                className="py-2.5 flex items-center gap-2 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors"
               >
-                <Users className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                <Users className="w-5 h-5" />
                 회원 관리
               </Link>
             </DropdownMenuItem>
 
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer focus:bg-transparent"
+            >
               <Link
                 to="/admin/sales"
-                className="py-2.5 flex items-center font-medium text-slate-700"
+                className="py-2.5 flex items-center gap-2 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors"
               >
-                <CreditCard className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                <CreditCard className="w-5 h-5" />
                 매출 조회
               </Link>
             </DropdownMenuItem>
 
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer focus:bg-transparent"
+            >
               <Link
                 to="/product"
-                className="py-2.5 flex items-center font-medium text-slate-700"
+                className="py-2.5 flex items-center gap-2 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors"
               >
-                <Boxes className="mr-2 w-4.5 h-4.5 text-slate-500" />
+                <Boxes className="w-5 h-5" />
                 구독상품
               </Link>
             </DropdownMenuItem>
@@ -145,21 +174,36 @@ export default function HeaderView({
     return (
       <>
         <DropdownMenuGroup className="md:hidden">
-          <DropdownMenuItem asChild>
-            <Link to="/product" className="py-2.5 font-medium text-slate-700">
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer focus:bg-transparent"
+          >
+            <Link
+              to="/product"
+              className="py-2.5 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors block"
+            >
               구독상품
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer focus:bg-transparent"
+          >
             <Link
               to="/subscription"
-              className="py-2.5 font-medium text-slate-700"
+              className="py-2.5 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors block"
             >
               구독목록
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to="/party" className="py-2.5 font-medium text-slate-700">
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer focus:bg-transparent"
+          >
+            <Link
+              to="/party"
+              className="py-2.5 font-black text-black rounded-xl hover:bg-black hover:text-white border-2 border-black bg-white px-3 transition-colors block"
+            >
               파티 찾기
             </Link>
           </DropdownMenuItem>
@@ -170,127 +214,83 @@ export default function HeaderView({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm h-20">
-      <div className="w-full max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-10 min-w-0">
-          <Link
-            to={isAdmin ? "/admin/users" : "/"}
-            className="flex items-center gap-3 group"
-          >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-              <span className="text-white font-extrabold text-2xl tracking-tight">
-                M
-              </span>
-            </div>
-
-            <div className="flex flex-col leading-none">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
-                MoA
-              </span>
-            </div>
+    <header className="sticky top-0 z-[200] isolate w-full bg-slate-50 border-b-4 border-black">
+      <div className="w-full max-w-7xl mx-auto h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-8 min-w-0">
+          <Link to={isAdmin ? "/admin/users" : "/"} className="shrink-0">
+            <Sticker color="bg-white" className="px-4 py-2 rounded-xl">
+              <span className="text-2xl font-black tracking-tight">MoA!</span>
+            </Sticker>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold text-slate-600 mr-4">
+          <nav className="hidden md:flex items-center gap-3">
             {isAdmin ? (
               <>
-                <Link
-                  to="/admin/dashboard"
-                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  <span>대시보드</span>
-                </Link>
-
-                <Link
-                  to="/admin/users"
-                  className="flex items-center gap-2 whitespace-nowrap transition-colors hover:text-indigo-600"
-                >
-                  <Users className="w-5 h-5" />
-                  <span>회원 관리</span>
-                </Link>
-
-                <Link
-                  to="/admin/sales"
-                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  <CreditCard className="w-5 h-5" />
-                  <span>매출 조회</span>
-                </Link>
-
-                <Link
-                  to="/product"
-                  className="flex items-center gap-2 hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  <Boxes className="w-5 h-5" />
-                  <span>구독상품</span>
-                </Link>
+                <NavPill to="/admin/dashboard">대시보드</NavPill>
+                <NavPill to="/admin/users">회원 관리</NavPill>
+                <NavPill to="/admin/sales">매출 조회</NavPill>
+                <NavPill to="/product">구독상품</NavPill>
               </>
             ) : (
               <>
-                <Link
-                  to="/product"
-                  className="hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  구독상품
-                </Link>
-                <Link
-                  to="/subscription"
-                  className="hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  구독목록
-                </Link>
-                <Link
-                  to="/party"
-                  className="hover:text-indigo-600 transition-colors whitespace-nowrap"
-                >
-                  파티 찾기
-                </Link>
+                <NavPill to="/product">구독상품</NavPill>
+                <NavPill to="/subscription">구독목록</NavPill>
+                <NavPill to="/party">파티 찾기</NavPill>
               </>
             )}
           </nav>
         </div>
 
-        <div className="flex items-center gap-5 w-[320px] justify-end shrink-0">
+        <div className="flex items-center gap-4 justify-end shrink-0">
           {user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {user?.role === "ADMIN" && (
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm w-[120px] justify-center shrink-0">
+                <Sticker
+                  color="bg-white"
+                  className="hidden sm:flex items-center gap-2 rounded-2xl px-3 py-2"
+                >
                   <Switch
                     id="admin-mode"
                     checked={isAdminMode}
                     onCheckedChange={handleAdminSwitch}
-                    className="data-[state=checked]:bg-slate-900"
+                    className="data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
                   />
                   <Label
                     htmlFor="admin-mode"
-                    className="w-10 text-[11px] font-bold text-slate-800 cursor-pointer tracking-[0.18em] uppercase text-center shrink-0"
+                    className="text-[11px] font-black text-black cursor-pointer tracking-[0.18em] uppercase"
                   >
                     {isAdminMode ? "SUP" : "MGR"}
                   </Label>
-                </div>
+                </Sticker>
               )}
 
-              <NotificationPopover />
+              <Sticker color="bg-white" className="rounded-2xl p-1.5">
+                <NotificationPopover />
+              </Sticker>
 
-              <Separator orientation="vertical" className="h-8 bg-slate-200" />
+              <Separator orientation="vertical" className="h-9 bg-black/20" />
 
-              <Link
-                to="/mypage"
-                className="relative z-50 flex items-center gap-3 px-1 hover:opacity-80 transition cursor-pointer"
-              >
-                <Avatar className="h-11 w-11 border border-slate-200 bg-slate-50 shadow-sm">
-                  <AvatarImage src={profileImageUrl} alt={displayNickname} />
-                  <AvatarFallback className="bg-indigo-50 text-indigo-600 text-lg font-bold">
-                    {userInitial}
-                  </AvatarFallback>
-                </Avatar>
+              <Link to="/mypage" className="flex items-center gap-3">
+                <Sticker color="bg-white" className="rounded-2xl p-2">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10 border-2 border-black bg-slate-50">
+                      <AvatarImage
+                        src={profileImageUrl}
+                        alt={displayNickname}
+                      />
+                      <AvatarFallback className="bg-cyan-400 text-black text-lg font-black">
+                        {userInitial}
+                      </AvatarFallback>
+                    </Avatar>
 
-                <div className="hidden lg:flex flex-col gap-0.5 w-28 overflow-hidden">
-                  <span className="text-[15px] font-bold text-slate-900 leading-tight truncate">
-                    {displayNickname}
-                  </span>
-                  {renderProviderBadge()}
-                </div>
+                    <div className="hidden lg:flex flex-col gap-1 w-28 overflow-hidden">
+                      <span className="text-[15px] font-black text-black leading-tight truncate">
+                        {displayNickname}
+                      </span>
+                      {renderProviderBadge()}
+                    </div>
+                  </div>
+                </Sticker>
               </Link>
 
               <DropdownMenu>
@@ -298,25 +298,35 @@ export default function HeaderView({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="w-11 h-11 rounded-full border-slate-200 bg-white hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-colors"
+                    className="p-0 border-0 bg-transparent hover:bg-transparent"
                   >
-                    <Menu className="w-6 h-6" />
+                    <Sticker
+                      color="bg-pink-500"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    >
+                      <Menu className="w-6 h-6 text-white" />
+                    </Sticker>
                   </Button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
-                  className="w-64 p-2 mt-2 bg-white/95 border border-slate-200 rounded-2xl shadow-xl"
                   align="end"
+                  className="w-72 p-3 mt-3 bg-white border-4 border-black rounded-3xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-visible"
                 >
-                  <DropdownMenuLabel className="font-normal p-3 bg-slate-50 rounded-xl mb-2">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-bold text-slate-900">
-                        {displayNickname}님
-                      </p>
-                      <p className="text-xs text-slate-500 font-medium truncate">
-                        {displayEmail}
-                      </p>
-                    </div>
+                  <DropdownMenuLabel className="font-normal p-0 mb-3">
+                    <Sticker
+                      color="bg-slate-100"
+                      className="rounded-2xl p-4"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm font-black text-black">
+                          {displayNickname}님
+                        </p>
+                        <p className="text-xs text-black/70 font-bold truncate">
+                          {displayEmail}
+                        </p>
+                      </div>
+                    </Sticker>
                   </DropdownMenuLabel>
 
                   {renderMobileNavItems()}
@@ -325,42 +335,57 @@ export default function HeaderView({
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         onClick={logout}
-                        className="py-2.5 text-red-600 bg-red-50/60 font-medium cursor-pointer"
+                        className="cursor-pointer focus:bg-transparent p-0"
                       >
-                        <LogOut className="mr-2 w-4.5 h-4.5" />
-                        로그아웃
+                        <div className="w-full">
+                          <Sticker
+                            color="bg-black"
+                            className="w-full rounded-2xl px-4 py-3"
+                          >
+                            <div className="flex items-center gap-2 text-white font-black">
+                              <LogOut className="w-5 h-5" />
+                              로그아웃
+                            </div>
+                          </Sticker>
+                        </div>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   ) : (
                     <DropdownMenuGroup>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/mypage"
-                          className="py-2.5 flex items-center font-medium text-slate-700"
-                        >
-                          <UserCircle className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                          마이페이지
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer focus:bg-transparent p-0"
+                      >
+                        <Link to="/mypage" className="w-full">
+                          <Sticker
+                            color="bg-white"
+                            className="w-full rounded-2xl px-4 py-3"
+                          >
+                            <div className="flex items-center gap-2 text-black font-black">
+                              <UserCircle className="w-5 h-5" />
+                              마이페이지
+                            </div>
+                          </Sticker>
                         </Link>
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem asChild className="md:hidden">
-                        <Link
-                          to="/subscription"
-                          className="py-2.5 flex items-center font-medium text-slate-700"
-                        >
-                          <LayoutDashboard className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                          나의 구독
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator className="my-1" />
+                      <DropdownMenuSeparator className="my-3 bg-black/20" />
 
                       <DropdownMenuItem
                         onClick={logout}
-                        className="py-2.5 font-medium text-slate-700 cursor-pointer"
+                        className="cursor-pointer focus:bg-transparent p-0"
                       >
-                        <LogOut className="mr-2 w-4.5 h-4.5 text-slate-500" />
-                        로그아웃
+                        <div className="w-full">
+                          <Sticker
+                            color="bg-pink-500"
+                            className="w-full rounded-2xl px-4 py-3"
+                          >
+                            <div className="flex items-center gap-2 text-white font-black">
+                              <LogOut className="w-5 h-5" />
+                              로그아웃
+                            </div>
+                          </Sticker>
+                        </div>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   )}
@@ -374,32 +399,38 @@ export default function HeaderView({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="md:hidden w-11 h-11 rounded-full border-slate-200 bg-white hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-colors"
+                    className="p-0 border-0 bg-transparent hover:bg-transparent md:hidden"
                   >
-                    <Menu className="w-6 h-6" />
+                    <Sticker
+                      color="bg-white"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    >
+                      <Menu className="w-6 h-6 text-black" />
+                    </Sticker>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-64 p-2 mt-2 bg-white/95 border border-slate-200 rounded-2xl shadow-xl"
                   align="end"
+                  className="w-72 p-3 mt-3 bg-white border-4 border-black rounded-3xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-visible"
                 >
                   {renderMobileNavItems(false)}
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button
-                variant="ghost"
-                asChild
-                className="rounded-full text-[14px] font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 px-5 h-10"
-              >
-                <Link to="/signup">회원가입</Link>
-              </Button>
-              <Button
-                asChild
-                className="rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md px-6 h-10 text-[14px] font-bold"
-              >
-                <Link to="/login">로그인</Link>
-              </Button>
+              <Link to="/signup" className="hidden sm:block">
+                <Sticker color="bg-white" className="px-4 py-2 rounded-xl">
+                  <span className="font-black text-black">회원가입</span>
+                </Sticker>
+              </Link>
+
+              <Link to="/login">
+                <Sticker
+                  color="bg-pink-500"
+                  className="px-5 py-2 rounded-xl"
+                >
+                  <span className="font-black text-white">로그인</span>
+                </Sticker>
+              </Link>
             </div>
           )}
         </div>

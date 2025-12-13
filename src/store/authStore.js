@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import httpClient from "@/api/httpClient";
 import { useLoginStore } from "./user/loginStore";
+import { useOtpStore } from "./user/otpStore";
 
 const PASSWORD_STORAGE_KEYS = [
   "login-password",
@@ -75,6 +76,7 @@ export const useAuthStore = create(
 
           if (res.success && res.data) {
             set({ user: res.data, loading: false });
+            useOtpStore.getState().setEnabled(!!res.data.otpEnabled);
           } else {
             clearAuth();
           }

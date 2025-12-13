@@ -64,16 +64,26 @@ export const useMyPage = () => {
     }
   }, [user, setUser, setEnabled, navigate]);
 
+  useEffect(() => {
+    setEnabled(!!user?.otpEnabled);
+  }, [user, setEnabled]);
+
   const marketingAgreed = user
     ? user.agreeMarketing ?? user.marketing ?? false
     : false;
   const shortId = user?.userId?.split("@")[0] || user?.userId || "";
 
-  const googleConn = user?.oauthConnections?.find(
-    (c) => c.provider === "google" && !c.releaseDate
+  const googleConn = Boolean(
+    (user?.loginProvider || "").toLowerCase() === "google" ||
+      (user?.oauthConnections || []).find(
+        (c) => c.provider?.toLowerCase() === "google" && !c.releaseDate
+      )
   );
-  const kakaoConn = user?.oauthConnections?.find(
-    (c) => c.provider === "kakao" && !c.releaseDate
+  const kakaoConn = Boolean(
+    (user?.loginProvider || "").toLowerCase() === "kakao" ||
+      (user?.oauthConnections || []).find(
+        (c) => c.provider?.toLowerCase() === "kakao" && !c.releaseDate
+      )
   );
 
   const loginProviderLabel = getLoginProviderLabel(user);
@@ -95,23 +105,73 @@ export const useMyPage = () => {
     goDeleteUser: () => navigate("/mypage/delete"),
 
     oauthConnect: async (provider) => {
-      window.location.href =
-        `https://moamoa.cloud:8443/api/oauth/${provider}/auth?mode=connect`;
+      try {
+        const res = await httpClient.get(`/oauth/${provider}/auth`, {
+          params: { mode: "connect" },
+        });
+        const body = res?.data;
+        let url =
+          typeof body === "string"
+            ? body
+            : body?.url || body?.data?.url || body?.redirectUrl;
+
+        if (!url) {
+          alert("연동을 시작할 수 없습니다. 다시 시도해 주세요.");
+          return;
+        }
+
+        try {
+          const u = new URL(url);
+          u.searchParams.set("prompt", "login");
+          url = u.toString();
+        } catch {
+          // URL 파싱 실패 시 원본 URL 사용
+        }
+
+        window.location.assign(url);
+      } catch (e) {
+        console.error(e);
+        alert(
+          e?.response?.data?.error?.message ||
+            "소셜 연동을 시작하는 중 오류가 발생했습니다."
+        );
+      }
     },
 
-        oauthRelease: async (oauthId) => {
+    oauthRelease: async (oauthId, provider) => {
       try {
-        const res = await httpClient.post("/oauth/release", { oauthId });
+        let targetId = oauthId;
+
+        if (!targetId && provider) {
+          const conn = (user?.oauthConnections || []).find(
+            (c) =>
+              c.provider?.toLowerCase() === provider.toLowerCase() &&
+              !c.releaseDate
+          );
+          targetId = conn?.oauthId;
+        }
+
+        if (!targetId) {
+          alert("연동 해제 정보가 올바르지 않습니다.");
+          return;
+        }
+
+        const res = await httpClient.post("/oauth/release", { oauthId: targetId });
 
         if (res.success) {
           alert("Social account has been unlinked.");
-          window.location.reload();
+          await useAuthStore.getState().fetchSession();
+          const updatedUser = useAuthStore.getState().user;
+          if (updatedUser) setUser(updatedUser);
         } else {
           alert(res.error?.message || "Failed to unlink social account.");
         }
       } catch (e) {
         console.error(e);
-        alert("An error occurred while unlinking the social account.");
+        alert(
+          e?.response?.data?.error?.message ||
+            "An error occurred while unlinking the social account."
+        );
       }
     },
 
@@ -119,13 +179,13 @@ export const useMyPage = () => {
   };
 
   const handleGoogleClick = () => {
-    if (googleConn) handlers.oauthRelease(googleConn.oauthId);
-    else handlers.oauthConnect("google");
+    if (googleConn) return handlers.oauthRelease(googleConn.oauthId, "google");
+    return handlers.oauthConnect("google");
   };
 
   const handleKakaoClick = () => {
-    if (kakaoConn) handlers.oauthRelease(kakaoConn.oauthId);
-    else handlers.oauthConnect("kakao");
+    if (kakaoConn) return handlers.oauthRelease(kakaoConn.oauthId, "kakao");
+    return handlers.oauthConnect("kakao");
   };
 
   const handleOtpModalChange = (isOpen) => {
@@ -144,7 +204,7 @@ export const useMyPage = () => {
       kakaoConn,
       loginProvider: loginProviderLabel,
       otp: {
-        enabled,
+        enabled: !!(user?.otpEnabled ?? enabled),
         modalOpen,
         qrUrl,
         code,
@@ -160,7 +220,3 @@ export const useMyPage = () => {
     },
   };
 };
-
-
-
-

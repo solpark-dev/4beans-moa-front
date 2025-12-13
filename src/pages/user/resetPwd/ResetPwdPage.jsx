@@ -6,6 +6,10 @@ import { ResetPwdForm } from "./components/ResetPwdForm";
 import { PageTitle } from "../shared/PageTitle";
 import { PageSteps } from "../shared/PageSteps";
 
+const PAGE_BG = "min-h-screen bg-white text-slate-900";
+const CARD_CLASS =
+  "bg-white border-4 border-black rounded-3xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
+
 export default function ResetPwdPage() {
   useEffect(() => {
     initResetPwdPage();
@@ -17,23 +21,27 @@ export default function ResetPwdPage() {
   ];
 
   return (
-    <div className="flex flex-col items-center pt-28 pb-20 bg-gray-50">
-      <PageTitle
-        title="비밀번호 재설정"
-        subtitle="PASS 본인 인증 후 새 비밀번호를 설정하세요."
-      />
-
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-10 space-y-8">
-        <PageSteps steps={steps} />
-
-        <div className="border rounded-xl p-8 bg-gray-50 space-y-6">
-          <ResetPwdGuide />
-          <ResetPwdForm />
+    <div className={PAGE_BG}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 pt-20 pb-20 space-y-8">
+        <div className="text-center">
+          <PageTitle
+            title="비밀번호 재설정"
+            subtitle="PASS 본인 인증 후 새 비밀번호를 설정해 주세요"
+          />
         </div>
 
-        <p className="text-xs text-gray-400 text-center">
-          휴대폰 명의가 다른 경우 비밀번호 재설정이 제한될 수 있습니다.
-        </p>
+        <div className={`${CARD_CLASS} p-10 space-y-8`}>
+          <PageSteps steps={steps} />
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <ResetPwdGuide />
+            <ResetPwdForm />
+          </div>
+
+          <p className="text-xs text-gray-500 text-center">
+            본인 확인이 완료된 경우 비밀번호 재설정이 가능합니다.
+          </p>
+        </div>
       </div>
     </div>
   );

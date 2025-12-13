@@ -57,8 +57,8 @@ export function useBackupCodeModal() {
       const err = handleApiError(e);
 
       if (err.code === "E450") {
-        toast.error(err.message);
         await fetchExistingCodes();
+        setOpen(true);
         return;
       }
 

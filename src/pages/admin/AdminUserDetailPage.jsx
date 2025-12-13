@@ -21,6 +21,7 @@ import {
   Zap,
   ListChecks,
 } from "lucide-react";
+import { resolveProfileImageUrl } from "@/utils/profileImage";
 
 export default function AdminUserDetailPage() {
   const { userId } = useParams();
@@ -121,13 +122,7 @@ export default function AdminUserDetailPage() {
               <div className="relative">
                 <Avatar className="w-20 h-20 border border-slate-200 bg-slate-100">
                   <AvatarImage
-                    src={
-                      user.profileImage
-                        ? user.profileImage.startsWith("http")
-                          ? user.profileImage
-                          : `https://localhost:8443${user.profileImage}`
-                        : ""
-                    }
+                    src={resolveProfileImageUrl(user.profileImage)}
                     className="object-cover"
                   />
                   <AvatarFallback className="bg-slate-200 text-2xl font-bold text-slate-700">

@@ -2,26 +2,33 @@ import { Button } from "@/components/ui/button";
 
 export function OtpSection({ otp, backup, actions }) {
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-[0.16em]">
+    <div className="space-y-1.5">
+      <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
         Security · Google OTP
       </p>
-      <div className="flex items-center justify-between">
+
+      <div className="flex items-center justify-between gap-2">
         <span
-          className={
-            otp.enabled
-              ? "text-sm font-semibold text-emerald-600"
-              : "text-sm font-semibold text-slate-400"
-          }
+          className={`text-[11px] font-bold ${
+            otp.enabled ? "text-emerald-600" : "text-slate-400"
+          }`}
         >
           {otp.enabled ? "OTP 사용중" : "OTP 미사용"}
         </span>
-        <div className="flex gap-2">
+
+        <div className="flex gap-1.5">
           {!otp.enabled && (
             <Button
-              size="sm"
-              className="h-9 px-4 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+              type="button"
               onClick={actions.otp.openSetup}
+              className="
+                h-7 px-3 text-[11px] font-black
+                bg-indigo-600 text-white
+                border-2 border-black rounded-lg
+                shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]
+                hover:translate-x-[1px] hover:translate-y-[1px]
+              "
             >
               OTP 설정
             </Button>
@@ -30,25 +37,32 @@ export function OtpSection({ otp, backup, actions }) {
           {otp.enabled && (
             <>
               <Button
-                size="sm"
-                variant="outline"
+                type="button"
                 disabled={backup.issued || backup.loading}
-                className={`h-9 px-4 text-xs rounded-xl ${
-                  backup.issued
-                    ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
-                    : "border-gray-200 text-indigo-700 bg-white hover:bg-indigo-50"
-                }`}
                 onClick={backup.issued ? undefined : backup.issueBackupCodes}
+                className={`
+                  h-7 px-3 text-[11px] font-black
+                  border-2 border-black rounded-lg
+                  ${
+                    backup.issued
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                      : "bg-white text-indigo-700 hover:bg-indigo-50"
+                  }
+                `}
               >
-                {backup.issued ? "발급 완료" : "백업 코드 발급"}
+                {backup.issued ? "발급완료" : "백업코드"}
               </Button>
+
               <Button
-                size="sm"
-                variant="outline"
-                className="h-9 px-4 text-xs border-gray-200 text-red-600 bg-white hover:bg-red-50 rounded-xl"
+                type="button"
                 onClick={actions.otp.prepareDisable}
+                className="
+                  h-7 px-3 text-[11px] font-black
+                  border-2 border-black rounded-lg
+                  bg-white text-red-600 hover:bg-red-50
+                "
               >
-                OTP 해제
+                해제
               </Button>
             </>
           )}

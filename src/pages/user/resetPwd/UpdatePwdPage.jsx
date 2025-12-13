@@ -12,26 +12,26 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { KeyRound } from "lucide-react";
 
-export default function UpdatePwdPage() {
-  const {
-    currentPassword,
-    newPassword,
-    newPasswordConfirm,
-    modalOpen,
-    stepVerified,
-    error,
-    setModal,
-    resetAll,
-    openModal,
-  } = useUpdatePwdStore();
+const PAGE_BG = "min-h-screen bg-white text-slate-900";
+const CARD =
+  "bg-white border-4 border-black rounded-3xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]";
+const SECTION =
+  "bg-white border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6";
+const INPUT_CLASS =
+  "bg-white border-4 border-black rounded-2xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus:outline-none";
+const BTN_PRIMARY =
+  "w-full bg-white text-black border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black h-11 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]";
 
+export default function UpdatePwdPage() {
+  const { currentPassword, newPassword, newPasswordConfirm, modalOpen, stepVerified, error, setModal, resetAll, openModal } =
+    useUpdatePwdStore();
   const { verify, update, handleChange, loading } = useUpdatePwdLogic();
+
   const isVerifyDisabled = loading || !currentPassword.trim();
   const isUpdateDisabled =
     loading || !newPassword.trim() || !newPasswordConfirm.trim();
@@ -76,140 +76,149 @@ export default function UpdatePwdPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 text-slate-900">
-      <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white py-20 px-4">
-        <div className="max-w-4xl mx-auto flex flex-col lg:flex-row items-center gap-10">
-          <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center rounded-full border border-white/40 bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-semibold mb-4 backdrop-blur">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-300 mr-2" />
-              MoA 계정 보안 · 비밀번호 재설정
+    <div className={PAGE_BG}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 pt-16 pb-16">
+        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
+          <div className={`${CARD} p-8 space-y-4`}>
+            <div className="flex items-center gap-3">
+              <span className="px-4 py-1 rounded-xl border-2 border-black bg-white text-xs font-black tracking-wide">
+                MoA 계정 보안 · 비밀번호 재설정
+              </span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold leading-tight mb-3 drop-shadow-md flex items-center justify-center lg:justify-start gap-2">
-              <KeyRound className="w-7 h-7 text-indigo-100" />
+            <h2 className="text-3xl sm:text-4xl font-black leading-tight flex items-center gap-3">
+              <KeyRound className="w-7 h-7 text-black" />
               비밀번호 변경
             </h2>
-            <p className="text-sm sm:text-base text-indigo-50/90 leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
               안전하게 사용하려면 현재 비밀번호를 확인하고 새 비밀번호를 설정해 주세요.
-              잘못된 비밀번호를 입력하면 재인증이 필요할 수 있습니다.
             </p>
           </div>
 
-          <div className="flex-1 w-full max-w-md">
-            <Card className="bg-white border border-gray-100 shadow-2xl rounded-3xl">
-              <CardContent className="p-7 space-y-6">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                  <span className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold">
-                      1
-                    </span>
-                    현재 비밀번호 확인
-                  </span>
-                  <span
-                    className={`text-xs font-semibold ${
-                      stepVerified ? "text-emerald-600" : "text-slate-400"
-                    }`}
-                  >
-                    {stepVerified ? "완료" : "진행 중"}
-                  </span>
+          <div className={`${CARD} p-8 space-y-6`}>
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-700 bg-white border-4 border-black rounded-2xl px-4 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <span className="flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-black text-white font-bold">
+                  1
+                </span>
+                현재 비밀번호 확인
+              </span>
+              <span
+                className={`text-xs font-black ${
+                  stepVerified ? "text-emerald-600" : "text-slate-400"
+                }`}
+              >
+                {stepVerified ? "완료" : "진행 중"}
+              </span>
+            </div>
+
+            {!stepVerified && (
+              <div className={`${SECTION} text-center text-sm text-slate-600`}>
+                먼저 입력란에 현재 비밀번호를 입력해 본인 인증을 해주세요.
+                <br className="hidden sm:block" />
+                인증이 끝나면 새 비밀번호를 변경할 수 있습니다.
+              </div>
+            )}
+
+            {stepVerified && (
+              <form
+                className="space-y-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  update();
+                }}
+              >
+                <div className={`${SECTION} space-y-4`}>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-slate-900">새 비밀번호</Label>
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      value={newPassword}
+                      onChange={(e) =>
+                        handleChange("newPassword", e.target.value)
+                      }
+                      className={`${INPUT_CLASS} mt-1`}
+                      placeholder="영문·숫자·특수문자 조합 8~20자"
+                    />
+                    {error.rule && (
+                      <p className="text-red-500 text-xs mt-1">{error.rule}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-slate-900">
+                      새 비밀번호 확인
+                    </Label>
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      value={newPasswordConfirm}
+                      onChange={(e) =>
+                        handleChange("newPasswordConfirm", e.target.value)
+                      }
+                      className={`${INPUT_CLASS} mt-1`}
+                      placeholder="같은 비밀번호를 입력해 주세요"
+                    />
+                    {error.confirm && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {error.confirm}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                {!stepVerified && (
-                  <div className="text-center py-6 text-sm text-slate-500">
-                    먼저 팝업에서 현재 비밀번호를 입력해 본인 인증을 해주세요.
-                    <br className="hidden sm:block" />
-                    인증이 끝나면 새 비밀번호로 전환할 수 있습니다.
-                  </div>
-                )}
-
-                {stepVerified && (
-                  <div className="space-y-5">
-                    <div>
-                      <Label className="text-sm text-slate-800">
-                        새 비밀번호
-                      </Label>
-                      <Input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) =>
-                          handleChange("newPassword", e.target.value)
-                        }
-                        className="mt-1 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
-                        placeholder="영문·숫자·특수문자 포함 8~20자 입력"
-                      />
-                      {error.rule && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {error.rule}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label className="text-sm text-slate-800">
-                        새 비밀번호 확인
-                      </Label>
-                      <Input
-                        type="password"
-                        value={newPasswordConfirm}
-                        onChange={(e) =>
-                          handleChange("newPasswordConfirm", e.target.value)
-                        }
-                        className="mt-1 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
-                        placeholder="다시 한 번 입력해주세요"
-                      />
-                      {error.confirm && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {error.confirm}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button
-                      className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-11 rounded-xl"
-                      onClick={update}
-                      disabled={isUpdateDisabled}
-                    >
-                      비밀번호 변경
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                <Button
+                  className={BTN_PRIMARY}
+                  type="submit"
+                  disabled={isUpdateDisabled}
+                >
+                  비밀번호 변경
+                </Button>
+              </form>
+            )}
           </div>
         </div>
-      </section>
+      </div>
 
       <Dialog open={modalOpen} onOpenChange={handleDialogChange}>
-        <DialogContent className="max-w-sm bg-white border border-slate-200 rounded-2xl">
+        <DialogContent className="max-w-sm bg-white border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <DialogHeader>
             <DialogTitle className="text-slate-900 flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-indigo-600" />
+              <KeyRound className="w-5 h-5 text-black" />
               현재 비밀번호 확인
             </DialogTitle>
-            <DialogDescription className="text-slate-600 text-sm">
-              본인 인증을 위해 현재 사용 중인 비밀번호를 입력해주세요.
+            <DialogDescription className="text-slate-700 text-sm">
+              본인 인증을 위해 현재 비밀번호를 입력해 주세요.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 mt-4">
+          <form
+            className="space-y-3 mt-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              verify();
+            }}
+          >
             <Label className="text-xs text-slate-700">현재 비밀번호</Label>
             <Input
               type="password"
+              autoComplete="current-password"
               value={currentPassword}
               onChange={(e) => handleChange("currentPassword", e.target.value)}
-              className="bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+              className={INPUT_CLASS}
             />
             {error.current && (
               <p className="text-red-500 text-xs">{error.current}</p>
             )}
 
             <Button
-              className="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-10 rounded-xl"
-              onClick={verify}
+              className={BTN_PRIMARY}
+              type="submit"
               disabled={isVerifyDisabled}
             >
               확인
             </Button>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

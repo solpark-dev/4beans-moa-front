@@ -1,144 +1,77 @@
-import { KeyRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { InfoCard } from "./InfoCard";
+import React from "react";
 
-export function LoginHistoryCard({ loginHistory }) {
-  const {
-    state: { items, page, pages, pageCount, loading, totalCount },
-    actions: { goFirst, goPrev, goPage, goNextBlock, goLast },
-  } = loginHistory;
+const BTN =
+  "px-4 py-2 rounded-2xl border-2 border-black bg-white text-black font-black text-sm hover:bg-slate-50 active:translate-y-[1px]";
+
+export function LoginHistoryCard({ loginHistory, onBack }) {
+  const items =
+    loginHistory?.items ||
+    loginHistory?.data?.items ||
+    loginHistory?.list ||
+    loginHistory?.data ||
+    [];
+
+  const total =
+    loginHistory?.total ||
+    loginHistory?.data?.total ||
+    loginHistory?.pagination?.total ||
+    items.length;
 
   return (
-    <InfoCard title="LOGIN HISTORY" icon={<KeyRound className="w-4 h-4" />}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-slate-500">
-          최근 로그인 이력 {totalCount}건
-        </span>
+    <div className="w-full">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-black tracking-widest text-sm">LOGIN HISTORY</p>
+          <div className="mt-4 h-[2px] bg-black w-full" />
+        </div>
       </div>
 
-      {loading && (
-        <div className="py-8 text-center text-sm text-slate-500">
-          불러오는 중..
-        </div>
-      )}
+      <p className="mt-6 text-sm text-slate-700 font-bold">
+        최근 로그인 이력 {total ?? 0}건
+      </p>
 
-      {!loading && items.length === 0 && (
-        <div className="py-8 text-center text-sm text-slate-400">
-          아직 로그인 이력이 없습니다.
-        </div>
-      )}
-
-      {!loading && items.length > 0 && (
-        <>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
-                    일시
-                  </th>
-                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
-                    결과
-                  </th>
-                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
-                    IP
-                  </th>
-                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
-                    유형
-                  </th>
-                  <th className="py-2 px-2 text-left font-semibold text-slate-600">
-                    User-Agent
-                  </th>
+      <div className="mt-4 border-2 border-black rounded-2xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-white">
+            <tr className="border-b-2 border-black">
+              <th className="text-left p-3 font-black">일시</th>
+              <th className="text-left p-3 font-black">결과</th>
+              <th className="text-left p-3 font-black">IP</th>
+              <th className="text-left p-3 font-black">유형</th>
+              <th className="text-left p-3 font-black">User-Agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(items) && items.length > 0 ? (
+              items.map((row, idx) => (
+                <tr key={idx} className="border-b border-black/10">
+                  <td className="p-3 font-bold text-slate-800">
+                    {row?.createdAt || row?.dateTime || row?.loginAt || "-"}
+                  </td>
+                  <td className="p-3 font-black">
+                    {row?.success === false || row?.result === "FAIL"
+                      ? "실패"
+                      : "성공"}
+                  </td>
+                  <td className="p-3 font-bold">{row?.ip || "-"}</td>
+                  <td className="p-3 font-bold">
+                    {row?.provider || row?.type || "-"}
+                  </td>
+                  <td className="p-3 font-bold truncate max-w-[220px]">
+                    {row?.userAgent || "-"}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((item, idx) => (
-                  <tr
-                    key={`${item.loginAt}-${idx}`}
-                    className="border-b border-slate-100 hover:bg-slate-50"
-                  >
-                    <td className="py-2 px-2 text-slate-800 whitespace-nowrap">
-                      {item.loginAtFormatted}
-                    </td>
-                    <td
-                      className={`py-2 px-2 font-semibold ${
-                        item.success ? "text-emerald-600" : "text-red-500"
-                      }`}
-                    >
-                      {item.successText}
-                    </td>
-                    <td className="py-2 px-2 text-slate-700 whitespace-nowrap">
-                      {item.loginIp || "-"}
-                    </td>
-                    <td className="py-2 px-2 text-slate-700 whitespace-nowrap">
-                      {item.loginType || "-"}
-                    </td>
-                    <td className="py-2 px-2 text-slate-500 max-w-[220px] truncate">
-                      {item.userAgent || "-"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-4 flex items-center justify-center gap-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 text-xs"
-              onClick={goFirst}
-              disabled={page <= 1}
-            >
-              {"<<"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 text-xs"
-              onClick={goPrev}
-              disabled={page <= 1}
-            >
-              {"<"}
-            </Button>
-            {pages.map((p) => (
-              <Button
-                key={p}
-                type="button"
-                variant={p === page ? "default" : "outline"}
-                className={`h-8 min-w-[2rem] text-xs ${
-                  p === page ? "bg-indigo-600 text-white" : "text-slate-700"
-                }`}
-                onClick={() => goPage(p)}
-              >
-                {p}
-              </Button>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 text-xs"
-              onClick={goNextBlock}
-              disabled={page >= pageCount}
-            >
-              {">"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 text-xs"
-              onClick={goLast}
-              disabled={page >= pageCount}
-            >
-              {">>"}
-            </Button>
-          </div>
-        </>
-      )}
-    </InfoCard>
+              ))
+            ) : (
+              <tr>
+                <td className="p-4 font-bold text-slate-700" colSpan={5}>
+                  로그인 이력이 없습니다.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

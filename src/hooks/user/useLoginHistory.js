@@ -1,5 +1,5 @@
 // src/hooks/user/useLoginHistory.js
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import httpClient from "@/api/httpClient";
 
 const formatDateTime = (value) => {
@@ -9,53 +9,141 @@ const formatDateTime = (value) => {
   return d.toLocaleString("ko-KR");
 };
 
-export const useLoginHistory = (initialSize = 10) => {
+const normalizeOptions = (value) => {
+  if (typeof value === "number") {
+    return { size: value };
+  }
+  if (!value) {
+    return {};
+  }
+  return value;
+};
+
+export const useLoginHistory = (optionsOrSize = {}) => {
+  const options = normalizeOptions(optionsOrSize);
+  const enabled = Boolean(options.enabled ?? true);
+  const initialSize = options.size ?? 10;
+
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(initialSize);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const fetchPage = async (targetPage = 1) => {
-    try {
-      setLoading(true);
-      const res = await httpClient.get("/users/login-history/me", {
-        params: {
-          page: targetPage,
-          size,
-        },
-      });
-
-      const { success, data } = res;
-      if (!success || !data) {
-        setItems([]);
-        setTotalCount(0);
-        return;
-      }
-
-      const content = data.content ?? [];
-      const total = data.totalCount ?? data.totalElements ?? 0;
-
-      setItems(
-        content.map((it) => ({
-          ...it,
-          loginAtFormatted: formatDateTime(it.loginAt),
-          successText: it.success ? "성공" : "실패",
-        }))
-      );
-      setPage(data.page ?? targetPage);
-      setSize(data.size ?? size);
-      setTotalCount(total);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const sizeRef = useRef(initialSize);
+  useEffect(() => {
+    sizeRef.current = size;
+  }, [size]);
 
   useEffect(() => {
+    if (typeof options.size === "number" && options.size !== sizeRef.current) {
+      setSize(options.size);
+      sizeRef.current = options.size;
+    }
+  }, [options.size]);
+
+  const controllerRef = useRef(null);
+  const inFlightRef = useRef(false);
+
+  const fetchPage = useCallback(
+    async (targetPage = 1) => {
+      if (!enabled) return;
+      if (inFlightRef.current) return;
+
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+
+      inFlightRef.current = true;
+      setLoading(true);
+
+      try {
+        const res = await httpClient.get("/users/login-history/me", {
+          signal: controller.signal,
+          params: {
+            page: targetPage,
+            size: sizeRef.current,
+          },
+        });
+
+        const { success, data } = res || {};
+        const payload = data?.data ?? data ?? {};
+
+        if (!success || !payload) {
+          setItems([]);
+          setTotalCount(0);
+          setPage(targetPage);
+          return;
+        }
+
+        const content =
+          payload.items ??
+          payload.content ??
+          payload.list ??
+          payload.data ??
+          payload ??
+          [];
+        const total =
+          payload.total ??
+          payload.totalCount ??
+          payload.totalElements ??
+          payload.pagination?.total ??
+          content.length ??
+          0;
+
+        setItems(
+          (Array.isArray(content) ? content : []).map((it) => ({
+            ...it,
+            loginAtFormatted: formatDateTime(
+              it.loginAt || it.createdAt || it.dateTime
+            ),
+            successText:
+              it.success === false || it.result === "FAIL" ? "?欠𤔅" : "?梓陬",
+          }))
+        );
+
+        const nextPage = payload.page ?? payload.pageNumber ?? targetPage;
+        setPage(nextPage);
+
+        const nextSize =
+          payload.size ??
+          payload.pageSize ??
+          sizeRef.current ??
+          initialSize;
+        if (nextSize !== sizeRef.current) {
+          setSize(nextSize);
+          sizeRef.current = nextSize;
+        }
+
+        setTotalCount(total);
+      } catch (e) {
+        if (controller.signal.aborted) {
+          return;
+        }
+        console.error(e);
+      } finally {
+        setLoading(false);
+        inFlightRef.current = false;
+      }
+    },
+    [enabled, initialSize]
+  );
+
+  useEffect(() => {
+    if (!enabled) {
+      setItems([]);
+      setTotalCount(0);
+      return () => {
+        controllerRef.current?.abort();
+      };
+    }
+
     fetchPage(1);
-  }, [size]);
+
+    return () => {
+      controllerRef.current?.abort();
+    };
+  }, [enabled, fetchPage]);
 
   const pageCount = totalCount > 0 ? Math.ceil(totalCount / size) : 1;
 
@@ -70,6 +158,7 @@ export const useLoginHistory = (initialSize = 10) => {
   }
 
   const goPage = (target) => {
+    if (!enabled) return;
     if (target < 1 || target > pageCount || target === page) return;
     fetchPage(target);
   };
@@ -94,6 +183,7 @@ export const useLoginHistory = (initialSize = 10) => {
       beginPage,
       endPage,
       loading,
+      enabled,
     },
     actions: {
       goFirst,
@@ -103,6 +193,8 @@ export const useLoginHistory = (initialSize = 10) => {
       goLast,
       setSize,
       reload: () => fetchPage(page),
+      refresh: () => fetchPage(page),
+      fetch: () => fetchPage(page),
     },
   };
 };

@@ -165,8 +165,8 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
   const handlePassAuth = async () => {
     try {
-      const startUrl = isSocial ? "/signup/pass/start" : "/users/pass/start";
-      const verifyUrl = isSocial ? "/signup/pass/verify" : "/users/pass/verify";
+      const startUrl = isSocial ? "/signup/pass/start" : "/signup/pass/start";
+      const verifyUrl = isSocial ? "/signup/pass/verify" : "/signup/pass/verify";
 
       const start = await httpClient.get(startUrl, { skipAuth: true });
 

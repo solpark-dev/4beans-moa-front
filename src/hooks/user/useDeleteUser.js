@@ -1,79 +1,63 @@
-// src/services/logic/deleteUserLogic.js
-import httpClient from "@/api/httpClient";
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { withdrawUser } from "@/api/userApi";
 
-export function initDeleteUserPage() {
-  const btn = document.getElementById("btnDeleteUser");
-  const detail = document.getElementById("deleteDetail");
-  const reasonGroup = document.getElementById("deleteReasonGroup");
-  const detailWrapper = document.getElementById("deleteDetailWrapper");
+export default function useDeleteUser() {
+  const navigate = useNavigate();
 
-  if (!btn || !detail || !reasonGroup || !detailWrapper) return;
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteDetail, setDeleteDetail] = useState("");
 
-  if (!reasonGroup.dataset.boundReasonChange) {
-    reasonGroup.addEventListener("change", (event) => {
-      const target = event.target;
-      if (!target || target.name !== "deleteReason") return;
+  const showDetail = useMemo(() => deleteReason === "OTHER", [deleteReason]);
 
-      if (target.value === "OTHER") {
-        detailWrapper.classList.remove("hidden");
-        detail.focus();
-      } else {
-        detailWrapper.classList.add("hidden");
-        detail.value = "";
-      }
-    });
+  const goMypage = useCallback(() => {
+    navigate("/mypage");
+  }, [navigate]);
 
-    reasonGroup.dataset.boundReasonChange = "true";
-  }
+  const onSelectReason = useCallback((value) => {
+    setDeleteReason(value);
+    if (value !== "OTHER") {
+      setDeleteDetail("");
+    }
+  }, []);
 
-  if (!btn.dataset.boundDelete) {
-    btn.addEventListener("click", async () => {
-      const selected = document.querySelector(
-        "input[name='deleteReason']:checked"
-      );
-      if (!selected) {
-        alert("탈퇴 사유를 선택해 주세요.");
-        return;
-      }
+  const onChangeDetail = useCallback((value) => {
+    setDeleteDetail(value);
+  }, []);
 
-      const deleteType = selected.value;
-      const deleteDetail = detail.value.trim();
+  const onSubmitDelete = useCallback(async () => {
+    if (!deleteReason) {
+      alert("탈퇴 사유를 선택해 주세요.");
+      return;
+    }
 
-      if (deleteType === "OTHER" && !deleteDetail) {
-        alert("기타 사유를 입력해 주세요.");
-        return;
-      }
+    const ok = window.confirm("정말 탈퇴할까요? 탈퇴 후에는 복구할 수 없습니다.");
+    if (!ok) return;
 
-      if (
-        !window.confirm(
-          "정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-        )
-      ) {
-        return;
-      }
+    const tryRequest = async (payload) => {
+      const res = await withdrawUser(payload);
+      if (res?.success) return true;
+      if (res?.error?.message) throw new Error(res.error.message);
+      throw new Error("탈퇴 처리에 실패했습니다.");
+    };
 
-      try {
-        const res = await httpClient.post("/users/delete", {
-          deleteType,
-          deleteDetail,
-        });
+    try {
+      await tryRequest({ deleteReason, deleteDetail });
+    } catch {
+      await tryRequest({ reason: deleteReason, detail: deleteDetail });
+    }
 
-        if (res.success) {
-          alert("회원 탈퇴가 완료되었습니다.");
-          window.location.href = "/";
-        } else {
-          const msg = res.error?.message || "탈퇴 처리에 실패했습니다.";
-          alert(msg);
-        }
-      } catch (err) {
-        const msg =
-          err.response?.data?.error?.message ||
-          err.response?.data?.message ||
-          "탈퇴 처리 중 오류가 발생했습니다.";
-        alert(msg);
-      }
-    });
+    alert("탈퇴가 완료되었습니다.");
+    window.location.href = "/";
+  }, [deleteReason, deleteDetail]);
 
-    btn.dataset.boundDelete = "true";
-  }
+  return {
+    deleteReason,
+    deleteDetail,
+    showDetail,
+    goMypage,
+    onSelectReason,
+    onChangeDetail,
+    onSubmitDelete,
+  };
 }

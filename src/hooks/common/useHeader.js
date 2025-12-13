@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { resolveProfileImageUrl } from "@/utils/profileImage";
 
 export function useHeaderLogic() {
   const {
@@ -51,11 +52,7 @@ export function useHeaderLogic() {
 
   const isAdmin = user?.role === "ADMIN";
 
-  const profileImageUrl = user?.profileImage
-    ? user.profileImage.startsWith("http")
-      ? user.profileImage
-      : `https://localhost:8443${user.profileImage}`
-    : "";
+  const profileImageUrl = resolveProfileImageUrl(user?.profileImage);
 
   const userInitial = user?.nickname
     ? user.nickname.substring(0, 1).toUpperCase()
