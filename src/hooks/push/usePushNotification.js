@@ -1,119 +1,116 @@
-import { useState, useEffect, useCallback } from "react";
-import pushApi from "@/api/pushApi";
+import { useState, useEffect, useCallback } from "react"
+import pushApi from "@/api/pushApi"
 
 export const usePushNotification = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [expandedId, setExpandedId] = useState(null);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const [expandedId, setExpandedId] = useState('')
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const response = await pushApi.getUnreadCount();
-      setUnreadCount(response.count || 0);
+      const response = await pushApi.getUnreadCount()
+      setUnreadCount(response.count || 0)
     } catch (error) {
-      console.error("Failed to fetch unread count:", error);
+      console.error("Failed to fetch unread count:", error)
     }
-  }, []);
+  }, [])
 
   const fetchNotifications = useCallback(async (pageNum = 0, append = false) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const response = await pushApi.getMyPushList(pageNum, 10);
-      const newData = response.content || [];
-
-      console.log("알림 데이터:", newData);
-      console.log("sentAt 값들:", newData.map(n => n.sentAt));
+      const response = await pushApi.getMyPushList(pageNum, 10)
+      const newData = response.content || []
       
-      setNotifications(prev => append ? [...prev, ...newData] : newData);
-      setHasMore(newData.length === 10);
-      setPage(pageNum);
+      setNotifications(prev => append ? [...prev, ...newData] : newData)
+      setHasMore(newData.length === 10)
+      setPage(pageNum)
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      console.error("Failed to fetch notifications:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   const handleToggleExpand = useCallback(async (pushId) => {
     if (expandedId === pushId) {
-      setExpandedId(null);
-      return;
+      setExpandedId('')
+      return
     }
 
-    setExpandedId(pushId);
+    setExpandedId(pushId)
 
-    const notification = notifications.find(n => n.pushId === pushId);
+    const notification = notifications.find(n => n.pushId === pushId)
     if (notification && notification.isRead === "N") {
       try {
-        await pushApi.updateRead(pushId);
+        await pushApi.updateRead(pushId)
         setNotifications(prev =>
           prev.map(n => n.pushId === pushId ? { ...n, isRead: "Y" } : n)
-        );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        )
+        setUnreadCount(prev => Math.max(0, prev - 1))
       } catch (error) {
-        console.error("Failed to mark as read:", error);
+        console.error("Failed to mark as read:", error)
       }
     }
-  }, [expandedId, notifications]);
+  }, [expandedId, notifications])
 
   const handleReadAll = useCallback(async () => {
     try {
-      await pushApi.updateAllRead();
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: "Y" })));
-      setUnreadCount(0);
+      await pushApi.updateAllRead()
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: "Y" })))
+      setUnreadCount(0)
     } catch (error) {
-      console.error("Failed to mark all as read:", error);
+      console.error("Failed to mark all as read:", error)
     }
-  }, []);
+  }, [])
 
   const handleDelete = useCallback(async (pushId, e) => {
-    e?.stopPropagation();
+    e?.stopPropagation()
     try {
-      await pushApi.deletePush(pushId);
-      setNotifications(prev => prev.filter(n => n.pushId !== pushId));
-      const notification = notifications.find(n => n.pushId === pushId);
+      await pushApi.deletePush(pushId)
+      setNotifications(prev => prev.filter(n => n.pushId !== pushId))
+      const notification = notifications.find(n => n.pushId === pushId)
       if (notification?.isRead === "N") {
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setUnreadCount(prev => Math.max(0, prev - 1))
       }
     } catch (error) {
-      console.error("Failed to delete notification:", error);
+      console.error("Failed to delete notification:", error)
     }
-  }, [notifications]);
+  }, [notifications])
 
   const handleDeleteAll = useCallback(async () => {
     try {
-      await pushApi.deleteAllPushs();
-      setNotifications([]);
-      setUnreadCount(0);
+      await pushApi.deleteAllPushs()
+      setNotifications([])
+      setUnreadCount(0)
     } catch (error) {
-      console.error("Failed to delete all notifications:", error);
+      console.error("Failed to delete all notifications:", error)
     }
-  }, []);
+  }, [])
 
   const handleLoadMore = useCallback(() => {
     if (!isLoading && hasMore) {
-      fetchNotifications(page + 1, true);
+      fetchNotifications(page + 1, true)
     }
-  }, [isLoading, hasMore, page, fetchNotifications]);
+  }, [isLoading, hasMore, page, fetchNotifications])
 
   const handleOpenChange = useCallback((open) => {
-    setIsOpen(open);
+    setIsOpen(open)
     if (open) {
-      fetchNotifications(0, false);
+      fetchNotifications(0, false)
     } else {
-      setExpandedId(null);
+      setExpandedId('')
     }
-  }, [fetchNotifications]);
+  }, [fetchNotifications])
 
   useEffect(() => {
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+    fetchUnreadCount()
+    const interval = setInterval(fetchUnreadCount, 60000)
+    return () => clearInterval(interval)
+  }, [fetchUnreadCount])
 
   return {
     notifications,
@@ -128,7 +125,7 @@ export const usePushNotification = () => {
     handleDeleteAll,
     handleLoadMore,
     handleOpenChange,
-  };
-};
+  }
+}
 
-export default usePushNotification;
+export default usePushNotification
