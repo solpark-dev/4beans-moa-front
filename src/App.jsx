@@ -36,55 +36,6 @@ import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
 import AdminLoginHistoryPage from "@/pages/admin/AdminLoginHistoryPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 
-import LandingTestPage from "./pages/landing/LandingTestPage";
-import LandingPageA from "./pages/landing/LandingPageA";
-import LandingPageB from "./pages/landing/LandingPageB";
-import LandingPageC from "./pages/landing/LandingPageC";
-import LandingPageD from "./pages/landing/LandingPageD";
-import LandingPageE from "./pages/landing/LandingPageE";
-import LandingPageF from "./pages/landing/LandingPageF";
-import LandingPageG from "./pages/landing/LandingPageG";
-import LandingPageH from "./pages/landing/LandingPageH";
-import LandingPageI from "./pages/landing/LandingPageI";
-import LandingPageJ from "./pages/landing/LandingPageJ";
-import LandingPageK from "./pages/landing/LandingPageK";
-import LandingPageL from "./pages/landing/LandingPageL";
-import LandingPageM from "./pages/landing/LandingPageM";
-import LandingPageN from "./pages/landing/LandingPageN";
-import LandingPageO from "./pages/landing/LandingPageO";
-import LandingPageP from "./pages/landing/LandingPageP";
-import LandingPageQ from "./pages/landing/LandingPageQ";
-import LandingPageR from "./pages/landing/LandingPageR";
-import LandingPageS from "./pages/landing/LandingPageS";
-import LandingPageT from "./pages/landing/LandingPageT";
-import LandingPageU from "./pages/landing/LandingPageU";
-import LandingPageV from "./pages/landing/LandingPageV";
-import LandingPageW from "./pages/landing/LandingPageW";
-import LandingPageX from "./pages/landing/LandingPageX";
-import LandingPageY from "./pages/landing/LandingPageY";
-import LandingPageZ from "./pages/landing/LandingPageZ";
-import LandingPageZHyundai from "./pages/landing/LandingPageZHyundai";
-import LandingPageZO2 from "./pages/landing/LandingPageZO2";
-import LandingPageZO3 from "./pages/landing/LandingPageZO3";
-import LandingPageZMemphis from "./pages/landing/LandingPageZMemphis";
-import LandingPageZCollage from "./pages/landing/LandingPageZCollage";
-import LandingPageZRiso from "./pages/landing/LandingPageZRiso";
-import LandingPageZRiso2 from "./pages/landing/LandingPageZRiso2";
-import LandingPageZParticles from "./pages/landing/LandingPageZParticles";
-import LandingPageZPhysics from "./pages/landing/LandingPageZPhysics";
-import LandingPageZQQ from "./pages/landing/LandingPageZQQ";
-import LandingPageZRetro from "./pages/landing/LandingPageZRetro";
-import LandingPageZSwiss from "./pages/landing/LandingPageZSwiss";
-import LandingPageZCinematic from "./pages/landing/LandingPageZCinematic";
-import LandingPageZSolar from "./pages/landing/LandingPageZSolar";
-import LandingPageZSpatial from "./pages/landing/LandingPageZSpatial";
-import LandingPageZChat from "./pages/landing/LandingPageZChat";
-import LandingPageZLinear from "./pages/landing/LandingPageZLinear";
-import LandingPageZGlassLight from "./pages/landing/LandingPageZGlassLight";
-import LandingPageZParallax from "./pages/landing/LandingPageZParallax";
-import LandingPageZPortrait from "./pages/landing/LandingPageZPortrait";
-import LandingPageYSa01 from "./pages/landing/LandingPageYSa01";
-
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
 
@@ -273,64 +224,6 @@ export default function App() {
 
           <Route path="/community/inquiry" element={<Inquiry />} />
           <Route path="/community/inquiry/admin" element={<InquiryAdmin />} />
-
-          <Route path="/landing-test" element={<LandingTestPage />} />
-          <Route path="/landing/a" element={<LandingPageA />} />
-          <Route path="/landing/b" element={<LandingPageB />} />
-          <Route path="/landing/c" element={<LandingPageC />} />
-          <Route path="/landing/d" element={<LandingPageD />} />
-          <Route path="/landing/e" element={<LandingPageE />} />
-          <Route path="/landing/f" element={<LandingPageF />} />
-          <Route path="/landing/g" element={<LandingPageG />} />
-          <Route path="/landing/h" element={<LandingPageH />} />
-          <Route path="/landing/i" element={<LandingPageI />} />
-          <Route path="/landing/j" element={<LandingPageJ />} />
-          <Route path="/landing/k" element={<LandingPageK />} />
-          <Route path="/landing/l" element={<LandingPageL />} />
-          <Route path="/landing/m" element={<LandingPageM />} />
-          <Route path="/landing/n" element={<LandingPageN />} />
-          <Route path="/landing/o" element={<LandingPageO />} />
-          <Route path="/landing/p" element={<LandingPageP />} />
-          <Route path="/landing/q" element={<LandingPageQ />} />
-          <Route path="/landing/r" element={<LandingPageR />} />
-          <Route path="/landing/s" element={<LandingPageS />} />
-          <Route path="/landing/t" element={<LandingPageT />} />
-          <Route path="/landing/u" element={<LandingPageU />} />
-          <Route path="/landing/v" element={<LandingPageV />} />
-          <Route path="/landing/w" element={<LandingPageW />} />
-          <Route path="/landing/x" element={<LandingPageX />} />
-          <Route path="/landing/y" element={<LandingPageY />} />
-          <Route path="/landing/z" element={<LandingPageZ />} />
-          <Route path="/landing/hyundai" element={<LandingPageZHyundai />} />
-          <Route path="/landing/o2" element={<LandingPageZO2 />} />
-          <Route path="/landing/o3" element={<LandingPageZO3 />} />
-          <Route path="/landing/memphis" element={<LandingPageZMemphis />} />
-          <Route path="/landing/collage" element={<LandingPageZCollage />} />
-          <Route path="/landing/riso" element={<LandingPageZRiso />} />
-          <Route path="/landing/riso2" element={<LandingPageZRiso2 />} />
-          <Route
-            path="/landing/particles"
-            element={<LandingPageZParticles />}
-          />
-          <Route path="/landing/physics" element={<LandingPageZPhysics />} />
-          <Route path="/landing/qq" element={<LandingPageZQQ />} />
-          <Route path="/landing/swiss" element={<LandingPageZSwiss />} />
-          <Route path="/landing/retro" element={<LandingPageZRetro />} />
-          <Route
-            path="/landing/cinematic"
-            element={<LandingPageZCinematic />}
-          />
-          <Route path="/landing/solar" element={<LandingPageZSolar />} />
-          <Route path="/landing/spatial" element={<LandingPageZSpatial />} />
-          <Route path="/landing/chat" element={<LandingPageZChat />} />
-          <Route path="/landing/linear" element={<LandingPageZLinear />} />
-          <Route
-            path="/landing/glass-light"
-            element={<LandingPageZGlassLight />}
-          />
-          <Route path="/landing/parallax" element={<LandingPageZParallax />} />
-          <Route path="/landing/portrait" element={<LandingPageZPortrait />} />
-          <Route path="/landing/ysa01" element={<LandingPageYSa01 />} />
         </Routes>
       </main>
 
@@ -338,9 +231,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
-
