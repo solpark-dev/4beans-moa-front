@@ -165,10 +165,8 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
   const handlePassAuth = async () => {
     try {
-      const startUrl = isSocial ? "/signup/pass/start" : "/signup/pass/start";
-      const verifyUrl = isSocial
-        ? "/signup/pass/verify"
-        : "/signup/pass/verify";
+      const startUrl = "/signup/pass/start";
+      const verifyUrl = "/signup/pass/verify";
 
       const start = await httpClient.get(startUrl, { skipAuth: true });
 
@@ -205,18 +203,43 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
           const { phone, ci } = verify.data;
 
-          if (!isSocial) {
-            const phoneCheck = await checkPhone(phone);
-            const available =
-              phoneCheck?.data?.available ?? phoneCheck?.data?.data?.available;
+          // 🔥 항상 휴대폰 중복 체크
+          const phoneCheck = await checkPhone(phone);
+          const available =
+            phoneCheck?.data?.available ?? phoneCheck?.data?.data?.available;
 
-            if (!phoneCheck?.success || available === false) {
-              throw new Error(
-                phoneCheck?.error?.message || "이미 가입된 휴대폰 번호입니다."
+          // ❌ 이미 가입된 휴대폰
+          if (!phoneCheck?.success || available === false) {
+            // 👉 소셜 간편가입이면 즉시 연동 confirm
+            if (
+              isSocial &&
+              socialInfo?.provider &&
+              socialInfo?.providerUserId
+            ) {
+              const ok = window.confirm(
+                "이미 가입된 휴대폰 번호입니다.\n해당 계정에 소셜 로그인을 연동하시겠습니까?"
               );
+
+              if (ok) {
+                navigate("/oauth/phone-connect", {
+                  replace: true,
+                  state: {
+                    provider: socialInfo.provider,
+                    providerUserId: socialInfo.providerUserId,
+                    phone,
+                    ci,
+                  },
+                });
+              }
+
+              return; // 🔥 여기서 종료 (form에 phone 세팅 X)
             }
+
+            // 👉 일반 회원가입
+            throw new Error("이미 가입된 휴대폰 번호입니다.");
           }
 
+          // ✅ 신규 휴대폰일 때만 통과
           setField("phone", phone);
           sessionStorage.setItem("PASS_CI", ci);
           setErrorMessage("phone", "본인인증 성공!", false);
