@@ -62,20 +62,15 @@ export const useAuthStore = create(
         localStorage.removeItem("auth-storage");
       },
       fetchSession: async () => {
-        const { accessToken, clearAuth } = get();
-
-        if (!accessToken) {
-          set({ user: null, loading: false });
-          return;
-        }
+        const { clearAuth } = get();
 
         set({ loading: true });
 
         try {
           const res = await httpClient.get("/users/me");
 
-          if (res.success && res.data) {
-            set({ user: res.data, loading: false });
+          if (res?.success && res.data) {
+            set({ user: res.data });
             useOtpStore.getState().setEnabled(!!res.data.otpEnabled);
           } else {
             clearAuth();
@@ -98,15 +93,15 @@ export const useAuthStore = create(
         }
       },
     }),
-      {
-        name: "auth-storage",
-        storage: createJSONStorage(() => localStorage),
-        partialize: (state) => ({
-          user: state.user,
-          accessToken: state.accessToken,
-          refreshToken: state.refreshToken,
-          accessTokenExpiresIn: state.accessTokenExpiresIn,
-        }),
-      }
+    {
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        accessTokenExpiresIn: state.accessTokenExpiresIn,
+      }),
+    }
   )
 );
