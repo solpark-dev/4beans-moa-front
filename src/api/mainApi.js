@@ -1,9 +1,65 @@
-import httpClient from './httpClient';
+import httpClient from "@/api/httpClient";
+import { useAuthStore } from "@/store/authStore";
+import { extractMainPayload, normalizeList } from "@/utils/format";
 
-export const getMainBanner = () => {
-  return httpClient.get('/main/banner');
+const readCookie = (name) => {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return m ? decodeURIComponent(m[1]) : null;
 };
 
-export const getMainPopularParties = () => {
-  return httpClient.get('/main/popular-parties');
+const buildAuthHeaders = () => {
+  const tokenFromStore = useAuthStore.getState()?.accessToken;
+  const tokenFromCookie = readCookie("ACCESS_TOKEN");
+  const token = tokenFromStore || tokenFromCookie;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+const safeGet = async (path, config = {}) => {
+  try {
+    const res = await httpClient.get(path, {
+      ...config,
+      headers: { ...(config.headers || {}), ...buildAuthHeaders() },
+    });
+    return extractMainPayload(res);
+  } catch (err) {
+    const status = err?.response?.status;
+    const data = err?.response?.data;
+    return { __error: true, status, data };
+  }
+};
+
+export const fetchMainSubscriptionProducts = async () => {
+  const payload = await safeGet("/subscriptions/products");
+  if (payload?.__error) return payload;
+  return normalizeList(payload);
+};
+
+export const fetchMainTrendingParties = async () => {
+  const payload = await safeGet("/parties/trending");
+  if (payload?.__error) {
+    if (payload.status === 404) {
+      const fallback = await safeGet("/parties", {
+        params: { sort: "TRENDING", limit: 8 },
+      });
+      if (fallback?.__error) return fallback;
+      return normalizeList(fallback);
+    }
+    return payload;
+  }
+  return normalizeList(payload);
+};
+
+export const loadMain = async () => {
+  const [products, parties] = await Promise.all([
+    fetchMainSubscriptionProducts(),
+    fetchMainTrendingParties(),
+  ]);
+
+  return {
+    products: Array.isArray(products) ? products : [],
+    parties: Array.isArray(parties) ? parties : [],
+    productsError: products?.__error ? products : null,
+    partiesError: parties?.__error ? parties : null,
+  };
 };
