@@ -113,10 +113,13 @@ import InquiryAdmin from "./pages/community/InquiryAdmin";
 import ScrollToTop from "./components/common/ScrollToTop";
 import PineappleEasterEgg from "./components/common/PineappleEasterEgg";
 import { useAuthStore } from "./store/authStore";
+import { useThemeStore } from "./store/themeStore";
+import { ThemeSwitcher } from "./config/themeConfig";
 
 export default function App() {
   useGlobalLinkHandler();
   const { user } = useAuthStore();
+  const { theme, setTheme } = useThemeStore();
 
   // Easter egg for specific test accounts
   const showEasterEgg =
@@ -126,6 +129,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
       {showEasterEgg && <PineappleEasterEgg />}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
       <Header />
 
       <main className="flex-1 pt-20">
