@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import FeaturesSection from "../main/components/FeaturesSection";
-import TrendingPartiesSection from "../main/components/TrendingPartiesSection";
-import { MOCK_PARTIES } from "@/constants/constants";
+import MainFeaturesSection from "../main/sections/MainFeaturesSection";
+import MainTrendingSection from "../main/sections/MainTrendingSection";
 
 export default function LandingPageA() {
     return (
@@ -53,11 +52,11 @@ export default function LandingPageA() {
 
             {/* Reuse sections with wrapper to style them a bit if needed, or just standard */}
             <div className="bg-gray-50">
-                <FeaturesSection />
+                <MainFeaturesSection />
             </div>
 
             <div className="bg-white">
-                <TrendingPartiesSection parties={MOCK_PARTIES} />
+                <MainTrendingSection />
             </div>
         </div>
     );
