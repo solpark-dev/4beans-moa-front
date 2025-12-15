@@ -34,6 +34,7 @@ import AdminUserDetailPage from "@/pages/admin/AdminUserDetailPage";
 import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
 import AdminLoginHistoryPage from "@/pages/admin/AdminLoginHistoryPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
+import ChartComparisonPage from "@/pages/admin/ChartComparisonPage";
 
 import LandingTestPage from "./pages/landing/LandingTestPage";
 import LandingPageA from "./pages/landing/LandingPageA";
@@ -82,6 +83,7 @@ import LandingPageZLinear from "./pages/landing/LandingPageZLinear";
 import LandingPageZGlassLight from "./pages/landing/LandingPageZGlassLight";
 import LandingPageZParallax from "./pages/landing/LandingPageZParallax";
 import LandingPageZPortrait from "./pages/landing/LandingPageZPortrait";
+import LandingPageZPortraitV2 from "./pages/landing/LandingPageZPortraitV2";
 import LandingPageYSa01 from "./pages/landing/LandingPageYSa01";
 
 import GetProductList from "./pages/product/GetProductList";
@@ -111,10 +113,13 @@ import InquiryAdmin from "./pages/community/InquiryAdmin";
 import ScrollToTop from "./components/common/ScrollToTop";
 import PineappleEasterEgg from "./components/common/PineappleEasterEgg";
 import { useAuthStore } from "./store/authStore";
+import { useThemeStore } from "./store/themeStore";
+import { ThemeSwitcher } from "./config/themeConfig";
 
 export default function App() {
   useGlobalLinkHandler();
   const { user } = useAuthStore();
+  const { theme, setTheme } = useThemeStore();
 
   // Easter egg for specific test accounts
   const showEasterEgg =
@@ -124,6 +129,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
       {showEasterEgg && <PineappleEasterEgg />}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
       <Header />
 
       <main className="flex-1 pt-20">
@@ -202,6 +208,7 @@ export default function App() {
           />
           <Route path="/admin/users" element={<AdminUserListPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/chart-comparison" element={<ChartComparisonPage />} />
           <Route
             path="/admin/users/:userId"
             element={<AdminUserDetailPage />}
@@ -220,7 +227,7 @@ export default function App() {
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
           <Route
             path="/subscription/add/:productId"
@@ -328,6 +335,7 @@ export default function App() {
           />
           <Route path="/landing/parallax" element={<LandingPageZParallax />} />
           <Route path="/landing/portrait" element={<LandingPageZPortrait />} />
+          <Route path="/landing/portrait-v2" element={<LandingPageZPortraitV2 />} />
           <Route path="/landing/ysa01" element={<LandingPageYSa01 />} />
         </Routes>
       </main>

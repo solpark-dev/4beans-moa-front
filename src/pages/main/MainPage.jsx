@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { useMainStore } from "@/store/main/mainStore";
 import MainHeroSection from "./sections/MainHeroSection";
 import MainFeaturesSection from "./sections/MainFeaturesSection";
@@ -24,6 +25,97 @@ export default function MainPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-black -mt-35 pt-5">
+      {/* Animated Gradient Orbs Background - portrait-v2 effect */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Primary Orb - Orange/Coral */}
+        <motion.div
+          className="absolute w-[600px] h-[600px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, rgba(249, 115, 22, 0.05) 40%, transparent 70%)",
+            top: "-10%",
+            right: "-5%",
+          }}
+          animate={{
+            x: [0, 30, -20, 0],
+            y: [0, -20, 30, 0],
+            scale: [1, 1.1, 0.95, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* Secondary Orb - Indigo/Purple */}
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%)",
+            bottom: "10%",
+            left: "-10%",
+          }}
+          animate={{
+            x: [0, -25, 35, 0],
+            y: [0, 35, -25, 0],
+            scale: [1, 0.9, 1.1, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+        />
+
+        {/* Tertiary Orb - Cyan/Teal */}
+        <motion.div
+          className="absolute w-[400px] h-[400px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(20, 184, 166, 0.04) 40%, transparent 70%)",
+            top: "40%",
+            left: "30%",
+          }}
+          animate={{
+            x: [0, 40, -30, 0],
+            y: [0, -30, 40, 0],
+            scale: [1, 1.15, 0.9, 1],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 5,
+          }}
+        />
+
+        {/* Fourth Orb - Pink/Rose */}
+        <motion.div
+          className="absolute w-[350px] h-[350px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(244, 114, 182, 0.1) 0%, rgba(236, 72, 153, 0.04) 40%, transparent 70%)",
+            bottom: "30%",
+            right: "15%",
+          }}
+          animate={{
+            x: [0, -20, 25, 0],
+            y: [0, 25, -20, 0],
+            scale: [1, 1.05, 0.95, 1],
+          }}
+          transition={{
+            duration: 22,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 8,
+          }}
+        />
+      </div>
+
+      {/* Dot Pattern Overlay */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03]"
         style={{

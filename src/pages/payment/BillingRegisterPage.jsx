@@ -6,49 +6,19 @@ import { useAuthStore } from "../../store/authStore";
 import { requestBillingAuth } from "../../utils/paymentHandler";
 import { handleApiError } from "../../utils/errorHandler";
 import { toast } from "../../utils/toast";
-
-// Animated gradient background component for Variant T
-function AnimatedGradient() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
-        style={{
-          background: "radial-gradient(circle, rgba(99,91,255,0.15) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, 100, 0],
-          y: [0, 50, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      <motion.div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
-        style={{
-          background: "radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, -100, 0],
-          y: [0, -50, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-    </div>
-  );
-}
+import {
+  useTheme,
+  ThemeSwitcher,
+  ThemeBackground,
+} from "../../config/themeConfig";
 
 export default function BillingRegisterPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
+
+  // Theme
+  const { theme, setTheme, currentTheme } = useTheme("appTheme");
 
   useEffect(() => {
     if (!user) {
@@ -80,13 +50,22 @@ export default function BillingRegisterPage() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center relative">
-      <AnimatedGradient />
+    <div className={`min-h-screen flex items-center justify-center relative transition-colors duration-300 ${theme === "dark" ? "bg-[#0B1120]" : "bg-[#fafafa]"
+      }`}>
+      {/* Theme Switcher */}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+
+      <ThemeBackground theme={theme} />
       <div className="max-w-md w-full mx-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-lg shadow-[#635bff]/10 p-10 border border-gray-100"
+          className={`rounded-2xl shadow-lg p-10 ${theme === "pop"
+              ? "bg-white border-4 border-black"
+              : theme === "dark"
+                ? "bg-[#1E293B] border border-gray-700"
+                : "bg-white shadow-[#635bff]/10 border border-gray-100"
+            }`}
         >
           <div className="text-center">
             <motion.div
@@ -94,30 +73,36 @@ export default function BillingRegisterPage() {
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="mx-auto mb-6 w-16 h-16 flex items-center justify-center"
             >
-              <Loader2 className="w-12 h-12 text-[#635bff]" />
+              <Loader2 className={`w-12 h-12 ${theme === "pop" ? "text-pink-500" : "text-[#635bff]"}`} />
             </motion.div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className={`text-2xl font-bold mb-2 ${currentTheme.text}`}>
               자동 결제 설정 중...
             </h2>
-            <p className="text-gray-500 font-medium mb-6">
+            <p className={`font-medium mb-6 ${currentTheme.subtext}`}>
               월 구독료 자동 결제를 위해 카드를 등록합니다
             </p>
-            <div className="bg-[#635bff]/5 border border-[#635bff]/10 rounded-xl p-4 text-left">
-              <div className="flex items-center gap-2 text-[#635bff] font-semibold mb-3">
+            <div className={`rounded-xl p-4 text-left ${theme === "pop"
+                ? "bg-pink-100 border-2 border-black"
+                : theme === "dark"
+                  ? "bg-[#635bff]/10 border border-[#635bff]/20"
+                  : "bg-[#635bff]/5 border border-[#635bff]/10"
+              }`}>
+              <div className={`flex items-center gap-2 font-semibold mb-3 ${theme === "pop" ? "text-black" : "text-[#635bff]"
+                }`}>
                 <Info className="w-4 h-4" />
                 안내사항
               </div>
-              <ul className="text-sm text-gray-600 space-y-2">
+              <ul className={`text-sm space-y-2 ${currentTheme.subtext}`}>
                 <li className="flex items-start gap-2">
-                  <CreditCard className="w-4 h-4 text-[#00d4ff] mt-0.5 flex-shrink-0" />
+                  <CreditCard className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === "pop" ? "text-cyan-500" : "text-[#00d4ff]"}`} />
                   매월 자동으로 구독료가 결제됩니다
                 </li>
                 <li className="flex items-start gap-2">
-                  <CreditCard className="w-4 h-4 text-[#00d4ff] mt-0.5 flex-shrink-0" />
+                  <CreditCard className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === "pop" ? "text-cyan-500" : "text-[#00d4ff]"}`} />
                   결제일은 파티 설정에 따라 다릅니다
                 </li>
                 <li className="flex items-start gap-2">
-                  <CreditCard className="w-4 h-4 text-[#00d4ff] mt-0.5 flex-shrink-0" />
+                  <CreditCard className={`w-4 h-4 mt-0.5 flex-shrink-0 ${theme === "pop" ? "text-cyan-500" : "text-[#00d4ff]"}`} />
                   언제든지 카드 변경이 가능합니다
                 </li>
               </ul>

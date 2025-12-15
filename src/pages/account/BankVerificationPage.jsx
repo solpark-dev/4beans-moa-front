@@ -2,6 +2,12 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useBankVerificationStore from '@/store/bankVerificationStore';
+import {
+    useTheme,
+    ThemeSwitcher,
+    ThemeBackground,
+    ThemeMarquee,
+} from '../../config/themeConfig';
 
 // Step 컴포넌트들 (Phase 2-3에서 구현)
 import BankSelectionStep from '@/components/bank-verification/BankSelectionStep';
@@ -17,6 +23,9 @@ import VirtualBankModal from '@/components/bank-verification/VirtualBankModal';
 export default function BankVerificationPage() {
     const navigate = useNavigate();
     const { step, reset, showVirtualBankModal } = useBankVerificationStore();
+
+    // Theme
+    const { theme, setTheme, currentTheme } = useTheme("appTheme");
 
     // 페이지 진입 시 상태 초기화
     useEffect(() => {
@@ -40,15 +49,15 @@ export default function BankVerificationPage() {
     const renderStep = () => {
         switch (step) {
             case 'input':
-                return <BankSelectionStep key="input" />;
+                return <BankSelectionStep key="input" theme={theme} currentTheme={currentTheme} />;
             case 'processing':
-                return <ProcessingStep key="processing" />;
+                return <ProcessingStep key="processing" theme={theme} currentTheme={currentTheme} />;
             case 'verify':
-                return <VerificationStep key="verify" />;
+                return <VerificationStep key="verify" theme={theme} currentTheme={currentTheme} />;
             case 'complete':
-                return <CompletionStep key="complete" />;
+                return <CompletionStep key="complete" theme={theme} currentTheme={currentTheme} />;
             default:
-                return <BankSelectionStep key="input" />;
+                return <BankSelectionStep key="input" theme={theme} currentTheme={currentTheme} />;
         }
     };
 
@@ -61,7 +70,11 @@ export default function BankVerificationPage() {
     const stepLabels = ['계좌 입력', '확인 중', '인증', '완료'];
 
     return (
-        <div className="min-h-[calc(100vh-160px)] bg-gradient-to-b from-slate-50 to-white py-8 px-4">
+        <div className={`min-h-[calc(100vh-160px)] py-8 px-4 transition-colors duration-300 ${theme === "dark" ? "bg-[#0B1120]" : theme === "pop" ? "bg-slate-50" : "bg-gradient-to-b from-slate-50 to-white"
+            }`}>
+            {/* Theme Switcher */}
+            <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+
             <div className="max-w-md mx-auto">
                 {/* 진행 상태 인디케이터 */}
                 <div className="mb-8">

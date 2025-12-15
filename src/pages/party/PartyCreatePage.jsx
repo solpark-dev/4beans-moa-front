@@ -9,6 +9,13 @@ import { updateOttAccount, fetchPartyDetail } from "../../hooks/party/partyServi
 import RippleButton from "../../components/party/RippleButton";
 import { useConfetti } from "../../components/party/SuccessConfetti";
 import {
+  useTheme,
+  ThemeSwitcher,
+  ThemeBackground,
+  ThemeMarquee,
+  themeConfig
+} from "../../config/themeConfig";
+import {
   Check,
   Calendar,
   CreditCard,
@@ -21,48 +28,13 @@ import {
   AlertCircle
 } from "lucide-react";
 
-// Animated gradient background component for Variant T
-function AnimatedGradient() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
-        style={{
-          background: "radial-gradient(circle, rgba(99,91,255,0.15) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, 100, 0],
-          y: [0, 50, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      <motion.div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
-        style={{
-          background: "radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)",
-        }}
-        animate={{
-          x: [0, -100, 0],
-          y: [0, -50, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-    </div>
-  );
-}
-
 export default function PartyCreatePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuthStore();
+
+  // Theme
+  const { theme, setTheme, currentTheme } = useTheme("appTheme");
 
   // Zustand Store
   const {
@@ -250,24 +222,32 @@ export default function PartyCreatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pb-20">
-      {/* Hero Header - Variant T Style */}
-      <div className="relative overflow-hidden bg-white border-b border-gray-100">
-        <AnimatedGradient />
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#0B1120]" : "bg-[#fafafa]"} pb-20 transition-colors duration-300`}>
+      {/* Theme Switcher */}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+
+      {/* Pop Theme Marquee */}
+      <ThemeMarquee theme={theme} />
+
+      {/* Hero Header */}
+      <div className={`relative overflow-hidden border-b ${theme === "dark" ? "bg-[#0B1120] border-gray-800" : theme === "pop" ? "bg-slate-50 border-4 border-black" : "bg-white border-gray-100"
+        }`}>
+        <ThemeBackground theme={theme} />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-[#635bff]/10 text-[#635bff] rounded-full text-sm font-medium mb-6">
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${theme === "pop" ? "bg-pink-400 text-black border-2 border-black" : theme === "dark" ? "bg-[#635bff]/20 text-[#635bff]" : "bg-[#635bff]/10 text-[#635bff]"
+              }`}>
               <Sparkles className="w-4 h-4" />
               파티장 혜택
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h1 className={`text-4xl md:text-5xl font-bold mb-4 tracking-tight ${currentTheme.text}`}>
               새 파티 만들기
             </h1>
-            <p className="text-lg text-gray-500">
+            <p className={`text-lg ${currentTheme.subtext}`}>
               몇 분 만에 구독료 절약을 시작해보세요
             </p>
           </motion.div>
@@ -291,29 +271,26 @@ export default function PartyCreatePage() {
                         scale: isActive ? 1.1 : 1,
                         backgroundColor: isCompleted ? "#635bff" : isActive ? "#ffffff" : "#f5f5f5"
                       }}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border-2 ${
-                        isCompleted
-                          ? "border-[#635bff] text-white shadow-lg shadow-[#635bff]/25"
-                          : isActive
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border-2 ${isCompleted
+                        ? "border-[#635bff] text-white shadow-lg shadow-[#635bff]/25"
+                        : isActive
                           ? "border-[#635bff] text-[#635bff]"
                           : "border-gray-200 text-gray-400"
-                      }`}
+                        }`}
                     >
                       {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                     </motion.div>
                     <p
-                      className={`mt-2 text-xs font-semibold ${
-                        isActive ? "text-[#635bff]" : "text-gray-400"
-                      }`}
+                      className={`mt-2 text-xs font-semibold ${isActive ? "text-[#635bff]" : "text-gray-400"
+                        }`}
                     >
                       {s.label}
                     </p>
                   </div>
                   {idx < steps.length - 1 && (
                     <div
-                      className={`h-0.5 flex-1 mx-2 transition-all duration-500 ${
-                        step > s.number ? "bg-[#635bff]" : "bg-gray-200"
-                      }`}
+                      className={`h-0.5 flex-1 mx-2 transition-all duration-500 ${step > s.number ? "bg-[#635bff]" : "bg-gray-200"
+                        }`}
                     ></div>
                   )}
                 </div>
@@ -435,11 +412,10 @@ export default function PartyCreatePage() {
                             setMaxMembers(count);
                             setErrors({ ...errors, maxMembers: "" });
                           }}
-                          className={`relative p-4 rounded-xl border-2 transition-all ${
-                            isSelected
-                              ? "border-[#635bff] bg-[#635bff]/5 shadow-md shadow-[#635bff]/10"
-                              : "border-gray-100 bg-white hover:border-[#635bff]/30 hover:bg-gray-50"
-                          }`}
+                          className={`relative p-4 rounded-xl border-2 transition-all ${isSelected
+                            ? "border-[#635bff] bg-[#635bff]/5 shadow-md shadow-[#635bff]/10"
+                            : "border-gray-100 bg-white hover:border-[#635bff]/30 hover:bg-gray-50"
+                            }`}
                         >
                           <div className="text-center">
                             <div className={`text-2xl font-bold mb-1 ${isSelected ? "text-[#635bff]" : "text-gray-900"}`}>
@@ -495,9 +471,8 @@ export default function PartyCreatePage() {
                         setDates({ ...dates, startDate: start, endDate: end });
                         setErrors({ ...errors, startDate: "" });
                       }}
-                      className={`w-full bg-gray-50 border-2 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 outline-none text-gray-900 transition-all font-semibold ${
-                        errors.startDate ? "border-red-300" : "border-gray-100 focus:border-[#635bff]"
-                      }`}
+                      className={`w-full bg-gray-50 border-2 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 outline-none text-gray-900 transition-all font-semibold ${errors.startDate ? "border-red-300" : "border-gray-100 focus:border-[#635bff]"
+                        }`}
                     />
                     {!dates.startDate && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -578,11 +553,10 @@ export default function PartyCreatePage() {
                           setDates({ ...dates, months: month, endDate: end });
                           setErrors({ ...errors, months: "" });
                         }}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                          dates.months === month
-                            ? "bg-[#635bff] text-white shadow-md shadow-[#635bff]/25"
-                            : "bg-gray-100 text-gray-600 hover:bg-[#635bff]/10 hover:text-[#635bff]"
-                        }`}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${dates.months === month
+                          ? "bg-[#635bff] text-white shadow-md shadow-[#635bff]/25"
+                          : "bg-gray-100 text-gray-600 hover:bg-[#635bff]/10 hover:text-[#635bff]"
+                          }`}
                       >
                         {month === 3 && "3개월"}
                         {month === 6 && "6개월"}

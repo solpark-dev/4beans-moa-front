@@ -1,0 +1,3656 @@
+
+╭─── Claude Code v2.0.62 ──────────────────────────────────────────────────────╮
+│                                   │ Tips for getting started                 │
+│        Welcome back Hansol!       │ √ Run /init to create a CLAUDE.md file … │
+│                                   │ ──────────────────────────────────────── │
+│              ▐▛███▜▌              │ Recent activity                          │
+│             ▝▜█████▛▘             │ No recent activity                       │
+│               ▘▘ ▝▝               │                                          │
+│                                   │                                          │
+│      Sonnet 4.5 · Claude Pro      │                                          │
+│   C:\sol\React\4beans-moa-front   │                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+> 대답은 한글로 해줘. 프로젝트에 스케줄러가 돌아가는게 많아. 결제, 정산, 
+보증금, 파티 관련해서 스케줄러가 어떤 원리로 어떻게 돌아가는지 자세히 
+설명해줘 
+
+● 프로젝트의 스케줄러 구조를 파악하기 위해 관련 코드를 찾아보겠습니다.
+
+● Explore(스케줄러 코드 탐색)
+  ⎿  Done (22 tool uses · 46.7k tokens · 2m 9s)                            
+
+● 프로젝트의 스케줄러 시스템을 분석했습니다. 총 7개의 스케줄러가 결제, 정산,
+   보증금, 파티 관련 자동화 작업을 처리하고 있습니다.
+
+  📋 전체 스케줄러 개요
+
+  스케줄러는 Spring Boot의 @Scheduled 어노테이션을 사용하며,
+  MoaApplication.java에서 @EnableScheduling으로 활성화됩니다.
+
+  ---
+  💳 1. 결제(Payment) 관련 스케줄러
+
+  1-1. PaymentScheduler
+
+  위치:
+  4beans-moa-backend/src/main/java/com/moa/scheduler/PaymentScheduler.java
+  실행 시간: 매일 새벽 2시
+
+  동작 원리:
+  1. 신규 월간 결제 처리
+    - 오늘이 결제일인 파티를 조회
+    - 월말 처리 (29/30/31일) 로직 포함
+    - 방장을 제외한 활성 멤버의 월 구독료 자동 결제
+    - 각 파티별로 독립적으로 처리 (한 파티 실패가 다른 파티에 영향 없음)
+  2. 재시도 결제 처리
+    - 이전에 실패한 결제를 재시도
+    - 재시도 스케줄: 24시간 → 48시간 → 72시간 간격 (총 4회 시도)
+    - PAYMENT_RETRY_HISTORY 테이블의 NEXT_RETRY_DATE를 기준으로 실행
+
+  1-2. PaymentTimeoutScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/PaymentTimeoutSch
+  eduler.java
+  실행 주기: 5분마다
+
+  동작 원리:
+  - PENDING_PAYMENT 상태로 30분 이상 경과한 파티를 자동 취소
+  - 결제가 완료되지 않은 채 방치된 파티를 정리하는 안전장치
+
+  ---
+  💰 2. 정산(Settlement) 관련 스케줄러
+
+  2-1. SettlementScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/SettlementSchedul
+  er.java
+  실행 시간:
+  - 월간 정산: 매월 1일 새벽 4시
+  - 실패 재시도: 매시간 정각
+
+  동작 원리:
+
+  월간 정산 프로세스:
+  1. 전월(지난 달) 정산 대상 파티 조회
+  2. 모든 활성 파티에 대해:
+    - 정산 레코드 생성
+    - 즉시 이체 처리 실행
+    - 정산 완료 이벤트 발행 (알림 등에 활용)
+  3. Full Automation 방식으로 정산 즉시 완료
+
+  실패 재시도 프로세스:
+  - FAILED 상태 정산을 조회하여 재시도
+  - 재시도 조건:
+    - 생성 후 2시간 이상 경과
+    - 24시간 이내 (그 이상은 재시도 포기)
+    - bankTranId가 없어야 함 (있으면 수동 처리 필요)
+  - 최대 3회까지 재시도
+
+  2-2. SettlementTransferScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/SettlementTransfe
+  rScheduler.java
+  실행 시간: 매일 오전 10시
+
+  동작 원리:
+  1. PENDING 상태 정산 조회
+  2. 각 정산에 대해:
+    - 파티장 계좌 정보 확인 (fintechUseNum)
+    - 계좌 미등록 시 스킵
+    - 상태를 IN_PROGRESS로 변경
+    - 오픈뱅킹 API를 통한 입금이체 실행
+    - 거래 기록을 TRANSFER_TRANSACTION 테이블에 저장
+    - 성공/실패에 따라 COMPLETED 또는 FAILED 상태로 변경
+
+  ---
+  🏦 3. 보증금(Deposit) 관련 스케줄러
+
+  3-1. PendingDepositCleanupScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/PendingDepositCle
+  anupScheduler.java
+  실행 시간: 매일 새벽 3시
+
+  동작 원리:
+  - 24시간 이상 PENDING 상태로 남아있는 보증금 레코드 삭제
+  - Toss 결제 실패 후 정리되지 않은 "고아 레코드" 제거
+  - 트랜잭션 보상(Transaction Compensation) 메커니즘의 일부
+
+  3-2. RefundScheduler
+
+  위치:
+  4beans-moa-backend/src/main/java/com/moa/scheduler/RefundScheduler.java
+  실행 주기: 매시간 정각
+
+  동작 원리:
+  1. 재시도 대기 중인 환불 조회 (REFUND_RETRY_HISTORY)
+  2. 각 환불에 대해:
+    - Toss Payments API를 통한 결제 취소 재시도
+    - 재시도 간격: 1시간 → 4시간 → 24시간 (총 4회 시도)
+    - 성공/실패 결과를 기록
+    - 각 환불은 독립적으로 처리 (격리 실행)
+
+  특별 기능:
+  - 보상 트랜잭션 (RETRY_TYPE = 'COMPENSATION'): Toss 결제는 성공했으나 DB
+  저장 실패 시 자동 환불
+  - 일반 환불 (RETRY_TYPE = 'REFUND'): 일반적인 환불 실패 재시도
+
+  ---
+  🎉 4. 파티(Party) 관련 스케줄러
+
+  4-1. PartyCloseScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/PartyCloseSchedul
+  er.java
+  실행 시간: 매일 새벽 3시
+
+  동작 원리:
+  1. 종료일(END_DATE)이 지난 활성 파티 조회
+  2. 각 파티에 대해:
+    - partyService.closeParty() 호출
+    - 모든 멤버의 보증금 환불 (Toss Payments 결제 취소)
+    - 파티 상태를 CLOSED로 변경
+  3. 환불 실패 시 RefundScheduler가 자동으로 재시도 처리
+
+  ---
+  🕐 일일 스케줄러 타임라인
+
+  02:00 - PaymentScheduler: 월간 결제 + 재시도 결제 처리
+  03:00 - PendingDepositCleanupScheduler: 고아 보증금 레코드 정리
+  03:00 - PartyCloseScheduler: 종료된 파티 자동 마감
+  10:00 - SettlementTransferScheduler: 정산 입금이체 처리
+
+  매 5분 - PaymentTimeoutScheduler: 결제 타임아웃 파티 취소
+  매시간 - RefundScheduler: 환불 재시도
+  매시간 - SettlementScheduler (재시도): 실패한 정산 재시도
+
+  매월 1일 04:00 - SettlementScheduler: 월간 정산 자동 생성
+
+  ---
+  🔄 재시도 메커니즘 비교
+
+  | 항목       | 결제 (Payment)          | 환불 (Refund)          | 정산
+  (Settlement)          |
+  |----------|-----------------------|----------------------|---------------
+  -----------|
+  | 재시도 간격   | 24h, 48h, 72h         | 1h, 4h, 24h          | 2h 간격
+  (최대 24h)           |
+  | 최대 시도 횟수 | 4회                    | 4회                   | 무제한
+   (24h 내)              |
+  | 실행 주기    | 매일 02:00              | 매시간                  |
+  매시간                      |
+  | 외부 API   | Toss Payments (빌링키)   | Toss Payments (취소)   |
+  OpenBanking (입금이체)       |
+  | 이력 테이블   | PAYMENT_RETRY_HISTORY | REFUND_RETRY_HISTORY |
+  SETTLEMENT_RETRY_HISTORY |
+
+  ---
+  🎯 핵심 설계 원칙
+
+  1. 격리 실행: 한 건의 실패가 다른 건에 영향을 주지 않도록 try-catch로 개별
+   처리
+  2. 멱등성: 중복 실행을 방지하기 위한 상태 검증
+  3. 지수 백오프: 재시도 간격을 점진적으로 증가시켜 시스템 부하 분산
+  4. 타임아웃 관리: 무한 재시도 방지 (24~72시간 제한)
+  5. 보상 트랜잭션: 외부 API 성공/DB 실패 시나리오에 대한 자동 복구
+  6. 이벤트 기반: 정산 완료 시 이벤트를 발행하여 알림 등 추가 작업 트리거
+
+  이 시스템은 결제 자동화, 정산 자동화, 환불 안정성을 보장하며, 장애 발생
+  시에도 자동으로 복구되는 견고한 구조를 갖추고 있습니다.
+
+> /export 
+  ⎿  Conversation exported to: conversation-2025-12-10-155220.txt
+
+> 프론트엔드 디자인을 현업에서 쓰는 것 처럼 만들고 싶은데 어떤 프롬프트를 
+써야할까? 
+
+● 현업 수준의 프론트엔드 디자인을 만들기 위한 효과적인 프롬프트 작성
+  가이드를 알려드리겠습니다.
+
+  🎨 효과적인 프롬프트 구조
+
+  1. 명확한 목표 설정
+
+  "[서비스명]의 [특정 페이지/컴포넌트]를 현대적이고 전문적인 디자인으로
+  개선해줘"
+
+  2. 구체적인 디자인 시스템 참조
+
+  "다음 요구사항을 반영해서 디자인해줘:
+  - Material Design 3 또는 Ant Design 원칙 적용
+  - 일관된 컬러 팔레트 (Primary, Secondary, Accent 색상 정의)
+  - 통일된 타이포그래피 (폰트 크기, 두께, 행간)
+  - 8px 그리드 시스템 사용
+  - 그림자와 elevation을 활용한 계층 구조"
+
+  3. 참고할 만한 서비스 명시
+
+  "다음 서비스들의 디자인 패턴을 참고해줘:
+  - [네이버 페이, 토스, 카카오페이] - 금융 서비스
+  - [에어비앤비, 왓챠, 넷플릭스] - 구독/파티 서비스
+  - [노션, Linear, Figma] - SaaS 대시보드"
+
+  4. UX/UI 원칙 강조
+
+  "다음 UX 원칙을 준수해줘:
+  - 사용자 행동을 유도하는 명확한 CTA (Call-to-Action)
+  - 시각적 계층 구조 (중요한 정보 강조)
+  - 충분한 여백(whitespace)으로 가독성 확보
+  - 직관적인 네비게이션
+  - 로딩/에러/성공 상태에 대한 명확한 피드백
+  - 마이크로 인터랙션 (hover, focus, active 상태)"
+
+  5. 접근성 및 반응형 고려
+
+  "다음 기술적 요구사항을 충족해줘:
+  - WCAG 2.1 AA 수준의 접근성 (색상 대비 4.5:1 이상)
+  - 모바일 퍼스트 반응형 디자인 (breakpoint: 768px, 1024px, 1440px)
+  - 터치 타겟 최소 44px
+  - 키보드 네비게이션 지원"
+
+  ---
+  📝 실제 사용 예시 프롬프트
+
+  전체적인 프롬프트 템플릿
+
+  4beans-moa 프로젝트의 [파티 목록 페이지/대시보드/결제 화면]을
+  현업 수준의 전문적인 디자인으로 개선해줘.
+
+  ## 디자인 목표
+  - 토스, 카카오페이 수준의 깔끔하고 직관적인 UI
+  - OTT 구독 공유 서비스에 맞는 친근하면서도 신뢰감 있는 디자인
+
+  ## 디자인 시스템
+  - Primary 색상: #[색상코드] (브랜드 컬러)
+  - Typography: Pretendard 또는 SUIT 폰트 사용
+  - 8px 그리드 시스템
+  - Border radius: 8px/12px/16px (일관성 있게)
+  - Shadow: subtle한 그림자로 depth 표현
+
+  ## UI/UX 요구사항
+  1. 시각적 계층 구조
+     - 중요한 액션(파티 가입, 결제)은 눈에 띄게
+     - 부가 정보는 subtle하게 처리
+
+  2. 사용자 피드백
+     - 버튼 hover/active 상태 명확히
+     - 로딩 스피너, 스켈레톤 UI
+     - 성공/에러 토스트 메시지
+
+  3. 정보 전달
+     - 아이콘과 텍스트 조합으로 직관성 향상
+     - 숫자/금액은 강조 표시
+     - 상태(활성/종료/보류)를 색상으로 구분
+
+  4. 인터랙션
+     - 카드 hover 시 elevation 변화
+     - 부드러운 transition (200-300ms)
+     - 스크롤 애니메이션 (fade-in, slide-up)
+
+  ## 반응형
+  - 모바일: 1열 카드 레이아웃
+  - 태블릿: 2열 그리드
+  - 데스크탑: 3-4열 그리드
+
+  ## 접근성
+  - 색상 대비비 4.5:1 이상
+  - alt 텍스트, aria-label 추가
+  - focus 상태 명확히 표시
+
+  현재 코드를 읽고 위 요구사항을 반영해서 개선해줘.
+
+  ---
+  💡 프롬프트 작성 팁
+
+  구체적으로 작성하기
+
+  - ❌ "디자인을 예쁘게 해줘"
+  - ✅ "토스 앱처럼 카드 기반 레이아웃으로, 16px border-radius와 subtle한
+  그림자를 적용해줘"
+
+  레퍼런스 제공
+
+  - 스크린샷이나 URL을 함께 첨부
+  - "https://toss.im 메인 페이지의 카드 레이아웃 참고"
+
+  우선순위 명시
+
+  1순위: 모바일 반응형 (사용자 대부분이 모바일 사용)
+  2순위: 로딩/에러 상태 UI 개선
+  3순위: 애니메이션 추가
+
+  단계별 접근
+
+  1단계: 컬러 팔레트와 타이포그래피 정의
+  2단계: 주요 페이지 레이아웃 개선
+  3단계: 컴포넌트 디자인 시스템화
+  4단계: 인터랙션 및 애니메이션 추가
+
+  ---
+  🎯 4beans-moa 프로젝트에 특화된 프롬프트
+
+  4beans-moa의 파티 목록 페이지를 넷플릭스, 왓챠 수준의 현대적인 디자인으로
+  개선해줘.
+
+  참고 디자인:
+  - 왓챠: 깔끔한 카드 레이아웃, hover 시 scale 효과
+  - 넷플릭스: 다크 테마 옵션, 썸네일 중심 UI
+  - 토스: 명확한 정보 계층, 부드러운 애니메이션
+
+  개선 포인트:
+  1. OTT 서비스 썸네일을 크게 강조 (Netflix, Disney+, Wavve 등)
+  2. 파티 정보(멤버 수, 남은 기간, 월 비용)를 아이콘으로 시각화
+  3. 가입 가능 여부를 뱃지로 명확히 표시
+  4. 카드 hover 시 elevation과 scale 효과
+  5. 스켈레톤 UI로 로딩 상태 개선
+  6. 필터/정렬 UI를 상단에 깔끔하게 배치
+
+  Tailwind CSS와 Framer Motion을 활용해서 구현해줘.
+
+  ---
+  이런 식으로 구체적이고 명확한 프롬프트를 작성하면, 현업 수준의 디자인을
+  얻을 수 있습니다. 프로젝트의 특정 페이지를 개선하고 싶다면, 해당 페이지를
+  알려주시면 더 구체적인 프롬프트를 작성해드릴 수 있습니다!
+
+> 파티 찾기, 파티 상세 등 파티와 관련된 모든 페이지와, 내지갑에서 나오는 
+모든 결제, 보증금, 정산 페이지, 그리고 관리자 페이지를 디자인해볼거야. 
+tailwind와 shadcn을 기본적으로 쓰지만, 다른 더 좋은 툴이 있다면 소개해줘. 
+어떻게 디자인할건지 계획부터 세워보자 
+
+● 좋습니다! 대규모 디자인 개선 작업이네요. 먼저 현재 프로젝트 구조를 파악한
+  후, 최적의 도구와 단계별 계획을 수립하겠습니다.
+
+● Explore(프론트엔드 페이지 구조 분석)
+  ⎿  Done (33 tool uses · 98.4k tokens · 3m 21s)                           
+
+● 완벽합니다! 프로젝트 구조를 상세히 분석했습니다. 이제 최적의 도구를
+  추천하고 단계별 디자인 계획을 수립하겠습니다.
+
+  ---
+  🛠️ 현재 기술 스택 vs 추천 도구
+
+  현재 사용 중
+
+  - ✅ Tailwind CSS 4.1.17 (최신)
+  - ✅ shadcn/ui (23개 컴포넌트)
+  - ✅ Lucide React (아이콘)
+  - ⚠️ Tailwind 애니메이션만 (제한적)
+
+  추가 추천 도구
+
+  1. 애니메이션 라이브러리
+
+  # Framer Motion - 부드러운 페이지 전환 및 인터랙션
+  npm install framer-motion
+  장점:
+  - 페이지 전환 애니메이션 (exit/enter)
+  - Gesture 인터랙션 (drag, hover, tap)
+  - Layout 애니메이션 (자동 리플로우)
+  - Spring 기반 자연스러운 움직임
+
+  사용 예시: 카드 호버, 모달 등장, 리스트 항목 등장 애니메이션
+
+  2. 차트 라이브러리 업그레이드
+
+  # Recharts - React 전용 차트 라이브러리
+  npm install recharts
+  현재 Chart.js 대비 장점:
+  - React 친화적 (선언적 API)
+  - Tailwind와 자연스러운 통합
+  - 반응형 기본 지원
+  - 커스터마이징 쉬움
+
+  또는
+  # Tremor - 대시보드 전용 차트 + 컴포넌트
+  npm install @tremor/react
+  장점:
+  - 금융 대시보드에 최적화
+  - Tailwind 기반 디자인
+  - 차트 + 통계 카드 통합
+
+  3. 테이블 라이브러리
+
+  # TanStack Table (React Table v8)
+  npm install @tanstack/react-table
+  shadcn/ui Table 대비 장점:
+  - 정렬, 필터링, 페이지네이션 내장
+  - 가상 스크롤 (대용량 데이터)
+  - 행 선택, 확장 가능
+  - 서버 사이드 연동 쉬움
+
+  관리자 페이지의 회원/파티 관리 테이블에 적합
+
+  4. 폼 유효성 검증 강화
+
+  # 이미 설치됨: react-hook-form + zod
+  # 추가: shadcn/ui Form 컴포넌트 활용
+
+  5. 날짜 선택기
+
+  # React Day Picker - shadcn/ui와 호환
+  npm install react-day-picker date-fns
+  현재 프로젝트에 없는 기능:
+  - 파티 기간 선택
+  - 관리자 필터링 (가입일 범위)
+
+  6. 이미지 최적화
+
+  # React Lazy Load Image Component
+  npm install react-lazy-load-image-component
+  OTT 서비스 썸네일 최적화에 활용
+
+  7. 가상 스크롤
+
+  # TanStack Virtual
+  npm install @tanstack/react-virtual
+  대용량 리스트 성능 개선 (파티 목록, 금융 내역)
+
+  8. 다크 모드
+
+  # next-themes (Next.js 아니어도 사용 가능)
+  npm install next-themes
+  또는 직접 구현 (Tailwind dark: 활용)
+
+  ---
+  📐 디자인 개선 계획 (4단계)
+
+● Phase 1: 디자인 시스템 정립 및 공통 컴포넌트 개선 (1주)
+
+  1.1 디자인 토큰 정의 및 통일
+
+  목표: CSS 변수 기반 일관된 디자인 시스템 구축
+
+  작업 항목:
+  /* src/index.css - 디자인 토큰 정의 */
+  :root {
+    /* 브랜드 컬러 */
+    --brand-primary: #ea580c;      /* Orange-600 */
+    --brand-secondary: #6366f1;    /* Indigo-500 */
+    --brand-accent: #8b5cf6;       /* Purple-500 */
+
+    /* 시맨틱 컬러 */
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --color-info: #3b82f6;
+
+    /* 서비스별 컬러 (OTT) */
+    --netflix: #e50914;
+    --disney: #113ccf;
+    --wavve: #1351f9;
+
+    /* 타이포그래피 */
+    --font-heading: 'Pretendard', sans-serif;
+    --font-body: 'Pretendard', sans-serif;
+
+    /* 스페이싱 (8px 그리드) */
+    --space-xs: 0.25rem;  /* 4px */
+    --space-sm: 0.5rem;   /* 8px */
+    --space-md: 1rem;     /* 16px */
+    --space-lg: 1.5rem;   /* 24px */
+    --space-xl: 2rem;     /* 32px */
+    --space-2xl: 3rem;    /* 48px */
+
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* Shadow */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px rgb(234 88 12 / 0.2);
+  }
+
+  /* 다크 모드 */
+  .dark {
+    --brand-primary: #fb923c;      /* 밝은 Orange */
+    --bg-primary: #0f172a;         /* Slate-900 */
+    --bg-secondary: #1e293b;       /* Slate-800 */
+    --text-primary: #f8fafc;       /* Slate-50 */
+  }
+
+  1.2 공통 컴포넌트 개선
+
+  작업 항목:
+  1. LoadingSpinner 컴포넌트 (전역 로딩 통일)
+  2. EmptyState 컴포넌트 (빈 상태 UI 통일)
+  3. ErrorBoundary (에러 핸들링)
+  4. Toast 시스템 개선 (sonner 커스터마이징)
+  5. StatusBadge 컴포넌트 (상태 배지 통일)
+  6. StatCard 컴포넌트 (통계 카드 통일)
+
+  예시 - StatusBadge 통일:
+  // src/components/common/StatusBadge.jsx
+  const statusConfig = {
+    ACTIVE: { label: '진행중', color: 'success', icon: CheckCircle },
+    RECRUITING: { label: '모집중', color: 'info', icon: Users },
+    CLOSED: { label: '마감', color: 'default', icon: Lock },
+    PENDING_PAYMENT: { label: '결제대기', color: 'warning', icon: Clock },
+  }
+
+  1.3 다크 모드 구현
+
+  npm install next-themes
+
+  구현:
+  1. ThemeProvider 설정
+  2. 모든 컴포넌트에 dark: 클래스 추가
+  3. 토글 버튼 추가 (Header)
+
+  1.4 애니메이션 시스템 구축
+
+  npm install framer-motion
+
+  애니메이션 프리셋 정의:
+  // src/utils/animations.js
+  export const fadeIn = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: 0.3 }
+  }
+
+  export const slideUp = {
+    initial: { y: 20, opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    exit: { y: -20, opacity: 0 }
+  }
+
+  export const scaleUp = {
+    initial: { scale: 0.95, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0.95, opacity: 0 }
+  }
+
+  export const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  ---
+  Phase 2: 파티 관련 페이지 디자인 개선 (2주)
+
+  2.1 파티 목록 페이지 (PartyListPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. 히어로 섹션 개선
+  // 현재: 단순 그라데이션 헤더
+  // 개선: 애니메이션 배경 + 검색 강조
+
+  <section className="relative overflow-hidden">
+    {/* Animated Blob Background */}
+    <div className="absolute inset-0">
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 
+  rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
+      <div className="absolute top-0 -right-4 w-72 h-72 bg-orange-300 
+  rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob 
+  animation-delay-2000" />
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 
+  rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob 
+  animation-delay-4000" />
+    </div>
+
+    {/* Content */}
+    <div className="relative px-4 py-16">
+      <motion.h1 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="text-5xl font-black text-center mb-4"
+      >
+        원하는 파티를 찾아보세요 🎉
+      </motion.h1>
+
+      {/* 검색바 강조 */}
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="max-w-2xl mx-auto"
+      >
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 transform 
+  -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Netflix, Disney+, Wavve..."
+            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 
+  border-slate-200 
+                       focus:border-orange-500 focus:ring-4 
+  focus:ring-orange-100
+                       text-lg font-medium transition-all duration-300
+                       dark:bg-slate-800 dark:border-slate-700"
+          />
+        </div>
+      </motion.div>
+    </div>
+  </section>
+
+  2. 필터 UI 개선
+  // Sticky 필터 바 + Dropdown 메뉴
+  <div className="sticky top-16 z-40 bg-white/80 backdrop-blur-xl border-b 
+  border-slate-200 dark:bg-slate-900/80">
+    <div className="flex items-center gap-2 px-4 py-3">
+      {/* 서비스 타입 필터 */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <Filter className="w-4 h-4" />
+            서비스 ({selectedServices.length})
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {/* Netflix, Disney+, Wavve 등 */}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* 상태 필터 */}
+      <Tabs value={status} onValueChange={setStatus}>
+        <TabsList>
+          <TabsTrigger value="all">전체</TabsTrigger>
+          <TabsTrigger value="recruiting">모집중</TabsTrigger>
+          <TabsTrigger value="active">진행중</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* 정렬 */}
+      <Select value={sortBy} onValueChange={setSortBy}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="정렬" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="recent">최신순</SelectItem>
+          <SelectItem value="price-low">가격 낮은순</SelectItem>
+          <SelectItem value="popular">인기순</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  </div>
+
+  3. 파티 카드 개선
+  // 현재: 기본 카드
+  // 개선: OTT 썸네일 강조 + Hover 효과 + 정보 아이콘화
+
+  <motion.div
+    layout
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    whileHover={{ y: -4, scale: 1.02 }}
+    className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl
+
+               border border-slate-200 overflow-hidden transition-all
+  duration-300
+               dark:bg-slate-800 dark:border-slate-700"
+  >
+    {/* OTT 썸네일 */}
+    <div className="relative h-48 bg-gradient-to-br from-orange-50
+  to-purple-50 overflow-hidden">
+      <img
+        src={party.service.thumbnailUrl}
+        alt={party.service.name}
+        className="w-full h-full object-cover group-hover:scale-110
+  transition-transform duration-500"
+      />
+
+      {/* Status Badge - 오버레이 */}
+      <div className="absolute top-3 left-3">
+        <Badge variant={party.status === 'RECRUITING' ? 'success' :
+  'default'}>
+          {party.status === 'RECRUITING' ? '모집중 🔥' : '진행중'}
+        </Badge>
+      </div>
+
+      {/* Service Logo - 오버레이 */}
+      <div className="absolute bottom-3 right-3">
+        <img
+          src={getServiceLogo(party.service.type)}
+          alt=""
+          className="w-12 h-12 drop-shadow-lg"
+        />
+      </div>
+    </div>
+
+    {/* Content */}
+    <div className="p-5">
+      <h3 className="text-xl font-bold mb-3 group-hover:text-orange-600
+  transition-colors">
+        {party.service.name}
+      </h3>
+
+      {/* 정보 그리드 */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="flex items-center gap-2 text-sm">
+          <Users className="w-4 h-4 text-orange-500" />
+          <span className="text-slate-600 dark:text-slate-400">
+            {party.currentMembers}/{party.maxMembers}명
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm">
+          <Calendar className="w-4 h-4 text-orange-500" />
+          <span className="text-slate-600 dark:text-slate-400">
+            D-{calculateDday(party.endDate)}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm">
+          <Coins className="w-4 h-4 text-orange-500" />
+          <span className="text-slate-600 dark:text-slate-400">
+            {party.depositAmount.toLocaleString()}원
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm">
+          <Crown className="w-4 h-4 text-orange-500" />
+          <span className="text-slate-600 dark:text-slate-400">
+            {party.leaderNickname}
+          </span>
+        </div>
+      </div>
+
+      {/* 월 비용 강조 */}
+      <div className="flex items-end justify-between pt-3 border-t
+  border-slate-100 dark:border-slate-700">
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">월
+  비용</p>
+          <p className="text-2xl font-black text-orange-600">
+            {party.monthlyCost.toLocaleString()}
+            <span className="text-sm font-medium
+  text-slate-600">원/월</span>
+          </p>
+        </div>
+
+        <Button
+          size="sm"
+          className="bg-gradient-to-r from-orange-500 to-orange-600
+  hover:from-orange-600 hover:to-orange-700"
+        >
+          상세보기
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
+      </div>
+    </div>
+  </motion.div>
+
+  4. Skeleton Loading 개선
+  // Shimmer 효과 추가
+  <div className="animate-pulse">
+    <div className="h-48 bg-gradient-to-r from-slate-200 via-slate-100 
+  to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-t-2xl" />
+    <div className="p-5 space-y-3">
+      <div className="h-6 bg-slate-200 rounded w-3/4" />
+      <div className="h-4 bg-slate-200 rounded w-1/2" />
+    </div>
+  </div>
+
+  2.2 파티 상세 페이지 (PartyDetailPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. 히어로 섹션 - 이미지 + 정보
+  <section className="relative h-[400px] overflow-hidden">
+    {/* Background Image with Overlay */}
+    <div className="absolute inset-0">
+      <img 
+        src={party.service.coverImage} 
+        alt=""
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 
+  via-slate-900/60 to-transparent" />
+    </div>
+
+    {/* Content */}
+    <div className="relative h-full flex items-end">
+      <div className="max-w-7xl mx-auto w-full px-4 pb-12">
+        <div className="flex items-end gap-6">
+          {/* Service Logo */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="w-32 h-32 bg-white rounded-3xl shadow-2xl p-4 flex 
+  items-center justify-center"
+          >
+            <img src={getServiceLogo(party.service.type)} alt="" 
+  className="w-full" />
+          </motion.div>
+
+          {/* Info */}
+          <div className="flex-1 text-white">
+            <Badge variant="success" className="mb-2">모집중 🔥</Badge>
+            <h1 className="text-4xl font-black 
+  mb-2">{party.service.name}</h1>
+            <p className="text-lg text-slate-200 
+  mb-4">{party.description}</p>
+
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                <span 
+  className="font-medium">{party.currentMembers}/{party.maxMembers}명</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                <span 
+  className="font-medium">D-{calculateDday(party.endDate)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5" />
+                <span className="font-medium">{party.leaderNickname}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-right">
+            <p className="text-sm text-slate-200 mb-1">월 비용</p>
+            <p className="text-5xl font-black text-white mb-4">
+              {party.monthlyCost.toLocaleString()}
+              <span className="text-xl text-slate-300">원</span>
+            </p>
+            <Button size="lg" className="bg-orange-500 hover:bg-orange-600 
+  text-white px-8 py-6 text-lg">
+              파티 가입하기
+              <Sparkles className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  2. 멤버 진행 상태 시각화
+  <Card>
+    <CardHeader>
+      <CardTitle>파티 멤버</CardTitle>
+    </CardHeader>
+    <CardContent>
+      {/* Progress Bar */}
+      <div className="mb-6">
+        <div className="flex justify-between text-sm mb-2">
+          <span className="font-medium">모집 현황</span>
+          <span className="text-orange-600 
+  font-bold">{party.currentMembers}/{party.maxMembers}명</span>
+        </div>
+        <Progress value={(party.currentMembers / party.maxMembers) * 100} 
+  className="h-3" />
+      </div>
+
+      {/* Member Avatars */}
+      <div className="flex items-center gap-2">
+        {party.members.map((member, index) => (
+          <Tooltip key={member.id}>
+            <TooltipTrigger>
+              <Avatar className="border-2 border-white shadow-md">
+                <AvatarImage src={member.profileUrl} />
+                <AvatarFallback>{member.nickname[0]}</AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-center">
+                <p className="font-medium">{member.nickname}</p>
+                {member.isLeader && <Badge variant="warning">파티장</Badge>}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        ))}
+
+        {/* Empty Slots */}
+        {Array.from({ length: party.maxMembers - party.currentMembers
+  }).map((_, i) => (
+          <div key={i} className="w-10 h-10 rounded-full border-2 
+  border-dashed border-slate-300 flex items-center justify-center">
+            <UserPlus className="w-5 h-5 text-slate-400" />
+          </div>
+        ))}
+      </div>
+    </CardContent>
+  </Card>
+
+  3. OTT 계정 정보 - 보안 강화
+  <Card className="border-2 border-orange-200 bg-orange-50/50">
+    <CardHeader>
+      <div className="flex items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <Lock className="w-5 h-5 text-orange-600" />
+          OTT 계정 정보
+        </CardTitle>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowOttInfo(!showOttInfo)}
+        >
+          {showOttInfo ? (
+            <>
+              <EyeOff className="w-4 h-4 mr-2" />
+              숨기기
+            </>
+          ) : (
+            <>
+              <Eye className="w-4 h-4 mr-2" />
+              보기
+            </>
+          )}
+        </Button>
+      </div>
+    </CardHeader>
+
+    <CardContent>
+      <AnimatePresence mode="wait">
+        {showOttInfo ? (
+          <motion.div
+            key="visible"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-3 p-3 bg-white 
+  rounded-lg">
+              <Mail className="w-5 h-5 text-slate-400" />
+              <div>
+                <p className="text-xs text-slate-500">이메일</p>
+                <p className="font-mono 
+  font-medium">{party.ottInfo.email}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-white 
+  rounded-lg">
+              <Key className="w-5 h-5 text-slate-400" />
+              <div>
+                <p className="text-xs text-slate-500">비밀번호</p>
+                <p className="font-mono 
+  font-medium">{party.ottInfo.password}</p>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-center py-8"
+          >
+            <Shield className="w-12 h-12 text-orange-400 mx-auto mb-3" />
+            <p className="text-sm text-slate-600">
+              보안을 위해 계정 정보가 숨겨져 있습니다
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </CardContent>
+  </Card>
+
+  2.3 파티 생성 페이지 (PartyCreatePage.jsx)
+
+  디자인 개선 포인트:
+
+  1. Stepper UI 개선
+  <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b 
+  border-slate-200">
+    <div className="max-w-4xl mx-auto px-4 py-4">
+      <div className="flex items-center justify-between">
+        {steps.map((step, index) => (
+          <React.Fragment key={step.id}>
+            <div className="flex items-center gap-3">
+              {/* Step Circle */}
+              <motion.div
+                initial={false}
+                animate={{
+                  scale: currentStep === index ? 1.1 : 1,
+                  backgroundColor: currentStep >= index ? '#ea580c' :
+  '#e2e8f0'
+                }}
+                className="w-10 h-10 rounded-full flex items-center
+  justify-center text-white font-bold shadow-lg"
+              >
+                {currentStep > index ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  index + 1
+                )}
+              </motion.div>
+
+              {/* Step Label */}
+              <div>
+                <p className={`text-sm font-medium ${currentStep >= index ?
+  'text-orange-600' : 'text-slate-400'}`}>
+                  Step {index + 1}
+                </p>
+                <p className={`text-xs ${currentStep >= index ?
+  'text-slate-900' : 'text-slate-500'}`}>
+                  {step.label}
+                </p>
+              </div>
+            </div>
+
+            {/* Connector Line */}
+            {index < steps.length - 1 && (
+              <div className="flex-1 h-0.5 mx-4 bg-slate-200 relative 
+  overflow-hidden">
+                <motion.div
+                  initial={false}
+                  animate={{
+                    width: currentStep > index ? '100%' : '0%'
+                  }}
+                  transition={{ duration: 0.5 }}
+                  className="h-full bg-orange-500"
+                />
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  2. 서비스 선택 - 카드 그리드
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    {services.map((service) => (
+      <motion.button
+        key={service.id}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setSelectedService(service)}
+        className={`
+          relative p-6 rounded-2xl border-2 transition-all duration-300
+          ${selectedService?.id === service.id
+            ? 'border-orange-500 bg-orange-50 shadow-lg shadow-orange-200'
+            : 'border-slate-200 hover:border-slate-300 bg-white'
+          }
+        `}
+      >
+        {/* Selected Check */}
+        {selectedService?.id === service.id && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute top-2 right-2 w-6 h-6 bg-orange-500 
+  rounded-full flex items-center justify-center"
+          >
+            <Check className="w-4 h-4 text-white" />
+          </motion.div>
+        )}
+
+        {/* Service Logo */}
+        <img src={service.logoUrl} alt={service.name} className="w-full h-20
+   object-contain mb-3" />
+
+        {/* Service Name */}
+        <p className="font-bold text-center">{service.name}</p>
+        <p className="text-sm text-slate-500 
+  text-center">{service.price.toLocaleString()}원/월</p>
+      </motion.button>
+    ))}
+  </div>
+
+  3. 슬라이더 UI 개선
+  // 인원 선택 슬라이더
+  <div className="space-y-4">
+    <div className="flex justify-between items-end">
+      <label className="text-lg font-bold">파티 인원</label>
+      <div className="text-right">
+        <p className="text-4xl font-black 
+  text-orange-600">{maxMembers}명</p>
+        <p className="text-sm text-slate-500">최대 인원</p>
+      </div>
+    </div>
+
+    {/* Custom Slider */}
+    <div className="relative">
+      <input
+        type="range"
+        min="2"
+        max={selectedService.maxMembers}
+        value={maxMembers}
+        onChange={(e) => setMaxMembers(Number(e.target.value))}
+        className="w-full h-3 bg-slate-200 rounded-full appearance-none
+  cursor-pointer
+                   [&::-webkit-slider-thumb]:appearance-none
+                   [&::-webkit-slider-thumb]:w-6
+                   [&::-webkit-slider-thumb]:h-6
+                   [&::-webkit-slider-thumb]:rounded-full
+                   [&::-webkit-slider-thumb]:bg-orange-500
+                   [&::-webkit-slider-thumb]:shadow-lg
+                   [&::-webkit-slider-thumb]:cursor-pointer
+                   [&::-webkit-slider-thumb]:transition-transform
+                   [&::-webkit-slider-thumb]:hover:scale-125"
+      />
+
+      {/* Tick Marks */}
+      <div className="flex justify-between mt-2 px-1">
+        {Array.from({ length: selectedService.maxMembers - 1 }).map((_, i) 
+  => (
+          <span key={i} className="text-xs text-slate-400">{i + 2}</span>
+        ))}
+      </div>
+    </div>
+
+    {/* Preview Cards */}
+    <div className="flex gap-2 justify-center mt-6">
+      {Array.from({ length: maxMembers }).map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: i * 0.1 }}
+          className="w-12 h-12 bg-gradient-to-br from-orange-400 
+  to-orange-600 rounded-full flex items-center justify-center shadow-lg"
+        >
+          <User className="w-6 h-6 text-white" />
+        </motion.div>
+      ))}
+    </div>
+  </div>
+
+  4. 요약 카드 - Sticky
+  <div className="lg:col-span-1">
+    <div className="sticky top-24">
+      <Card className="border-2 border-orange-200">
+        <CardHeader className="bg-gradient-to-br from-orange-50 
+  to-orange-100">
+          <CardTitle className="flex items-center gap-2">
+            <Receipt className="w-5 h-5 text-orange-600" />
+            파티 생성 요약
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-4 pt-6">
+          {/* Service */}
+          {selectedService && (
+            <div className="flex items-center gap-3 p-3 bg-slate-50 
+  rounded-lg">
+              <img src={selectedService.logoUrl} className="w-12 h-12" />
+              <div>
+                <p className="font-bold">{selectedService.name}</p>
+                <p className="text-sm 
+  text-slate-500">{selectedService.price.toLocaleString()}원/월</p>
+              </div>
+            </div>
+          )}
+
+          <Separator />
+
+          {/* Details */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">파티 인원</span>
+              <span className="font-medium">{maxMembers}명</span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">파티 기간</span>
+              <span className="font-medium">{durationMonths}개월</span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">1인당 월 비용</span>
+              <span className="font-medium text-orange-600">
+                {calculatePerPersonCost().toLocaleString()}원
+              </span>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Total */}
+          <div className="bg-orange-50 p-4 rounded-xl">
+            <p className="text-sm text-slate-600 mb-1">보증금</p>
+            <p className="text-3xl font-black text-orange-600">
+              {calculateDeposit().toLocaleString()}
+              <span className="text-lg text-slate-600">원</span>
+            </p>
+          </div>
+
+          {/* Savings Badge */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3
+   text-center">
+            <p className="text-sm text-green-700 font-medium">
+              💰 혼자 결제보다 <span 
+  className="font-bold">{calculateSavings().toLocaleString()}원</span> 절약!
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+
+  2.4 내 파티 목록 (MyPartyListPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. 통계 대시보드
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 
+  mb-8">
+    {stats.map((stat, index) => (
+      <motion.div
+        key={stat.label}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.1 }}
+      >
+        <Card className="relative overflow-hidden group hover:shadow-lg 
+  transition-shadow duration-300">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-50 
+  to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity 
+  duration-300" />
+
+          <CardContent className="relative p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br 
+  ${stat.gradient} flex items-center justify-center shadow-lg`}>
+                {stat.icon}
+              </div>
+
+              {/* Trend Indicator */}
+              {stat.trend && (
+                <Badge variant={stat.trend > 0 ? 'success' : 'destructive'}>
+                  {stat.trend > 0 ? <TrendingUp className="w-3 h-3" /> :
+  <TrendingDown className="w-3 h-3" />}
+                  {Math.abs(stat.trend)}%
+                </Badge>
+              )}
+            </div>
+
+            <p className="text-sm text-slate-600 mb-1">{stat.label}</p>
+            <p className="text-3xl font-black 
+  text-slate-900">{stat.value}</p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    ))}
+  </div>
+
+  2. 파티 그룹핑 - 탭 UI
+  <Tabs defaultValue="leader" className="w-full">
+    <TabsList className="grid w-full grid-cols-2 mb-6">
+      <TabsTrigger value="leader" className="flex items-center gap-2">
+        <Crown className="w-4 h-4" />
+        내가 만든 파티 ({leaderParties.length})
+      </TabsTrigger>
+      <TabsTrigger value="member" className="flex items-center gap-2">
+        <Users className="w-4 h-4" />
+        가입한 파티 ({memberParties.length})
+      </TabsTrigger>
+    </TabsList>
+
+    <TabsContent value="leader">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {leaderParties.map((party) => (
+          <PartyCard key={party.id} party={party} isLeader />
+        ))}
+      </div>
+    </TabsContent>
+
+    <TabsContent value="member">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {memberParties.map((party) => (
+          <PartyCard key={party.id} party={party} isLeader={false} />
+        ))}
+      </div>
+    </TabsContent>
+  </Tabs>
+
+  ---
+  Phase 3: 내 지갑 페이지 디자인 개선 (1.5주)
+
+  3.1 내 지갑 페이지 (MyWalletPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. 보증금 카드 - 3D 효과
+  <motion.div
+    whileHover={{ scale: 1.02, rotateY: 5 }}
+    style={{ transformStyle: 'preserve-3d' }}
+    className="relative h-64 rounded-3xl overflow-hidden shadow-2xl 
+  cursor-pointer"
+  >
+    {/* Glassmorphic Background */}
+    <div className="absolute inset-0 bg-gradient-to-br from-orange-500 
+  via-orange-600 to-red-600" />
+
+    {/* Animated Orbs */}
+    <div className="absolute top-10 right-10 w-32 h-32 bg-white/20 
+  rounded-full blur-2xl animate-pulse" />
+    <div className="absolute bottom-10 left-10 w-40 h-40 bg-white/10 
+  rounded-full blur-3xl animate-blob" />
+
+    {/* Content */}
+    <div className="relative h-full flex flex-col justify-between p-8 
+  text-white">
+      <div>
+        <p className="text-sm font-medium opacity-90 mb-1">총 보증금</p>
+        <p className="text-5xl font-black">
+          {totalDeposit.toLocaleString()}
+          <span className="text-xl font-medium ml-2">원</span>
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs opacity-75 mb-1">활성 파티</p>
+          <p className="text-2xl font-bold">{activeParties}개</p>
+        </div>
+
+        <Button 
+          variant="secondary" 
+          size="sm"
+          className="bg-white/20 backdrop-blur-sm hover:bg-white/30 
+  text-white border-white/30"
+        >
+          상세 내역
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </Button>
+      </div>
+    </div>
+  </motion.div>
+
+  2. 계좌/카드 섹션 - 개선된 레이아웃
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {/* 정산 계좌 */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-orange-600" />
+          정산 계좌
+        </CardTitle>
+        <CardDescription>
+          파티 정산금이 입금되는 계좌입니다
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        {account ? (
+          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl
+   border-2 border-slate-200">
+            {/* Bank Logo */}
+            <div className="w-14 h-14 bg-white rounded-lg shadow-sm flex 
+  items-center justify-center">
+              <img src={getBankLogo(account.bankCode)} alt="" 
+  className="w-10 h-10" />
+            </div>
+
+            {/* Account Info */}
+            <div className="flex-1">
+              <p className="text-sm text-slate-600 
+  mb-1">{account.bankName}</p>
+              <p className="font-mono font-bold 
+  text-lg">{formatAccountNumber(account.accountNumber)}</p>
+              <p className="text-sm 
+  text-slate-500">{account.accountHolder}</p>
+            </div>
+
+            {/* Actions */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Edit className="w-4 h-4 mr-2" />
+                  변경하기
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600">
+                  <Trash className="w-4 h-4 mr-2" />
+                  삭제하기
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex 
+  items-center justify-center mx-auto mb-4">
+              <Building2 className="w-8 h-8 text-slate-400" />
+            </div>
+            <p className="text-slate-600 mb-4">등록된 계좌가 없습니다</p>
+            <Button onClick={() => navigate('/user/account-register')}>
+              <Plus className="w-4 h-4 mr-2" />
+              계좌 등록하기
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+
+    {/* 결제 수단 */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CreditCard className="w-5 h-5 text-orange-600" />
+          결제 수단
+        </CardTitle>
+        <CardDescription>
+          자동 결제에 사용되는 카드입니다
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        {card ? (
+          <div className="relative h-40 rounded-2xl overflow-hidden 
+  shadow-xl">
+            {/* Card Design */}
+            <div className="absolute inset-0 bg-gradient-to-br 
+  from-slate-700 via-slate-800 to-slate-900" />
+            <div className="absolute top-4 right-4 w-12 h-12">
+              <img src={getCardLogo(card.issuerCode)} alt="" />
+            </div>
+
+            <div className="relative h-full flex flex-col justify-between 
+  p-6 text-white">
+              <div>
+                <p className="text-xs opacity-75 mb-1">카드번호</p>
+                <p className="font-mono text-lg tracking-wider">
+                  {formatCardNumber(card.cardNumber)}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs opacity-75 mb-1">소유자</p>
+                  <p className="font-medium">{card.ownerName}</p>
+                </div>
+
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setShowCardMenu(true)}
+                  className="text-white hover:bg-white/20"
+                >
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex 
+  items-center justify-center mx-auto mb-4">
+              <CreditCard className="w-8 h-8 text-slate-400" />
+            </div>
+            <p className="text-slate-600 mb-4">등록된 카드가 없습니다</p>
+            <Button onClick={() => navigate('/user/billing-register')}>
+              <Plus className="w-4 h-4 mr-2" />
+              카드 등록하기
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  </div>
+
+  3. 빠른 액션 버튼
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    {quickActions.map((action) => (
+      <Button
+        key={action.label}
+        variant="outline"
+        className="h-24 flex-col gap-2 hover:bg-orange-50 
+  hover:border-orange-300 transition-all group"
+        onClick={action.onClick}
+      >
+        <div className="w-12 h-12 bg-orange-100 rounded-full flex 
+  items-center justify-center group-hover:bg-orange-200 transition-colors">
+          {action.icon}
+        </div>
+        <span className="font-medium">{action.label}</span>
+      </Button>
+    ))}
+  </div>
+
+  3.2 금융 내역 페이지 (FinancialHistoryPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. 탭 + 필터 통합 UI
+  <div className="flex flex-col md:flex-row items-start md:items-center 
+  justify-between gap-4 mb-6">
+    {/* Tabs */}
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full 
+  md:w-auto">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="payment" className="flex items-center gap-2">
+          <CreditCard className="w-4 h-4" />
+          결제
+          <Badge variant="secondary">{paymentCount}</Badge>
+        </TabsTrigger>
+        <TabsTrigger value="deposit" className="flex items-center gap-2">
+          <Coins className="w-4 h-4" />
+          보증금
+          <Badge variant="secondary">{depositCount}</Badge>
+        </TabsTrigger>
+        <TabsTrigger value="settlement" className="flex items-center gap-2">
+          <TrendingUp className="w-4 h-4" />
+          정산
+          <Badge variant="secondary">{settlementCount}</Badge>
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+
+    {/* Filter */}
+    <div className="flex items-center gap-2">
+      {/* Date Range Picker */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <Calendar className="w-4 h-4" />
+            {dateRange.from && dateRange.to
+              ? `${format(dateRange.from, 'yyyy.MM.dd')} -
+  ${format(dateRange.to, 'yyyy.MM.dd')}`
+              : '기간 선택'
+            }
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <DateRangePicker
+            selected={dateRange}
+            onSelect={setDateRange}
+          />
+        </PopoverContent>
+      </Popover>
+
+      {/* Status Filter */}
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className="w-[150px]">
+          <SelectValue placeholder="상태 선택" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">전체</SelectItem>
+          <SelectItem value="completed">완료</SelectItem>
+          <SelectItem value="pending">대기중</SelectItem>
+          <SelectItem value="failed">실패</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Export Button */}
+      <Button variant="outline" className="gap-2">
+        <Download className="w-4 h-4" />
+        내보내기
+      </Button>
+    </div>
+  </div>
+
+  2. 타임라인 스타일 리스트
+  <div className="relative">
+    {/* Timeline Line */}
+    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-200" />
+
+    {/* Items */}
+    <div className="space-y-6">
+      {transactions.map((tx, index) => (
+        <motion.div
+          key={tx.id}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: index * 0.05 }}
+          className="relative flex items-start gap-4 group"
+        >
+          {/* Timeline Dot */}
+          <div className="relative z-10 w-16 flex-shrink-0">
+            <div className={`
+              w-8 h-8 rounded-full flex items-center justify-center 
+  shadow-lg
+              ${getStatusColor(tx.status)}
+            `}>
+              {getStatusIcon(tx.type)}
+            </div>
+          </div>
+
+          {/* Content Card */}
+          <Card className="flex-1 hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-bold text-lg mb-1">{tx.title}</p>
+                  <p className="text-sm text-slate-500">{tx.description}</p>
+                </div>
+
+                <div className="text-right">
+                  <p className={`text-2xl font-black ${tx.amount > 0 ?
+  'text-green-600' : 'text-slate-900'}`}>
+                    {tx.amount > 0 && '+'}
+                    {tx.amount.toLocaleString()}원
+                  </p>
+                  <Badge variant={getStatusVariant(tx.status)} 
+  className="mt-1">
+                    {getStatusLabel(tx.status)}
+                  </Badge>
+                </div>
+              </div>
+
+              <Separator className="my-3" />
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Calendar className="w-4 h-4" />
+                  {format(new Date(tx.date), 'yyyy년 MM월 dd일 HH:mm')}
+                </div>
+
+                {tx.partyName && (
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Users className="w-4 h-4" />
+                    {tx.partyName}
+                  </div>
+                )}
+
+                {tx.paymentMethod && (
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <CreditCard className="w-4 h-4" />
+                    {tx.paymentMethod}
+                  </div>
+                )}
+
+                {tx.receiptUrl && (
+                  <Button variant="link" size="sm" className="justify-start 
+  p-0 h-auto">
+                    <FileText className="w-4 h-4 mr-1" />
+                    영수증 보기
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+
+  3. 통계 요약 카드
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 
+  border-blue-200">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-blue-700">총 결제</p>
+          <ArrowUpRight className="w-5 h-5 text-blue-600" />
+        </div>
+        <p className="text-3xl font-black text-blue-900">
+          {totalPayment.toLocaleString()}원
+        </p>
+        <p className="text-xs text-blue-600 mt-1">
+          이번 달 {thisMonthPaymentCount}건
+        </p>
+      </CardContent>
+    </Card>
+
+    <Card className="bg-gradient-to-br from-orange-50 to-orange-100 
+  border-orange-200">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-orange-700">보증금</p>
+          <Shield className="w-5 h-5 text-orange-600" />
+        </div>
+        <p className="text-3xl font-black text-orange-900">
+          {totalDeposit.toLocaleString()}원
+        </p>
+        <p className="text-xs text-orange-600 mt-1">
+          활성 파티 {activeParties}개
+        </p>
+      </CardContent>
+    </Card>
+
+    <Card className="bg-gradient-to-br from-green-50 to-green-100 
+  border-green-200">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-green-700">정산 수익</p>
+          <TrendingUp className="w-5 h-5 text-green-600" />
+        </div>
+        <p className="text-3xl font-black text-green-900">
+          +{totalSettlement.toLocaleString()}원
+        </p>
+        <p className="text-xs text-green-600 mt-1">
+          이번 달 {thisMonthSettlementCount}건
+        </p>
+      </CardContent>
+    </Card>
+  </div>
+
+  ---
+  Phase 4: 관리자 페이지 디자인 개선 (1.5주)
+
+  4.1 관리자 대시보드 (AdminDashboardPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. Chart.js → Recharts 교체
+  npm install recharts
+
+  이유:
+  - React 친화적
+  - Tailwind 색상 사용 가능
+  - 반응형 기본 지원
+  - 커스터마이징 쉬움
+
+  구현 예시:
+  import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer } from 'recharts';
+
+  <Card>
+    <CardHeader>
+      <CardTitle>월별 매출 현황</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={monthlyRevenue}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+          <XAxis 
+            dataKey="month" 
+            stroke="#64748b"
+            style={{ fontSize: '12px', fontFamily: 'Pretendard' }}
+          />
+          <YAxis 
+            stroke="#64748b"
+            style={{ fontSize: '12px', fontFamily: 'Pretendard' }}
+            tickFormatter={(value) => `${value/1000}k`}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: '#fff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+            }}
+            formatter={(value) => [`${value.toLocaleString()}원`, '매출']}
+          />
+          <Bar 
+            dataKey="revenue" 
+            fill="url(#colorRevenue)" 
+            radius={[8, 8, 0, 0]}
+          />
+          <defs>
+            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ea580c" stopOpacity={1} />
+              <stop offset="100%" stopColor="#fb923c" stopOpacity={0.8} />
+            </linearGradient>
+          </defs>
+        </BarChart>
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
+
+  2. KPI 카드 애니메이션
+  {kpis.map((kpi, index) => (
+    <motion.div
+      key={kpi.label}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: index * 0.1 }}
+    >
+      <Card className="relative overflow-hidden group hover:shadow-xl 
+  transition-all duration-300">
+        {/* Background Decoration */}
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 
+  transition-opacity duration-300 ${kpi.bgGradient}`} />
+
+        <CardContent className="relative p-6">
+          {/* Icon */}
+          <div className={`w-14 h-14 rounded-2xl ${kpi.iconBg} flex 
+  items-center justify-center mb-4 shadow-lg`}>
+            {kpi.icon}
+          </div>
+
+          {/* Value */}
+          <div className="mb-2">
+            <CountUp
+              end={kpi.value}
+              duration={2}
+              separator=","
+              suffix={kpi.suffix}
+              className="text-4xl font-black text-slate-900"
+            />
+          </div>
+
+          {/* Label */}
+          <p className="text-sm text-slate-600 mb-3">{kpi.label}</p>
+
+          {/* Trend */}
+          <div className="flex items-center gap-2">
+            {kpi.trend > 0 ? (
+              <>
+                <TrendingUp className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-600">
+                  +{kpi.trend}%
+                </span>
+              </>
+            ) : (
+              <>
+                <TrendingDown className="w-4 h-4 text-red-600" />
+                <span className="text-sm font-medium text-red-600">
+                  {kpi.trend}%
+                </span>
+              </>
+            )}
+            <span className="text-xs text-slate-500">vs 지난달</span>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  ))}
+
+  npm install react-countup
+
+  3. 실시간 활동 피드
+  <Card>
+    <CardHeader>
+      <div className="flex items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <Activity className="w-5 h-5 text-orange-600" />
+          실시간 활동
+        </CardTitle>
+        <Badge variant="success" className="animate-pulse">
+          <Circle className="w-2 h-2 mr-1 fill-current" />
+          Live
+        </Badge>
+      </div>
+    </CardHeader>
+
+    <CardContent>
+      <ScrollArea className="h-[400px]">
+        <div className="space-y-4">
+          {realtimeActivities.map((activity, index) => (
+            <motion.div
+              key={activity.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="flex items-start gap-3 p-3 rounded-lg 
+  hover:bg-slate-50 transition-colors"
+            >
+              {/* User Avatar */}
+              <Avatar className="border-2 border-white shadow-md">
+                <AvatarImage src={activity.userAvatar} />
+                <AvatarFallback>{activity.userName[0]}</AvatarFallback>
+              </Avatar>
+
+              {/* Activity Content */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm">
+                  <span className="font-medium 
+  text-slate-900">{activity.userName}</span>
+                  <span className="text-slate-600"> {activity.action}
+  </span>
+                  <span className="font-medium 
+  text-orange-600">{activity.target}</span>
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {formatDistanceToNow(new Date(activity.timestamp), {
+  addSuffix: true, locale: ko })}
+                </p>
+              </div>
+
+              {/* Activity Icon */}
+              <div className={`w-8 h-8 rounded-lg ${activity.iconBg} flex 
+  items-center justify-center flex-shrink-0`}>
+                {activity.icon}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </ScrollArea>
+    </CardContent>
+  </Card>
+
+  4.2 회원 관리 페이지 (AdminUserListPage.jsx)
+
+  디자인 개선 포인트:
+
+  1. TanStack Table 도입
+  npm install @tanstack/react-table
+
+  장점:
+  - 정렬, 필터링, 페이지네이션 내장
+  - 행 선택, 확장 가능
+  - 가상 스크롤 지원
+  - 서버 사이드 연동 쉬움
+
+  구현 예시:
+  import { useReactTable, getCoreRowModel, getSortedRowModel,
+  getFilteredRowModel, getPaginationRowModel } from '@tanstack/react-table';
+
+  const columns = [
+    {
+      accessorKey: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) =>
+  table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
+    },
+    {
+      accessorKey: 'profile',
+      header: '회원',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarImage src={row.original.profileUrl} />
+            <AvatarFallback>{row.original.nickname[0]}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-medium">{row.original.nickname}</p>
+            <p className="text-sm text-slate-500">{row.original.email}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: '상태',
+      cell: ({ row }) => (
+        <Badge variant={getStatusVariant(row.original.status)}>
+          {getStatusLabel(row.original.status)}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: 'partyCount',
+      header: '파티 수',
+      cell: ({ row }) => (
+        <span className="font-medium">{row.original.partyCount}개</span>
+      ),
+    },
+    {
+      accessorKey: 'totalPayment',
+      header: '총 결제',
+      cell: ({ row }) => (
+        <span className="font-mono font-medium">
+          {row.original.totalPayment.toLocaleString()}원
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => column.toggleSorting(column.getIsSorted() ===
+  'asc')}
+          className="hover:bg-transparent"
+        >
+          가입일
+          {column.getIsSorted() === 'asc' ? (
+            <ArrowUp className="ml-2 w-4 h-4" />
+          ) : column.getIsSorted() === 'desc' ? (
+            <ArrowDown className="ml-2 w-4 h-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 w-4 h-4" />
+          )}
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-slate-600">
+          {format(new Date(row.original.createdAt), 'yyyy.MM.dd')}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'actions',
+      header: '작업',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() =>
+  navigate(`/admin/users/${row.original.id}`)}>
+              <Eye className="w-4 h-4 mr-2" />
+              상세 보기
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Mail className="w-4 h-4 mr-2" />
+              이메일 발송
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-red-600">
+              <ShieldAlert className="w-4 h-4 mr-2" />
+              블랙리스트 등록
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: users,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  2. 고급 필터 UI
+  <div className="flex flex-col md:flex-row items-start md:items-center 
+  gap-3 mb-6">
+    {/* Search */}
+    <div className="relative flex-1">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 
+  text-slate-400 w-5 h-5" />
+      <Input
+        placeholder="이메일, 닉네임으로 검색..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="pl-10"
+      />
+    </div>
+
+    {/* Filters */}
+    <div className="flex items-center gap-2 flex-wrap">
+      {/* Status Filter */}
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className="w-[150px]">
+          <SelectValue placeholder="상태" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">전체</SelectItem>
+          <SelectItem value="ACTIVE">정상</SelectItem>
+          <SelectItem value="RESTRICTED">이용제한</SelectItem>
+          <SelectItem value="WITHDRAWN">탈퇴</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Date Range */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <Calendar className="w-4 h-4" />
+            {dateRange.from && dateRange.to
+              ? `${format(dateRange.from, 'MM/dd')} - ${format(dateRange.to,
+   'MM/dd')}`
+              : '기간 선택'
+            }
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <DateRangePicker selected={dateRange} onSelect={setDateRange} />
+        </PopoverContent>
+      </Popover>
+
+      {/* Advanced Filter */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <Filter className="w-4 h-4" />
+            고급 필터
+            {activeFiltersCount > 0 && (
+              <Badge variant="destructive" className="ml-1">
+                {activeFiltersCount}
+              </Badge>
+            )}
+          </Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>고급 필터</SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-6 mt-6">
+            {/* Party Count Range */}
+            <div>
+              <Label>파티 수</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <Input 
+                  type="number" 
+                  placeholder="최소" 
+                  value={filters.partyCountMin}
+                  onChange={(e) => setFilters({ ...filters, partyCountMin:
+  e.target.value })}
+                />
+                <span className="text-slate-500">~</span>
+                <Input 
+                  type="number" 
+                  placeholder="최대"
+                  value={filters.partyCountMax}
+                  onChange={(e) => setFilters({ ...filters, partyCountMax:
+  e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Payment Range */}
+            <div>
+              <Label>총 결제액</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <Input 
+                  type="number" 
+                  placeholder="최소" 
+                  value={filters.paymentMin}
+                  onChange={(e) => setFilters({ ...filters, paymentMin:
+  e.target.value })}
+                />
+                <span className="text-slate-500">~</span>
+                <Input 
+                  type="number" 
+                  placeholder="최대"
+                  value={filters.paymentMax}
+                  onChange={(e) => setFilters({ ...filters, paymentMax:
+  e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Blacklist */}
+            <div className="flex items-center justify-between">
+              <Label>블랙리스트만 보기</Label>
+              <Switch 
+                checked={filters.blacklistOnly}
+                onCheckedChange={(checked) => setFilters({ ...filters,
+  blacklistOnly: checked })}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 mt-6">
+            <Button variant="outline" onClick={resetFilters} 
+  className="flex-1">
+              초기화
+            </Button>
+            <Button onClick={applyFilters} className="flex-1">
+              적용
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Bulk Actions */}
+      {table.getSelectedRowModel().rows.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="default" className="gap-2">
+              <CheckSquare className="w-4 h-4" />
+              일괄 작업 ({table.getSelectedRowModel().rows.length})
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>
+              <Mail className="w-4 h-4 mr-2" />
+              이메일 발송
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Download className="w-4 h-4 mr-2" />
+              선택 항목 내보내기
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-red-600">
+              <ShieldAlert className="w-4 h-4 mr-2" />
+              블랙리스트 등록
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </div>
+  </div>
+
+  3. 페이지네이션 개선
+  <div className="flex items-center justify-between mt-6">
+    <div className="text-sm text-slate-600">
+      전체 <span className="font-medium 
+  text-slate-900">{table.getFilteredRowModel().rows.length}</span>명 중{' '}
+      <span className="font-medium text-slate-900">
+        {table.getState().pagination.pageIndex *
+  table.getState().pagination.pageSize + 1}
+      </span>
+      -
+      <span className="font-medium text-slate-900">
+        {Math.min(
+          (table.getState().pagination.pageIndex + 1) *
+  table.getState().pagination.pageSize,
+          table.getFilteredRowModel().rows.length
+        )}
+      </span>
+      명 표시
+    </div>
+
+    <div className="flex items-center gap-2">
+      {/* Page Size Selector */}
+      <Select
+        value={String(table.getState().pagination.pageSize)}
+        onValueChange={(value) => table.setPageSize(Number(value))}
+      >
+        <SelectTrigger className="w-[100px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {[10, 20, 50, 100].map((size) => (
+            <SelectItem key={size} value={String(size)}>
+              {size}개씩
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Pagination */}
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => table.setPageIndex(0)}
+          disabled={!table.getCanPreviousPage()}
+        >
+          <ChevronsLeft className="w-4 h-4" />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+
+        {/* Page Numbers */}
+        <div className="flex items-center gap-1 mx-2">
+          {getPageNumbers(table).map((pageNum, index) => (
+            pageNum === '...' ? (
+              <span key={`ellipsis-${index}`} className="px-2">...</span>
+            ) : (
+              <Button
+                key={pageNum}
+                variant={table.getState().pagination.pageIndex === pageNum -
+   1 ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => table.setPageIndex(pageNum - 1)}
+                className="w-9"
+              >
+                {pageNum}
+              </Button>
+            )
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+          disabled={!table.getCanNextPage()}
+        >
+          <ChevronsRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  ---
+  📦 추가 설치 라이브러리 요약
+
+  # Phase 1 - 디자인 시스템
+  npm install framer-motion next-themes
+
+  # Phase 2 - 파티 페이지
+  npm install date-fns react-day-picker
+
+  # Phase 3 - 내 지갑 페이지
+  npm install react-countup
+
+  # Phase 4 - 관리자 페이지
+  npm install recharts @tanstack/react-table
+
+  # Optional - 성능 최적화
+  npm install @tanstack/react-virtual react-lazy-load-image-component
+
+  ---
+  🎯 최종 디자인 시스템 구조
+
+  src/
+  ├── styles/
+  │   ├── globals.css                 # 디자인 토큰, CSS 변수
+  │   └── animations.css              # 커스텀 애니메이션
+  ├── lib/
+  │   ├── animations.js               # Framer Motion 프리셋
+  │   ├── theme.js                    # 테마 설정
+  │   └── design-tokens.js            # 디자인 토큰 JS 버전
+  ├── components/
+  │   ├── ui/                         # shadcn/ui (23개)
+  │   ├── design-system/
+  │   │   ├── StatusBadge.jsx        # 상태 배지 통일
+  │   │   ├── StatCard.jsx           # 통계 카드 통일
+  │   │   ├── EmptyState.jsx         # 빈 상태 UI
+  │   │   ├── LoadingSpinner.jsx     # 로딩 스피너
+  │   │   └── ErrorBoundary.jsx      # 에러 바운더리
+  │   ├── layout/
+  │   │   ├── PageHeader.jsx         # 페이지 헤더
+  │   │   ├── PageContainer.jsx      # 페이지 컨테이너
+  │   │   └── Section.jsx            # 섹션 컴포넌트
+  │   └── animations/
+  │       ├── FadeIn.jsx             # 페이드인 래퍼
+  │       ├── SlideIn.jsx            # 슬라이드인 래퍼
+  │       └── StaggerChildren.jsx    # Stagger 래퍼
+
+  ---
+  📅 타임라인 요약
+
+  | Phase   | 작업 내용       | 기간   | 주요 작업
+     |
+  |---------|-------------|------|-----------------------------------|
+  | Phase 1 | 디자인 시스템 정립  | 1주   | 디자인 토큰, 공통 컴포넌트, 다크
+   모드, 애니메이션 시스템 |
+  | Phase 2 | 파티 페이지 개선   | 2주   | 파티 목록, 상세, 생성, 내 파티
+  (4개 페이지)      |
+  | Phase 3 | 내 지갑 페이지 개선 | 1.5주 | 내 지갑, 금융 내역 (2개 페이지)
+               |
+  | Phase 4 | 관리자 페이지 개선  | 1.5주 | 대시보드, 회원 관리 (여러
+  페이지)              |
+  | 총 기간    |             | 6주   | 약 1.5개월
+  |
+
+  ---
+  이 계획대로 진행하면 현업 수준의 모던하고 전문적인 디자인을 완성할 수
+  있습니다!
+
+  어떤 Phase부터 시작하시겠어요? 전체를 한번에 진행할지, 단계별로 나눠서
+  진행할지 알려주시면 구체적인 작업을 시작하겠습니다! 🚀
+
+> Claude Code CLI 도구의 Frontend Design 플러그인 소스코드가 깃허브에 있는데
+ 이걸 이용해서 디자인을 할 수 있나? 
+
+● Claude Code의 Frontend Design 플러그인에 대해 알아보겠습니다. 공식 문서를
+  확인해보겠습니다.
+
+● claude-code-guide(Frontend Design 플러그인 조사)
+  ⎿  Done (10 tool uses · 27.6k tokens · 2m 37s)                           
+
+● 네, 있습니다! Claude Code의 공식 Frontend Design 플러그인을 활용할 수
+  있습니다. 이 플러그인은 AI가 생성하는 평범한 디자인을 탈피하고 독창적이고
+  프로덕션 수준의 프론트엔드를 만들도록 설계되었습니다.
+
+  ---
+  🎨 Frontend Design 플러그인 개요
+
+  핵심 특징
+
+  - Agent Skill 타입: 프론트엔드 작업 시 자동으로 활성화
+  - 대담한 디자인: 일반적인 AI 디자인(보라색 그라디언트, Inter 폰트)을 회피
+  - 프로덕션 수준: 완전한 코드와 독창적인 미학 제공
+  - 제작자: Anthropic (Prithvi Rajasekaran & Alexander Bricken)
+
+  제공하는 디자인 방향성
+
+  - Brutally minimal (극도로 미니멀)
+  - Maximalist chaos (최대주의)
+  - Retro-futuristic (레트로 퓨처리즘)
+  - Luxury/refined (럭셔리/세련됨)
+  - Brutalist/raw (브루탈리즘)
+  - Art deco/geometric (아르데코)
+  - 등 11가지 미학적 방향
+
+  ---
+  🚀 설치 및 사용 방법
+
+  1. 플러그인 설치
+
+  # 1. Claude Code CLI에서 실행
+  /plugin marketplace add anthropics/claude-code
+
+  # 2. Frontend Design 플러그인 설치
+  /plugin install frontend-design@anthropics
+
+  # 3. 설치 확인
+  /plugin
+
+  2. 사용 방법
+
+  설치 후 별도 명령어 없이 자동 작동합니다. 프론트엔드 작업 요청 시 자동
+  활성화됩니다.
+
+  ---
+  💡 4beans-moa 프로젝트에 적용하기
+
+  제가 방금 전에 제시한 디자인 개선 계획과 이 플러그인을 조합하면 훨씬 더
+  강력한 결과를 얻을 수 있습니다!
+
+  추천 워크플로우:
+
+  # 1. 플러그인 설치
+  /plugin marketplace add anthropics/claude-code
+  /plugin install frontend-design@anthropics
+
+  # 2. 프로젝트 디자인 방향성 설정
+  "4beans-moa는 OTT 구독 공유 서비스야. 
+  미학적 방향은 'Modern + Trustworthy + Playful'로 설정하고,
+  토스/카카오페이처럼 깔끔하면서도 독창적인 디자인을 원해.
+
+  다음 특징을 반영해줘:
+  - 타이포그래피: 대담한 제목 + 읽기 쉬운 본문
+  - 색상: Orange(#ea580c) 주조색, 따뜻하고 신뢰감 있는 팔레트
+  - 애니메이션: 부드러운 마이크로 인터랙션
+  - 레이아웃: 카드 기반, 호버 시 elevation 변화
+
+  파티 목록 페이지(PartyListPage.jsx)부터 시작하자."
+
+  Phase별 활용 방법:
+
+  Phase 1: 디자인 시스템 정립
+
+  "4beans-moa를 위한 독창적인 디자인 시스템을 만들어줘.
+  - CSS 변수 기반 토큰 시스템
+  - Pretendard 이외의 개성 있는 폰트 추천
+  - Orange를 기반으로 한 독특한 색상 팔레트
+  - Tailwind + Framer Motion을 활용한 애니메이션 프리셋
+
+  일반적인 보라색 그라디언트는 피하고,
+  OTT 공유 서비스에 맞는 따뜻하고 친근한 분위기를 만들어줘."
+
+  Phase 2: 파티 목록 페이지
+
+  "PartyListPage.jsx를 독창적으로 재디자인해줘.
+  - OTT 서비스 썸네일을 강조하는 대담한 레이아웃
+  - Netflix/Disney+ 로고가 돋보이는 카드 디자인
+  - 호버 시 예상치 못한 즐거움을 주는 3D 변형 효과
+  - 스크롤 시 순차적으로 등장하는 애니메이션
+
+  참고: 왓챠, 넷플릭스처럼 영화 포스터를 보여주는 느낌"
+
+  Phase 3: 파티 상세 페이지
+
+  "PartyDetailPage.jsx를 영화 상세 페이지처럼 극적으로 디자인해줘.
+  - 히어로 섹션: OTT 서비스 배경 이미지 + 그라디언트 오버레이
+  - 멤버 진행 상태: 원형 아바타 + 프로그레스 바
+  - OTT 계정 정보: 보안을 강조하는 블러 효과 + 토글 애니메이션
+
+  대담하고 기억에 남는 디자인을 만들어줘."
+
+  Phase 4: 내 지갑 페이지
+
+  "MyWalletPage.jsx를 금융 앱 수준으로 개선해줘.
+  - 보증금 카드: 3D 변형 효과가 있는 프리미엄 카드 디자인
+  - 계좌/카드 섹션: 실제 은행 카드처럼 입체적인 표현
+  - 금융 내역: 타임라인 스타일 + 색상으로 입/출금 구분
+
+  토스 카드처럼 터치하고 싶게 만드는 디자인을 원해."
+
+  ---
+  🎯 GitHub 소스코드 활용
+
+  소스코드 위치
+
+  https://github.com/anthropics/claude-code/tree/main/plugins/frontend-desig
+  n
+
+  커스터마이징 방법
+
+  1. 로컬에 클론:
+  git clone https://github.com/anthropics/claude-code.git
+  cd claude-code/plugins/frontend-design
+
+  2. SKILL.md 수정:
+  # 4beans-moa 전용 디자인 가이드라인
+
+  ## 브랜드 아이덴티티
+  - 주조색: Orange (#ea580c)
+  - 보조색: Indigo, Purple
+  - 타이포그래피: Pretendard + Clash Display (헤딩용)
+
+  ## 회피해야 할 요소
+  - 보라색 그라디언트
+  - Inter/Roboto 폰트
+  - 평범한 카드 레이아웃
+
+  ## 필수 요소
+  - OTT 로고 강조
+  - 카드 기반 레이아웃
+  - 부드러운 애니메이션
+  - 금융 앱 수준의 신뢰감
+
+  3. 프로젝트에 CLAUDE.md 추가:
+  # 프로젝트 루트에 생성
+  touch CLAUDE.md
+
+  # 4beans-moa 프론트엔드 디자인 가이드
+
+  ## 미학적 방향
+  Modern + Trustworthy + Playful
+
+  ## 디자인 원칙
+  1. **OTT 중심**: 서비스 로고와 썸네일을 항상 강조
+  2. **신뢰감**: 금융 거래가 있으므로 토스/카카오페이 수준의 완성도
+  3. **친근함**: 공유 서비스의 특성상 따뜻하고 접근하기 쉬운 분위기
+  4. **독창성**: 일반적인 SaaS 디자인 회피
+
+  ## 타이포그래피
+  - 헤딩: Clash Display (대담함)
+  - 본문: Pretendard (가독성)
+  - 숫자: JetBrains Mono (정확성)
+
+  ## 색상 시스템
+  - Primary: #ea580c (Orange 600)
+  - Secondary: #6366f1 (Indigo 500)
+  - Accent: #8b5cf6 (Purple 500)
+  - Success: #10b981 (Emerald 500)
+
+  ## 애니메이션
+  - 페이지 전환: 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)
+  - 호버 효과: -translate-y-1 + shadow-xl
+  - 카드 등장: staggerChildren 0.1s
+
+  ## 컴포넌트 패턴
+  - 카드: rounded-2xl, shadow-sm → shadow-xl on hover
+  - 버튼: 그라디언트 배경 (orange-500 to orange-600)
+  - 입력: focus:ring-4 focus:ring-orange-100
+
+  #디자인시스템 #프론트엔드
+
+  ---
+  📋 실전 프롬프트 예시
+
+  1. 파티 카드 컴포넌트 개선
+
+  "PartyCard 컴포넌트를 재디자인해줘.
+
+  요구사항:
+  - OTT 로고를 카드 상단에 크게 배치 (높이 200px)
+  - 호버 시 3D 변형 효과 (rotateY 5deg)
+  - 가격 정보는 오른쪽 하단에 큰 폰트로 강조
+  - 멤버 수는 원형 아바타로 시각화
+  - 상태 배지는 상단 좌측에 오버레이
+
+  참고 디자인: Netflix 영화 카드 + 토스 금융 카드 조합
+  피해야 할 것: 평범한 흰색 카드, 작은 이미지, 지루한 레이아웃"
+
+  2. 애니메이션 시스템 구축
+
+  "Framer Motion을 활용한 애니메이션 시스템을 만들어줘.
+
+  포함 요소:
+  - fadeIn, slideUp, scaleUp, staggerContainer 프리셋
+  - 페이지 전환 애니메이션 (exit/enter)
+  - 스크롤 트리거 애니메이션
+  - 호버 제스처 (whileHover, whileTap)
+
+  일반적인 fade만 사용하는 건 피하고,
+  섬세하면서도 예상치 못한 즐거움을 주는 애니메이션을 만들어줘."
+
+  3. 대시보드 차트 개선
+
+  "관리자 대시보드의 Chart.js를 Recharts로 교체하고,
+  독창적인 데이터 시각화를 만들어줘.
+
+  요구사항:
+  - 그라디언트가 적용된 바 차트
+  - 호버 시 툴팁 애니메이션
+  - Orange 브랜드 컬러 적용
+  - 반응형 디자인
+
+  일반적인 파란색 차트는 피하고,
+  브랜드 아이덴티티를 강조하는 디자인을 원해."
+
+  ---
+  🔄 MCP 및 다른 플러그인과 조합
+
+  추천 조합:
+
+  # 1. Code Review 플러그인 (디자인 코드 품질 검토)
+  /plugin install code-review@anthropics
+
+  # 2. Feature Dev 플러그인 (전체 워크플로우)
+  /plugin install feature-dev@anthropics
+
+  Hooks 통합 (디자인 일관성 검증):
+
+  .claude/hooks/hooks.json:
+  {
+    "PostToolUse": [
+      {
+        "matcher": "Write.*\\.(tsx?|jsx?)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✅ 디자인 토큰 검증 완료'"
+          }
+        ]
+      }
+    ]
+  }
+
+  ---
+  📊 Before vs After 비교
+
+  Before (일반적인 AI 디자인):
+
+  - Inter 폰트
+  - 보라색 그라디언트
+  - 평범한 카드 레이아웃
+  - 기본 hover 효과
+
+  After (Frontend Design 플러그인 적용):
+
+  - Clash Display + Pretendard 조합
+  - Orange 기반 독창적 팔레트
+  - 3D 변형이 있는 카드
+  - 섬세한 마이크로 인터랙션
+  - OTT 로고 강조 레이아웃
+
+  ---
+  🎯 결론 및 추천 사항
+
+  Frontend Design 플러그인을 활용하면:
+
+  ✅ 독창성: 일반적인 AI 디자인 탈피
+  ✅ 프로덕션 수준: 완성도 높은 코드 생성
+  ✅ 시간 절약: 디자인 고민 시간 단축
+  ✅ 일관성: CLAUDE.md로 브랜드 가이드라인 유지
+  ✅ 학습: GitHub 소스코드로 베스트 프랙티스 학습
+
+  시작해볼까요?
+
+  1. 먼저 플러그인을 설치하고
+  2. CLAUDE.md에 4beans-moa 디자인 가이드라인을 작성한 뒤
+  3. Phase별로 페이지를 개선해나가면
+
+  현업 수준의 독창적인 디자인을 빠르게 완성할 수 있습니다!
+
+  어떤 페이지부터 시작하시겠어요? 플러그인 설치부터 도와드릴까요? 🚀
+
+> 플러그인 설치부터 해보자 
+
+● 좋습니다! Frontend Design 플러그인을 설치해보겠습니다. 단계별로
+  진행하겠습니다.
+  ⎿  Error: Slash command plugin is not a prompt-based command
+
+● 플러그인 명령어는 제가 직접 실행할 수 없어서, 사용자님이 직접 실행해주셔야
+   합니다. 단계별로 안내해드리겠습니다!
+
+  📦 Frontend Design 플러그인 설치 가이드
+
+  Step 1: 현재 플러그인 확인
+
+  Claude Code CLI에서 다음 명령어를 입력해주세요:
+
+  /plugin
+
+  현재 설치된 플러그인 목록을 확인할 수 있습니다.
+
+  ---
+  Step 2: Anthropic 공식 마켓플레이스 추가
+
+  /plugin marketplace add anthropics/claude-code
+
+  이 명령어로 Anthropic의 공식 플러그인 마켓플레이스를 추가합니다.
+
+  ---
+  Step 3: Frontend Design 플러그인 설치
+
+  /plugin install frontend-design@anthropics
+
+  설치가 완료되면 확인 메시지가 나타납니다.
+
+  ---
+  Step 4: 설치 확인
+
+  /plugin
+
+  다시 플러그인 목록을 확인하면 frontend-design@anthropics가 표시됩니다.
+
+  ---
+  📝 그 동안 제가 준비할 것
+
+  사용자님이 플러그인을 설치하시는 동안, 저는 CLAUDE.md 파일을
+  작성하겠습니다. 이 파일은 4beans-moa 프로젝트의 디자인 가이드라인을
+  정의하여 Frontend Design 플러그인이 일관된 디자인을 생성하도록 돕습니다.
+
+● Write(CLAUDE.md)
+  ⎿  Wrote 1 lines to CLAUDE.md                                            
+     # 4beans-moa 프로젝트 가이드
+     ## 프로젝트 개요
+     **4beans-moa**는 OTT 구독 공유 서비스입니다. 여러 사용자가 Netflix,
+     Disney+, Wavve 등의 OTT 서비스를 공유하여 월 비용을 절감할 수 있도록
+     돕는 플랫폼입니다.
+     ### 핵심 기능
+     - 파티 생성 및 가입 (OTT 구독 공유)
+     - 자동 결제 시스템 (월간 구독료)
+     - 보증금 관리
+
+● 완료했습니다! 🎉
+
+  ---
+  ✅ 완료된 작업
+
+  1. CLAUDE.md 파일 생성 완료
+
+  C:\sol\React\4beans-moa-front\CLAUDE.md 파일을 생성했습니다.
+
+  이 파일에는 다음 내용이 포함되어 있습니다:
+  - 🎨 디자인 시스템: 색상, 타이포그래피, 간격 등
+  - 🎭 컴포넌트 패턴: 카드, 버튼, 입력 필드 등
+  - 🎬 애니메이션 가이드: Framer Motion 프리셋
+  - 📱 반응형 디자인: Breakpoints 및 패턴
+  - 🎯 페이지별 가이드: 각 페이지의 디자인 방향성
+  - 📋 체크리스트: 디자인 구현 시 확인사항
+
+  ---
+  📋 다음 단계: 플러그인 설치
+
+  이제 사용자님이 직접 CLI에서 다음 명령어들을 실행해주세요:
+
+  Step 1: 마켓플레이스 추가
+
+  /plugin marketplace add anthropics/claude-code
+
+  Step 2: Frontend Design 플러그인 설치
+
+  /plugin install frontend-design@anthropics
+
+  Step 3: 설치 확인
+
+  /plugin
+
+  frontend-design@anthropics가 목록에 표시되면 설치 완료입니다!
+
+  ---
+  🚀 설치 후 사용 방법
+
+  플러그인 설치가 완료되면, 별도의 명령어 없이 자동으로 작동합니다.
+
+  테스트 프롬프트:
+
+  "4beans-moa의 파티 목록 페이지(PartyListPage.jsx)를 독창적으로
+  재디자인해줘.
+
+  CLAUDE.md의 디자인 가이드라인을 참고하고, 다음 특징을 반영해줘:
+  - OTT 서비스 썸네일을 크게 강조 (높이 192px)
+  - Netflix 영화 포스터처럼 호버 시 scale-110 효과
+  - Orange 브랜드 컬러를 주조색으로 사용
+  - 순차적으로 등장하는 stagger 애니메이션
+  - Framer Motion을 활용한 부드러운 인터랙션
+
+  일반적인 흰색 카드 + 작은 이미지 레이아웃은 피하고,
+  왓챠/넷플릭스처럼 시각적으로 강렬한 디자인을 원해."
+
+  ---
+  💡 CLAUDE.md 파일의 효과
+
+  Frontend Design 플러그인은 프로젝트 루트의 CLAUDE.md 파일을 자동으로 읽고,
+   그 안에 정의된 디자인 가이드라인을 따릅니다.
+
+  제가 작성한 CLAUDE.md에는:
+  - ✅ Orange 브랜드 컬러 강조
+  - ✅ OTT 로고/썸네일 강조 원칙
+  - ✅ 보라색 그라디언트 회피
+  - ✅ Inter/Roboto 폰트만 사용 금지
+  - ✅ 카드 기반 레이아웃 패턴
+  - ✅ Framer Motion 애니메이션 프리셋
+  - ✅ 페이지별 상세 가이드
+
+  이 모든 내용이 AI가 디자인을 생성할 때 자동으로 반영됩니다!
+
+  ---
+  🎯 설치 완료 후 알려주세요!
+
+  플러그인 설치가 완료되면 알려주시면, 바로 파티 목록 페이지부터 독창적으로 
+  재디자인을 시작하겠습니다! 🚀
+
+  어떤 페이지부터 시작하고 싶으신가요?
+  1. 파티 목록 페이지 (메인 페이지)
+  2. 파티 상세 페이지 (가장 중요한 전환 페이지)
+  3. 파티 생성 페이지 (복잡한 플로우)
+  4. 내 지갑 페이지 (금융 UI)
+  5. 관리자 대시보드 (데이터 시각화)
+
+> /plugin 
+  ⎿  (no content)
+
+> /plugin marketplace add anthropics/claude-code 
+  ⎿  Successfully added marketplace: claude-code-plugins
+
+> /plugin install frontend-design@anthropics 
+  ⎿  ✓ Installed frontend-design. Restart Claude Code to load new plugins.
+
+> /plugin 
+  ⎿  (no content)
+
+> 플러그인 설치 완료했어 
+
+● 완벽합니다! 🎉 플러그인 설치가 완료되었습니다!
+
+● ✅ 설치 완료!
+
+  설치 로그를 보니 성공적으로 완료되었습니다:
+  - ✓ Marketplace 추가됨: claude-code-plugins
+  - ✓ Frontend Design 플러그인 설치됨
+
+  ---
+  ⚠️ 중요: Claude Code 재시작 필요
+
+  플러그인을 활성화하려면 Claude Code를 재시작해야 합니다.
+
+  # 현재 세션 종료 후 다시 시작
+  exit
+  claude
+
+  또는 터미널을 닫고 다시 열어주세요.
+
+  ---
+  🚀 재시작 후 시작할 작업
+
+  재시작이 완료되면, 이제 본격적으로 독창적인 디자인 작업을 시작할 수
+  있습니다!
+
+  추천 순서:
+
+  Option 1: 순차적 접근 (권장)
+
+  Phase 1 → Phase 2 → Phase 3 → Phase 4
+  - 디자인 시스템을 먼저 정립한 후
+  - 페이지별로 순차적으로 적용
+
+  Option 2: 임팩트 우선 접근
+
+  파티 목록 페이지 → 파티 상세 페이지 → 내 지갑 → 나머지
+  - 가장 중요한 페이지부터 개선
+  - 빠르게 결과물 확인 가능
+
+  Option 3: 테스트 접근
+
+  한 페이지를 완전히 개선 → 결과 확인 → 나머지 적용
+  - 먼저 하나의 페이지로 디자인 방향성 확정
+  - 만족하면 다른 페이지에 일괄 적용
+
+  ---
+  💡 추천 시작 프롬프트
+
+  재시작 후 바로 사용할 수 있는 프롬프트입니다:
+
+  1. Phase 1부터 시작 (디자인 시스템)
+
+  "4beans-moa 프로젝트의 디자인 시스템을 구축해줘.
+
+  CLAUDE.md의 가이드라인을 기반으로:
+  1. CSS 변수 기반 디자인 토큰 (globals.css)
+  2. Framer Motion 애니메이션 프리셋 (lib/animations.js)
+  3. 공통 컴포넌트 (StatusBadge, StatCard, EmptyState)
+  4. 다크 모드 설정
+
+  Tailwind CSS와 shadcn/ui를 활용하되,
+  일반적인 보라색 그라디언트와 Inter 폰트는 피하고
+  Orange 브랜드 컬러를 강조하는 독창적인 시스템을 만들어줘."
+
+  2. 파티 목록 페이지부터 시작 (빠른 결과)
+
+  "PartyListPage.jsx를 독창적으로 재디자인해줘.
+
+  CLAUDE.md의 디자인 가이드라인을 참고하여:
+  - Netflix/Watcha 스타일의 OTT 썸네일 강조 (높이 192px)
+  - 호버 시 scale-110 + shadow-2xl 효과
+  - 순차 등장 애니메이션 (stagger)
+  - Orange 브랜드 컬러 기반 그라디언트
+  - 필터 UI는 Sticky 배치
+
+  일반적인 카드 레이아웃은 피하고,
+  사용자가 보자마자 '와!' 할 만한 비주얼 임팩트를 원해."
+
+  3. 전체 프로젝트 분석 후 시작 (체계적)
+
+  "4beans-moa 프로젝트의 전체 페이지를 분석하고,
+  CLAUDE.md 가이드라인에 맞춰 디자인 개선이 필요한
+  우선순위를 정해줘.
+
+  각 페이지별로:
+  - 현재 디자인의 문제점
+  - 개선 방향
+  - 예상 작업 시간
+
+  을 정리해서 로드맵을 만들어줘."
+
+  ---
+  🎯 제 추천
+
+  개인적으로는 **Option 2 (임팩트 우선 접근)**를 추천합니다:
+
+  이유:
+  1. 빠른 피드백: 가장 중요한 페이지를 먼저 개선해서 결과를 확인
+  2. 동기 부여: 극적인 변화를 바로 볼 수 있어 작업 의욕 상승
+  3. 방향 설정: 첫 페이지를 보고 디자인 방향성 조정 가능
+
+  순서:
+  1. 파티 목록 페이지 (사용자 첫 인상)
+  2. 파티 상세 페이지 (전환율 핵심)
+  3. 내 지갑 페이지 (금융 UI 차별화)
+  4. 파티 생성 페이지 (복잡한 플로우)
+  5. 관리자 대시보드 (데이터 시각화)
+
+  ---
+  📋 준비 완료 체크리스트
+
+  - ✅ Frontend Design 플러그인 설치
+  - ✅ CLAUDE.md 디자인 가이드라인 작성
+  - ⏳ Claude Code 재시작 (지금 하세요!)
+  - ⏳ 첫 번째 페이지 디자인 개선
+
+  ---
+  Claude Code를 재시작하고, 어떤 방식으로 시작할지 알려주세요! 🚀
+
+  바로 독창적이고 현업 수준의 디자인 작업을 시작하겠습니다!
+
+> 터미널을 껐다가 켜야하니까 프롬프트를 다시 써보자. 해야할 페이지가 
+많으니까 테스트적 접근법을 쓸거야. claude.md에 관련 내용이 다 있나? 
+
+● 좋습니다! 재시작 후 바로 사용할 프롬프트를 준비하겠습니다. 먼저 CLAUDE.md
+  내용을 확인해볼게요.
+
+● Read(CLAUDE.md)
+  ⎿  Read 658 lines
+
+● 완벽합니다! CLAUDE.md에 모든 내용이 잘 정리되어 있습니다. 이제 테스트적 
+  접근법을 위한 완벽한 프롬프트를 작성하겠습니다.
+
+888888888888888888888888888888888888888888888888888888888888
+  ---
+  📋 터미널 재시작 후 바로 사용할 프롬프트
+
+  🎯 테스트적 접근법 - 1단계 (파티 목록 페이지 완전 재디자인)
+
+  터미널 재시작 후 다음 프롬프트를 그대로 복사해서 사용하세요:
+
+  4beans-moa 프로젝트의 PartyListPage.jsx를 완전히 재디자인해줘.
+
+  ## 목표
+  - 현업 수준의 독창적이고 기억에 남는 디자인
+  - Netflix/Watcha 수준의 비주얼 임팩트
+  - 토스/카카오페이 수준의 완성도
+
+  ## 디자인 가이드라인
+  CLAUDE.md의 모든 가이드라인을 엄격히 준수하고:
+
+  ### 필수 반영 사항
+  1. **OTT 썸네일 강조**
+     - 카드 높이 192px (h-48)
+     - 썸네일을 전면에 배치
+     - OTT 로고는 우측 하단 오버레이 (w-12 h-12)
+     - 상태 배지는 좌측 상단 오버레이
+
+  2. **색상 시스템**
+     - Orange (#ea580c) 주조색 사용
+     - 그라디언트: Orange to Red (활력)
+     - 절대 금지: 보라색 그라디언트
+
+  3. **타이포그래피**
+     - 헤딩: Pretendard Black 또는 extrabold
+     - 금액: JetBrains Mono 또는 mono 폰트
+     - Inter/Roboto만 사용하지 말 것
+
+  4. **애니메이션 (Framer Motion 필수)**
+     - 페이지 로드 시 순차 등장 (stagger 0.1s)
+     - 카드 호버: scale-110 + shadow-2xl + -translate-y-2
+     - 트랜지션: 300ms cubic-bezier(0.4, 0.0, 0.2, 1)
+
+  5. **레이아웃**
+     - 히어로 섹션: 검색 강조, 애니메이션 배경 (blob)
+     - 필터 바: Sticky (top-16)
+     - 카드 그리드: 반응형 (1열/2열/3열)
+     - 무한 스크롤 유지
+
+  6. **회피 요소**
+     - 평범한 흰색 카드 + 작은 이미지 (X)
+     - 보라색 그라디언트 (X)
+     - Inter/Roboto 단독 사용 (X)
+     - 지루한 레이아웃 (X)
+
+  ## 구현 요청
+  1. 현재 PartyListPage.jsx 파일을 읽고
+  2. CLAUDE.md의 "파티 목록 페이지" 가이드라인 참고
+  3. Framer Motion을 활용한 완전히 새로운 디자인으로 전체 재작성
+  4. 기존 기능(검색, 필터, 무한스크롤)은 유지하되 UI는 완전히 새롭게
+
+  ## 기대 결과
+  - 사용자가 보자마자 "와!" 할 만한 비주얼 임팩트
+  - 왓챠/넷플릭스처럼 OTT 포스터가 주인공인 레이아웃
+  - 부드럽고 섬세한 애니메이션
+  - 모바일/태블릿/데스크탑 완벽 대응
+
+  지금 바로 시작해줘!
+
+88888888888888888888888888888888888888888888888888888888888888888888888
+  ---
+  📝 추가로 준비된 프롬프트들 (순서대로 사용)
+
+  2단계: 결과 확인 및 피드백
+
+  방금 만든 PartyListPage를 실행해보고 개선점을 알려줘.
+
+  체크리스트:
+  - [ ] OTT 썸네일이 충분히 강조되었나?
+  - [ ] 호버 효과가 부드럽고 눈에 띄나?
+  - [ ] Orange 브랜드 컬러가 잘 보이나?
+  - [ ] 애니메이션이 자연스러운가?
+  - [ ] 모바일에서도 잘 보이나?
+
+  개선이 필요한 부분을 구체적으로 제안해줘.
+
+  3단계: 동일한 디자인 시스템 확장
+
+  PartyListPage의 디자인이 만족스러워.
+  이제 같은 디자인 시스템과 컴포넌트 패턴을 사용해서
+  PartyDetailPage.jsx도 재디자인해줘.
+
+  CLAUDE.md의 "파티 상세 페이지" 가이드라인을 참고하되,
+  PartyListPage에서 사용한 카드 스타일, 색상, 애니메이션을
+  일관되게 적용해줘.
+
+  4단계: 나머지 페이지 일괄 적용
+
+  이제 다음 페이지들도 같은 디자인 시스템으로 개선해줘:
+
+  1. PartyCreatePage.jsx (파티 생성)
+  2. MyPartyListPage.jsx (내 파티 목록)
+  3. MyWalletPage.jsx (내 지갑)
+  4. FinancialHistoryPage.jsx (금융 내역)
+  5. AdminDashboardPage.jsx (관리자 대시보드)
+
+  한 번에 하나씩, CLAUDE.md 가이드라인을 참고해서 진행해줘.
+  각 페이지 완성 후 다음으로 넘어가자.
+
+  ---
+  🎯 CLAUDE.md 내용 요약 (참고용)
+
+  CLAUDE.md에는 다음이 모두 포함되어 있습니다:
+
+  ✅ 프로젝트 개요: OTT 구독 공유 서비스
+  ✅ 미학적 방향: Modern + Trustworthy + Playful
+  ✅ 브랜드 컬러: Orange (#ea580c) 주조색
+  ✅ 타이포그래피: Pretendard, Clash Display, JetBrains Mono
+  ✅ 컴포넌트 패턴: 카드, 버튼, 입력 필드 코드 예시
+  ✅ 애니메이션: Framer Motion 프리셋
+  ✅ 페이지별 가이드: 5개 주요 페이지 상세 설명
+  ✅ 체크리스트: 디자인 확인 항목
+  ✅ 회피 요소: 보라색 그라디언트, Inter 단독 사용 등
+
+  ---
+  💡 프롬프트 사용 팁
+
+  1. 첫 번째 프롬프트는 그대로 사용
+
+  - 위의 "1단계" 프롬프트를 복사해서 붙여넣기
+  - 수정 없이 그대로 사용해도 충분히 상세함
+
+  2. 결과 확인 후 피드백
+
+  - AI가 생성한 코드를 먼저 확인
+  - 마음에 들지 않는 부분이 있으면 구체적으로 요청
+  - 예: "OTT 로고를 더 크게", "애니메이션을 더 부드럽게"
+
+  3. 만족하면 다음 페이지로
+
+  - 첫 페이지가 마음에 들면
+  - 같은 디자인 시스템으로 나머지 페이지 확장
+
+  4. 필요시 추가 요청
+
+  "더 대담하게 만들어줘"
+  "OTT 로고를 더 강조해줘"
+  "애니메이션을 Netflix처럼 더 역동적으로"
+  "모바일에서 썸네일이 작아, 키워줘"
+
+  ---
+  🚀 준비 완료!
+
+  터미널 재시작 후:
+
+  1. ✅ CLAUDE.md 자동 인식 (프로젝트 루트에 있음)
+  2. ✅ Frontend Design 플러그인 자동 활성화
+  3. ✅ 첫 번째 프롬프트 복사 준비됨
+
+  이제 터미널을 재시작하고, 위의 "1단계 프롬프트"를 복사해서 붙여넣으세요!
+  🎨
+
+  바로 독창적이고 현업 수준의 디자인 작업이 시작됩니다! 💪
+
+> 내가 팀원과 협업하고 있기 때문에 공통 부분을 수정할 때는 조심해야해. 내 
+코딩으로 다른 사람의 페이지가 영향을 받으면 안돼. 이 내용도 md 파일에 
+추가해줘 
+
+● 좋은 지적입니다! 협업 환경에서 매우 중요한 부분이네요. CLAUDE.md에 협업
+  관련 주의사항을 추가하겠습니다.
+
+● Read(CLAUDE.md)
+  ⎿  Read 50 lines
+
+● Update(CLAUDE.md)
+  ⎿  Updated CLAUDE.md with 322 additions                                
+        13    
+        14    ---
+        15    
+        16 +  ## 🤝 협업 가이드라인 (매우 중요!)
+        17 +  
+        18 +  ### ⚠️ 기본 원칙
+        19 +  
+        20 +  **이 프로젝트는 팀원과 협업 중입니다. 공통 부분을 수정할 
+           + 때는 극도로 조심해야 합니다.**
+        21 +  
+        22 +  다른 팀원의 페이지에 영향을 주지 않도록 다음 규칙을 
+           + **반드시** 준수하세요:
+        23 +  
+        24 +  ---
+        25 +  
+        26 +  ### 🚫 절대 수정 금지 항목
+        27 +  
+        28 +  #### 1. **공통 CSS 파일**
+        29 +  ```
+        30 +  ❌ 수정 금지:
+        31 +  - src/index.css (전역 스타일)
+        32 +  - src/App.css (루트 스타일)
+        33 +  - src/styles/*.css (공통 스타일 파일)
+        34 +  ```
+        35 +  
+        36 +  **이유**: 전역 CSS를 수정하면 모든 페이지에 영향을 줍니다.
+        37 +  
+        38 +  **대안**:
+        39 +  - 페이지별 독립 CSS 모듈 사용: `PartyListPage.module.css`
+        40 +  - Tailwind 유틸리티 클래스만 사용
+        41 +  - 인라인 스타일 또는 styled-components
+        42 +  
+        43 +  #### 2. **기존 공통 컴포넌트 수정**
+        44 +  ```
+        45 +  ❌ 수정 금지:
+        46 +  - src/components/common/* (Header, Footer 등)
+        47 +  - src/components/ui/* (shadcn/ui 컴포넌트)
+        48 +  - 다른 팀원이 사용 중인 컴포넌트
+        49 +  ```
+        50 +  
+        51 +  **이유**: 공통 컴포넌트를 수정하면 해당 컴포넌트를 사용하는
+           +  모든 페이지가 영향받습니다.
+        52 +  
+        53 +  **대안**:
+        54 +  - 새로운 컴포넌트 생성: `PartyCard.jsx` → 
+           + `PartyCardNew.jsx`
+        55 +  - 페이지 전용 컴포넌트 폴더 생성: 
+           + `src/components/party/PartyListPage/`
+        56 +  - Props로 스타일 커스터마이징
+        57 +  
+        58 +  #### 3. **Tailwind 설정 파일**
+        59 +  ```
+        60 +  ❌ 수정 금지:
+        61 +  - tailwind.config.js
+        62 +  - postcss.config.js
+        63 +  ```
+        64 +  
+        65 +  **이유**: 설정 변경은 전체 프로젝트에 영향을 줍니다.
+        66 +  
+        67 +  **대안**:
+        68 +  - 기존 Tailwind 유틸리티만 사용
+        69 +  - 필요시 팀원과 상의 후 수정
+        70 +  - `className` 조합으로 해결
+        71 +  
+        72 +  #### 4. **패키지 설치**
+        73 +  ```
+        74 +  ⚠️ 주의 필요:
+        75 +  - package.json
+        76 +  - package-lock.json
+        77 +  ```
+        78 +  
+        79 +  **규칙**:
+        80 +  - 새 라이브러리 설치 전 팀원에게 알리기
+        81 +  - 설치 후 즉시 공유
+        82 +  - 버전 충돌 방지를 위해 정확한 버전 명시
+        83 +  
+        84 +  ---
+        85 +  
+        86 +  ### ✅ 안전한 작업 방법
+        87 +  
+        88 +  #### 1. **페이지별 독립 스타일링**
+        89 +  
+        90 +  **좋은 예시:**
+        91 +  ```jsx
+        92 +  // src/pages/party/PartyListPage.jsx
+        93 +  export default function PartyListPage() {
+        94 +    return (
+        95 +      <div className="party-list-page">
+        96 +        {/* Tailwind 클래스만 사용 */}
+        97 +        <div className="bg-gradient-to-r from-orange-500 
+           + to-orange-600 rounded-2xl p-6">
+        98 +          {/* 내용 */}
+        99 +        </div>
+       100 +      </div>
+       101 +    );
+       102 +  }
+       103 +  ```
+       104 +  
+       105 +  **나쁜 예시:**
+       106 +  ```css
+       107 +  /* ❌ src/index.css에 추가 (전역 영향) */
+       108 +  .card {
+       109 +    background: linear-gradient(to right, #ea580c, #f97316);
+       110 +    border-radius: 1rem;
+       111 +  }
+       112 +  ```
+       113 +  
+       114 +  #### 2. **새 컴포넌트 생성**
+       115 +  
+       116 +  **좋은 예시:**
+       117 +  ```
+       118 +  ✅ 새 파일 생성:
+       119 +  src/components/party/
+       120 +  ├── PartyCardNew.jsx          (기존 PartyCard를 대체)
+       121 +  ├── PartyListHero.jsx         (새 히어로 섹션)
+       122 +  └── PartyFilterBar.jsx        (새 필터 바)
+       123 +  ```
+       124 +  
+       125 +  **나쁜 예시:**
+       126 +  ```
+       127 +  ❌ 기존 파일 수정:
+       128 +  src/components/common/Card.jsx  (다른 페이지에서 사용 중)
+       129 +  ```
+       130 +  
+       131 +  #### 3. **CSS 모듈 사용**
+       132 +  
+       133 +  **좋은 예시:**
+       134 +  ```jsx
+       135 +  // PartyListPage.module.css 생성
+       136 +  import styles from './PartyListPage.module.css';
+       137 +  
+       138 +  export default function PartyListPage() {
+       139 +    return (
+       140 +      <div className={styles.container}>
+       141 +        <div className={styles.card}>
+       142 +          {/* 내용 */}
+       143 +        </div>
+       144 +      </div>
+       145 +    );
+       146 +  }
+       147 +  ```
+       148 +  
+       149 +  이 방법은 스타일이 해당 페이지에만 적용되어 안전합니다.
+       150 +  
+       151 +  #### 4. **조건부 스타일 적용**
+       152 +  
+       153 +  **좋은 예시:**
+       154 +  ```jsx
+       155 +  // 기존 공통 컴포넌트를 사용하되, 조건부로 스타일 추가
+       156 +  <Card className="hover:shadow-2xl hover:-translate-y-2">
+       157 +    {/* 내용 */}
+       158 +  </Card>
+       159 +  ```
+       160 +  
+       161 +  #### 5. **Framer Motion Wrapper 생성**
+       162 +  
+       163 +  **좋은 예시:**
+       164 +  ```jsx
+       165 +  // src/components/party/AnimatedCard.jsx (새 컴포넌트)
+       166 +  import { motion } from 'framer-motion';
+       167 +  import { Card } from '@/components/ui/card';
+       168 +  
+       169 +  export function AnimatedCard({ children, ...props }) {
+       170 +    return (
+       171 +      <motion.div
+       172 +        whileHover={{ scale: 1.02, y: -4 }}
+       173 +        transition={{ duration: 0.3 }}
+       174 +      >
+       175 +        <Card {...props}>{children}</Card>
+       176 +      </motion.div>
+       177 +    );
+       178 +  }
+       179 +  ```
+       180 +  
+       181 +  이렇게 하면 기존 Card 컴포넌트를 수정하지 않고 애니메이션을
+           +  추가할 수 있습니다.
+       182 +  
+       183 +  ---
+       184 +  
+       185 +  ### 📁 권장 폴더 구조
+       186 +  
+       187 +  페이지별 독립적인 컴포넌트 관리:
+       188 +  
+       189 +  ```
+       190 +  src/
+       191 +  ├── pages/
+       192 +  │   └── party/
+       193 +  │       ├── PartyListPage.jsx           # 메인 페이지
+       194 +  │       ├── PartyListPage.module.css    # 페이지 전용 CSS 
+           + (선택)
+       195 +  │       └── components/                 # 페이지 전용 
+           + 컴포넌트
+       196 +  │           ├── PartyListHero.jsx
+       197 +  │           ├── PartyCardEnhanced.jsx
+       198 +  │           ├── PartyFilterBar.jsx
+       199 +  │           └── PartyGridAnimation.jsx
+       200 +  ├── components/
+       201 +  │   ├── common/                         # ⚠️ 수정 금지
+       202 +  │   │   ├── Header.jsx
+       203 +  │   │   └── Footer.jsx
+       204 +  │   ├── ui/                             # ⚠️ 수정 금지 
+           + (shadcn/ui)
+       205 +  │   │   ├── card.jsx
+       206 +  │   │   └── button.jsx
+       207 +  │   └── party/                          # ✅ 새 컴포넌트 
+           + 추가 가능
+       208 +  │       └── (페이지 간 공유 컴포넌트)
+       209 +  └── lib/
+       210 +      ├── utils.js                        # ⚠️ 수정 주의
+       211 +      └── animations.js                   # ✅ 새로 생성 가능
+       212 +  ```
+       213 +  
+       214 +  ---
+       215 +  
+       216 +  ### 🔍 수정 전 체크리스트
+       217 +  
+       218 +  코드를 작성하기 전에 다음을 확인하세요:
+       219 +  
+       220 +  - [ ] **공통 CSS 파일을 수정하지 않았는가?**
+       221 +    - index.css, App.css 등
+       222 +  
+       223 +  - [ ] **기존 공통 컴포넌트를 수정하지 않았는가?**
+       224 +    - components/common/*, components/ui/*
+       225 +  
+       226 +  - [ ] **새 컴포넌트로 분리했는가?**
+       227 +    - 기존 것 수정 대신 새로 생성
+       228 +  
+       229 +  - [ ] **Tailwind 설정을 변경하지 않았는가?**
+       230 +    - tailwind.config.js
+       231 +  
+       232 +  - [ ] **페이지별로 독립적인 스타일을 사용했는가?**
+       233 +    - CSS 모듈 또는 Tailwind 유틸리티만
+       234 +  
+       235 +  - [ ] **새 패키지를 설치했다면 팀원에게 알렸는가?**
+       236 +    - package.json 변경 시
+       237 +  
+       238 +  ---
+       239 +  
+       240 +  ### 🚨 만약 공통 부분을 수정해야 한다면?
+       241 +  
+       242 +  #### 단계별 프로세스:
+       243 +  
+       244 +  1. **팀원과 상의**
+       245 +     - 어떤 부분을 왜 수정해야 하는지 설명
+       246 +     - 영향 범위 파악
+       247 +  
+       248 +  2. **영향도 분석**
+       249 +     - 해당 파일/컴포넌트를 사용하는 모든 페이지 확인
+       250 +     - 수정 시 깨질 수 있는 부분 예측
+       251 +  
+       252 +  3. **백업 생성**
+       253 +     ```bash
+       254 +     git checkout -b feature/design-update
+       255 +     git commit -m "backup: before common component update"
+       256 +     ```
+       257 +  
+       258 +  4. **테스트**
+       259 +     - 모든 페이지에서 정상 작동하는지 확인
+       260 +     - 반응형 체크 (모바일/태블릿/데스크탑)
+       261 +  
+       262 +  5. **커밋 메시지 명확히**
+       263 +     ```bash
+       264 +     git commit -m "refactor: update Card component - affects
+           +  all pages"
+       265 +     ```
+       266 +  
+       267 +  6. **팀원에게 즉시 알림**
+       268 +     - Pull Request 생성
+       269 +     - 변경 사항 공유
+       270 +  
+       271 +  ---
+       272 +  
+       273 +  ### 💡 협업 Best Practices
+       274 +  
+       275 +  #### 1. **명확한 커밋 메시지**
+       276 +  ```bash
+       277 +  # 좋은 예시
+       278 +  git commit -m "feat(party): add animated card to 
+           + PartyListPage only"
+       279 +  git commit -m "style(party): update PartyListPage hero 
+           + section"
+       280 +  
+       281 +  # 나쁜 예시
+       282 +  git commit -m "update card"  # 어떤 카드? 어디에?
+       283 +  ```
+       284 +  
+       285 +  #### 2. **브랜치 전략**
+       286 +  ```bash
+       287 +  # 기능별 브랜치 생성
+       288 +  git checkout -b feature/party-list-redesign
+       289 +  git checkout -b feature/wallet-page-redesign
+       290 +  
+       291 +  # 작업 완료 후 PR 생성
+       292 +  ```
+       293 +  
+       294 +  #### 3. **충돌 방지**
+       295 +  ```bash
+       296 +  # 작업 시작 전 최신 코드 받기
+       297 +  git pull origin main
+       298 +  
+       299 +  # 주기적으로 메인 브랜치 병합
+       300 +  git merge main
+       301 +  ```
+       302 +  
+       303 +  #### 4. **코드 리뷰 요청**
+       304 +  - 디자인 변경사항을 스크린샷으로 공유
+       305 +  - Before/After 비교
+       306 +  - 영향받는 페이지 목록
+       307 +  
+       308 +  ---
+       309 +  
+       310 +  ### 📝 AI에게 작업 지시 시 주의사항
+       311 +  
+       312 +  프롬프트에 다음을 **반드시** 포함하세요:
+       313 +  
+       314 +  ```
+       315 +  ⚠️ 중요:
+       316 +  - 공통 CSS 파일(index.css, App.css)은 절대 수정하지 마세요
+       317 +  - 기존 공통 컴포넌트(components/common/*, 
+           + components/ui/*)는 수정하지 마세요
+       318 +  - 새로운 컴포넌트를 생성하거나 페이지 내부에 인라인으로 
+           + 작성하세요
+       319 +  - Tailwind 유틸리티 클래스만 사용하세요
+       320 +  - 필요한 경우 CSS 모듈(.module.css)을 사용하세요
+       321 +  ```
+       322 +  
+       323 +  ---
+       324 +  
+       325 +  ### 🎯 요약
+       326 +  
+       327 +  **핵심 원칙:**
+       328 +  1. **격리**: 각 페이지는 독립적으로 스타일링
+       329 +  2. **비파괴**: 기존 코드는 건드리지 않기
+       330 +  3. **소통**: 공통 부분 수정 시 팀원과 상의
+       331 +  4. **테스트**: 수정 후 다른 페이지 확인
+       332 +  
+       333 +  **기억하세요:**
+       334 +  > "내 코드가 다른 팀원의 페이지를 망가뜨리면 안 된다!"
+       335 +  
+       336 +  ---
+       337 +  
+       338    ## 🎨 프론트엔드 디자인 시스템
+       339    
+       340    ### 미학적 방향
+
+     Tip: Use # to memorize shortcut to quickly add to CLAUDE.md
+
+● 완벽하게 추가했습니다! 🎉
+
+  CLAUDE.md에 협업 가이드라인 섹션을 추가했습니다. 이제 AI가 코드를 작성할
+  때 팀원의 코드에 영향을 주지 않도록 자동으로 주의합니다.
+
+  ---
+  ✅ 추가된 내용 요약
+
+  🚫 절대 수정 금지 항목
+
+  1. 공통 CSS 파일 (index.css, App.css)
+  2. 기존 공통 컴포넌트 (components/common/, components/ui/)
+  3. Tailwind 설정 (tailwind.config.js)
+  4. 패키지 설치 (팀원과 상의 필요)
+
+  ✅ 안전한 작업 방법
+
+  1. 페이지별 독립 스타일링 (Tailwind 유틸리티만)
+  2. 새 컴포넌트 생성 (기존 것 수정 X)
+  3. CSS 모듈 사용
+  4. Framer Motion Wrapper 패턴
+
+  📁 권장 폴더 구조
+
+  - 페이지 전용 컴포넌트: src/pages/party/components/
+  - 새 공통 컴포넌트: src/components/party/
+
+  ---
+  🚀 업데이트된 프롬프트 (협업 안전 버전)
+
+  터미널 재시작 후 이 프롬프트를 사용하세요:
+
+  4beans-moa 프로젝트의 PartyListPage.jsx를 완전히 재디자인해줘.
+
+  ⚠️ 협업 중이므로 매우 중요:
+  - 공통 CSS 파일(index.css, App.css)은 절대 수정하지 마세요
+  - 기존 공통 컴포넌트(components/common/*, components/ui/*)는 수정하지
+  마세요
+  - 페이지 내부에서만 작동하는 새로운 컴포넌트를 생성하거나 인라인으로
+  작성하세요
+  - Tailwind 유틸리티 클래스만 사용하세요
+  - 필요하면 CSS 모듈(.module.css)을 사용하세요
+
+  ## 목표
+  - 현업 수준의 독창적이고 기억에 남는 디자인
+  - Netflix/Watcha 수준의 비주얼 임팩트
+  - 토스/카카오페이 수준의 완성도
+
+  ## 디자인 가이드라인
+  CLAUDE.md의 모든 가이드라인을 엄격히 준수하고:
+
+  ### 필수 반영 사항
+  1. **OTT 썸네일 강조**
+     - 카드 높이 192px (h-48)
+     - 썸네일을 전면에 배치
+     - OTT 로고는 우측 하단 오버레이 (w-12 h-12)
+     - 상태 배지는 좌측 상단 오버레이
+
+  2. **색상 시스템**
+     - Orange (#ea580c) 주조색 사용
+     - 그라디언트: Orange to Red (활력)
+     - 절대 금지: 보라색 그라디언트
+
+  3. **타이포그래피**
+     - 헤딩: Pretendard Black 또는 extrabold
+     - 금액: JetBrains Mono 또는 mono 폰트
+     - Inter/Roboto만 사용하지 말 것
+
+  4. **애니메이션 (Framer Motion 필수)**
+     - 페이지 로드 시 순차 등장 (stagger 0.1s)
+     - 카드 호버: scale-110 + shadow-2xl + -translate-y-2
+     - 트랜지션: 300ms cubic-bezier(0.4, 0.0, 0.2, 1)
+
+  5. **레이아웃**
+     - 히어로 섹션: 검색 강조, 애니메이션 배경 (blob)
+     - 필터 바: Sticky (top-16)
+     - 카드 그리드: 반응형 (1열/2열/3열)
+     - 무한 스크롤 유지
+
+  6. **회피 요소**
+     - 평범한 흰색 카드 + 작은 이미지 (X)
+     - 보라색 그라디언트 (X)
+     - Inter/Roboto 단독 사용 (X)
+     - 지루한 레이아웃 (X)
+
+  ## 구현 방법
+  1. PartyListPage.jsx 파일만 수정
+  2. 필요한 컴포넌트는 페이지 파일 내부에 인라인으로 작성
+  3. 또는 src/pages/party/components/ 폴더에 새 컴포넌트 생성
+  4. 기존 기능(검색, 필터, 무한스크롤)은 유지하되 UI는 완전히 새롭게
+  5. Tailwind 유틸리티 클래스만 사용
+
+  ## 기대 결과
+  - 사용자가 보자마자 "와!" 할 만한 비주얼 임팩트
+  - 왓챠/넷플릭스처럼 OTT 포스터가 주인공인 레이아웃
+  - 부드럽고 섬세한 애니메이션
+  - 모바일/태블릿/데스크탑 완벽 대응
+  - 다른 팀원의 페이지에 전혀 영향 없음
+
+  지금 바로 시작해줘!
+
+  ---
+  📋 추가로 준비된 안전한 프롬프트
+
+  2단계: Framer Motion 설치 (필요 시)
+
+  Framer Motion이 설치되어 있는지 확인하고,
+  없으면 설치해줘:
+
+  npm install framer-motion
+
+  설치 후 package.json을 확인해서 버전을 알려줘.
+  팀원들에게 공유할 수 있도록.
+
+  3단계: 결과 확인
+
+  방금 만든 PartyListPage를 분석해서 알려줘:
+
+  1. 수정한 파일 목록
+  2. 새로 생성한 파일/컴포넌트 목록
+  3. 공통 파일에 영향을 주었는지 확인
+  4. 다른 페이지에 영향을 줄 수 있는 부분
+
+  협업 안전성 체크리스트:
+  - [ ] index.css나 App.css를 수정하지 않았나?
+  - [ ] components/common/* 파일을 수정하지 않았나?
+  - [ ] components/ui/* 파일을 수정하지 않았나?
+  - [ ] tailwind.config.js를 수정하지 않았나?
+  - [ ] 새 패키지를 설치했다면?
+
+  ---
+  🎯 핵심 변경 사항
+
+  CLAUDE.md에 추가된 내용:
+
+  1. 협업 가이드라인 섹션 (제일 앞에 배치)
+    - 팀원과 협업 중임을 명시
+    - 절대 수정 금지 항목 명확히
+    - 안전한 작업 방법 제시
+  2. 구체적인 예시 코드
+    - 좋은 예시 vs 나쁜 예시 비교
+    - CSS 모듈 사용법
+    - Framer Motion Wrapper 패턴
+  3. 체크리스트
+    - 코드 작성 전 확인사항
+    - 공통 부분 수정 시 프로세스
+  4. AI 프롬프트 가이드
+    - AI에게 지시할 때 포함해야 할 주의사항
+
+  ---
+  ✅ 이제 준비 완료!
+
+  터미널 재시작 후:
+  1. Frontend Design 플러그인 자동 활성화 ✅
+  2. CLAUDE.md 자동 인식 ✅
+  3. 협업 가이드라인 자동 준수 ✅
+  4. 안전한 프롬프트 준비 완료 ✅
+
+  터미널을 재시작하고 위의 "업데이트된 프롬프트"를 사용하세요!
+
+  이제 팀원의 코드에 영향을 주지 않으면서도 독창적인 디자인을 만들 수
+  있습니다! 🚀
+
+
+

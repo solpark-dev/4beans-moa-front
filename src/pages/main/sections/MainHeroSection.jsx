@@ -1,8 +1,8 @@
 import React, { useRef, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Sparkles, Users, ArrowRight, Play, Plus, Search } from "lucide-react";
-import { NeoCard, NeoButton } from "@/components/common/neo";
+import { Link } from "react-router-dom";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { Sparkles, Users, ArrowRight, Plus, Search } from "lucide-react";
+import { NeoCard } from "@/components/common/neo";
 import {
   formatCurrency,
   getPartyServiceName,
@@ -55,12 +55,21 @@ const Confetti = () => {
 export default function MainHeroSection({ parties, products = [] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
-  const containerRef = useRef(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
+  // portrait-v2 스타일: useInView로 섹션 감지
+  const heroRef = useRef(null);
+  const cardsRef = useRef(null);
+  const desktopCardsRef = useRef(null);
+  const mobileCardsRef = useRef(null);
+
+  // 히어로 섹션이 보일 때 감지
+  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 });
+  // 카드 섹션 타이틀 감지
+  const isCardsInView = useInView(cardsRef, { once: false, amount: 0.3 });
+  // 데스크탑 카드 감지
+  const isDesktopCardsInView = useInView(desktopCardsRef, { once: false, amount: 0.4 });
+  // 모바일 카드 감지
+  const isMobileCardsInView = useInView(mobileCardsRef, { once: false, amount: 0.4 });
 
   // 한글-영어 매핑
   const koreanToEnglish = {
@@ -78,20 +87,15 @@ export default function MainHeroSection({ parties, products = [] }) {
     ? products.filter((p) => {
         const name = (p?.productName || p?.name || "").toLowerCase();
         const query = searchQuery.toLowerCase();
-
-        // 직접 매칭
         if (name.includes(query)) return true;
-
-        // 한글 검색어 -> 영어로 변환해서 매칭
         for (const [kor, eng] of Object.entries(koreanToEnglish)) {
           if (query.includes(kor) && name.includes(eng)) return true;
         }
-
         return false;
       }).slice(0, 5)
     : [];
 
-  // 흩어진 위치 (처음) -> 그리드 위치 (스크롤 후)
+  // 흩어진 위치 (초기)
   const scatterPositions = [
     { x: -320, y: -180, rotate: -12, scale: 0.9 },
     { x: 320, y: -160, rotate: 15, scale: 0.85 },
@@ -101,21 +105,15 @@ export default function MainHeroSection({ parties, products = [] }) {
     { x: 200, y: 240, rotate: -15, scale: 0.9 },
   ];
 
-  // 모인 그리드 위치 (3x2)
+  // 모인 그리드 위치 (최종)
   const gridPositions = [
-    { x: -220, y: 10, rotate: 0, scale: 1 },
-    { x: 0, y: 10, rotate: 0, scale: 1 },
-    { x: 220, y: 10, rotate: 0, scale: 1 },
-    { x: -220, y: 220, rotate: 0, scale: 1 },
-    { x: 0, y: 220, rotate: 0, scale: 1 },
-    { x: 220, y: 220, rotate: 0, scale: 1 },
+    { x: -200, y: -90, rotate: 0, scale: 1 },
+    { x: 0, y: -90, rotate: 0, scale: 1 },
+    { x: 200, y: -90, rotate: 0, scale: 1 },
+    { x: -200, y: 100, rotate: 0, scale: 1 },
+    { x: 0, y: 100, rotate: 0, scale: 1 },
+    { x: 200, y: 100, rotate: 0, scale: 1 },
   ];
-
-  // 플로팅 스티커 애니메이션
-  const stickerRightX = useTransform(scrollYProgress, [0, 0.15, 0.35], [0, -50, -200]);
-  const stickerRightY = useTransform(scrollYProgress, [0, 0.15, 0.35], [0, 20, 80]);
-  const stickerLeftX = useTransform(scrollYProgress, [0, 0.15, 0.35], [0, 50, 200]);
-  const stickerLeftY = useTransform(scrollYProgress, [0, 0.15, 0.35], [0, 30, 100]);
 
   // 서비스별 색상 매핑
   const serviceColors = {
@@ -145,7 +143,7 @@ export default function MainHeroSection({ parties, products = [] }) {
     { id: 6, isEmpty: true, bgColor: "bg-yellow-400", emoji: "왓", serviceName: "왓챠" },
   ];
 
-  // 카드 데이터 - parties에서 가져오거나 빈 카드 표시
+  // 카드 데이터
   const cards = useMemo(() => {
     if (!Array.isArray(parties) || parties.length === 0) {
       return emptyCards;
@@ -180,271 +178,311 @@ export default function MainHeroSection({ parties, products = [] }) {
     });
   }, [parties]);
 
-  // 타이틀 애니메이션 (첫 화면 - 페이드아웃)
-  const mainTitleOpacity = useTransform(scrollYProgress, [0.2, 0.35], [1, 0]);
-  const mainTitleY = useTransform(scrollYProgress, [0.2, 0.35], [0, -50]);
-
-  // HOT PARTY 타이틀 애니메이션 (그리드 완성 후 등장 - 50~60%)
-  const hotPartyOpacity = useTransform(scrollYProgress, [0.5, 0.6], [0, 1]);
-  const hotPartyY = useTransform(scrollYProgress, [0.5, 0.6], [30, 0]);
-
-  // 파티 전체보기 버튼 (그리드 완성 후 등장 - 60~70%)
-  const buttonOpacity = useTransform(scrollYProgress, [0.6, 0.7], [0, 1]);
-  const buttonY = useTransform(scrollYProgress, [0.6, 0.7], [20, 0]);
-
   return (
-    <div ref={containerRef} className="relative h-[300vh]">
-      <Confetti />
+    <>
+      {/* 히어로 섹션 */}
+      <section ref={heroRef} className="relative pt-32 pb-10 flex flex-col items-center justify-center overflow-hidden px-6">
+        <Confetti />
 
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          {/* 메인 헤드라인 - 스크롤 시 페이드아웃 */}
+        {/* 메인 헤드라인 */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="text-center z-10 max-w-4xl mx-auto"
+        >
+          {/* 플로팅 스티커 - 좌측 */}
           <motion.div
-            style={{ opacity: mainTitleOpacity, y: mainTitleY }}
-            className="text-center z-10 px-6"
+            initial={{ opacity: 0, x: -50 }}
+            animate={isHeroInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="absolute top-24 left-[10%] hidden lg:block"
           >
             <motion.div
-              style={{ x: stickerRightX, y: stickerRightY }}
-              className="absolute top-20 right-[15%] hidden lg:block"
+              animate={{ y: [0, -15, 0], rotate: [-8, -12, -8] }}
+              transition={{ duration: 4, repeat: Infinity }}
             >
-              <motion.div
-                animate={{ y: [0, -15, 0], rotate: [12, 15, 12] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                <NeoCard color="bg-cyan-400" rotate={12} className="px-4 py-2 rounded-xl">
-                  <span className="font-black text-lg">75% OFF!</span>
-                </NeoCard>
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              style={{ x: stickerLeftX, y: stickerLeftY }}
-              className="absolute top-32 left-[10%] hidden lg:block"
-            >
-              <motion.div
-                animate={{ y: [0, 10, 0], rotate: [-8, -12, -8] }}
-                transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
-              >
-                <NeoCard color="bg-lime-400" rotate={-8} className="px-3 py-1 rounded-lg">
-                  <span className="font-bold text-sm">NEW!</span>
-                </NeoCard>
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <NeoCard color="bg-white" rotate={1} className="inline-block px-5 py-2 rounded-xl mb-6">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={16} className="text-pink-500" />
-                  <span className="font-bold">구독료, 이제 똑똑하게 나눠요</span>
-                </div>
+              <NeoCard color="bg-lime-400" rotate={-8} className="px-3 py-1 rounded-lg">
+                <span className="font-bold text-sm">NEW!</span>
               </NeoCard>
             </motion.div>
+          </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-[56px] md:text-[80px] lg:text-[100px] font-black leading-[0.95] tracking-tighter mb-6"
-            >
-              <span className="block transform -rotate-1">SHARE</span>
-              <span className="block transform rotate-1">
-                <span className="text-cyan-400 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">YOUR</span>
-              </span>
-              <span className="block transform -rotate-1 text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                OTT!
-              </span>
-            </motion.h1>
-
+          {/* 플로팅 스티커 - 우측 */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={isHeroInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: 0.9, duration: 0.6 }}
+            className="absolute top-20 right-[15%] hidden lg:block"
+          >
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              animate={{ y: [0, -15, 0], rotate: [12, 15, 12] }}
+              transition={{ duration: 3, repeat: Infinity }}
             >
-              <NeoCard color="bg-white" rotate={-1} className="inline-block px-6 py-3 rounded-xl mb-8">
-                <p className="text-lg md:text-xl font-bold">
-                  넷플릭스, 디즈니+, 유튜브 프리미엄까지 함께 나누면 최대 75% 절약!
-                </p>
+              <NeoCard color="bg-cyan-400" rotate={12} className="px-4 py-2 rounded-xl">
+                <span className="font-black text-lg">75% OFF!</span>
               </NeoCard>
             </motion.div>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <Link to="/signup">
-                <button className="px-4 py-3 font-bold bg-pink-500 text-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all text-sm flex items-center gap-2">
-                  회원가입
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </Link>
-              <Link to="/party/create">
-                <button className="px-4 py-3 font-bold bg-cyan-400 text-black border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all text-sm flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  파티 만들기
-                </button>
-              </Link>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setShowResults(true)}
-                  onBlur={() => setTimeout(() => setShowResults(false), 200)}
-                  placeholder="구독상품 검색"
-                  className="w-36 sm:w-44 px-4 py-3 pl-10 font-bold bg-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-sm"
-                />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-
-                {/* 검색 결과 드롭다운 */}
-                <AnimatePresence>
-                  {showResults && searchQuery.trim() && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[6px_6px_16px_rgba(0,0,0,0.12)] overflow-hidden z-50 min-w-[200px]"
-                    >
-                      {filteredProducts.length > 0 ? (
-                        filteredProducts.map((product) => (
-                          <Link
-                            key={product?.productId || product?.id}
-                            to={`/mypage/subscriptions/add?productId=${product?.productId || product?.id}`}
-                            className="flex items-center gap-2 px-4 py-3 hover:bg-pink-50 transition-colors border-b border-gray-200 last:border-0"
-                          >
-                            <span className="font-black text-sm">{product?.productName || product?.name}</span>
-                          </Link>
-                        ))
-                      ) : (
-                        <div className="px-4 py-3 text-sm text-gray-500 font-bold">
-                          검색 결과 없음
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.3 }}
+          >
+            <NeoCard color="bg-white" rotate={1} className="inline-block px-5 py-2 rounded-xl mb-6">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-pink-500" />
+                <span className="font-bold">구독료, 이제 똑똑하게 나눠요</span>
               </div>
-            </motion.div>
-          </motion.div>
-
-          {/* HOT PARTY 타이틀 - 카드 그리드 완성 후 등장 */}
-          <motion.div
-            style={{ opacity: hotPartyOpacity, y: hotPartyY }}
-            className="absolute top-44 left-0 right-0 text-center z-20"
-          >
-            <NeoCard color="bg-lime-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
-              <span className="text-xl font-black">HOT PARTY!</span>
             </NeoCard>
-            <h2 className="text-3xl md:text-4xl font-black text-black">
-              지금 인기 있는 파티
-            </h2>
-            <p className="text-sm text-gray-600 mt-2 font-bold">원하는 서비스를 골라 바로 참여하세요</p>
           </motion.div>
 
-          {/* 플로팅 카드들 */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            {cards.map((card, index) => (
-              <ServiceCard
-                key={card.id}
-                card={card}
-                scatter={scatterPositions[index]}
-                grid={gridPositions[index]}
-                scrollYProgress={scrollYProgress}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="text-[56px] md:text-[80px] lg:text-[100px] font-black leading-[0.95] tracking-tighter mb-6"
+          >
+            <span className="block transform -rotate-1">SHARE</span>
+            <span className="block transform rotate-1">
+              <span className="text-cyan-400 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">YOUR</span>
+            </span>
+            <span className="block transform -rotate-1 text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+              OTT!
+            </span>
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <NeoCard color="bg-white" rotate={-1} className="inline-block px-6 py-3 rounded-xl mb-8">
+              <p className="text-lg md:text-xl font-bold">
+                넷플릭스, 디즈니+, 유튜브 프리미엄까지 함께 나누면 최대 75% 절약!
+              </p>
+            </NeoCard>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link to="/signup">
+              <button className="px-4 py-3 font-bold bg-pink-500 text-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all text-sm flex items-center gap-2">
+                회원가입
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </Link>
+            <Link to="/party/create">
+              <button className="px-4 py-3 font-bold bg-cyan-400 text-black border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all text-sm flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                파티 만들기
+              </button>
+            </Link>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowResults(true)}
+                onBlur={() => setTimeout(() => setShowResults(false), 200)}
+                placeholder="구독상품 검색"
+                className="w-36 sm:w-44 px-4 py-3 pl-10 font-bold bg-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-sm"
               />
-            ))}
-          </div>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 
-          {/* 파티 전체보기 버튼 - 그리드 완성 후 등장 */}
-          <motion.div
-            style={{ opacity: buttonOpacity, y: buttonY }}
-            className="absolute bottom-14 left-0 right-0 flex justify-center z-20"
-          >
-            <Link to="/party"><motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-pink-500 text-white font-black rounded-full border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all">🍿 파티 전체보기</motion.div></Link>
+              {/* 검색 결과 드롭다운 */}
+              <AnimatePresence>
+                {showResults && searchQuery.trim() && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[6px_6px_16px_rgba(0,0,0,0.12)] overflow-hidden z-50 min-w-[200px]"
+                  >
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <Link
+                          key={product?.productId || product?.id}
+                          to={`/mypage/subscriptions/add?productId=${product?.productId || product?.id}`}
+                          className="flex items-center gap-2 px-4 py-3 hover:bg-pink-50 transition-colors border-b border-gray-200 last:border-0"
+                        >
+                          <span className="font-black text-sm">{product?.productName || product?.name}</span>
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-gray-500 font-bold">
+                        검색 결과 없음
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
+        </motion.div>
 
-          {/* 스크롤 안내 - 20%까지만 보임 */}
+        {/* 스크롤 안내 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isHeroInView ? { opacity: 1 } : {}}
+          transition={{ delay: 1 }}
+          className="mt-16 flex justify-center"
+        >
           <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0, 0.2], [1, 0]) }}
-            className="absolute bottom-14 left-1/2 -translate-x-1/2"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="text-gray-400 text-sm flex flex-col items-center gap-2"
           >
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="flex flex-col items-center text-gray-500"
-            >
-              <span className="text-2xl">↓</span>
-            </motion.div>
+            <span className="text-3xl md:text-4xl font-light">↓</span>
           </motion.div>
+        </motion.div>
+      </section>
+
+      {/* 카드 그리드 섹션 - portrait-v2 스타일 */}
+      <section ref={cardsRef} className="relative flex flex-col items-center overflow-hidden px-6 pt-10 pb-20">
+        {/* 섹션 타이틀 */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isCardsInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 md:mb-24 z-20"
+        >
+          <NeoCard color="bg-lime-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
+            <span className="text-xl font-black">HOT PARTY! 🔥</span>
+          </NeoCard>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black">
+            지금 인기 있는 파티
+          </h2>
+          <p className="text-sm md:text-base text-gray-600 mt-3 font-bold">원하는 서비스를 골라 바로 참여하세요</p>
+        </motion.div>
+
+        {/* 데스크탑 버전 - 카드가 날아와서 모임 */}
+        <div ref={desktopCardsRef} className="hidden md:flex relative w-full max-w-5xl h-[450px] items-center justify-center">
+          {cards.map((card, index) => {
+            const scatter = scatterPositions[index];
+            const grid = gridPositions[index];
+
+            return (
+              <motion.div
+                key={card.id}
+                initial={{
+                  x: scatter.x,
+                  y: scatter.y,
+                  rotate: scatter.rotate,
+                  scale: scatter.scale,
+                  opacity: 0
+                }}
+                animate={isDesktopCardsInView ? {
+                  x: grid.x,
+                  y: grid.y,
+                  rotate: grid.rotate,
+                  scale: grid.scale,
+                  opacity: 1
+                } : {}}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.1 + index * 0.1,
+                  ease: [0.4, 0.0, 0.2, 1]
+                }}
+                className="absolute"
+              >
+                <ServiceCard card={card} />
+              </motion.div>
+            );
+          })}
         </div>
-      </div>
-    </div>
+
+        {/* 모바일 버전 - 2열 3행 그리드 */}
+        <div ref={mobileCardsRef} className="md:hidden grid grid-cols-2 gap-4 w-full max-w-[360px] mx-auto">
+          {cards.map((card, index) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={isMobileCardsInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{
+                duration: 0.6,
+                delay: 0.1 + index * 0.1,
+                ease: [0.4, 0.0, 0.2, 1]
+              }}
+            >
+              <ServiceCard card={card} />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* 파티 전체보기 버튼 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isCardsInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="mt-12 z-20"
+        >
+          <Link to="/party">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-pink-500 text-white font-black rounded-full border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all"
+            >
+              🍿 파티 전체보기
+            </motion.div>
+          </Link>
+        </motion.div>
+      </section>
+    </>
   );
 }
 
 // 서비스 카드 컴포넌트
-function ServiceCard({ card, scatter, grid, scrollYProgress }) {
-  const x = useTransform(scrollYProgress, [0.25, 0.5], [scatter.x, grid.x]);
-  const y = useTransform(scrollYProgress, [0.25, 0.5], [scatter.y, grid.y]);
-  const rotate = useTransform(scrollYProgress, [0.25, 0.5], [scatter.rotate, grid.rotate]);
-  const scale = useTransform(scrollYProgress, [0.25, 0.5], [scatter.scale, grid.scale]);
-  const cardOpacity = useTransform(scrollYProgress, [0.25, 0.35], [0, 1]);
-
+function ServiceCard({ card }) {
   // 파티가 없는 빈 카드
   if (card.isEmpty) {
     return (
-      <motion.div
-        style={{ x, y, rotate, scale, opacity: cardOpacity }}
-        className="absolute pointer-events-auto"
-      >
-        <Link to="/party/create">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-[150px] md:w-[170px] bg-white border border-gray-200 rounded-2xl p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] cursor-pointer hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all"
-          >
-            <div className={`w-10 h-10 ${card.bgColor} rounded-xl border border-gray-200 flex items-center justify-center mb-3`}>
-              <span className="text-white font-black text-lg">{card.emoji}</span>
-            </div>
-            <h3 className="font-black text-black text-sm mb-1">{card.serviceName}</h3>
-            <div className="mt-2 flex items-center gap-1 text-pink-500">
-              <Plus size={14} className="stroke-[3]" />
-              <span className="text-xs font-black">파티원 찾기</span>
-            </div>
-            <p className="text-[10px] text-gray-400 font-bold mt-1">
-              지금 바로 시작하세요!
-            </p>
-          </motion.div>
-        </Link>
-      </motion.div>
+      <Link to="/party/create">
+        <motion.div
+          whileHover={{ scale: 1.05, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-[150px] md:w-[170px] bg-white border border-gray-200 rounded-2xl p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] cursor-pointer hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all"
+        >
+          <div className={`w-10 h-10 ${card.bgColor} rounded-xl border border-gray-200 flex items-center justify-center mb-3`}>
+            <span className="text-white font-black text-lg">{card.emoji}</span>
+          </div>
+          <h3 className="font-black text-black text-sm mb-1">{card.serviceName}</h3>
+          <div className="mt-2 flex items-center gap-1 text-pink-500">
+            <Plus size={14} className="stroke-[3]" />
+            <span className="text-xs font-black">파티원 찾기</span>
+          </div>
+          <p className="text-[10px] text-gray-400 font-bold mt-1">
+            지금 바로 시작하세요!
+          </p>
+        </motion.div>
+      </Link>
     );
   }
 
   // 파티가 있는 일반 카드
   return (
     <motion.div
-      style={{ x, y, rotate, scale, opacity: cardOpacity }}
-      className="absolute"
+      whileHover={{ scale: 1.05, y: -4 }}
+      className="w-[150px] md:w-[170px] bg-white border border-gray-200 rounded-2xl p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-shadow"
     >
-      <div className="w-[150px] md:w-[170px] bg-white border border-gray-200 rounded-2xl p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-        <div className={`w-10 h-10 ${card.bgColor} rounded-xl border border-gray-200 flex items-center justify-center mb-3`}>
-          <span className="text-white font-black text-lg">{card.emoji}</span>
+      <div className={`w-10 h-10 ${card.bgColor} rounded-xl border border-gray-200 flex items-center justify-center mb-3`}>
+        <span className="text-white font-black text-lg">{card.emoji}</span>
+      </div>
+      <h3 className="font-black text-black text-sm mb-1">{card.name}</h3>
+      <p className="text-xs text-gray-500 font-bold mb-3">{card.category}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-lg font-black text-pink-500">{card.price}</p>
+          <p className="text-[10px] text-gray-400 font-bold">월 비용</p>
         </div>
-        <h3 className="font-black text-black text-sm mb-1">{card.name}</h3>
-        <p className="text-xs text-gray-500 font-bold mb-3">{card.category}</p>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-lg font-black text-pink-500">{card.price}</p>
-            <p className="text-[10px] text-gray-400 font-bold">월 비용</p>
-          </div>
-          <div className="flex items-center gap-1 text-xs font-bold text-black bg-lime-400 px-2 py-1 rounded-full border border-gray-200">
-            <Users size={12} />
-            <span>{card.members}</span>
-          </div>
+        <div className="flex items-center gap-1 text-xs font-bold text-black bg-lime-400 px-2 py-1 rounded-full border border-gray-200">
+          <Users size={12} />
+          <span>{card.members}</span>
         </div>
       </div>
     </motion.div>

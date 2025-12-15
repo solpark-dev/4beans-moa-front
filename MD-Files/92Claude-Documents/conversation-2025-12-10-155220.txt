@@ -1,0 +1,203 @@
+
+╭─── Claude Code v2.0.62 ──────────────────────────────────────────────────────╮
+│                                   │ Tips for getting started                 │
+│        Welcome back Hansol!       │ Run /init to create a CLAUDE.md file wi… │
+│                                   │ ──────────────────────────────────────── │
+│              ▐▛███▜▌              │ Recent activity                          │
+│             ▝▜█████▛▘             │ No recent activity                       │
+│               ▘▘ ▝▝               │                                          │
+│                                   │                                          │
+│      Sonnet 4.5 · Claude Pro      │                                          │
+│   C:\sol\React\4beans-moa-front   │                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+> 대답은 한글로 해줘. 프로젝트에 스케줄러가 돌아가는게 많아. 결제, 정산, 
+보증금, 파티 관련해서 스케줄러가 어떤 원리로 어떻게 돌아가는지 자세히 
+설명해줘 
+
+● 프로젝트의 스케줄러 구조를 파악하기 위해 관련 코드를 찾아보겠습니다.
+
+● Explore(스케줄러 코드 탐색)
+  ⎿  Done (22 tool uses · 46.7k tokens · 2m 9s)                            
+
+● 프로젝트의 스케줄러 시스템을 분석했습니다. 총 7개의 스케줄러가 결제, 정산,
+   보증금, 파티 관련 자동화 작업을 처리하고 있습니다.
+
+  📋 전체 스케줄러 개요
+
+  스케줄러는 Spring Boot의 @Scheduled 어노테이션을 사용하며,
+  MoaApplication.java에서 @EnableScheduling으로 활성화됩니다.
+
+  ---
+  💳 1. 결제(Payment) 관련 스케줄러
+
+  1-1. PaymentScheduler
+
+  위치:
+  4beans-moa-backend/src/main/java/com/moa/scheduler/PaymentScheduler.java
+  실행 시간: 매일 새벽 2시
+
+  동작 원리:
+  1. 신규 월간 결제 처리
+    - 오늘이 결제일인 파티를 조회
+    - 월말 처리 (29/30/31일) 로직 포함
+    - 방장을 제외한 활성 멤버의 월 구독료 자동 결제
+    - 각 파티별로 독립적으로 처리 (한 파티 실패가 다른 파티에 영향 없음)
+  2. 재시도 결제 처리
+    - 이전에 실패한 결제를 재시도
+    - 재시도 스케줄: 24시간 → 48시간 → 72시간 간격 (총 4회 시도)
+    - PAYMENT_RETRY_HISTORY 테이블의 NEXT_RETRY_DATE를 기준으로 실행
+
+  1-2. PaymentTimeoutScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/PaymentTimeoutSch
+  eduler.java
+  실행 주기: 5분마다
+
+  동작 원리:
+  - PENDING_PAYMENT 상태로 30분 이상 경과한 파티를 자동 취소
+  - 결제가 완료되지 않은 채 방치된 파티를 정리하는 안전장치
+
+  ---
+  💰 2. 정산(Settlement) 관련 스케줄러
+
+  2-1. SettlementScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/SettlementSchedul
+  er.java
+  실행 시간:
+  - 월간 정산: 매월 1일 새벽 4시
+  - 실패 재시도: 매시간 정각
+
+  동작 원리:
+
+  월간 정산 프로세스:
+  1. 전월(지난 달) 정산 대상 파티 조회
+  2. 모든 활성 파티에 대해:
+    - 정산 레코드 생성
+    - 즉시 이체 처리 실행
+    - 정산 완료 이벤트 발행 (알림 등에 활용)
+  3. Full Automation 방식으로 정산 즉시 완료
+
+  실패 재시도 프로세스:
+  - FAILED 상태 정산을 조회하여 재시도
+  - 재시도 조건:
+    - 생성 후 2시간 이상 경과
+    - 24시간 이내 (그 이상은 재시도 포기)
+    - bankTranId가 없어야 함 (있으면 수동 처리 필요)
+  - 최대 3회까지 재시도
+
+  2-2. SettlementTransferScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/SettlementTransfe
+  rScheduler.java
+  실행 시간: 매일 오전 10시
+
+  동작 원리:
+  1. PENDING 상태 정산 조회
+  2. 각 정산에 대해:
+    - 파티장 계좌 정보 확인 (fintechUseNum)
+    - 계좌 미등록 시 스킵
+    - 상태를 IN_PROGRESS로 변경
+    - 오픈뱅킹 API를 통한 입금이체 실행
+    - 거래 기록을 TRANSFER_TRANSACTION 테이블에 저장
+    - 성공/실패에 따라 COMPLETED 또는 FAILED 상태로 변경
+
+  ---
+  🏦 3. 보증금(Deposit) 관련 스케줄러
+
+  3-1. PendingDepositCleanupScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/PendingDepositCle
+  anupScheduler.java
+  실행 시간: 매일 새벽 3시
+
+  동작 원리:
+  - 24시간 이상 PENDING 상태로 남아있는 보증금 레코드 삭제
+  - Toss 결제 실패 후 정리되지 않은 "고아 레코드" 제거
+  - 트랜잭션 보상(Transaction Compensation) 메커니즘의 일부
+
+  3-2. RefundScheduler
+
+  위치:
+  4beans-moa-backend/src/main/java/com/moa/scheduler/RefundScheduler.java
+  실행 주기: 매시간 정각
+
+  동작 원리:
+  1. 재시도 대기 중인 환불 조회 (REFUND_RETRY_HISTORY)
+  2. 각 환불에 대해:
+    - Toss Payments API를 통한 결제 취소 재시도
+    - 재시도 간격: 1시간 → 4시간 → 24시간 (총 4회 시도)
+    - 성공/실패 결과를 기록
+    - 각 환불은 독립적으로 처리 (격리 실행)
+
+  특별 기능:
+  - 보상 트랜잭션 (RETRY_TYPE = 'COMPENSATION'): Toss 결제는 성공했으나 DB
+  저장 실패 시 자동 환불
+  - 일반 환불 (RETRY_TYPE = 'REFUND'): 일반적인 환불 실패 재시도
+
+  ---
+  🎉 4. 파티(Party) 관련 스케줄러
+
+  4-1. PartyCloseScheduler
+
+  위치: 4beans-moa-backend/src/main/java/com/moa/scheduler/PartyCloseSchedul
+  er.java
+  실행 시간: 매일 새벽 3시
+
+  동작 원리:
+  1. 종료일(END_DATE)이 지난 활성 파티 조회
+  2. 각 파티에 대해:
+    - partyService.closeParty() 호출
+    - 모든 멤버의 보증금 환불 (Toss Payments 결제 취소)
+    - 파티 상태를 CLOSED로 변경
+  3. 환불 실패 시 RefundScheduler가 자동으로 재시도 처리
+
+  ---
+  🕐 일일 스케줄러 타임라인
+
+  02:00 - PaymentScheduler: 월간 결제 + 재시도 결제 처리
+  03:00 - PendingDepositCleanupScheduler: 고아 보증금 레코드 정리
+  03:00 - PartyCloseScheduler: 종료된 파티 자동 마감
+  10:00 - SettlementTransferScheduler: 정산 입금이체 처리
+
+  매 5분 - PaymentTimeoutScheduler: 결제 타임아웃 파티 취소
+  매시간 - RefundScheduler: 환불 재시도
+  매시간 - SettlementScheduler (재시도): 실패한 정산 재시도
+
+  매월 1일 04:00 - SettlementScheduler: 월간 정산 자동 생성
+
+  ---
+  🔄 재시도 메커니즘 비교
+
+  | 항목       | 결제 (Payment)          | 환불 (Refund)          | 정산
+  (Settlement)          |
+  |----------|-----------------------|----------------------|---------------
+  -----------|
+  | 재시도 간격   | 24h, 48h, 72h         | 1h, 4h, 24h          | 2h 간격
+  (최대 24h)           |
+  | 최대 시도 횟수 | 4회                    | 4회                   | 무제한
+   (24h 내)              |
+  | 실행 주기    | 매일 02:00              | 매시간                  |
+  매시간                      |
+  | 외부 API   | Toss Payments (빌링키)   | Toss Payments (취소)   |
+  OpenBanking (입금이체)       |
+  | 이력 테이블   | PAYMENT_RETRY_HISTORY | REFUND_RETRY_HISTORY |
+  SETTLEMENT_RETRY_HISTORY |
+
+  ---
+  🎯 핵심 설계 원칙
+
+  1. 격리 실행: 한 건의 실패가 다른 건에 영향을 주지 않도록 try-catch로 개별
+   처리
+  2. 멱등성: 중복 실행을 방지하기 위한 상태 검증
+  3. 지수 백오프: 재시도 간격을 점진적으로 증가시켜 시스템 부하 분산
+  4. 타임아웃 관리: 무한 재시도 방지 (24~72시간 제한)
+  5. 보상 트랜잭션: 외부 API 성공/DB 실패 시나리오에 대한 자동 복구
+  6. 이벤트 기반: 정산 완료 시 이벤트를 발행하여 알림 등 추가 작업 트리거
+
+  이 시스템은 결제 자동화, 정산 자동화, 환불 안정성을 보장하며, 장애 발생
+  시에도 자동으로 복구되는 견고한 구조를 갖추고 있습니다.
+
+
+

@@ -10,6 +10,14 @@ import RippleButton from "../../components/party/RippleButton";
 import { useConfetti } from "../../components/party/SuccessConfetti";
 import { fetchPartyMembers, leaveParty } from "../../hooks/party/partyService";
 import {
+  useTheme,
+  ThemeSwitcher,
+  ThemeBackground,
+  ThemeMarquee,
+  Sticker,
+  themeConfig
+} from "../../config/themeConfig";
+import {
   Eye,
   EyeOff,
   Users,
@@ -24,42 +32,13 @@ import {
   ArrowRight
 } from "lucide-react";
 
-// Animated Background (from Variant T)
-const AnimatedGradient = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <motion.div
-      className="absolute w-[500px] h-[500px] rounded-full"
-      style={{
-        background: "radial-gradient(circle, rgba(99, 91, 255, 0.06) 0%, transparent 70%)",
-        top: "-150px",
-        right: "-100px",
-      }}
-      animate={{
-        scale: [1, 1.1, 1],
-        opacity: [0.5, 0.7, 0.5],
-      }}
-      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-    />
-    <motion.div
-      className="absolute w-[300px] h-[300px] rounded-full"
-      style={{
-        background: "radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%)",
-        bottom: "-50px",
-        left: "-50px",
-      }}
-      animate={{
-        scale: [1, 1.15, 1],
-        opacity: [0.4, 0.6, 0.4],
-      }}
-      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-    />
-  </div>
-);
-
 export default function PartyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+
+  // Theme
+  const { theme, setTheme, currentTheme } = useTheme("appTheme");
 
   // Zustand Store
   const {
@@ -184,10 +163,16 @@ export default function PartyDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-20">
-      {/* Hero Section - Variant T Style */}
-      <section className="relative overflow-hidden bg-white">
-        <AnimatedGradient />
+    <div className={`min-h-screen ${currentTheme.bg} pb-20 transition-colors duration-300`}>
+      {/* Theme Switcher */}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+
+      {/* Pop Theme Marquee */}
+      <ThemeMarquee theme={theme} />
+
+      {/* Hero Section */}
+      <section className={`relative overflow-hidden ${currentTheme.heroBg}`}>
+        <ThemeBackground theme={theme} />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           {/* Back Button */}
@@ -195,7 +180,8 @@ export default function PartyDetailPage() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => navigate("/party")}
-            className="flex items-center gap-2 text-gray-500 hover:text-[#635bff] mb-8 transition-colors group"
+            className={`flex items-center gap-2 mb-8 transition-colors group ${theme === "dark" ? "text-gray-400 hover:text-[#635bff]" : "text-gray-500 hover:text-[#635bff]"
+              }`}
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="font-semibold">파티 목록으로</span>

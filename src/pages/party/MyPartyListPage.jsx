@@ -4,6 +4,13 @@ import { motion } from "framer-motion";
 import { getMyParties } from "../../api/partyApi";
 import { fetchCurrentUser } from "../../api/authApi";
 import {
+  useTheme,
+  ThemeSwitcher,
+  ThemeBackground,
+  ThemeMarquee,
+  themeConfig
+} from "../../config/themeConfig";
+import {
   Users,
   Crown,
   TrendingUp,
@@ -19,6 +26,9 @@ export default function MyPartyListPage() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Theme
+  const { theme, setTheme, currentTheme } = useTheme("appTheme");
 
   useEffect(() => {
     loadUserAndParties();
@@ -116,21 +126,29 @@ export default function MyPartyListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20">
-      {/* Hero Header - Matching PartyListPage style */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div className={`min-h-screen ${currentTheme.bg} pb-20 transition-colors duration-300`}>
+      {/* Theme Switcher */}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+
+      {/* Pop Theme Marquee */}
+      <ThemeMarquee theme={theme} />
+
+      {/* Hero Header */}
+      <div className={`relative overflow-hidden ${theme === "dark" ? "bg-[#0B1120]" : theme === "pop" ? "bg-slate-50" : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+        }`}>
+        <ThemeBackground theme={theme} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight flex items-center gap-3">
-                <LayoutGrid className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+              <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-3 tracking-tight flex items-center gap-3 ${currentTheme.text}`}>
+                <LayoutGrid className={`w-8 h-8 md:w-10 md:h-10 ${theme === "pop" ? "text-pink-500" : "text-blue-600"}`} />
                 내 파티
               </h1>
-              <p className="text-base md:text-lg text-slate-600">
+              <p className={`text-base md:text-lg ${currentTheme.subtext}`}>
                 참여 중인 파티를 한눈에 확인하세요
               </p>
             </motion.div>
@@ -141,7 +159,10 @@ export default function MyPartyListPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/party/create")}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold transition-all shadow-lg"
+              className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all shadow-lg ${theme === "pop"
+                  ? "bg-pink-500 text-white border-4 border-black rounded-2xl"
+                  : "bg-slate-900 hover:bg-slate-800 text-white rounded-lg"
+                }`}
             >
               <Plus className="w-5 h-5" />
               새 파티 만들기

@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePartyStore } from "../../store/party/partyStore";
 import { useAuthStore } from "../../store/authStore";
+import { useThemeStore } from "../../store/themeStore";
 import ServiceTypeFilter from "../../components/party/ServiceTypeFilter";
+import {
+  themeConfig,
+  ThemeBackground,
+  ThemeSwitcher,
+  GridPattern,
+} from "../../config/themeConfig";
 import {
   Sparkles,
   Search,
@@ -17,51 +24,17 @@ import {
   Filter,
 } from "lucide-react";
 
-
-// Animated Background Gradient (from Variant T)
-const AnimatedGradient = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <motion.div
-      className="absolute w-[600px] h-[600px] rounded-full"
-      style={{
-        background: "radial-gradient(circle, rgba(99, 91, 255, 0.06) 0%, transparent 70%)",
-        top: "-200px",
-        right: "-100px",
-      }}
-      animate={{
-        scale: [1, 1.1, 1],
-        opacity: [0.5, 0.7, 0.5],
-      }}
-      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-    />
-    <motion.div
-      className="absolute w-[400px] h-[400px] rounded-full"
-      style={{
-        background: "radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%)",
-        bottom: "-100px",
-        left: "-50px",
-      }}
-      animate={{
-        scale: [1, 1.15, 1],
-        opacity: [0.4, 0.6, 0.4],
-      }}
-      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-    />
-  </div>
-);
-
-// Grid Pattern Background
-const GridPattern = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.02]">
-    <svg width="100%" height="100%">
-      <defs>
-        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="currentColor" strokeWidth="1" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#grid)" />
-    </svg>
-  </div>
+// O3 Sticker Component (Pop theme only)
+const Sticker = ({ children, color = "bg-white", rotate = 0, className = "", onClick }) => (
+  <motion.div
+    whileHover={{ scale: 1.05, rotate: rotate + 2 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className={`${color} border-2 border-black transition-all duration-200 ${className}`}
+    style={{ transform: `rotate(${rotate}deg)` }}
+  >
+    {children}
+  </motion.div>
 );
 
 export default function PartyListPage() {
@@ -87,6 +60,10 @@ export default function PartyListPage() {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [startDate, setStartDate] = useState("");
   const [sortBy, setSortBy] = useState("latest");
+
+  // Theme State from Zustand Store
+  const { theme, setTheme } = useThemeStore();
+  const currentTheme = themeConfig[theme] || themeConfig.classic;
 
   const myPartyIds = Array.isArray(myParties) ? myParties.map(p => p.partyId) : [];
   const isInitialLoading = loadingParties && list.length === 0;
@@ -180,7 +157,7 @@ export default function PartyListPage() {
 
     const badges = {
       RECRUITING: {
-        bg: "bg-[#635bff]",
+        bg: theme === "christmas" ? "bg-[#1a5f2a]" : "bg-[#635bff]",
         text: "모집중",
       },
       ACTIVE: {
@@ -264,39 +241,66 @@ export default function PartyListPage() {
   }, [lastScrollY]);
 
   return (
-    <div className="min-h-screen bg-white pb-20">
-      {/* Hero Section - Variant T Style */}
-      <section className="relative overflow-hidden bg-white">
-        <AnimatedGradient />
-        <GridPattern />
+    <div className={`min-h-screen ${currentTheme.bg} pb-20 -mt-20 pt-20 transition-colors duration-300`}>
+      {/* Theme Switcher - Common Component */}
+      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+      {/* Hero Section */}
+      <section className={`relative overflow-hidden ${currentTheme.heroBg}`}>
+        <ThemeBackground theme={theme} />
+        <GridPattern dark={theme === "dark"} />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 md:pt-4 md:pb-12">
           <div className="text-center max-w-3xl mx-auto">
             {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#635bff]/10 rounded-full mb-6"
-            >
-              <Sparkles className="w-4 h-4 text-[#635bff]" />
-              <span className="text-sm font-semibold text-[#635bff]">
-                OTT 구독 비용, 최대 75% 절약
-              </span>
-            </motion.div>
+            {theme === "pop" ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20, rotate: -3 }}
+                animate={{ opacity: 1, y: 0, rotate: -3 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Sticker color="bg-cyan-400" rotate={-3} className="inline-block px-5 py-2 rounded-xl mb-6">
+                  <span className="text-sm font-black">OTT 구독 비용, 최대 75% 절약 🔥</span>
+                </Sticker>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 ${theme === "dark"
+                  ? "bg-[#635bff]/20 border border-[#635bff]/30"
+                  : theme === "christmas"
+                    ? "bg-[#c41e3a]/10 border border-[#c41e3a]/20"
+                    : "bg-[#635bff]/10"
+                  }`}
+              >
+                <Sparkles className="w-4 h-4" style={{ color: currentTheme.accent }} />
+                <span className="text-sm font-semibold" style={{ color: currentTheme.accent }}>
+                  {theme === "christmas" ? "🎄 크리스마스 특별 할인! 최대 75% 절약" : "OTT 구독 비용, 최대 75% 절약"}
+                </span>
+              </motion.div>
+            )}
 
             {/* Main Title */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight leading-[1.1]"
+              className={`text-4xl sm:text-5xl md:text-6xl font-black mb-6 tracking-tight leading-[1.1] ${currentTheme.text}`}
             >
-              함께 나누면
-              <br />
-              <span className="bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent">
-                더 저렴하게
-              </span>
+              <>
+                함께 나누면
+                <br />
+                <span className={`${theme === "pop"
+                  ? "text-pink-500"
+                  : theme === "christmas"
+                    ? "bg-gradient-to-r from-[#c41e3a] to-[#1a5f2a] bg-clip-text text-transparent"
+                    : `bg-gradient-to-r ${theme === "dark" ? "from-[#635bff] via-[#00d4ff] to-[#00d4ff]" : theme === "portrait" ? "from-[#FFB5C5] to-[#C5B5FF]" : "from-[#635bff] to-[#00d4ff]"} bg-clip-text text-transparent`
+                  }`}>
+                  더 저렴하게
+                </span>
+              </>
             </motion.h1>
 
             {/* Subheadline */}
@@ -304,7 +308,7 @@ export default function PartyListPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-gray-600 mb-8 max-w-xl mx-auto"
+              className={`text-lg mb-8 max-w-xl mx-auto ${currentTheme.subtext}`}
             >
               Netflix, Disney+, Wavve 등 프리미엄 OTT 서비스를
               <br className="hidden sm:block" />
@@ -318,18 +322,37 @@ export default function PartyListPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <motion.button
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => navigate("/party/create")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#635bff] hover:bg-[#5851e8] text-white font-semibold rounded-full shadow-lg shadow-[#635bff]/25 transition-colors duration-200"
-              >
-                <Sparkles className="w-4 h-4" />
-                파티 만들기
-                <ArrowRight className="w-4 h-4" />
-              </motion.button>
+              {theme === "pop" ? (
+                <Sticker
+                  color="bg-pink-500"
+                  rotate={2}
+                  className="px-8 py-4 rounded-2xl cursor-pointer"
+                  onClick={() => navigate("/party/create")}
+                >
+                  <span className="flex items-center gap-2 text-white font-black text-xl">
+                    파티 만들기
+                    <ArrowRight className="w-5 h-5" />
+                  </span>
+                </Sticker>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate("/party/create")}
+                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${theme === "christmas"
+                    ? "bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25"
+                    : theme === "dark"
+                      ? "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
+                      : "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
+                    }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  파티 만들기
+                  <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              )}
 
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+              <div className={`flex items-center gap-4 text-sm ${currentTheme.subtext}`}>
                 <div className="flex items-center gap-1.5">
                   <Shield className="w-4 h-4 text-green-500" />
                   <span>안전한 결제</span>
@@ -346,21 +369,70 @@ export default function PartyListPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search & Filter Bar */}
-        <div
-          className={`sticky top-20 z-30 my-6 transition-all duration-300 ease-in-out ${showSearch
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-20 opacity-0 pointer-events-none"
-            }`}
+        <motion.div
+          className={`z-30 my-6 ${showSearch ? "sticky top-20" : ""}`}
+          initial={false}
+          animate={{
+            y: showSearch ? 0 : 0,
+            opacity: 1,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+          }}
         >
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 shadow-lg shadow-gray-200/50 border border-gray-100">
+          <div className={`backdrop-blur-xl p-5 transition-colors duration-300 relative ${theme === "pop"
+            ? "bg-white rounded-3xl border-2 border-black"
+            : theme === "dark"
+              ? "bg-[#1E293B]/80 rounded-2xl border border-gray-700 shadow-lg"
+              : theme === "christmas"
+                ? "bg-white/90 rounded-2xl shadow-lg shadow-gray-200/50 border border-[#1a5f2a]/20"
+                : "bg-white/80 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100"
+            }`}>
+            {/* Snow pile effect on top - Christmas theme only */}
+            {theme === "christmas" && (
+              <div className="absolute -top-4 left-2 right-2 h-8 pointer-events-none overflow-visible">
+                {/* Main snow pile - taller and more prominent */}
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-white"
+                  style={{
+                    clipPath: "polygon(0% 100%, 3% 70%, 8% 85%, 15% 55%, 22% 75%, 28% 45%, 35% 65%, 42% 35%, 50% 55%, 58% 30%, 65% 50%, 72% 25%, 78% 45%, 85% 35%, 92% 60%, 97% 50%, 100% 100%)",
+                    boxShadow: "0 -3px 10px rgba(255, 255, 255, 0.6)"
+                  }}
+                />
+                {/* Snow bumps - more and varied sizes */}
+                <div className="absolute bottom-2 left-[8%] w-4 h-4 bg-white rounded-full opacity-95" />
+                <div className="absolute bottom-1 left-[18%] w-3 h-3 bg-white rounded-full opacity-90" />
+                <div className="absolute bottom-3 left-[28%] w-5 h-5 bg-white rounded-full opacity-95" />
+                <div className="absolute bottom-2 left-[42%] w-3.5 h-3.5 bg-white rounded-full opacity-90" />
+                <div className="absolute bottom-1 left-[55%] w-4 h-4 bg-white rounded-full opacity-95" />
+                <div className="absolute bottom-3 left-[68%] w-5 h-5 bg-white rounded-full opacity-95" />
+                <div className="absolute bottom-2 left-[80%] w-3 h-3 bg-white rounded-full opacity-90" />
+                <div className="absolute bottom-1 left-[92%] w-2.5 h-2.5 bg-white rounded-full opacity-85" />
+                {/* Christmas tree image */}
+                <img
+                  src="/christmas-tree.png"
+                  alt="Christmas Tree"
+                  className="absolute bottom-0 -right-4 w-[72px] h-[72px] object-contain drop-shadow-lg pointer-events-auto"
+                  style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}
+                />
+              </div>
+            )}
             {/* Search Input */}
             <div className="relative mb-4">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+                <Search className={`h-5 w-5 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`} />
               </div>
               <input
                 type="text"
-                className="block w-full pl-12 pr-10 py-3.5 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] transition-all duration-200"
+                className={`block w-full pl-12 pr-10 py-3.5 rounded-xl transition-all duration-200 ${theme === "pop"
+                  ? "border-2 border-black bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-pink-500/20"
+                  : theme === "dark"
+                    ? "border border-gray-700 bg-[#0F172A] text-white placeholder-gray-500 focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff]"
+                    : theme === "christmas"
+                      ? "border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#c41e3a]/20 focus:border-[#c41e3a]"
+                      : "border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff]"
+                  }`}
                 placeholder="파티 이름, 방장 닉네임 검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -379,7 +451,7 @@ export default function PartyListPage() {
             <div className="flex flex-col gap-4">
               {/* Status Filters */}
               <div className="flex items-center gap-2 flex-wrap">
-                <Filter className="w-4 h-4 text-gray-400 mr-1" />
+                <Filter className={`w-4 h-4 mr-1 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`} />
                 {[
                   { value: "", label: "전체" },
                   { value: "RECRUITING", label: "모집중" },
@@ -389,9 +461,21 @@ export default function PartyListPage() {
                   <button
                     key={filter.value}
                     onClick={() => setSelectedStatus(filter.value)}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${selectedStatus === filter.value
-                      ? "bg-[#635bff] text-white shadow-md shadow-[#635bff]/25"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    className={`px-4 py-2 text-sm font-semibold transition-all duration-200 ${theme === "pop"
+                      ? selectedStatus === filter.value
+                        ? "bg-pink-500 text-white border-2 border-black rounded-xl"
+                        : "bg-white text-black border-2 border-black rounded-xl hover:bg-pink-100"
+                      : theme === "dark"
+                        ? selectedStatus === filter.value
+                          ? "bg-[#635bff] text-white rounded-full shadow-md shadow-[#635bff]/25"
+                          : "bg-[#1E293B] text-gray-400 rounded-full hover:bg-[#334155]"
+                        : theme === "christmas"
+                          ? selectedStatus === filter.value
+                            ? "bg-[#c41e3a] text-white rounded-full shadow-md shadow-[#c41e3a]/25"
+                            : "bg-white text-gray-600 rounded-full hover:bg-[#1a5f2a]/10 hover:text-[#1a5f2a] border border-gray-200"
+                          : selectedStatus === filter.value
+                            ? "bg-[#635bff] text-white rounded-full shadow-md shadow-[#635bff]/25"
+                            : "bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200"
                       }`}
                   >
                     {filter.label}
@@ -433,7 +517,7 @@ export default function PartyListPage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Parties Grid */}
         {isInitialLoading ? (
@@ -461,13 +545,13 @@ export default function PartyListPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className="w-20 h-20 bg-[#635bff]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="w-10 h-10 text-[#635bff]" />
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${theme === "christmas" ? "bg-[#c41e3a]/10" : "bg-[#635bff]/10"}`}>
+              <Search className={`w-10 h-10 ${theme === "christmas" ? "text-[#c41e3a]" : "text-[#635bff]"}`} />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className={`text-xl font-bold mb-2 ${currentTheme.text}`}>
               조건에 맞는 파티가 없습니다
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className={`mb-6 ${currentTheme.subtext}`}>
               다른 검색어나 필터를 시도해보세요
             </p>
             <button
@@ -477,7 +561,10 @@ export default function PartyListPage() {
                 setSelectedProductId(null);
                 setStartDate("");
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#635bff] text-white font-semibold rounded-full hover:bg-[#5851e8] transition-colors"
+              className={`inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-full transition-colors ${theme === "christmas"
+                ? "bg-[#c41e3a] hover:bg-[#a51830]"
+                : "bg-[#635bff] hover:bg-[#5851e8]"
+                }`}
             >
               필터 초기화
             </button>
@@ -499,7 +586,7 @@ export default function PartyListPage() {
                 <motion.div
                   key={party.partyId}
                   variants={itemVariants}
-                  whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                  whileHover={theme === "pop" ? {} : { y: -6, transition: { duration: 0.2 } }}
                   onClick={() => {
                     if (!user) {
                       if (window.confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
@@ -509,7 +596,14 @@ export default function PartyListPage() {
                     }
                     navigate(`/party/${party.partyId}`);
                   }}
-                  className="group relative bg-white border border-gray-100 rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl hover:border-gray-200 transition-all duration-300"
+                  className={`group relative overflow-hidden cursor-pointer transition-all duration-300 ${theme === "pop"
+                    ? "bg-white border-2 border-black rounded-3xl"
+                    : theme === "dark"
+                      ? "bg-[#1E293B] border border-gray-700 rounded-2xl hover:shadow-2xl hover:border-gray-600"
+                      : theme === "portrait"
+                        ? "bg-white/40 backdrop-blur-xl border border-white/60 hover:border-white/80 hover:shadow-2xl shadow-lg rounded-2xl"
+                        : "bg-white border border-gray-100 rounded-2xl hover:shadow-2xl hover:border-gray-200"
+                    }`}
                 >
                   {/* Service Banner */}
                   <div className="relative h-40 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
@@ -520,7 +614,7 @@ export default function PartyListPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-2xl bg-[#635bff] flex items-center justify-center text-white text-3xl font-black shadow-lg">
+                      <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg ${theme === "christmas" ? "bg-[#c41e3a]" : "bg-[#635bff]"}`}>
                         {party.productName?.[0]}
                       </div>
                     )}
@@ -537,7 +631,9 @@ export default function PartyListPage() {
                       <div className="absolute top-3 left-3">
                         <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${isLeader
                           ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white"
-                          : "bg-white text-[#635bff]"
+                          : theme === "christmas"
+                            ? "bg-white text-[#1a5f2a]"
+                            : "bg-white text-[#635bff]"
                           }`}>
                           {isLeader ? "파티장" : "참여중"}
                         </span>
@@ -545,25 +641,39 @@ export default function PartyListPage() {
                     )}
 
                     {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-[#635bff]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${theme === "christmas" ? "bg-[#c41e3a]/5" : "bg-[#635bff]/5"}`} />
                   </div>
 
                   {/* Content */}
                   <div className="p-5">
                     {/* Service Badge */}
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs font-semibold text-[#635bff] bg-[#635bff]/10 px-2.5 py-1 rounded-full">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${theme === "pop"
+                        ? "text-pink-600 bg-pink-100 border-2 border-pink-300"
+                        : theme === "dark"
+                          ? "text-[#635bff] bg-[#635bff]/20"
+                          : theme === "christmas"
+                            ? "text-[#1a5f2a] bg-[#1a5f2a]/10"
+                            : "text-[#635bff] bg-[#635bff]/10"
+                        }`}>
                         {party.productName}
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-bold text-gray-900 mb-3 line-clamp-1 group-hover:text-[#635bff] transition-colors">
+                    <h3 className={`font-bold mb-3 line-clamp-1 transition-colors ${theme === "pop"
+                      ? "text-black group-hover:text-pink-500"
+                      : theme === "dark"
+                        ? "text-white group-hover:text-[#635bff]"
+                        : theme === "christmas"
+                          ? "text-gray-900 group-hover:text-[#c41e3a]"
+                          : "text-gray-900 group-hover:text-[#635bff]"
+                      }`}>
                       {party.title || `${party.productName} 파티`}
                     </h3>
 
                     {/* Info Row */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className={`flex items-center justify-between text-sm mb-4 ${currentTheme.cardSubtext}`}>
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4" />
                         <span>{formatDate(party.startDate)}</span>
@@ -580,10 +690,11 @@ export default function PartyListPage() {
                     </div>
 
                     {/* Price */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <span className="text-sm text-gray-500">월 구독료</span>
+                    <div className={`flex items-center justify-between pt-4 border-t ${theme === "dark" ? "border-gray-700" : theme === "pop" ? "border-gray-200" : "border-gray-100"
+                      }`}>
+                      <span className={`text-sm ${currentTheme.cardSubtext}`}>월 구독료</span>
                       <div className="text-right">
-                        <span className="text-xl font-black text-gray-900">
+                        <span className={`text-xl font-black ${currentTheme.cardText}`}>
                           {party.monthlyFee?.toLocaleString()}
                         </span>
                         <span className="text-sm text-gray-500 ml-1">원</span>
@@ -599,8 +710,8 @@ export default function PartyListPage() {
         {/* Infinite Scroll Loader */}
         <div ref={observerTarget} className="h-20 flex items-center justify-center mt-8">
           {loadingParties && !isInitialLoading && (
-            <div className="flex items-center gap-3 text-gray-500">
-              <div className="w-5 h-5 border-2 border-gray-200 border-t-[#635bff] rounded-full animate-spin" />
+            <div className={`flex items-center gap-3 ${currentTheme.subtext}`}>
+              <div className={`w-5 h-5 border-2 border-gray-200 rounded-full animate-spin ${theme === "christmas" ? "border-t-[#c41e3a]" : "border-t-[#635bff]"}`} />
               <span className="text-sm font-medium">더 불러오는 중...</span>
             </div>
           )}
