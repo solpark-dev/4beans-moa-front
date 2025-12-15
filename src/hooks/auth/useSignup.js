@@ -166,7 +166,9 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
   const handlePassAuth = async () => {
     try {
       const startUrl = isSocial ? "/signup/pass/start" : "/signup/pass/start";
-      const verifyUrl = isSocial ? "/signup/pass/verify" : "/signup/pass/verify";
+      const verifyUrl = isSocial
+        ? "/signup/pass/verify"
+        : "/signup/pass/verify";
 
       const start = await httpClient.get(startUrl, { skipAuth: true });
 
@@ -251,6 +253,29 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
         return alert("비밀번호 일치를 확인해주세요.");
     }
 
+    if (
+      isSocial &&
+      errors.nickname.isError &&
+      errors.phone.isError &&
+      socialInfo?.provider &&
+      socialInfo?.providerUserId
+    ) {
+      const ok = window.confirm(
+        "이미 가입된 계정이 존재합니다.\n해당 계정과 소셜 로그인을 연동하시겠습니까?"
+      );
+
+      if (ok) {
+        navigate("/oauth/phone-connect", {
+          replace: true,
+          state: {
+            provider: socialInfo.provider,
+            providerUserId: socialInfo.providerUserId,
+          },
+        });
+      }
+
+      return;
+    }
     if (!form.nickname || errors.nickname.isError)
       return alert("닉네임을 확인해주세요.");
 
@@ -275,7 +300,7 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
       ? {
           provider: socialInfo.provider,
           providerUserId: socialInfo.providerUserId,
-          userId: socialEmail,
+          userId: socialInfo.email,
           nickname: form.nickname,
           phone: form.phone,
           agreeMarketing: form.agreeMarketing,
@@ -298,10 +323,11 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
         throw new Error(res?.error?.message || "회원가입 실패");
       }
 
-      const { accessToken, refreshToken, accessTokenExpiresIn, expiresIn } =
-        res.data || {};
+      const { signupType } = res.data || {};
+      if (signupType === "SOCIAL") {
+        const { accessToken, refreshToken, accessTokenExpiresIn, expiresIn } =
+          res.data;
 
-      if (accessToken && refreshToken) {
         setTokens({
           accessToken,
           refreshToken,
@@ -321,8 +347,13 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
         return;
       }
 
-      alert("인증 메일이 발송되었습니다. 이메일을 확인해주세요.");
-      navigate("/", { replace: true });
+      if (signupType === "NORMAL") {
+        alert("인증 메일이 발송되었습니다. 이메일을 확인해주세요.");
+        navigate("/", { replace: true });
+        return;
+      }
+
+      throw new Error("알 수 없는 회원가입 타입입니다.");
     } catch (err) {
       alert(err?.message || err?.response?.data?.message || "회원가입 실패");
     }

@@ -26,6 +26,7 @@ export default function OAuthCallbackPage() {
         state: {
           provider: params.get("provider"),
           providerUserId: params.get("providerUserId"),
+          email: params.get("email"),
         },
       });
       return;
