@@ -12,6 +12,11 @@ import {
   GridPattern,
 } from "../../config/themeConfig";
 import {
+  SnowPlowProvider,
+  SnowPlowButton,
+  ClearableSnowPile,
+} from "../../components/christmas/SnowPlow";
+import {
   Sparkles,
   Search,
   Calendar,
@@ -240,10 +245,17 @@ export default function PartyListPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  return (
+  const content = (
     <div className={`min-h-screen ${currentTheme.bg} pb-20 -mt-20 pt-20 transition-colors duration-300`}>
       {/* Theme Switcher - Common Component */}
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+
+      {/* Snow Plow Button - Christmas theme only */}
+      {theme === "christmas" && (
+        <div className="fixed top-56 right-4 z-50">
+          <SnowPlowButton />
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className={`relative overflow-hidden ${currentTheme.heroBg}`}>
@@ -382,137 +394,114 @@ export default function PartyListPage() {
             damping: 30,
           }}
         >
-          <div className={`backdrop-blur-xl p-5 transition-colors duration-300 relative ${theme === "pop"
-            ? "bg-white rounded-3xl border-2 border-black"
-            : theme === "dark"
-              ? "bg-[#1E293B]/80 rounded-2xl border border-gray-700 shadow-lg"
-              : theme === "christmas"
-                ? "bg-white/90 rounded-2xl shadow-lg shadow-gray-200/50 border border-[#1a5f2a]/20"
-                : "bg-white/80 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100"
-            }`}>
-            {/* Snow pile effect on top - Christmas theme only */}
-            {theme === "christmas" && (
-              <div className="absolute -top-4 left-2 right-2 h-8 pointer-events-none overflow-visible">
-                {/* Main snow pile - taller and more prominent */}
-                <div className="absolute bottom-0 left-0 right-0 h-6 bg-white"
-                  style={{
-                    clipPath: "polygon(0% 100%, 3% 70%, 8% 85%, 15% 55%, 22% 75%, 28% 45%, 35% 65%, 42% 35%, 50% 55%, 58% 30%, 65% 50%, 72% 25%, 78% 45%, 85% 35%, 92% 60%, 97% 50%, 100% 100%)",
-                    boxShadow: "0 -3px 10px rgba(255, 255, 255, 0.6)"
-                  }}
-                />
-                {/* Snow bumps - more and varied sizes */}
-                <div className="absolute bottom-2 left-[8%] w-4 h-4 bg-white rounded-full opacity-95" />
-                <div className="absolute bottom-1 left-[18%] w-3 h-3 bg-white rounded-full opacity-90" />
-                <div className="absolute bottom-3 left-[28%] w-5 h-5 bg-white rounded-full opacity-95" />
-                <div className="absolute bottom-2 left-[42%] w-3.5 h-3.5 bg-white rounded-full opacity-90" />
-                <div className="absolute bottom-1 left-[55%] w-4 h-4 bg-white rounded-full opacity-95" />
-                <div className="absolute bottom-3 left-[68%] w-5 h-5 bg-white rounded-full opacity-95" />
-                <div className="absolute bottom-2 left-[80%] w-3 h-3 bg-white rounded-full opacity-90" />
-                <div className="absolute bottom-1 left-[92%] w-2.5 h-2.5 bg-white rounded-full opacity-85" />
-                {/* Christmas tree image */}
-                <img
-                  src="/christmas-tree.png"
-                  alt="Christmas Tree"
-                  className="absolute bottom-0 -right-4 w-[72px] h-[72px] object-contain drop-shadow-lg pointer-events-auto"
-                  style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}
-                />
-              </div>
-            )}
-            {/* Search Input */}
-            <div className="relative mb-4">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className={`h-5 w-5 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`} />
-              </div>
-              <input
-                type="text"
-                className={`block w-full pl-12 pr-10 py-3.5 rounded-xl transition-all duration-200 ${theme === "pop"
-                  ? "border-2 border-black bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-pink-500/20"
-                  : theme === "dark"
-                    ? "border border-gray-700 bg-[#0F172A] text-white placeholder-gray-500 focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff]"
-                    : theme === "christmas"
-                      ? "border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#c41e3a]/20 focus:border-[#c41e3a]"
-                      : "border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff]"
-                  }`}
-                placeholder="파티 이름, 방장 닉네임 검색"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
+          <div className="relative">
+            {/* Snow pile effect on top - Christmas theme only (clearable) */}
+            {theme === "christmas" && <ClearableSnowPile />}
 
-            {/* Filters Row */}
-            <div className="flex flex-col gap-4">
-              {/* Status Filters */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <Filter className={`w-4 h-4 mr-1 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`} />
-                {[
-                  { value: "", label: "전체" },
-                  { value: "RECRUITING", label: "모집중" },
-                  { value: "ACTIVE", label: "파티중" },
-                  { value: "CLOSED", label: "파티종료" },
-                ].map((filter) => (
+            <div className={`backdrop-blur-xl p-5 transition-colors duration-300 relative z-10 ${theme === "pop"
+              ? "bg-white rounded-3xl border-2 border-black"
+              : theme === "dark"
+                ? "bg-[#1E293B]/80 rounded-2xl border border-gray-700 shadow-lg"
+                : theme === "christmas"
+                  ? "bg-white/90 rounded-2xl shadow-lg shadow-gray-200/50 border border-[#1a5f2a]/20"
+                  : "bg-white/80 rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100"
+              }`}>
+              {/* Search Input */}
+              <div className="relative mb-4">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className={`h-5 w-5 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`} />
+                </div>
+                <input
+                  type="text"
+                  className={`block w-full pl-12 pr-10 py-3.5 rounded-xl transition-all duration-200 ${theme === "pop"
+                    ? "border-2 border-black bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-pink-500/20"
+                    : theme === "dark"
+                      ? "border border-gray-700 bg-[#0F172A] text-white placeholder-gray-500 focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff]"
+                      : theme === "christmas"
+                        ? "border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#c41e3a]/20 focus:border-[#c41e3a]"
+                        : "border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff]"
+                    }`}
+                  placeholder="파티 이름, 방장 닉네임 검색"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
                   <button
-                    key={filter.value}
-                    onClick={() => setSelectedStatus(filter.value)}
-                    className={`px-4 py-2 text-sm font-semibold transition-all duration-200 ${theme === "pop"
-                      ? selectedStatus === filter.value
-                        ? "bg-pink-500 text-white border-2 border-black rounded-xl"
-                        : "bg-white text-black border-2 border-black rounded-xl hover:bg-pink-100"
-                      : theme === "dark"
-                        ? selectedStatus === filter.value
-                          ? "bg-[#635bff] text-white rounded-full shadow-md shadow-[#635bff]/25"
-                          : "bg-[#1E293B] text-gray-400 rounded-full hover:bg-[#334155]"
-                        : theme === "christmas"
-                          ? selectedStatus === filter.value
-                            ? "bg-[#c41e3a] text-white rounded-full shadow-md shadow-[#c41e3a]/25"
-                            : "bg-white text-gray-600 rounded-full hover:bg-[#1a5f2a]/10 hover:text-[#1a5f2a] border border-gray-200"
-                          : selectedStatus === filter.value
-                            ? "bg-[#635bff] text-white rounded-full shadow-md shadow-[#635bff]/25"
-                            : "bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200"
-                      }`}
+                    onClick={() => setSearchQuery("")}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {filter.label}
+                    <X className="w-5 h-5" />
                   </button>
-                ))}
+                )}
               </div>
 
-              {/* Additional Filters */}
-              <div className="flex items-center gap-3 flex-wrap">
-                <ServiceTypeFilter
-                  selectedProductId={selectedProductId}
-                  onSelect={setSelectedProductId}
-                />
-
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="appearance-none bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium rounded-full pl-4 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] transition-all cursor-pointer"
-                  />
+              {/* Filters Row */}
+              <div className="flex flex-col gap-4">
+                {/* Status Filters */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Filter className={`w-4 h-4 mr-1 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`} />
+                  {[
+                    { value: "", label: "전체" },
+                    { value: "RECRUITING", label: "모집중" },
+                    { value: "ACTIVE", label: "파티중" },
+                    { value: "CLOSED", label: "파티종료" },
+                  ].map((filter) => (
+                    <button
+                      key={filter.value}
+                      onClick={() => setSelectedStatus(filter.value)}
+                      className={`px-4 py-2 text-sm font-semibold transition-all duration-200 ${theme === "pop"
+                        ? selectedStatus === filter.value
+                          ? "bg-pink-500 text-white border-2 border-black rounded-xl"
+                          : "bg-white text-black border-2 border-black rounded-xl hover:bg-pink-100"
+                        : theme === "dark"
+                          ? selectedStatus === filter.value
+                            ? "bg-[#635bff] text-white rounded-full shadow-md shadow-[#635bff]/25"
+                            : "bg-[#1E293B] text-gray-400 rounded-full hover:bg-[#334155]"
+                          : theme === "christmas"
+                            ? selectedStatus === filter.value
+                              ? "bg-[#c41e3a] text-white rounded-full shadow-md shadow-[#c41e3a]/25"
+                              : "bg-white text-gray-600 rounded-full hover:bg-[#1a5f2a]/10 hover:text-[#1a5f2a] border border-gray-200"
+                            : selectedStatus === filter.value
+                              ? "bg-[#635bff] text-white rounded-full shadow-md shadow-[#635bff]/25"
+                              : "bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200"
+                        }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Sort Dropdown */}
-                <div className="relative ml-auto">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-white border border-gray-200 rounded-full pl-4 pr-10 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] cursor-pointer transition-all"
-                  >
-                    <option value="latest">최신순</option>
-                    <option value="start_date_asc">시작 빠른순</option>
-                    <option value="popularity">인기순</option>
-                    <option value="price_low">가격 낮은순</option>
-                    <option value="price_high">가격 높은순</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                {/* Additional Filters */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <ServiceTypeFilter
+                    selectedProductId={selectedProductId}
+                    onSelect={setSelectedProductId}
+                  />
+
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="appearance-none bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium rounded-full pl-4 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] transition-all cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Sort Dropdown */}
+                  <div className="relative ml-auto">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="appearance-none bg-white border border-gray-200 rounded-full pl-4 pr-10 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] cursor-pointer transition-all"
+                    >
+                      <option value="latest">최신순</option>
+                      <option value="start_date_asc">시작 빠른순</option>
+                      <option value="popularity">인기순</option>
+                      <option value="price_low">가격 낮은순</option>
+                      <option value="price_high">가격 높은순</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -719,4 +708,15 @@ export default function PartyListPage() {
       </div>
     </div>
   );
+
+  // Wrap with SnowPlowProvider for Christmas theme
+  if (theme === "christmas") {
+    return (
+      <SnowPlowProvider enabled={true}>
+        {content}
+      </SnowPlowProvider>
+    );
+  }
+
+  return content;
 }
