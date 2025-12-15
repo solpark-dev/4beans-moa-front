@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { NeoCard, NeoButton } from '@/components/common/neo';
 
 const CommunityLayout = ({ children }) => {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const CommunityLayout = ({ children }) => {
             navigate('/login');
             return;
         }
-        
+
         if (user.role === 'ADMIN') {
             navigate('/community/inquiry/admin');
         } else {
@@ -35,16 +36,25 @@ const CommunityLayout = ({ children }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="border-b border-gray-200">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-8">
-                    <h1 className="text-4xl font-bold text-center text-[#1e3a5f] tracking-tight">
-                        고객센터
-                    </h1>
+        <div className="min-h-screen bg-slate-50">
+            {/* Header Section */}
+            <div className="border-b-4 border-black bg-white">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+                    <NeoCard
+                        color="bg-pink-500"
+                        rotate={-1}
+                        hoverable={false}
+                        className="inline-block px-6 py-3 rounded-2xl mx-auto"
+                    >
+                        <h1 className="text-3xl font-black text-white tracking-tight">
+                            고객센터
+                        </h1>
+                    </NeoCard>
                 </div>
-                
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <nav className="flex justify-center gap-12">
+
+                {/* Tab Navigation */}
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+                    <nav className="flex justify-center gap-4">
                         {tabs.map((tab) => {
                             const isActive = isActiveTab(tab.path);
                             return (
@@ -52,10 +62,12 @@ const CommunityLayout = ({ children }) => {
                                     key={tab.name}
                                     onClick={() => tab.onClick ? tab.onClick() : navigate(tab.path)}
                                     className={`
-                                        pb-4 text-base font-medium transition-all duration-200
-                                        ${isActive 
-                                            ? 'text-[#e91e63] border-b-2 border-[#e91e63]' 
-                                            : 'text-[#1e3a5f] hover:text-[#e91e63]'
+                                        px-6 py-3 font-black text-lg rounded-xl
+                                        border-4 border-black
+                                        transition-all duration-200
+                                        ${isActive
+                                            ? 'bg-cyan-400 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                                            : 'bg-white text-black hover:bg-lime-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]'
                                         }
                                     `}
                                 >
@@ -67,7 +79,8 @@ const CommunityLayout = ({ children }) => {
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {/* Content Section */}
+            <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {children}
             </div>
         </div>

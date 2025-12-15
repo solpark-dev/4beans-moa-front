@@ -4,14 +4,7 @@ import InquiryForm from '../../components/community/InquiryForm';
 import InquiryItem from '../../components/community/InquiryItem';
 import InquiryDetailModal from '../../components/community/InquiryDetailModal';
 import { useAuthStore } from '@/store/authStore';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
+import { NeoCard, NeoPagination } from '@/components/common/neo';
 
 const Inquiry = () => {
     const { user } = useAuthStore();
@@ -39,15 +32,15 @@ const Inquiry = () => {
 
     const loadMyInquiries = async (page) => {
         if (!userId) return;
-        
+
         try {
             const response = await fetch(`/api/community/inquiry/my?userId=${userId}&page=${page}&size=${pageSize}`);
-            
+
             if (!response.ok) {
                 setInquiries([]);
                 return;
             }
-            
+
             const data = await response.json();
             setInquiries(data.content || []);
             setCurrentPage(data.page || 1);
@@ -74,7 +67,7 @@ const Inquiry = () => {
             submitData.append('communityCodeId', formData.communityCodeId);
             submitData.append('title', formData.title);
             submitData.append('content', formData.content);
-            
+
             if (imageFile) {
                 submitData.append('file', imageFile);
             }
@@ -112,31 +105,22 @@ const Inquiry = () => {
         loadMyInquiries(page);
     };
 
-    const renderPageNumbers = () => {
-        const pages = [];
-        const maxVisible = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = startPage + maxVisible - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxVisible + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    };
 
     return (
         <CommunityLayout>
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-[1100px] mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    {/* 문의하기 섹션 */}
                     <div>
-                        <h3 className="text-lg font-bold text-[#1e3a5f] mb-6 pb-3 border-b-2 border-[#1e3a5f]">
-                            문의하기
-                        </h3>
+                        <NeoCard
+                            color="bg-cyan-400"
+                            hoverable={false}
+                            className="inline-block px-4 py-2 rounded-xl mb-6"
+                        >
+                            <h3 className="text-lg font-black text-black">
+                                문의하기
+                            </h3>
+                        </NeoCard>
                         <InquiryForm
                             formData={formData}
                             setFormData={setFormData}
@@ -147,60 +131,49 @@ const Inquiry = () => {
                         />
                     </div>
 
+                    {/* 나의 문의 내역 섹션 */}
                     <div>
-                        <h3 className="text-lg font-bold text-[#1e3a5f] mb-6 pb-3 border-b-2 border-[#1e3a5f]">
-                            나의 문의 내역
-                        </h3>
+                        <NeoCard
+                            color="bg-lime-400"
+                            hoverable={false}
+                            className="inline-block px-4 py-2 rounded-xl mb-6"
+                        >
+                            <h3 className="text-lg font-black text-black">
+                                나의 문의 내역
+                            </h3>
+                        </NeoCard>
 
-                        <div className="min-h-[400px]">
+                        {/* 리스트를 하나의 카드로 감싸기 (문의하기 폼과 동일한 높이) */}
+                        <NeoCard
+                            color="bg-white"
+                            hoverable={false}
+                            className="rounded-2xl p-6 h-[687px] flex flex-col"
+                        >
                             {inquiries.length === 0 ? (
-                                <div className="text-center py-16 text-gray-400">
+                                <div className="flex-1 flex items-center justify-center text-gray-400 font-bold">
                                     등록된 문의가 없습니다.
                                 </div>
                             ) : (
-                                inquiries.map((inquiry) => (
-                                    <InquiryItem
-                                        key={inquiry.communityId}
-                                        inquiry={inquiry}
-                                        onClick={handleInquiryClick}
-                                    />
-                                ))
-                            )}
-                        </div>
-
-                        {totalPages > 0 && (
-                            <Pagination className="mt-6">
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={() => handlePageChange(currentPage - 1)}
-                                            disabled={currentPage === 1}
-                                            className="text-[#1e3a5f]"
+                                <div className="flex-1 overflow-y-auto">
+                                    {inquiries.map((inquiry) => (
+                                        <InquiryItem
+                                            key={inquiry.communityId}
+                                            inquiry={inquiry}
+                                            onClick={handleInquiryClick}
                                         />
-                                    </PaginationItem>
-
-                                    {renderPageNumbers().map((pageNum) => (
-                                        <PaginationItem key={pageNum}>
-                                            <PaginationLink
-                                                onClick={() => handlePageChange(pageNum)}
-                                                isActive={currentPage === pageNum}
-                                                className={currentPage === pageNum ? 'bg-[#1e3a5f] text-white' : 'text-[#1e3a5f]'}
-                                            >
-                                                {pageNum}
-                                            </PaginationLink>
-                                        </PaginationItem>
                                     ))}
+                                </div>
+                            )}
 
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={() => handlePageChange(currentPage + 1)}
-                                            disabled={currentPage === totalPages}
-                                            className="text-[#1e3a5f]"
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
+                            {/* 페이지네이션 - 카드 안 하단 */}
+                            <div className="pt-4">
+                                <NeoPagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={handlePageChange}
+                                />
+                            </div>
+                        </NeoCard>
                     </div>
                 </div>
             </div>

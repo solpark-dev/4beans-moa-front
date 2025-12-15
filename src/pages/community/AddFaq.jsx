@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { NeoCard, NeoButton } from '@/components/common/neo';
 
 const AddFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const [category, setCategory] = useState('회원');
     const [formData, setFormData] = useState({
         communityCodeId: 4,
         title: '',
@@ -19,17 +17,26 @@ const AddFaq = () => {
     const isAdmin = user?.role === 'ADMIN';
     const userId = user?.userId || 'admin@moa.com';
 
+    const categories = ['회원', '결제', '구독', '파티', '정산', '기타'];
+
     if (!isAdmin) {
         return (
             <CommunityLayout>
                 <div className="text-center py-20">
-                    <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
-                    <Button 
-                        onClick={() => navigate('/community/faq')}
-                        className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
+                    <NeoCard
+                        color="bg-white"
+                        hoverable={false}
+                        className="inline-block px-8 py-6 rounded-2xl"
                     >
-                        목록으로 돌아가기
-                    </Button>
+                        <p className="text-gray-600 font-bold mb-6">관리자만 접근 가능합니다.</p>
+                        <NeoButton
+                            onClick={() => navigate('/community/faq')}
+                            color="bg-pink-500"
+                            size="sm"
+                        >
+                            목록으로 돌아가기
+                        </NeoButton>
+                    </NeoCard>
                 </div>
             </CommunityLayout>
         );
@@ -54,6 +61,8 @@ const AddFaq = () => {
             return;
         }
 
+        const titleWithCategory = `[${category}] ${formData.title}`;
+
         try {
             const response = await fetch('/api/community/faq', {
                 method: 'POST',
@@ -62,6 +71,7 @@ const AddFaq = () => {
                 },
                 body: JSON.stringify({
                     ...formData,
+                    title: titleWithCategory,
                     userId: userId
                 }),
             });
@@ -83,62 +93,98 @@ const AddFaq = () => {
 
     return (
         <CommunityLayout>
-            <div className="max-w-2xl mx-auto pt-8">
-                <h2 className="text-2xl font-bold text-[#1e3a5f] text-center mb-10">
-                    FAQ 등록
-                </h2>
-                
-                <div className="space-y-8">
-                    <div className="space-y-3">
-                        <Label 
+            <div className="pt-8 max-w-3xl mx-auto">
+                <NeoCard
+                    color="bg-cyan-400"
+                    hoverable={false}
+                    className="inline-block px-4 py-2 rounded-xl mb-8"
+                >
+                    <h2 className="text-xl font-black text-black">
+                        FAQ 등록
+                    </h2>
+                </NeoCard>
+
+                <div className="space-y-6">
+                    {/* 카테고리 */}
+                    <div>
+                        <label className="block text-sm font-black text-black mb-2">
+                            카테고리
+                        </label>
+                        <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="w-full px-4 py-3 border-4 border-black rounded-xl font-bold bg-white
+                                focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                        >
+                            {categories.map((cat) => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* 질문 제목 */}
+                    <div>
+                        <label
                             htmlFor="title"
-                            className="text-sm font-medium text-[#1e3a5f]"
+                            className="block text-sm font-black text-black mb-2"
                         >
                             질문 제목
-                        </Label>
-                        <Input
+                        </label>
+                        <input
                             id="title"
                             name="title"
                             type="text"
                             placeholder="질문 제목을 입력하세요"
                             value={formData.title}
                             onChange={handleChange}
-                            className="border-0 border-b border-gray-300 rounded-none px-0 focus:border-[#1e3a5f] focus:ring-0"
+                            className="w-full px-4 py-3 border-4 border-black rounded-xl font-bold
+                                focus:outline-none focus:ring-2 focus:ring-yellow-300 placeholder-gray-400"
                         />
                     </div>
 
-                    <div className="space-y-3">
-                        <Label 
+                    {/* 답변 내용 */}
+                    <div>
+                        <label
                             htmlFor="content"
-                            className="text-sm font-medium text-[#1e3a5f]"
+                            className="block text-sm font-black text-black mb-2"
                         >
                             답변 내용
-                        </Label>
-                        <Textarea
+                        </label>
+                        <textarea
                             id="content"
                             name="content"
                             placeholder="답변 내용을 입력하세요"
                             value={formData.content}
                             onChange={handleChange}
                             rows={10}
-                            className="border border-gray-300 rounded-lg focus:border-[#1e3a5f] focus:ring-0 resize-none"
+                            className="w-full px-4 py-3 border-4 border-black rounded-xl font-bold resize-none
+                                focus:outline-none focus:ring-2 focus:ring-yellow-300 placeholder-gray-400"
                         />
                     </div>
 
                     <div className="flex justify-center gap-4 pt-6">
-                        <Button
-                            variant="outline"
+                        <button
                             onClick={handleCancel}
-                            className="w-32 border-gray-300 text-gray-600 hover:bg-gray-50"
+                            className="px-6 py-2 text-sm font-black text-black bg-white
+                                border-4 border-black rounded-xl
+                                shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                                hover:translate-x-[2px] hover:translate-y-[2px]
+                                transition-all"
                         >
                             취소
-                        </Button>
-                        <Button
+                        </button>
+                        <button
                             onClick={handleSubmit}
-                            className="w-32 bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
+                            className="px-6 py-2 text-sm font-black text-white bg-pink-500
+                                border-4 border-black rounded-xl
+                                shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                                hover:translate-x-[2px] hover:translate-y-[2px]
+                                transition-all"
                         >
                             등록
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </div>

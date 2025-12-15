@@ -5,6 +5,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { NeoCard } from '@/components/common/neo';
 import InquiryStatusBadge from './InquiryStatusBadge';
 import { formatDate, getCategoryName } from '../../utils/communityUtils';
 
@@ -13,58 +14,71 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <DialogHeader>
-                    <DialogTitle className="text-[#1e3a5f]">문의 상세</DialogTitle>
+                    <DialogTitle className="text-2xl font-black text-black">문의 상세</DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                        <span className="px-2 py-1 text-xs font-medium rounded bg-[#1e3a5f]/10 text-[#1e3a5f]">
+                    {/* Meta Info */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        <span className="px-3 py-1 text-xs font-black rounded-lg bg-cyan-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                             {getCategoryName(inquiry.communityCodeId)}
                         </span>
                         <InquiryStatusBadge status={inquiry.answerStatus} />
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm font-bold text-gray-500">
                             {formatDate(inquiry.createdAt)}
                         </span>
                     </div>
 
+                    {/* Title */}
                     <div>
-                        <h3 className="font-bold text-lg text-[#1e3a5f]">{inquiry.title}</h3>
+                        <h3 className="font-black text-xl text-black">{inquiry.title}</h3>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm font-medium text-gray-600 mb-2">문의 내용</p>
-                        <p className="text-[#1e3a5f] whitespace-pre-wrap">
+                    {/* Content */}
+                    <NeoCard
+                        color="bg-slate-50"
+                        hoverable={false}
+                        className="rounded-xl p-5"
+                    >
+                        <p className="text-sm font-black text-gray-500 mb-2">문의 내용</p>
+                        <p className="text-black font-medium whitespace-pre-wrap leading-relaxed">
                             {inquiry.content}
                         </p>
-                    </div>
+                    </NeoCard>
 
+                    {/* Attached Image */}
                     {inquiry.fileOriginal && (
                         <div>
-                            <p className="text-sm font-medium text-gray-600 mb-2">첨부 이미지</p>
-                            <img 
-                                src={`/api/community/inquiry/image/${inquiry.fileUuid}`} 
+                            <p className="text-sm font-black text-gray-500 mb-3">첨부 이미지</p>
+                            <img
+                                src={`/api/community/inquiry/image/${inquiry.fileUuid}`}
                                 alt={inquiry.fileOriginal}
-                                className="max-w-full max-h-64 rounded-lg border object-contain"
+                                className="max-w-full max-h-64 rounded-xl border-4 border-black object-contain shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                             />
-                            <p className="text-xs text-gray-500 mt-1">{inquiry.fileOriginal}</p>
+                            <p className="text-xs font-bold text-gray-500 mt-2">{inquiry.fileOriginal}</p>
                         </div>
                     )}
 
+                    {/* Answer */}
                     {inquiry.answerContent && (
-                        <div className="border-t pt-4">
-                            <div className="bg-[#e91e63]/5 rounded-lg p-4">
-                                <p className="text-sm font-medium text-[#e91e63] mb-2">답변</p>
-                                <p className="text-[#1e3a5f] whitespace-pre-wrap">
+                        <div className="border-t-4 border-black pt-6">
+                            <NeoCard
+                                color="bg-lime-100"
+                                hoverable={false}
+                                className="rounded-xl p-5"
+                            >
+                                <p className="text-sm font-black text-lime-700 mb-2">답변</p>
+                                <p className="text-black font-medium whitespace-pre-wrap leading-relaxed">
                                     {inquiry.answerContent}
                                 </p>
                                 {inquiry.answeredAt && (
-                                    <p className="text-xs text-gray-500 mt-3">
+                                    <p className="text-xs font-bold text-gray-500 mt-4">
                                         답변일: {formatDate(inquiry.answeredAt)}
                                     </p>
                                 )}
-                            </div>
+                            </NeoCard>
                         </div>
                     )}
                 </div>

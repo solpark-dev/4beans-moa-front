@@ -6,16 +6,8 @@ import InquiryDetailModal from '../../components/community/InquiryDetailModal';
 import InquiryAnswerModal from '../../components/community/InquiryAnswerModal';
 import { useAuthStore } from '@/store/authStore';
 import { formatDate, getCategoryName } from '../../utils/communityUtils';
-import { Button } from '@/components/ui/button';
+import { NeoCard, NeoButton, NeoPagination } from '@/components/common/neo';
 import { ImageIcon } from 'lucide-react';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
 
 const InquiryAdmin = () => {
     const navigate = useNavigate();
@@ -39,12 +31,12 @@ const InquiryAdmin = () => {
     const loadAllInquiries = async (page) => {
         try {
             const response = await fetch(`/api/community/inquiry?page=${page}&size=${pageSize}`);
-            
+
             if (!response.ok) {
                 setInquiries([]);
                 return;
             }
-            
+
             const data = await response.json();
             setInquiries(data.content || []);
             setCurrentPage(data.page || 1);
@@ -58,13 +50,20 @@ const InquiryAdmin = () => {
         return (
             <CommunityLayout>
                 <div className="text-center py-20">
-                    <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
-                    <Button 
-                        onClick={() => navigate('/community/inquiry')}
-                        className="bg-[#1e3a5f] hover:bg-[#152a45]"
+                    <NeoCard
+                        color="bg-white"
+                        hoverable={false}
+                        className="inline-block px-8 py-6 rounded-2xl"
                     >
-                        문의하기로 이동
-                    </Button>
+                        <p className="text-gray-600 font-bold mb-6">관리자만 접근 가능합니다.</p>
+                        <NeoButton
+                            onClick={() => navigate('/community/inquiry')}
+                            color="bg-pink-500"
+                            size="sm"
+                        >
+                            문의하기로 이동
+                        </NeoButton>
+                    </NeoCard>
                 </div>
             </CommunityLayout>
         );
@@ -83,7 +82,7 @@ const InquiryAdmin = () => {
     const handleAnswerSubmit = async (communityId, answerContent) => {
         const isUpdate = selectedInquiry?.answerContent;
         const method = isUpdate ? 'PUT' : 'POST';
-        
+
         try {
             const response = await fetch('/api/community/inquiry/answer', {
                 method: method,
@@ -113,133 +112,107 @@ const InquiryAdmin = () => {
         loadAllInquiries(page);
     };
 
-    const renderPageNumbers = () => {
-        const pages = [];
-        const maxVisible = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = startPage + maxVisible - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxVisible + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    };
-
     return (
         <CommunityLayout>
             <div className="max-w-5xl mx-auto">
-                <div className="border-b border-gray-200">
-                    <div className="grid gap-4 py-3 text-sm font-medium text-gray-500" style={{ gridTemplateColumns: 'repeat(19, minmax(0, 1fr))' }}>
-                        <div className="col-span-1 text-center">번호</div>
-                        <div className="col-span-1 text-center" style={{ whiteSpace: 'nowrap' }}>카테고리</div>
-                        <div className="col-span-8 pl-4">제목</div>
-                        <div className="col-span-4 text-center">작성자</div>
-                        <div className="col-span-2 text-center">작성일</div>
-                        <div className="col-span-1 text-center">상태</div>
-                        <div className="col-span-2 text-center">관리</div>
-                    </div>
-                </div>
+                <NeoCard
+                    color="bg-cyan-400"
+                    hoverable={false}
+                    className="inline-block px-4 py-2 rounded-xl mb-6"
+                >
+                    <h2 className="text-lg font-black text-black">
+                        문의 관리
+                    </h2>
+                </NeoCard>
 
-                {inquiries.length === 0 ? (
-                    <div className="py-20 text-center text-gray-400">
-                        등록된 문의가 없습니다.
-                    </div>
-                ) : (
-                    inquiries.map((inquiry, index) => (
-                        <div
-                            key={inquiry.communityId}
-                            onClick={() => handleTitleClick(inquiry)}
-                            className="grid gap-4 py-4 border-b border-gray-100 hover:bg-gray-50 items-center text-sm cursor-pointer"
-                            style={{ gridTemplateColumns: 'repeat(19, minmax(0, 1fr))' }}
-                        >
-                            <div className="col-span-1 text-center text-gray-500">
-                                {(currentPage - 1) * pageSize + index + 1}
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                                <span className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600" style={{ whiteSpace: 'nowrap' }}>
-                                    {getCategoryName(inquiry.communityCodeId)}
-                                </span>
-                            </div>
-                            <div className="col-span-8 pl-4 flex items-center gap-2 text-[#1e3a5f]">
-                                <span className="truncate">{inquiry.title}</span>
-                                {inquiry.fileOriginal && (
-                                    <ImageIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                )}
-                            </div>
-                            <div className="col-span-4 text-center text-gray-500">
-                                {inquiry.userId}
-                            </div>
-                            <div className="col-span-2 text-center text-gray-500" style={{ whiteSpace: 'nowrap' }}>
-                                {formatDate(inquiry.createdAt)}
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                    inquiry.answerStatus === '답변완료' 
-                                        ? 'bg-[#e91e63]/10 text-[#e91e63]' 
-                                        : 'bg-gray-100 text-gray-600'
-                                }`} style={{ whiteSpace: 'nowrap' }}>
-                                    {inquiry.answerStatus === '답변완료' ? '답변완료' : '답변대기'}
-                                </span>
-                            </div>
-                            <div className="col-span-2 text-center">
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAnswerClick(inquiry);
-                                    }}
-                                    className={inquiry.answerStatus === '답변완료' 
-                                        ? 'border-gray-300 text-gray-600 hover:bg-gray-50' 
-                                        : 'border-[#1e3a5f] text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white'
-                                    }
-                                    style={{ whiteSpace: 'nowrap' }}
-                                >
-                                    {inquiry.answerStatus === '답변완료' ? '수정' : '답변'}
-                                </Button>
-                            </div>
+                <NeoCard
+                    color="bg-white"
+                    hoverable={false}
+                    className="rounded-2xl overflow-hidden"
+                >
+                    {/* 테이블 헤더 */}
+                    <div className="bg-slate-100 border-b-4 border-black">
+                        <div className="grid gap-4 py-3 px-4 text-sm font-black text-black" style={{ gridTemplateColumns: 'repeat(19, minmax(0, 1fr))' }}>
+                            <div className="col-span-1 text-center">번호</div>
+                            <div className="col-span-1 text-center" style={{ whiteSpace: 'nowrap' }}>카테고리</div>
+                            <div className="col-span-8 pl-4">제목</div>
+                            <div className="col-span-4 text-center">작성자</div>
+                            <div className="col-span-2 text-center">작성일</div>
+                            <div className="col-span-1 text-center">상태</div>
+                            <div className="col-span-2 text-center">관리</div>
                         </div>
-                    ))
-                )}
+                    </div>
 
-                {totalPages > 0 && (
-                    <Pagination className="mt-8">
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="text-[#1e3a5f]"
-                                />
-                            </PaginationItem>
-
-                            {renderPageNumbers().map((pageNum) => (
-                                <PaginationItem key={pageNum}>
-                                    <PaginationLink
-                                        onClick={() => handlePageChange(pageNum)}
-                                        isActive={currentPage === pageNum}
-                                        className={currentPage === pageNum ? 'bg-[#1e3a5f] text-white' : 'text-[#1e3a5f]'}
+                    {inquiries.length === 0 ? (
+                        <div className="py-20 text-center font-bold text-gray-400">
+                            등록된 문의가 없습니다.
+                        </div>
+                    ) : (
+                        inquiries.map((inquiry, index) => (
+                            <div
+                                key={inquiry.communityId}
+                                onClick={() => handleTitleClick(inquiry)}
+                                className="grid gap-4 py-4 px-4 border-b-2 border-black last:border-b-0 hover:bg-slate-50 items-center text-sm cursor-pointer transition-colors"
+                                style={{ gridTemplateColumns: 'repeat(19, minmax(0, 1fr))' }}
+                            >
+                                <div className="col-span-1 text-center font-bold text-gray-600">
+                                    {(currentPage - 1) * pageSize + index + 1}
+                                </div>
+                                <div className="col-span-1 flex justify-center">
+                                    <span className="px-2 py-1 text-xs font-black rounded-lg bg-cyan-400 border-2 border-black" style={{ whiteSpace: 'nowrap' }}>
+                                        {getCategoryName(inquiry.communityCodeId)}
+                                    </span>
+                                </div>
+                                <div className="col-span-8 pl-4 flex items-center gap-2 font-bold text-black">
+                                    <span className="truncate">{inquiry.title}</span>
+                                    {inquiry.fileOriginal && (
+                                        <ImageIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    )}
+                                </div>
+                                <div className="col-span-4 text-center font-medium text-gray-600">
+                                    {inquiry.userId}
+                                </div>
+                                <div className="col-span-2 text-center font-medium text-gray-600" style={{ whiteSpace: 'nowrap' }}>
+                                    {formatDate(inquiry.createdAt)}
+                                </div>
+                                <div className="col-span-1 flex justify-center">
+                                    <InquiryStatusBadge status={inquiry.answerStatus} />
+                                </div>
+                                <div className="col-span-2 text-center">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAnswerClick(inquiry);
+                                        }}
+                                        className={`px-3 py-1.5 text-xs font-black rounded-lg border-2 border-black
+                                            shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                                            hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]
+                                            hover:translate-x-[1px] hover:translate-y-[1px]
+                                            transition-all
+                                            ${inquiry.answerStatus === '답변완료'
+                                                ? 'bg-white text-black'
+                                                : 'bg-pink-500 text-white'
+                                            }`}
+                                        style={{ whiteSpace: 'nowrap' }}
                                     >
-                                        {pageNum}
-                                    </PaginationLink>
-                                </PaginationItem>
-                            ))}
+                                        {inquiry.answerStatus === '답변완료' ? '수정' : '답변'}
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
 
-                            <PaginationItem>
-                                <PaginationNext
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="text-[#1e3a5f]"
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                )}
+                    {/* 페이지네이션 */}
+                    {totalPages > 0 && (
+                        <div className="py-6 border-t-4 border-black">
+                            <NeoPagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    )}
+                </NeoCard>
             </div>
 
             <InquiryDetailModal

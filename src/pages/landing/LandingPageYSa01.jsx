@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
 import { Plus, Sparkles, Shield, CreditCard, Users, Heart, Star, ArrowRight, Zap, Play } from "lucide-react";
+import { NeoCard, NeoButton, BouncyCard } from "@/components/common/neo";
 
 /**
  * LandingPageYSa01 - Portrait Parallax + O3 Neo-Brutalist Style Mix
@@ -13,56 +14,6 @@ import { Plus, Sparkles, Shield, CreditCard, Users, Heart, Star, ArrowRight, Zap
  * - 스크롤 시작 시 카드 등장 → 두번째 화면에서 배치 완료
  */
 
-// ============================================
-// Sticker Component (O3 Style)
-// ============================================
-function Sticker({ children, color = "bg-white", rotate = 0, className = "" }) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.1, rotate: rotate + 5 }}
-      whileTap={{ scale: 0.95 }}
-      className={`
-        ${color}
-        border-4 border-black
-        shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]
-        hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]
-        hover:translate-x-[3px] hover:translate-y-[3px]
-        transition-all duration-200
-        ${className}
-      `}
-      style={{ transform: `rotate(${rotate}deg)` }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// ============================================
-// Pop Button Component (O3 Style)
-// ============================================
-function PopButton({ children, color = "bg-pink-500", className = "", ...props }) {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className={`
-        ${color}
-        px-8 py-4
-        font-black text-xl
-        border-4 border-black
-        shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
-        hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-        hover:translate-x-[4px] hover:translate-y-[4px]
-        transition-all duration-200
-        rounded-2xl
-        ${className}
-      `}
-      {...props}
-    >
-      {children}
-    </motion.button>
-  );
-}
 
 // ============================================
 // Marquee Component (O3 Style - 롤링 텍스트)
@@ -82,30 +33,6 @@ function Marquee({ children, direction = "left", speed = 20 }) {
   );
 }
 
-// ============================================
-// Bouncy Card Component (O3 Style - 띠용띠용 모션)
-// ============================================
-function BouncyCard({ children, className = "", delay = 0 }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50, rotate: -3 }}
-      whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, type: "spring", stiffness: 200, damping: 15 }}
-      whileHover={{ y: -10, rotate: 2 }}
-      className={`
-        bg-white
-        border-4 border-black
-        shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
-        rounded-3xl
-        overflow-hidden
-        ${className}
-      `}
-    >
-      {children}
-    </motion.div>
-  );
-}
 
 // ============================================
 // Confetti Component - 둥둥 떠다니는 종이 조각
@@ -192,9 +119,9 @@ const Navigation = () => {
           animate={{ opacity: 1, x: 0, rotate: -3 }}
         >
           <Link to="/">
-            <Sticker color="bg-white" rotate={-3} className="px-4 py-2 rounded-xl">
+            <NeoCard color="bg-white" rotate={-3} className="px-4 py-2 rounded-xl">
               <span className="text-xl font-black tracking-tight">MoA!</span>
-            </Sticker>
+            </NeoCard>
           </Link>
         </motion.div>
 
@@ -208,14 +135,14 @@ const Navigation = () => {
 
         <div className="flex items-center gap-3">
           <Link to="/login">
-            <Sticker color="bg-cyan-400" rotate={2} className="px-5 py-2 rounded-xl cursor-pointer">
+            <NeoCard color="bg-cyan-400" rotate={2} className="px-5 py-2 rounded-xl cursor-pointer">
               <span className="font-bold text-black">로그인</span>
-            </Sticker>
+            </NeoCard>
           </Link>
           <Link to="/signup" className="hidden sm:block">
-            <Sticker color="bg-pink-500" rotate={-2} className="px-5 py-2 rounded-xl cursor-pointer">
+            <NeoCard color="bg-pink-500" rotate={-2} className="px-5 py-2 rounded-xl cursor-pointer">
               <span className="font-bold text-white">시작하기</span>
-            </Sticker>
+            </NeoCard>
           </Link>
         </div>
       </div>
@@ -297,9 +224,9 @@ const ParallaxHero = () => {
                 animate={{ y: [0, -15, 0], rotate: [12, 15, 12] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <Sticker color="bg-cyan-400" rotate={12} className="px-4 py-2 rounded-xl">
+                <NeoCard color="bg-cyan-400" rotate={12} className="px-4 py-2 rounded-xl">
                   <span className="font-black text-lg">75% OFF!</span>
-                </Sticker>
+                </NeoCard>
               </motion.div>
             </motion.div>
 
@@ -311,9 +238,9 @@ const ParallaxHero = () => {
                 animate={{ y: [0, 10, 0], rotate: [-8, -12, -8] }}
                 transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
               >
-                <Sticker color="bg-lime-400" rotate={-8} className="px-3 py-1 rounded-lg">
+                <NeoCard color="bg-lime-400" rotate={-8} className="px-3 py-1 rounded-lg">
                   <span className="font-bold text-sm">NEW!</span>
-                </Sticker>
+                </NeoCard>
               </motion.div>
             </motion.div>
 
@@ -322,12 +249,12 @@ const ParallaxHero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Sticker color="bg-white" rotate={1} className="inline-block px-5 py-2 rounded-xl mb-6">
+              <NeoCard color="bg-white" rotate={1} className="inline-block px-5 py-2 rounded-xl mb-6">
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-pink-500" />
                   <span className="font-bold">구독료, 이제 똑똑하게 나눠요</span>
                 </div>
-              </Sticker>
+              </NeoCard>
             </motion.div>
 
             <motion.h1
@@ -350,11 +277,11 @@ const ParallaxHero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <Sticker color="bg-white" rotate={-1} className="inline-block px-6 py-3 rounded-xl mb-8">
+              <NeoCard color="bg-white" rotate={-1} className="inline-block px-6 py-3 rounded-xl mb-8">
                 <p className="text-lg md:text-xl font-bold">
                   넷플릭스, 디즈니+ 함께 나누면 최대 75% 절약!
                 </p>
-              </Sticker>
+              </NeoCard>
             </motion.div>
 
             <motion.div
@@ -364,20 +291,20 @@ const ParallaxHero = () => {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link to="/signup">
-                <PopButton color="bg-pink-500 text-white">
+                <NeoButton color="bg-pink-500 text-white">
                   <span className="flex items-center gap-2">
                     무료로 시작하기
                     <ArrowRight className="w-6 h-6" />
                   </span>
-                </PopButton>
+                </NeoButton>
               </Link>
               <Link to="/party">
-                <PopButton color="bg-white text-black">
+                <NeoButton color="bg-white text-black">
                   <span className="flex items-center gap-2">
                     <Play className="w-5 h-5" />
                     파티 둘러보기
                   </span>
-                </PopButton>
+                </NeoButton>
               </Link>
             </motion.div>
           </motion.div>
@@ -430,9 +357,9 @@ const ParallaxHero = () => {
             style={{ opacity: titleOpacity, y: titleY }}
             className="absolute top-24 left-0 right-0 text-center z-20"
           >
-            <Sticker color="bg-lime-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
+            <NeoCard color="bg-lime-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
               <span className="text-xl font-black">HOT PARTY!</span>
-            </Sticker>
+            </NeoCard>
             <h2 className="text-3xl md:text-4xl font-black text-black">
               지금 인기 있는 파티
             </h2>
@@ -523,9 +450,9 @@ const StatementSection = () => {
         transition={{ duration: 0.8 }}
         className="max-w-3xl mx-auto text-center"
       >
-        <Sticker color="bg-cyan-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-8">
+        <NeoCard color="bg-cyan-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-8">
           <span className="text-2xl font-black">WHY MoA?</span>
-        </Sticker>
+        </NeoCard>
         <p className="text-[28px] md:text-[36px] lg:text-[44px] font-black leading-[1.3]">
           매달 나가는 구독료,
           <br />
@@ -698,9 +625,9 @@ const FeaturesSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <Sticker color="bg-pink-500" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-6">
+          <NeoCard color="bg-pink-500" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-6">
             <span className="text-xl font-black text-white">WHY MoA?</span>
-          </Sticker>
+          </NeoCard>
           <h2 className="text-3xl md:text-4xl font-black">
             이래서 <span className="text-pink-500">MoA</span>야!
           </h2>
@@ -880,7 +807,7 @@ const CTASection = () => {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
-          <Sticker
+          <NeoCard
             color="bg-white"
             rotate={0}
             className="p-12 md:p-16 rounded-[3rem] text-center"
@@ -900,14 +827,14 @@ const CTASection = () => {
               매달 빠져나가는 구독료, 이제 친구들과 나눠요!
             </p>
             <Link to="/signup">
-              <PopButton color="bg-pink-500 text-white" className="text-2xl px-12 py-6">
+              <NeoButton color="bg-pink-500 text-white" className="text-2xl px-12 py-6">
                 <span className="flex items-center gap-3">
                   무료로 시작하기
                   <Sparkles className="w-7 h-7" />
                 </span>
-              </PopButton>
+              </NeoButton>
             </Link>
-          </Sticker>
+          </NeoCard>
         </motion.div>
       </div>
     </section>
@@ -923,9 +850,9 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-10 mb-10">
           <div>
-            <Sticker color="bg-pink-500" rotate={-3} className="px-3 py-1 rounded-lg mb-4 inline-block">
+            <NeoCard color="bg-pink-500" rotate={-3} className="px-3 py-1 rounded-lg mb-4 inline-block">
               <span className="font-black text-white">MoA!</span>
-            </Sticker>
+            </NeoCard>
             <p className="text-sm text-gray-400 font-bold leading-relaxed">
               모든 구독 서비스를
               <br />

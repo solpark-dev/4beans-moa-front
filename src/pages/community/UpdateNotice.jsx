@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import NoticeForm from '../../components/community/NoticeForm';
 import { useAuthStore } from '@/store/authStore';
-import { Button } from '@/components/ui/button';
+import { NeoCard, NeoButton } from '@/components/common/neo';
 
 const UpdateNotice = () => {
     const navigate = useNavigate();
@@ -31,13 +31,13 @@ const UpdateNotice = () => {
     const loadNoticeDetail = async () => {
         try {
             const response = await fetch(`/api/community/notice/${noticeId}`);
-            
+
             if (!response.ok) {
                 alert('공지사항을 찾을 수 없습니다.');
                 navigate('/community/notice');
                 return;
             }
-            
+
             const data = await response.json();
             setFormData({
                 communityCodeId: data.communityCodeId,
@@ -56,13 +56,20 @@ const UpdateNotice = () => {
         return (
             <CommunityLayout>
                 <div className="text-center py-20">
-                    <p className="text-gray-500 mb-4">관리자만 접근 가능합니다.</p>
-                    <Button 
-                        onClick={() => navigate('/community/notice')}
-                        className="bg-[#1e3a5f] hover:bg-[#152a45]"
+                    <NeoCard
+                        color="bg-white"
+                        hoverable={false}
+                        className="inline-block px-8 py-6 rounded-2xl"
                     >
-                        목록으로 돌아가기
-                    </Button>
+                        <p className="text-gray-600 font-bold mb-6">관리자만 접근 가능합니다.</p>
+                        <NeoButton
+                            onClick={() => navigate('/community/notice')}
+                            color="bg-pink-500"
+                            size="sm"
+                        >
+                            목록으로 돌아가기
+                        </NeoButton>
+                    </NeoCard>
                 </div>
             </CommunityLayout>
         );
@@ -71,7 +78,9 @@ const UpdateNotice = () => {
     if (isLoading) {
         return (
             <CommunityLayout>
-                <div className="py-20 text-center text-gray-400">로딩 중...</div>
+                <div className="py-20 text-center">
+                    <span className="font-black text-gray-400">로딩 중...</span>
+                </div>
             </CommunityLayout>
         );
     }
@@ -115,7 +124,15 @@ const UpdateNotice = () => {
     return (
         <CommunityLayout>
             <div className="max-w-3xl mx-auto pt-8">
-                <h2 className="text-xl font-bold text-[#1e3a5f] mb-8">공지사항 수정</h2>
+                <NeoCard
+                    color="bg-lime-400"
+                    hoverable={false}
+                    className="inline-block px-4 py-2 rounded-xl mb-8"
+                >
+                    <h2 className="text-xl font-black text-black">
+                        공지사항 수정
+                    </h2>
+                </NeoCard>
                 <NoticeForm
                     formData={formData}
                     setFormData={setFormData}

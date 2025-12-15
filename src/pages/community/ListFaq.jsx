@@ -3,17 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
 import FaqItem from '../../components/community/FaqItem';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
 
 const ListFaq = () => {
     const navigate = useNavigate();
@@ -24,6 +15,7 @@ const ListFaq = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [activeCategory, setActiveCategory] = useState('전체');
     const [searchKeyword, setSearchKeyword] = useState('');
+    const [openFaqId, setOpenFaqId] = useState(null);
     const pageSize = 10;
 
     const isAdmin = user?.role === 'ADMIN';
@@ -37,12 +29,12 @@ const ListFaq = () => {
     const loadFaqList = async () => {
         try {
             const response = await fetch(`/api/community/faq?page=1&size=100`);
-            
+
             if (!response.ok) {
                 setFaqs([]);
                 return;
             }
-            
+
             const data = await response.json();
             setFaqs(data.content || []);
             setFilteredFaqs(data.content || []);
@@ -71,10 +63,12 @@ const ListFaq = () => {
     const handleCategoryChange = (category) => {
         setActiveCategory(category);
         filterFaqs(category, searchKeyword);
+        setOpenFaqId(null);
     };
 
     const handleSearch = () => {
         filterFaqs(activeCategory, searchKeyword);
+        setOpenFaqId(null);
     };
 
     const handleKeyPress = (e) => {
@@ -91,7 +85,7 @@ const ListFaq = () => {
         }
 
         if (keyword.trim()) {
-            result = result.filter(faq => 
+            result = result.filter(faq =>
                 faq.title.toLowerCase().includes(keyword.toLowerCase()) ||
                 faq.content.toLowerCase().includes(keyword.toLowerCase())
             );
@@ -104,6 +98,7 @@ const ListFaq = () => {
     const handlePageChange = (page) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
+        setOpenFaqId(null);
         window.scrollTo(0, 0);
     };
 
@@ -113,27 +108,14 @@ const ListFaq = () => {
         return filteredFaqs.slice(startIndex, endIndex);
     };
 
-    const renderPageNumbers = () => {
-        const pages = [];
-        const maxVisible = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = startPage + maxVisible - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxVisible + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
+    const handleToggleFaq = (faqId) => {
+        setOpenFaqId(openFaqId === faqId ? null : faqId);
     };
 
     const handleUpdateFaq = async (faqId, formData) => {
         try {
             const userId = user?.userId || 'admin@moa.com';
-            
+
             const response = await fetch(`/api/community/faq/${faqId}`, {
                 method: 'PUT',
                 headers: {
@@ -163,41 +145,45 @@ const ListFaq = () => {
     return (
         <CommunityLayout>
             <div className="pt-8">
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                    <div className="flex items-center gap-4">
-                        {categories.map((category, index) => (
-                            <React.Fragment key={category}>
-                                <button
-                                    onClick={() => handleCategoryChange(category)}
-                                    className={`
-                                        text-sm font-medium transition-all duration-200
-                                        ${activeCategory === category
-                                            ? 'text-[#1e3a5f] border-b-2 border-[#1e3a5f] pb-1'
-                                            : 'text-gray-400 hover:text-[#1e3a5f]'
-                                        }
-                                    `}
-                                >
-                                    {category}
-                                </button>
-                                {index < categories.length - 1 && (
-                                    <span className="text-gray-300">|</span>
-                                )}
-                            </React.Fragment>
+                {/* 카테고리 및 검색 영역 */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b-4 border-black">
+                    <div className="flex items-center gap-2">
+                        {categories.map((category) => (
+                            <button
+                                key={category}
+                                onClick={() => handleCategoryChange(category)}
+                                className={`
+                                    px-4 py-2 font-black text-sm rounded-lg
+                                    border-2 border-black
+                                    transition-all duration-200
+                                    ${activeCategory === category
+                                        ? 'bg-pink-500 text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                        : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px]'
+                                    }
+                                `}
+                            >
+                                {category}
+                            </button>
                         ))}
                     </div>
 
                     <div className="relative">
-                        <Input
+                        <input
                             type="text"
-                            placeholder=""
+                            placeholder="검색어 입력"
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            className="w-56 pr-10 border-0 border-b border-gray-300 rounded-none focus:border-[#1e3a5f] focus:ring-0 bg-transparent"
+                            className="w-56 px-4 py-2 pr-10 font-bold
+                                border-4 border-black rounded-xl
+                                shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                focus:outline-none focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                                focus:translate-x-[2px] focus:translate-y-[2px]
+                                transition-all"
                         />
-                        <button 
+                        <button
                             onClick={handleSearch}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1e3a5f]"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-pink-500 transition-colors"
                         >
                             <Search className="w-5 h-5" />
                         </button>
@@ -205,9 +191,10 @@ const ListFaq = () => {
                 </div>
             </div>
 
-            <div className="divide-y divide-gray-200 border-t border-gray-200">
+            {/* FAQ 리스트 - 카드 레이어 없이 바로 표시 */}
+            <div>
                 {getCurrentPageData().length === 0 ? (
-                    <div className="py-16 text-center text-gray-400">
+                    <div className="py-16 text-center font-bold text-gray-400">
                         등록된 FAQ가 없습니다.
                     </div>
                 ) : (
@@ -219,53 +206,33 @@ const ListFaq = () => {
                             isAdmin={isAdmin}
                             onUpdate={handleUpdateFaq}
                             getCategoryFromTitle={getCategoryFromTitle}
+                            isOpen={openFaqId === faq.communityId}
+                            onToggle={handleToggleFaq}
                         />
                     ))
                 )}
             </div>
 
+            {/* 페이지네이션 및 등록 버튼 */}
             <div className="flex items-center justify-center mt-8 relative">
                 {totalPages > 1 && (
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="text-[#1e3a5f]"
-                                />
-                            </PaginationItem>
-
-                            {renderPageNumbers().map((pageNum) => (
-                                <PaginationItem key={pageNum}>
-                                    <PaginationLink
-                                        onClick={() => handlePageChange(pageNum)}
-                                        isActive={currentPage === pageNum}
-                                        className={currentPage === pageNum ? 'bg-[#1e3a5f] text-white' : 'text-[#1e3a5f]'}
-                                    >
-                                        {pageNum}
-                                    </PaginationLink>
-                                </PaginationItem>
-                            ))}
-
-                            <PaginationItem>
-                                <PaginationNext
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="text-[#1e3a5f]"
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
+                    <NeoPagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 )}
 
                 {isAdmin && (
-                    <Button 
-                        onClick={() => navigate('/community/faq/add')}
-                        className="absolute right-0 bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
-                    >
-                        FAQ 등록
-                    </Button>
+                    <div className="absolute right-0">
+                        <NeoButton
+                            onClick={() => navigate('/community/faq/add')}
+                            color="bg-pink-500"
+                            size="sm"
+                        >
+                            FAQ 등록
+                        </NeoButton>
+                    </div>
                 )}
             </div>
         </CommunityLayout>

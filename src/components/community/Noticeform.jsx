@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { NeoButton } from '@/components/common/neo';
 
 const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath }) => {
     const navigate = useNavigate();
@@ -15,26 +15,9 @@ const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath })
 
     return (
         <form onSubmit={onSubmit} className="space-y-6">
+            {/* Title */}
             <div>
-                <label className="block text-sm font-medium text-[#1e3a5f] mb-2">
-                    카테고리
-                </label>
-                <select
-                    value={formData.communityCodeId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, communityCodeId: parseInt(e.target.value) }))}
-                    className="w-full px-0 py-2 border-0 border-b border-gray-300 focus:border-[#1e3a5f] focus:ring-0 bg-transparent text-[#1e3a5f]"
-                >
-                    <option value="5">회원</option>
-                    <option value="6">결제</option>
-                    <option value="7">구독</option>
-                    <option value="8">파티</option>
-                    <option value="9">정산</option>
-                    <option value="10">시스템</option>
-                </select>
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-[#1e3a5f] mb-2">
+                <label className="block text-sm font-black text-black mb-2">
                     제목
                 </label>
                 <input
@@ -43,12 +26,13 @@ const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath })
                     value={formData.title}
                     onChange={handleChange}
                     placeholder="제목을 입력하세요"
-                    className="w-full px-0 py-2 border-0 border-b border-gray-300 focus:border-[#1e3a5f] focus:ring-0 focus:outline-none bg-transparent text-[#1e3a5f] placeholder-gray-400"
+                    className="w-full px-4 py-3 border-4 border-black rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400"
                 />
             </div>
 
+            {/* Content */}
             <div>
-                <label className="block text-sm font-medium text-[#1e3a5f] mb-2">
+                <label className="block text-sm font-black text-black mb-2">
                     내용
                 </label>
                 <textarea
@@ -57,25 +41,27 @@ const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath })
                     onChange={handleChange}
                     placeholder="내용을 입력하세요"
                     rows={12}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[#1e3a5f] focus:ring-1 focus:ring-[#1e3a5f] focus:outline-none bg-transparent text-[#1e3a5f] placeholder-gray-400 resize-none"
+                    className="w-full px-4 py-3 border-4 border-black rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400 resize-none"
                 />
             </div>
 
-            <div className="flex items-center justify-center gap-4 pt-6">
-                <Button
+            {/* Buttons */}
+            <div className="flex items-center justify-center gap-4 pt-4">
+                <NeoButton
                     type="button"
-                    variant="outline"
+                    color="bg-white"
+                    size="sm"
                     onClick={() => navigate(cancelPath)}
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
                     취소
-                </Button>
-                <Button
+                </NeoButton>
+                <NeoButton
                     type="submit"
-                    className="bg-[#1e3a5f] hover:bg-[#152a45] text-white"
+                    color="bg-pink-500 text-white"
+                    size="sm"
                 >
                     {submitText}
-                </Button>
+                </NeoButton>
             </div>
         </form>
     );

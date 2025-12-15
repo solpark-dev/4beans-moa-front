@@ -3,17 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
 import NoticeItem from '../../components/community/NoticeItem';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
 
 const ListNotice = () => {
     const navigate = useNavigate();
@@ -34,14 +25,14 @@ const ListNotice = () => {
     const loadNoticeList = async () => {
         try {
             const response = await fetch(`/api/community/notice?page=1&size=100`);
-            
+
             if (!response.ok) {
                 setNotices([]);
                 return;
             }
-            
+
             const data = await response.json();
-            const sortedNotices = (data.content || []).sort((a, b) => 
+            const sortedNotices = (data.content || []).sort((a, b) =>
                 new Date(b.createdAt) - new Date(a.createdAt)
             );
             setNotices(sortedNotices);
@@ -90,23 +81,6 @@ const ListNotice = () => {
         return filteredNotices.slice(startIndex, endIndex);
     };
 
-    const renderPageNumbers = () => {
-        const pages = [];
-        const maxVisible = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = startPage + maxVisible - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxVisible + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-        return pages;
-    };
-
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('ko-KR', {
@@ -130,19 +104,25 @@ const ListNotice = () => {
     return (
         <CommunityLayout>
             <div className="pt-8">
-                <div className="flex items-center justify-end mb-6 pb-4 border-b border-gray-200">
+                {/* 검색 영역 */}
+                <div className="flex items-center justify-end mb-6 pb-4 border-b-4 border-black">
                     <div className="relative">
-                        <Input
+                        <input
                             type="text"
-                            placeholder=""
+                            placeholder="검색어 입력"
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            className="w-56 pr-10 border-0 border-b border-gray-300 rounded-none focus:border-[#1e3a5f] focus:ring-0 bg-transparent"
+                            className="w-56 px-4 py-2 pr-10 font-bold
+                                border-4 border-black rounded-xl
+                                shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                focus:outline-none focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                                focus:translate-x-[2px] focus:translate-y-[2px]
+                                transition-all"
                         />
-                        <button 
+                        <button
                             onClick={handleSearch}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1e3a5f]"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-pink-500 transition-colors"
                         >
                             <Search className="w-5 h-5" />
                         </button>
@@ -150,16 +130,10 @@ const ListNotice = () => {
                 </div>
             </div>
 
-            <div className="border-t border-gray-300">
-                <div className="grid grid-cols-12 py-3 border-b border-gray-200 text-sm font-medium text-gray-500">
-                    <div className="col-span-1 text-center">번호</div>
-                    <div className="col-span-7 text-center">제목</div>
-                    <div className="col-span-2 text-center">등록일</div>
-                    <div className="col-span-2 text-center">조회수</div>
-                </div>
-
+            {/* 공지사항 리스트 */}
+            <div>
                 {getCurrentPageData().length === 0 ? (
-                    <div className="py-16 text-center text-gray-400">
+                    <div className="py-16 text-center font-bold text-gray-400">
                         등록된 공지사항이 없습니다.
                     </div>
                 ) : (
@@ -175,48 +149,26 @@ const ListNotice = () => {
                 )}
             </div>
 
+            {/* 페이지네이션 및 등록 버튼 */}
             <div className="flex items-center justify-center mt-8 relative">
                 {totalPages > 1 && (
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="text-[#1e3a5f]"
-                                />
-                            </PaginationItem>
-
-                            {renderPageNumbers().map((pageNum) => (
-                                <PaginationItem key={pageNum}>
-                                    <PaginationLink
-                                        onClick={() => handlePageChange(pageNum)}
-                                        isActive={currentPage === pageNum}
-                                        className={currentPage === pageNum ? 'bg-[#1e3a5f] text-white' : 'text-[#1e3a5f]'}
-                                    >
-                                        {pageNum}
-                                    </PaginationLink>
-                                </PaginationItem>
-                            ))}
-
-                            <PaginationItem>
-                                <PaginationNext
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="text-[#1e3a5f]"
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
+                    <NeoPagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 )}
 
                 {isAdmin && (
-                    <Button 
-                        onClick={() => navigate('/community/notice/add')}
-                        className="absolute right-0 bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white"
-                    >
-                        등록
-                    </Button>
+                    <div className="absolute right-0">
+                        <NeoButton
+                            onClick={() => navigate('/community/notice/add')}
+                            color="bg-pink-500"
+                            size="sm"
+                        >
+                            등록
+                        </NeoButton>
+                    </div>
                 )}
             </div>
         </CommunityLayout>
