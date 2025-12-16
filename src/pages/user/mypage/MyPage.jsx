@@ -93,13 +93,19 @@ export default function MyPage() {
               </div>
 
               <div className="w-full max-w-xl">
-                  <ProfileCard
-                    user={user}
-                    isAdmin={isAdmin}
-                    shortId={shortId}
-                    actions={actions}
-                    profileImageUrl={resolveProfileImageUrl(user?.profileImage)}
-                  />
+                <ProfileCard
+                  user={user}
+                  isAdmin={isAdmin}
+                  shortId={shortId}
+                  actions={actions}
+                  profileImageUrl={
+                    user?.profileImage
+                      ? `${resolveProfileImageUrl(user.profileImage)}${
+                          user.updatedAt ? `?v=${user.updatedAt}` : ""
+                        }`
+                      : ""
+                  }
+                />
               </div>
             </div>
           </div>

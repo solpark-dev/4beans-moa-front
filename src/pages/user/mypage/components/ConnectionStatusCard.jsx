@@ -1,5 +1,6 @@
 import React from "react";
 import { Link2, Shield, Smartphone } from "lucide-react";
+import { formatPhone } from "@/utils/phoneUtils";
 
 const SECTION_TITLE = "text-xs font-black tracking-widest";
 const ROW = "flex items-center justify-between py-3";
@@ -16,7 +17,7 @@ export function ConnectionStatusCard({
   otp,
   actions,
 }) {
-  const phone = user?.phone || "-";
+  const phone = formatPhone(user?.phone);
 
   const toggleGoogle = () => {
     if (typeof actions?.handleGoogleClick === "function") {

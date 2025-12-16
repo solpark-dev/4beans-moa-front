@@ -12,7 +12,7 @@ export const updatePwd = (data) => httpClient.post("/users/updatePwd", data);
 
 export const uploadProfileImage = (formData) =>
   httpClient.post("/users/uploadProfileImage", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { "Content-Type": undefined },
   });
 
 export const resetPwdByOldApi = (data) =>

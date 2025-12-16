@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
+import { formatPhone } from "@/utils/phoneUtils";
 import {
   KeyRound,
   Mail,
@@ -24,7 +25,7 @@ function Sticker({
 }) {
   return (
     <motion.div
-      whileHover={withShadow ? { scale: 1.02, x: 2, y: 2 } : undefined}
+      whileHover={withShadow ? { scale: 1.01 } : undefined}
       whileTap={withShadow ? { scale: 0.98, x: 0, y: 0 } : undefined}
       style={{ rotate }}
       className={`
@@ -211,6 +212,7 @@ export default function UpdateUserPage() {
             <Sticker
               color="bg-white"
               rotate={0}
+              withShadow={false}
               className="rounded-[2.5rem] p-6 md:p-8"
             >
               <div className="space-y-7">
@@ -328,7 +330,7 @@ export default function UpdateUserPage() {
 
                   <div className="flex gap-3 items-stretch">
                     <Input
-                      value={phone || ""}
+                      value={formatPhone(phone) || ""}
                       readOnly
                       className="flex-1 bg-slate-100 border border-gray-200 rounded-2xl font-bold text-gray-800 focus-visible:ring-0 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
                     />
