@@ -94,6 +94,18 @@ export const getPartyMembers = (party) => {
   return Number.isFinite(n) ? n : null;
 };
 
+export const getPartyMaxMembers = (party) => {
+  const v = pickFirstDefined(
+    party?.maxMembers,
+    party?.maxSlots,
+    party?.totalSlots,
+    party?.capacity,
+    party?.product?.maxProfiles
+  );
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 4; // 기본값 4
+};
+
 export const getProductId = (p) => p?.productId ?? p?.id ?? null;
 export const getProductName = (p) => p?.productName ?? p?.name ?? "";
 export const getProductCategory = (p) =>

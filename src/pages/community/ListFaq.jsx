@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import FaqItem from '../../components/community/FaqItem';
 import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Search } from 'lucide-react';
 const ListFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const { theme } = useThemeStore();
     const [faqs, setFaqs] = useState([]);
     const [filteredFaqs, setFilteredFaqs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,6 +23,39 @@ const ListFaq = () => {
     const isAdmin = user?.role === 'ADMIN';
 
     const categories = ['전체', '회원', '결제', '구독', '파티', '정산', '기타'];
+
+    // Theme-based colors
+    const getButtonColor = () => {
+        switch (theme) {
+            case 'christmas':
+                return 'bg-[#c41e3a]';
+            case 'dark':
+                return 'bg-[#635bff]';
+            case 'portrait':
+                return 'bg-gradient-to-r from-[#FFB5C5] to-[#C5B5FF]';
+            case 'classic':
+                return 'bg-[#635bff]';
+            case 'pop':
+            default:
+                return 'bg-pink-500';
+        }
+    };
+
+    const getSearchIconColor = () => {
+        switch (theme) {
+            case 'christmas':
+                return 'hover:text-[#c41e3a]';
+            case 'dark':
+                return 'hover:text-[#635bff]';
+            case 'portrait':
+                return 'hover:text-pink-400';
+            case 'classic':
+                return 'hover:text-[#635bff]';
+            case 'pop':
+            default:
+                return 'hover:text-pink-500';
+        }
+    };
 
     useEffect(() => {
         loadFaqList();
@@ -154,11 +189,11 @@ const ListFaq = () => {
                                 onClick={() => handleCategoryChange(category)}
                                 className={`
                                     px-4 py-2 font-black text-sm rounded-lg
-                                    border border-gray-200
+                                    ${theme === 'pop' ? 'border border-gray-200' : theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
                                     transition-all duration-200
                                     ${activeCategory === category
-                                        ? 'bg-pink-500 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)]'
-                                        : 'bg-white text-black hover:bg-slate-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] '
+                                        ? `${getButtonColor()} text-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`
+                                        : `${theme === 'dark' ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white text-black hover:bg-slate-100'} shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] `
                                     }
                                 `}
                             >
@@ -183,7 +218,7 @@ const ListFaq = () => {
                         />
                         <button
                             onClick={handleSearch}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-pink-500 transition-colors"
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${getSearchIconColor()} transition-colors`}
                         >
                             <Search className="w-5 h-5" />
                         </button>
@@ -227,7 +262,7 @@ const ListFaq = () => {
                     <div className="absolute right-0">
                         <NeoButton
                             onClick={() => navigate('/community/faq/add')}
-                            color="bg-pink-500"
+                            color={getButtonColor()}
                             size="sm"
                         >
                             FAQ 등록

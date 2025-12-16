@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import NoticeItem from '../../components/community/NoticeItem';
 import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Search } from 'lucide-react';
 const ListNotice = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const { theme } = useThemeStore();
     const [notices, setNotices] = useState([]);
     const [filteredNotices, setFilteredNotices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -17,6 +19,39 @@ const ListNotice = () => {
     const pageSize = 10;
 
     const isAdmin = user?.role === 'ADMIN';
+
+    // Theme-based button color
+    const getButtonColor = () => {
+        switch (theme) {
+            case 'christmas':
+                return 'bg-[#c41e3a]';
+            case 'dark':
+                return 'bg-[#635bff]';
+            case 'portrait':
+                return 'bg-gradient-to-r from-[#FFB5C5] to-[#C5B5FF]';
+            case 'classic':
+                return 'bg-[#635bff]';
+            case 'pop':
+            default:
+                return 'bg-pink-500';
+        }
+    };
+
+    const getSearchIconColor = () => {
+        switch (theme) {
+            case 'christmas':
+                return 'hover:text-[#c41e3a]';
+            case 'dark':
+                return 'hover:text-[#635bff]';
+            case 'portrait':
+                return 'hover:text-pink-400';
+            case 'classic':
+                return 'hover:text-[#635bff]';
+            case 'pop':
+            default:
+                return 'hover:text-pink-500';
+        }
+    };
 
     useEffect(() => {
         loadNoticeList();
@@ -122,7 +157,7 @@ const ListNotice = () => {
                         />
                         <button
                             onClick={handleSearch}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-pink-500 transition-colors"
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${getSearchIconColor()} transition-colors`}
                         >
                             <Search className="w-5 h-5" />
                         </button>
@@ -163,7 +198,7 @@ const ListNotice = () => {
                     <div className="absolute right-0">
                         <NeoButton
                             onClick={() => navigate('/community/notice/add')}
-                            color="bg-pink-500"
+                            color={getButtonColor()}
                             size="sm"
                         >
                             등록

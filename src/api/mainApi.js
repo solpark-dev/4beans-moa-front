@@ -39,7 +39,7 @@ export const fetchMainSubscriptionProducts = async () => {
 // 파티 목록 조회 - /parties 엔드포인트 직접 사용 (permitAll)
 export const fetchMainTrendingParties = async () => {
   const payload = await safeGet("/parties", {
-    params: { sort: "latest", size: 8 },
+    params: { sort: "deadline", size: 12 },
   });
   if (payload?.__error) return payload;
   return normalizeList(payload);

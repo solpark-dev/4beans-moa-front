@@ -13,6 +13,7 @@ import {
   getPartyHostName,
   getPartyStatus,
   getPartyMembers,
+  getPartyMaxMembers,
 } from "@/utils/format";
 
 function Sticker({ children, color = "bg-white", rotate = 0, className = "" }) {
@@ -65,9 +66,22 @@ export default function MainTrendingSection() {
   const partiesLoading = useMainStore((s) => s.partiesLoading);
   const partiesError = useMainStore((s) => s.partiesError);
 
+  // 마감 임박 파티 3개 선택 (모집률 높은 순)
   const visible = useMemo(() => {
-    const list = Array.isArray(parties) ? parties : [];
-    return list.slice(0, 4);
+    const list = Array.isArray(parties) ? [...parties] : [];
+
+    // 모집률(현재 인원 / 최대 인원) 기준으로 정렬 (높은 순)
+    const sorted = list
+      .map((party) => {
+        const members = getPartyMembers(party) || 0;
+        const maxMembers = getPartyMaxMembers(party) || 4;
+        const fillRatio = members / maxMembers;
+        return { party, fillRatio };
+      })
+      .sort((a, b) => b.fillRatio - a.fillRatio)
+      .map((item) => item.party);
+
+    return sorted.slice(0, 3);
   }, [parties]);
 
   const goParty = (party) => {
@@ -87,10 +101,10 @@ export default function MainTrendingSection() {
         >
           <div>
             <Sticker color="bg-pink-500" rotate={-1} className="inline-block px-4 py-2 rounded-xl mb-4">
-              <span className="font-black text-white">HOT! 🔥</span>
+              <span className="font-black text-white">마감 임박 ⏰</span>
             </Sticker>
-            <h2 className="text-4xl md:text-5xl font-black">지금 뜨는 파티</h2>
-            <p className="text-gray-700 font-medium mt-3">실시간으로 인기 파티를 확인하고 바로 참여하세요.</p>
+            <h2 className="text-4xl md:text-5xl font-black">서두르세요!</h2>
+            <p className="text-gray-700 font-medium mt-3">곧 마감되는 파티에 지금 바로 참여하세요.</p>
           </div>
 
           <Link to="/parties">
@@ -111,8 +125,8 @@ export default function MainTrendingSection() {
         )}
 
         {partiesLoading && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
               <div
                 key={i}
                 className="h-56 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] animate-pulse"
@@ -123,14 +137,16 @@ export default function MainTrendingSection() {
 
         {!partiesLoading && (
           <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {visible.map((party, i) => {
                 const service = getPartyServiceName(party);
                 const host = getPartyHostName(party);
                 const title = getPartyTitle(party);
                 const desc = getPartyDescription(party);
                 const price = getPartyPrice(party);
-                const members = getPartyMembers(party);
+                const members = getPartyMembers(party) || 0;
+                const maxMembers = getPartyMaxMembers(party) || 4;
+                const fillPercent = Math.round((members / maxMembers) * 100);
                 const status = String(getPartyStatus(party) || "");
                 const isRecruiting =
                   status.toUpperCase() === "RECRUITING" ||
@@ -138,13 +154,11 @@ export default function MainTrendingSection() {
                   status.toUpperCase() === "ACTIVE";
 
                 const bg =
-                  i % 4 === 0
+                  i % 3 === 0
                     ? "bg-red-500"
-                    : i % 4 === 1
+                    : i % 3 === 1
                     ? "bg-blue-500"
-                    : i % 4 === 2
-                    ? "bg-indigo-500"
-                    : "bg-pink-500";
+                    : "bg-indigo-500";
 
                 return (
                   <BouncyCard
@@ -175,14 +189,25 @@ export default function MainTrendingSection() {
                         {desc || ""}
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-sm font-black text-gray-700">
-                          <Users className="w-4 h-4" />
-                          <span>{members ? `${members}명` : "-"}</span>
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 text-sm font-black text-gray-700">
+                            <Users className="w-4 h-4" />
+                            <span>{members}/{maxMembers}명</span>
+                          </div>
+                          <span className="font-black text-pink-500">
+                            {formatCurrency(price, { fallback: "0원" })}
+                          </span>
                         </div>
-                        <span className="font-black text-pink-500">
-                          {formatCurrency(price, { fallback: "0원" })}
-                        </span>
+                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-orange-400 to-pink-500 rounded-full transition-all duration-500"
+                            style={{ width: `${fillPercent}%` }}
+                          />
+                        </div>
+                        <div className="text-xs font-bold text-orange-500 text-right">
+                          {fillPercent}% 모집 완료
+                        </div>
                       </div>
 
                       <button

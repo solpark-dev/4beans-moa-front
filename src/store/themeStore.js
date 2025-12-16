@@ -5,8 +5,9 @@ import { persist, createJSONStorage } from "zustand/middleware";
 export const useThemeStore = create(
   persist(
     (set, get) => ({
-      // Current theme: 'classic' | 'dark' | 'pop' | 'portrait'
-      theme: "classic",
+      // Current theme: 'classic' | 'dark' | 'pop' | 'portrait' | 'christmas'
+      // 기본 테마는 pop
+      theme: "pop",
 
       // Set theme
       setTheme: (theme) => {
@@ -20,7 +21,7 @@ export const useThemeStore = create(
 
       // Cycle through themes
       cycleTheme: () => {
-        const themes = ["classic", "dark", "pop", "portrait"];
+        const themes = ["classic", "dark", "pop", "portrait", "christmas"];
         const currentIndex = themes.indexOf(get().theme);
         const nextIndex = (currentIndex + 1) % themes.length;
         get().setTheme(themes[nextIndex]);
@@ -29,15 +30,7 @@ export const useThemeStore = create(
     {
       name: "app-theme-storage",
       storage: createJSONStorage(() => localStorage),
-      // Migrate from legacy localStorage key
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          const legacyTheme = localStorage.getItem("partyListTheme");
-          if (legacyTheme && legacyTheme !== state.theme) {
-            state.setTheme(legacyTheme);
-          }
-        }
-      },
+      // 저장된 테마 유지 (강제 변경 제거)
     }
   )
 );

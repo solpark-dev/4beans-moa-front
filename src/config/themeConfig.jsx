@@ -1,12 +1,35 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Palette, Sparkles, TreePine } from "lucide-react";
+import { Sun, Moon, Palette, Sparkles, TreePine, Circle } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
 // ============================================
 // Page Theme Configuration
 // ============================================
 export const themeConfig = {
+  default: {
+    name: "Default",
+    icon: Circle,
+    bg: "bg-slate-50",
+    heroBg: "bg-slate-50",
+    text: "text-slate-900",
+    subtext: "text-gray-600",
+    card: "bg-white border-gray-200 hover:border-gray-300 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    cardText: "text-slate-900",
+    cardSubtext: "text-gray-500",
+    accent: "#334155",
+    accentBg: "bg-slate-700",
+    accentText: "text-slate-700",
+    filterBg: "bg-white/80",
+    filterBorder: "border-gray-200",
+    inputBg: "bg-white",
+    inputBorder: "border-gray-200",
+    inputText: "text-gray-900",
+    buttonActive: "bg-slate-900 text-white",
+    buttonInactive: "bg-gray-100 text-gray-600 hover:bg-gray-200",
+    sectionBg: "bg-gray-50",
+    gradientText: "text-slate-900",
+  },
   classic: {
     name: "Classic",
     icon: Sun,
@@ -129,6 +152,48 @@ export const themeConfig = {
 // Header Theme Configuration
 // ============================================
 export const headerThemes = {
+  default: {
+    // Header container - original slate style
+    bg: "bg-slate-50/95 backdrop-blur-xl",
+    border: "border-gray-200/80",
+    borderWidth: "border-b",
+    // Text colors
+    text: "text-slate-900",
+    subtext: "text-gray-600",
+    // Logo
+    logoBg: "bg-white",
+    logoBorder: "border border-gray-200",
+    logoShadow: "shadow-sm hover:shadow-md",
+    logoText: "text-slate-900",
+    // Sticker/Card components
+    stickerBg: "bg-white",
+    stickerBorder: "border border-gray-200",
+    stickerShadow: "shadow-sm hover:shadow-md",
+    stickerText: "text-slate-900",
+    // Menu button
+    menuBg: "bg-slate-900",
+    menuText: "text-white",
+    menuBorder: "",
+    // Dropdown
+    dropdownBg: "bg-white",
+    dropdownBorder: "border border-gray-200",
+    dropdownShadow: "shadow-xl",
+    dropdownItemBg: "bg-gray-50",
+    dropdownItemHover: "hover:bg-gray-100",
+    dropdownItemText: "text-slate-900",
+    dropdownItemSubtext: "text-gray-600",
+    // Accent
+    accent: "#334155",
+    accentBg: "bg-slate-700",
+    accentText: "text-white",
+    // Separator
+    separatorColor: "bg-gray-200",
+    // Switch
+    switchChecked: "data-[state=checked]:bg-slate-900 data-[state=unchecked]:bg-slate-300",
+    // Avatar
+    avatarBorder: "border-2 border-slate-300 bg-slate-50",
+    avatarFallback: "bg-slate-400 text-white",
+  },
   classic: {
     // Header container
     bg: "bg-white/95 backdrop-blur-xl",
@@ -544,11 +609,11 @@ export const ChristmasBackground = () => (
       transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
     />
 
-    {/* Falling snow - fluffy cotton-like dots with visible tint */}
-    {[...Array(20)].map((_, i) => {
+    {/* Falling snow - 더 많은 눈송이 (50개) */}
+    {[...Array(50)].map((_, i) => {
       // Pseudo-random positions using prime-based distribution
-      const leftPos = ((i * 17 + 23) % 97) + ((i * 7) % 11) * 0.3;
-      const size = 8 + (i % 4) * 4; // 8px to 20px
+      const leftPos = ((i * 13 + 7) % 100);
+      const size = 6 + (i % 5) * 4; // 6px to 22px - 다양한 크기
 
       return (
         <motion.div
@@ -556,33 +621,70 @@ export const ChristmasBackground = () => (
           className="absolute rounded-full"
           style={{
             left: `${leftPos}%`,
-            top: "-20px",
+            top: "-30px",
             width: `${size}px`,
             height: `${size}px`,
-            background: `radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 40%, rgba(255, 255, 255, 0.3) 70%, transparent 100%)`,
-            filter: "blur(0.5px)",
-            boxShadow: `0 2px 6px rgba(0, 0, 0, 0.1), 0 0 ${size}px rgba(255, 255, 255, 0.5)`,
+            background: `radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.8) 40%, rgba(255, 255, 255, 0.4) 70%, transparent 100%)`,
+            filter: "blur(0.3px)",
+            boxShadow: `0 2px 8px rgba(0, 0, 0, 0.08), 0 0 ${size + 4}px rgba(255, 255, 255, 0.6)`,
           }}
           animate={{
-            y: ["0vh", "110vh"],
+            y: ["0vh", "115vh"],
             x: [
               0,
-              Math.sin(i * 0.7 + 1.3) * 60 * (i % 2 === 0 ? 1 : -1),
-              Math.cos(i * 0.5 + 0.8) * 40 * (i % 2 === 0 ? -1 : 1),
-              Math.sin(i * 0.3) * 30,
+              Math.sin(i * 0.5 + 1.2) * 80 * (i % 2 === 0 ? 1 : -1),
+              Math.cos(i * 0.4 + 0.6) * 50 * (i % 2 === 0 ? -1 : 1),
+              Math.sin(i * 0.3 + 0.9) * 40,
               0
             ],
-            scale: [1, 1.1, 0.9, 1.05, 1],
+            scale: [1, 1.15, 0.85, 1.1, 1],
+            rotate: [0, 180, 360],
           }}
           transition={{
-            duration: 16 + (i % 7) * 2.7, // ~10% faster: 16s to 35s
+            duration: 12 + (i % 8) * 2.5, // 12s to 30s - 더 빠르게
             repeat: Infinity,
-            delay: (i * 1.3) + Math.sin(i) * 2, // More varied delays
+            delay: (i * 0.8) + Math.sin(i) * 1.5,
             ease: "linear",
           }}
         />
       );
     })}
+
+    {/* 추가 작은 눈 입자들 (30개) - 빠르게 떨어지는 작은 눈 */}
+    {[...Array(30)].map((_, i) => {
+      const leftPos = ((i * 19 + 11) % 100);
+      const size = 3 + (i % 3) * 2; // 3px to 7px
+
+      return (
+        <motion.div
+          key={`small-${i}`}
+          className="absolute rounded-full bg-white/80"
+          style={{
+            left: `${leftPos}%`,
+            top: "-15px",
+            width: `${size}px`,
+            height: `${size}px`,
+            boxShadow: `0 0 ${size + 2}px rgba(255, 255, 255, 0.5)`,
+          }}
+          animate={{
+            y: ["0vh", "110vh"],
+            x: [
+              0,
+              Math.sin(i * 0.8) * 30 * (i % 2 === 0 ? 1 : -1),
+              Math.cos(i * 0.6) * 20,
+              0
+            ],
+          }}
+          transition={{
+            duration: 8 + (i % 5) * 2, // 8s to 16s - 빠르게
+            repeat: Infinity,
+            delay: i * 0.5,
+            ease: "linear",
+          }}
+        />
+      );
+    })}
+
   </div>
 );
 

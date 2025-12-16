@@ -75,15 +75,15 @@ export const useMyPage = () => {
 
   const googleConn = Boolean(
     (user?.loginProvider || "").toLowerCase() === "google" ||
-      (user?.oauthConnections || []).find(
-        (c) => c.provider?.toLowerCase() === "google" && !c.releaseDate
-      )
+    (user?.oauthConnections || []).find(
+      (c) => c.provider?.toLowerCase() === "google" && !c.releaseDate
+    )
   );
   const kakaoConn = Boolean(
     (user?.loginProvider || "").toLowerCase() === "kakao" ||
-      (user?.oauthConnections || []).find(
-        (c) => c.provider?.toLowerCase() === "kakao" && !c.releaseDate
-      )
+    (user?.oauthConnections || []).find(
+      (c) => c.provider?.toLowerCase() === "kakao" && !c.releaseDate
+    )
   );
 
   const loginProviderLabel = getLoginProviderLabel(user);
@@ -91,7 +91,7 @@ export const useMyPage = () => {
   const isAdmin = user?.role === "ADMIN";
 
   const handlers = {
-    goSubscription: () => navigate("/subscription/list"),
+    goSubscription: () => navigate("/subscription"),
     goMyParties: () => navigate("/my-parties"),
     goChangePwd: () => navigate("/mypage/password"),
     goWallet: () => navigate("/user/wallet"),
@@ -133,7 +133,7 @@ export const useMyPage = () => {
         console.error(e);
         alert(
           e?.response?.data?.error?.message ||
-            "소셜 연동을 시작하는 중 오류가 발생했습니다."
+          "소셜 연동을 시작하는 중 오류가 발생했습니다."
         );
       }
     },

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { NeoCard, NeoButton } from '@/components/common/neo';
+import { useThemeStore } from '@/store/themeStore';
 
 const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, onToggle }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -9,6 +10,76 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
         title: '',
         content: faq.content
     });
+    const { theme } = useThemeStore();
+
+    // Theme-based colors
+    const getThemeColors = () => {
+        switch (theme) {
+            case 'christmas':
+                return {
+                    categoryBadge: 'bg-[#c41e3a]',
+                    focusRing: 'focus:ring-[#c41e3a]',
+                    saveButton: 'bg-[#1a5f2a]',
+                    editButton: 'bg-[#1a5f2a]',
+                    cardBg: theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white',
+                    hoverBg: theme === 'dark' ? 'hover:bg-[#0F172A]' : 'hover:bg-slate-50',
+                    answerBg: theme === 'dark' ? 'bg-[#0F172A]' : 'bg-slate-50',
+                    textColor: theme === 'dark' ? 'text-gray-200' : 'text-black',
+                    iconColor: theme === 'dark' ? 'text-gray-400' : 'text-black',
+                };
+            case 'dark':
+                return {
+                    categoryBadge: 'bg-[#635bff]',
+                    focusRing: 'focus:ring-[#635bff]',
+                    saveButton: 'bg-[#635bff]',
+                    editButton: 'bg-[#635bff]',
+                    cardBg: 'bg-[#1E293B]',
+                    hoverBg: 'hover:bg-[#0F172A]',
+                    answerBg: 'bg-[#0F172A]',
+                    textColor: 'text-gray-200',
+                    iconColor: 'text-gray-400',
+                };
+            case 'portrait':
+                return {
+                    categoryBadge: 'bg-gradient-to-r from-[#FFB5C5] to-[#C5B5FF]',
+                    focusRing: 'focus:ring-pink-400',
+                    saveButton: 'bg-pink-300',
+                    editButton: 'bg-pink-300',
+                    cardBg: 'bg-white',
+                    hoverBg: 'hover:bg-slate-50',
+                    answerBg: 'bg-slate-50',
+                    textColor: 'text-black',
+                    iconColor: 'text-black',
+                };
+            case 'classic':
+                return {
+                    categoryBadge: 'bg-[#635bff]',
+                    focusRing: 'focus:ring-[#635bff]',
+                    saveButton: 'bg-blue-500',
+                    editButton: 'bg-blue-500',
+                    cardBg: 'bg-white',
+                    hoverBg: 'hover:bg-slate-50',
+                    answerBg: 'bg-slate-50',
+                    textColor: 'text-black',
+                    iconColor: 'text-black',
+                };
+            case 'pop':
+            default:
+                return {
+                    categoryBadge: 'bg-pink-500',
+                    focusRing: 'focus:ring-cyan-400',
+                    saveButton: 'bg-cyan-400',
+                    editButton: 'bg-lime-400',
+                    cardBg: 'bg-white',
+                    hoverBg: 'hover:bg-slate-50',
+                    answerBg: 'bg-slate-50',
+                    textColor: 'text-black',
+                    iconColor: 'text-black',
+                };
+        }
+    };
+
+    const themeColors = getThemeColors();
 
     const categories = ['회원', '결제', '구독', '파티', '정산', '기타'];
     const category = getCategoryFromTitle ? getCategoryFromTitle(faq.title) : '기타';
@@ -76,29 +147,29 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
     return (
         <div className="mb-4">
             <NeoCard
-                color="bg-white"
+                color={themeColors.cardBg}
                 hoverable={false}
                 className="rounded-2xl overflow-hidden"
             >
                 {/* Question Header */}
                 <div
                     onClick={handleToggle}
-                    className="flex items-center p-5 cursor-pointer hover:bg-slate-50 transition-colors"
+                    className={`flex items-center p-5 cursor-pointer ${themeColors.hoverBg} transition-colors`}
                 >
-                    <span className="px-3 py-1 text-sm font-black bg-pink-500 text-white rounded-lg border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] mr-4">
+                    <span className={`px-3 py-1 text-sm font-black ${themeColors.categoryBadge} text-white rounded-lg ${theme === 'pop' ? 'border border-gray-200' : ''} shadow-[4px_4px_12px_rgba(0,0,0,0.08)] mr-4`}>
                         {category}
                     </span>
-                    <span className="flex-1 font-bold text-black">
+                    <span className={`flex-1 font-bold ${themeColors.textColor}`}>
                         {getDisplayTitle(faq.title)}
                     </span>
                     <ChevronDown
-                        className={`w-6 h-6 text-black transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        className={`w-6 h-6 ${themeColors.iconColor} transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     />
                 </div>
 
                 {/* Answer Content */}
                 {isOpen && (
-                    <div className="border-t border-gray-200 p-5 bg-slate-50">
+                    <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'} p-5 ${themeColors.answerBg}`}>
                         {isEditing ? (
                             <div className="space-y-4">
                                 {/* 카테고리 + 제목 한 줄 */}
@@ -106,8 +177,8 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
                                     <select
                                         value={editCategory}
                                         onChange={(e) => setEditCategory(e.target.value)}
-                                        className="px-3 py-2 border border-gray-200 rounded-xl font-black bg-white
-                                            focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                        className={`px-3 py-2 ${theme === 'dark' ? 'border-gray-700 bg-[#0F172A] text-gray-200' : 'border-gray-200 bg-white text-black'} rounded-xl font-black
+                                            focus:outline-none focus:ring-2 ${themeColors.focusRing}`}
                                     >
                                         {categories.map((cat) => (
                                             <option key={cat} value={cat}>{cat}</option>
@@ -117,8 +188,8 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
                                         value={editFormData.title}
                                         onChange={(e) => handleEditChange('title', e.target.value)}
                                         placeholder="질문 제목"
-                                        className="flex-1 px-4 py-2 border border-gray-200 rounded-xl font-bold
-                                            focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                        className={`flex-1 px-4 py-2 ${theme === 'dark' ? 'border-gray-700 bg-[#0F172A] text-gray-200' : 'border-gray-200 bg-white text-black'} rounded-xl font-bold
+                                            focus:outline-none focus:ring-2 ${themeColors.focusRing}`}
                                     />
                                 </div>
                                 {/* 답변 내용 */}
@@ -127,19 +198,19 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
                                     onChange={(e) => handleEditChange('content', e.target.value)}
                                     rows={6}
                                     placeholder="답변 내용"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl font-bold resize-none
-                                        focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                    className={`w-full px-4 py-3 ${theme === 'dark' ? 'border-gray-700 bg-[#0F172A] text-gray-200' : 'border-gray-200 bg-white text-black'} rounded-xl font-bold resize-none
+                                        focus:outline-none focus:ring-2 ${themeColors.focusRing}`}
                                 />
                                 <div className="flex gap-3 justify-end">
                                     <NeoButton
-                                        color="bg-white"
+                                        color={theme === 'dark' ? 'bg-gray-700' : 'bg-white'}
                                         size="sm"
                                         onClick={handleCancel}
                                     >
                                         취소
                                     </NeoButton>
                                     <NeoButton
-                                        color="bg-cyan-400"
+                                        color={themeColors.saveButton}
                                         size="sm"
                                         onClick={handleSave}
                                     >
@@ -149,13 +220,13 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
                             </div>
                         ) : (
                             <div>
-                                <p className="text-gray-700 font-medium leading-relaxed whitespace-pre-wrap">
+                                <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} font-medium leading-relaxed whitespace-pre-wrap`}>
                                     {faq.content}
                                 </p>
                                 {isAdmin && (
                                     <div className="flex justify-end mt-4">
                                         <NeoButton
-                                            color="bg-lime-400"
+                                            color={themeColors.editButton}
                                             size="sm"
                                             onClick={handleEditClick}
                                         >

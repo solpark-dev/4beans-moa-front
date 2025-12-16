@@ -1,13 +1,12 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, Filter, ChevronRight } from "lucide-react";
+import { ChevronRight, ArrowUpRight } from "lucide-react";
 import { useMainStore } from "@/store/main/mainStore";
 import {
   formatCurrency,
   getProductId,
   getProductName,
-  getProductCategory,
   getProductTier,
   getProductPrice,
   getProductMaxProfiles,
@@ -66,39 +65,34 @@ export default function MainProductsSection() {
   const productsLoading = useMainStore((s) => s.productsLoading);
   const productsError = useMainStore((s) => s.productsError);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  // 랜덤 3개 상품 선택
+  const randomProducts = useMemo(() => {
+    const list = Array.isArray(products) ? [...products] : [];
+    if (list.length <= 3) return list;
 
-  const categories = useMemo(() => {
-    const map = new Map();
-    (products || []).forEach((p) => {
-      const c = getProductCategory(p) || "기타";
-      if (!map.has(c)) map.set(c, c);
-    });
-    return ["ALL", ...Array.from(map.values())];
+    // Fisher-Yates 셔플 알고리즘으로 랜덤 선택
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list.slice(0, 3);
   }, [products]);
-
-  const filtered = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    return (products || []).filter((p) => {
-      const name = (getProductName(p) || "").toLowerCase();
-      const category = getProductCategory(p) || "기타";
-      const okName = !q || name.includes(q);
-      const okCat = selectedCategory === "ALL" || category === selectedCategory;
-      return okName && okCat;
-    });
-  }, [products, searchTerm, selectedCategory]);
 
   const goDetail = (p) => {
     const id = getProductId(p);
     if (!id) return;
-    navigate(`/subscriptions/${id}`);
+    navigate(`/product/${id}`);
   };
 
   return (
     <section className="relative px-6 md:px-12 py-20 bg-slate-100 border-b border-gray-200">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+        <motion.div
+          initial={{ opacity: 0, y: 26 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10"
+        >
           <div>
             <Sticker
               color="bg-cyan-400"
@@ -111,59 +105,30 @@ export default function MainProductsSection() {
               원하는 서비스를 골라요
             </h2>
             <p className="text-gray-700 font-medium mt-3">
-              메인에서도 구독 상품을 검색/필터하고 바로 상세로 이동할 수 있어요.
+              다양한 구독 서비스를 확인하고 파티에 참여하세요.
             </p>
           </div>
-        </div>
 
-        <div className="bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] p-5 md:p-6 mb-10">
-          <div className="relative">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-black" />
-            <input
-              type="text"
-              placeholder="서비스명 검색..."
-              className="w-full pl-12 pr-4 py-3 bg-slate-100 rounded-2xl outline-none border border-gray-200 font-bold focus:bg-white transition"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto mt-4 pb-1">
-            {categories.map((c) => (
-              <button
-                key={c}
-                onClick={() => setSelectedCategory(c)}
-                className={`px-4 py-2 rounded-2xl whitespace-nowrap border border-gray-200 font-black transition
-                  ${
-                    selectedCategory === c
-                      ? "bg-pink-500 text-white"
-                      : "bg-white text-black hover:bg-slate-100"
-                  }`}
-              >
-                {c === "ALL" ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Filter className="w-4 h-4" />
-                    전체
-                  </span>
-                ) : (
-                  c
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+          <Link to="/product">
+            <Sticker color="bg-black" rotate={2} className="px-5 py-3 rounded-xl cursor-pointer">
+              <span className="flex items-center gap-2 text-white font-black">
+                전체 보기 <ArrowUpRight className="w-5 h-5" />
+              </span>
+            </Sticker>
+          </Link>
+        </motion.div>
 
         {productsError?.status === 401 && (
           <div className="mb-10">
             <div className="bg-white border border-gray-200 rounded-3xl p-6 font-bold text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-              구독 상품은 로그인 후 확인할 수 있어요. (서버 응답: 인증 필요)
+              구독 상품은 로그인 후 확인할 수 있어요.
             </div>
           </div>
         )}
 
         {productsLoading && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(3)].map((_, i) => (
               <div
                 key={i}
                 className="h-72 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] animate-pulse"
@@ -175,7 +140,7 @@ export default function MainProductsSection() {
         {!productsLoading && (
           <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p, i) => {
+              {randomProducts.map((p, i) => {
                 const name = getProductName(p);
                 const status = getProductStatus(p);
                 const tier = getProductTier(p);
@@ -194,7 +159,7 @@ export default function MainProductsSection() {
                 return (
                   <BouncyCard
                     key={`${getProductId(p) ?? i}`}
-                    delay={i * 0.04}
+                    delay={i * 0.08}
                     onClick={() => goDetail(p)}
                   >
                     <div className="p-6 border-b border-gray-200 bg-slate-50">
@@ -262,10 +227,10 @@ export default function MainProductsSection() {
               })}
             </div>
 
-            {filtered.length === 0 && (
+            {randomProducts.length === 0 && (
               <div className="py-16 text-center">
                 <div className="inline-block bg-white border border-gray-200 rounded-3xl px-8 py-6 font-black shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-                  검색 결과가 없습니다.
+                  등록된 상품이 없습니다.
                 </div>
               </div>
             )}

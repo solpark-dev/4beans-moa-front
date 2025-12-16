@@ -8,6 +8,7 @@ import {
   ThemeSwitcher,
   ThemeBackground,
   ThemeMarquee,
+  ChristmasBackground,
   themeConfig
 } from "../../config/themeConfig";
 import {
@@ -132,6 +133,9 @@ export default function MyPartyListPage() {
 
       {/* Pop Theme Marquee */}
       <ThemeMarquee theme={theme} />
+
+      {/* Christmas Background */}
+      {theme === 'christmas' && <ChristmasBackground />}
 
       {/* Hero Header */}
       <div className={`relative overflow-hidden ${theme === "dark" ? "bg-[#0B1120]" : theme === "pop" ? "bg-slate-50" : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
