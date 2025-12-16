@@ -40,7 +40,7 @@ export default function useUpdateUser() {
     if (previewImage) {
       if (previewImage.startsWith("blob:") || previewImage.startsWith("http"))
         return previewImage;
-      return `https://localhost:8443${previewImage}`;
+      return `${window.location.origin}${previewImage}`;
     }
     return "https://static.thenounproject.com/png/363633-200.png";
   }, [previewImage]);

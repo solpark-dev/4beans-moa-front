@@ -35,13 +35,7 @@ import {
 } from "@/config/themeConfig";
 
 function Sticker({ children, color = "bg-transparent", className = "" }) {
-  return (
-    <div
-      className={`${color} ${className}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={`${color} ${className}`}>{children}</div>;
 }
 
 function NavPill({ to, icon: Icon, children, active, theme = "classic" }) {
@@ -51,17 +45,19 @@ function NavPill({ to, icon: Icon, children, active, theme = "classic" }) {
     <Link
       to={to}
       className={`group inline-flex items-center gap-2 px-4 py-2 font-black text-[15px] rounded-2xl border-0 whitespace-nowrap transition-colors
-      ${active
+      ${
+        active
           ? "bg-black text-white"
           : "bg-transparent text-black hover:bg-black hover:text-white"
-        }`}
+      }`}
     >
       <span
         className={`inline-flex items-center justify-center w-7 h-7 rounded-xl border-0 transition-colors
-        ${active
+        ${
+          active
             ? "bg-white text-black"
             : "bg-transparent text-black group-hover:bg-white group-hover:text-black"
-          }`}
+        }`}
       >
         <Icon className="w-4 h-4" />
       </span>
@@ -82,8 +78,6 @@ export default function HeaderView({
   handleAdminSwitch,
 }) {
   const location = useLocation();
-
-  // Theme state from Zustand Store
   const { theme: currentTheme } = useThemeStore();
   const themeStyle = headerThemes[currentTheme] || headerThemes.classic;
 
@@ -102,33 +96,26 @@ export default function HeaderView({
       );
     }
 
-    const raw =
-      user?.loginProvider ||
-      user?.provider ||
-      user?.lastLoginType ||
-      (user?.oauthConnections || []).find((c) => c.provider && !c.releaseDate)
-        ?.provider;
+    const p = (user?.loginProvider || "email").toLowerCase();
 
-    const p = (raw || "").toString().toLowerCase();
-
-    let provider = "email";
-    if (p === "kakao") provider = "kakao";
-    else if (p === "google") provider = "google";
-    else if (p === "password" || p === "local" || p === "email")
-      provider = "email";
-
-    switch (provider) {
+    switch (p) {
       case "kakao":
         return (
-          <Badge className="w-fit bg-[#FEE500] text-black border-0 px-1.5 py-0 text-[9px] font-black rounded-full">KAKAO</Badge>
+          <Badge className="w-fit bg-[#FEE500] text-black border-0 px-1.5 py-0 text-[9px] font-black rounded-full">
+            KAKAO
+          </Badge>
         );
       case "google":
         return (
-          <Badge className="w-fit bg-white text-black border border-gray-300 px-1.5 py-0 text-[9px] font-black rounded-full">GOOGLE</Badge>
+          <Badge className="w-fit bg-white text-black border border-gray-300 px-1.5 py-0 text-[9px] font-black rounded-full">
+            GOOGLE
+          </Badge>
         );
       default:
         return (
-          <Badge className="w-fit bg-pink-100 text-pink-600 border-0 px-1.5 py-0 text-[9px] font-black rounded-full">EMAIL</Badge>
+          <Badge className="w-fit bg-pink-100 text-pink-600 border-0 px-1.5 py-0 text-[9px] font-black rounded-full">
+            EMAIL
+          </Badge>
         );
     }
   };
@@ -283,28 +270,32 @@ export default function HeaderView({
           <nav className="hidden md:flex items-center gap-3 min-w-0">
             {isAdmin ? (
               <>
-                <NavPill theme={currentTheme}
+                <NavPill
+                  theme={currentTheme}
                   to="/admin/dashboard"
                   icon={LayoutDashboard}
                   active={isActive("/admin/dashboard")}
                 >
                   대시보드
                 </NavPill>
-                <NavPill theme={currentTheme}
+                <NavPill
+                  theme={currentTheme}
                   to="/admin/users"
                   icon={Users}
                   active={isActive("/admin/users")}
                 >
                   회원 관리
                 </NavPill>
-                <NavPill theme={currentTheme}
+                <NavPill
+                  theme={currentTheme}
                   to="/admin/sales"
                   icon={CreditCard}
                   active={isActive("/admin/sales")}
                 >
                   매출 조회
                 </NavPill>
-                <NavPill theme={currentTheme}
+                <NavPill
+                  theme={currentTheme}
                   to="/product"
                   icon={Boxes}
                   active={isActive("/product")}
@@ -314,21 +305,28 @@ export default function HeaderView({
               </>
             ) : (
               <>
-                <NavPill theme={currentTheme}
+                <NavPill
+                  theme={currentTheme}
                   to="/product"
                   icon={Boxes}
                   active={isActive("/product")}
                 >
                   구독상품
                 </NavPill>
-                <NavPill theme={currentTheme}
+                <NavPill
+                  theme={currentTheme}
                   to="/subscription"
                   icon={Home}
                   active={isActive("/subscription")}
                 >
                   구독목록
                 </NavPill>
-                <NavPill theme={currentTheme} to="/party" icon={Users} active={isActive("/party")}>
+                <NavPill
+                  theme={currentTheme}
+                  to="/party"
+                  icon={Users}
+                  active={isActive("/party")}
+                >
                   파티 찾기
                 </NavPill>
               </>
@@ -339,23 +337,21 @@ export default function HeaderView({
         <div className="flex items-center gap-3 justify-end shrink-0">
           {user ? (
             <>
-              {/* 관리자 스위치: lg 이상에서만 헤더에 노출 (겹침 방지) */}
               {user?.role === "ADMIN" && (
-                <Sticker
-
-                  className="hidden lg:flex items-center gap-2 rounded-2xl px-3 py-2"
-                >
+                <Sticker className="hidden lg:flex items-center gap-2 rounded-2xl px-3 py-2">
                   <Switch
                     id="admin-mode"
                     checked={isAdminMode}
                     onCheckedChange={handleAdminSwitch}
-                    className={`${currentTheme === "dark"
-                      ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
-                      : currentTheme === "portrait"
+                    className={`${
+                      currentTheme === "dark"
+                        ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
+                        : currentTheme === "portrait"
                         ? "data-[state=checked]:bg-pink-400 data-[state=unchecked]:bg-pink-200"
                         : currentTheme === "christmas"
-                          ? "data-[state=checked]:bg-[#c41e3a] data-[state=unchecked]:bg-gray-300"
-                          : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"}`}
+                        ? "data-[state=checked]:bg-[#c41e3a] data-[state=unchecked]:bg-gray-300"
+                        : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
+                    }`}
                   />
                   <Label
                     htmlFor="admin-mode"
@@ -383,13 +379,17 @@ export default function HeaderView({
                         src={profileImageUrl}
                         alt={displayNickname}
                       />
-                      <AvatarFallback className={`text-lg font-black ${themeStyle.avatarFallback}`}>
+                      <AvatarFallback
+                        className={`text-lg font-black ${themeStyle.avatarFallback}`}
+                      >
                         {userInitial}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="hidden xl:flex flex-col gap-1 w-32 overflow-hidden">
-                      <span className={`text-[15px] font-black leading-tight truncate ${themeStyle.stickerText}`}>
+                      <span
+                        className={`text-[15px] font-black leading-tight truncate ${themeStyle.stickerText}`}
+                      >
                         {displayNickname}
                       </span>
                       {renderProviderBadge()}
@@ -405,35 +405,48 @@ export default function HeaderView({
                     size="icon"
                     className="p-0 border-0 bg-transparent hover:bg-transparent"
                   >
-                    <div className={`${themeStyle.menuBg} ${themeStyle.menuBorder} ${currentTheme === "pop" ? "" : "shadow-lg"} w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200`}>
+                    <div
+                      className={`${themeStyle.menuBg} ${
+                        themeStyle.menuBorder
+                      } ${
+                        currentTheme === "pop" ? "" : "shadow-lg"
+                      } w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200`}
+                    >
                       <Menu className={`w-6 h-6 ${themeStyle.menuText}`} />
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
 
-                {/* 드랍다운: 테마에 맞는 스타일 적용 */}
                 <DropdownMenuContent
                   align="end"
                   className="w-[520px] max-w-[calc(100vw-24px)] p-3 mt-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
                 >
                   <DropdownMenuLabel className="font-normal p-0 mb-3">
-                    <div className={`rounded-2xl p-3 ${themeStyle.dropdownItemBg}`}>
+                    <div
+                      className={`rounded-2xl p-3 ${themeStyle.dropdownItemBg}`}
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-11 w-11 border border-gray-200 bg-white">
                           <AvatarImage
                             src={profileImageUrl}
                             alt={displayNickname}
                           />
-                          <AvatarFallback className={`text-lg font-black ${themeStyle.avatarFallback}`}>
+                          <AvatarFallback
+                            className={`text-lg font-black ${themeStyle.avatarFallback}`}
+                          >
                             {userInitial}
                           </AvatarFallback>
                         </Avatar>
 
                         <div className="min-w-0 flex-1">
-                          <p className={`text-sm font-black truncate ${themeStyle.dropdownItemText}`}>
+                          <p
+                            className={`text-sm font-black truncate ${themeStyle.dropdownItemText}`}
+                          >
                             {displayNickname}님
                           </p>
-                          <p className={`text-xs font-bold truncate ${themeStyle.dropdownItemSubtext}`}>
+                          <p
+                            className={`text-xs font-bold truncate ${themeStyle.dropdownItemSubtext}`}
+                          >
                             {displayEmail}
                           </p>
                           <div className="mt-1">{renderProviderBadge()}</div>
@@ -441,20 +454,19 @@ export default function HeaderView({
                       </div>
                     </div>
                   </DropdownMenuLabel>
-
-                  {/* 관리자 스위치: lg 미만에서는 드랍다운 안에서 조작 */}
                   {user?.role === "ADMIN" && (
                     <div className="lg:hidden mb-3">
-                      <Sticker
-
-                        className="rounded-2xl px-3 py-3"
-                      >
+                      <Sticker className="rounded-2xl px-3 py-3">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex flex-col">
-                            <span className={`text-xs font-black tracking-[0.18em] uppercase ${themeStyle.dropdownItemText}`}>
+                            <span
+                              className={`text-xs font-black tracking-[0.18em] uppercase ${themeStyle.dropdownItemText}`}
+                            >
                               ADMIN MODE
                             </span>
-                            <span className={`text-[11px] font-bold ${themeStyle.dropdownItemSubtext}`}>
+                            <span
+                              className={`text-[11px] font-bold ${themeStyle.dropdownItemSubtext}`}
+                            >
                               {isAdminMode ? "SUP" : "MGR"}
                             </span>
                           </div>
@@ -462,13 +474,15 @@ export default function HeaderView({
                             id="admin-mode-dd"
                             checked={isAdminMode}
                             onCheckedChange={handleAdminSwitch}
-                            className={`${currentTheme === "dark"
-                              ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
-                              : currentTheme === "portrait"
+                            className={`${
+                              currentTheme === "dark"
+                                ? "data-[state=checked]:bg-[#635bff] data-[state=unchecked]:bg-gray-600"
+                                : currentTheme === "portrait"
                                 ? "data-[state=checked]:bg-pink-400 data-[state=unchecked]:bg-pink-200"
                                 : currentTheme === "christmas"
-                                  ? "data-[state=checked]:bg-[#c41e3a] data-[state=unchecked]:bg-gray-300"
-                                  : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"}`}
+                                ? "data-[state=checked]:bg-[#c41e3a] data-[state=unchecked]:bg-gray-300"
+                                : "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300"
+                            }`}
                           />
                         </div>
                       </Sticker>
@@ -483,8 +497,18 @@ export default function HeaderView({
                       className="cursor-pointer focus:bg-transparent p-0"
                     >
                       <div className="w-full">
-                        <div className={`w-full rounded-2xl px-4 py-3 transition-all duration-200 ${themeStyle.accentBg} ${currentTheme === "pop" ? "border-2 border-black" : ""}`}>
-                          <div className={`flex items-center justify-between gap-2 font-black ${themeStyle.accentText}`}>
+                        <div
+                          className={`w-full rounded-2xl px-4 py-3 transition-all duration-200 ${
+                            themeStyle.accentBg
+                          } ${
+                            currentTheme === "pop"
+                              ? "border-2 border-black"
+                              : ""
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center justify-between gap-2 font-black ${themeStyle.accentText}`}
+                          >
                             <span className="flex items-center gap-2">
                               <LogOut className="w-5 h-5" />
                               로그아웃
@@ -507,10 +531,7 @@ export default function HeaderView({
                     size="icon"
                     className="p-0 border-0 bg-transparent hover:bg-transparent md:hidden"
                   >
-                    <Sticker
-
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                    >
+                    <Sticker className="w-12 h-12 rounded-2xl flex items-center justify-center">
                       <Menu className={`w-6 h-6 ${themeStyle.stickerText}`} />
                     </Sticker>
                   </Button>
@@ -518,7 +539,6 @@ export default function HeaderView({
                 <DropdownMenuContent
                   align="end"
                   className="w-[520px] max-w-[calc(100vw-24px)] p-3 mt-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-
                 >
                   {renderMobileNavItems(false)}
                 </DropdownMenuContent>
@@ -531,8 +551,14 @@ export default function HeaderView({
               </Link>
 
               <Link to="/login">
-                <div className={`${themeStyle.menuBg} ${themeStyle.menuBorder} ${currentTheme === "pop" ? "" : "shadow-lg"} px-5 py-2 rounded-2xl transition-all duration-200`}>
-                  <span className={`font-black ${themeStyle.menuText}`}>로그인</span>
+                <div
+                  className={`${themeStyle.menuBg} ${themeStyle.menuBorder} ${
+                    currentTheme === "pop" ? "" : "shadow-lg"
+                  } px-5 py-2 rounded-2xl transition-all duration-200`}
+                >
+                  <span className={`font-black ${themeStyle.menuText}`}>
+                    로그인
+                  </span>
                 </div>
               </Link>
             </div>
