@@ -13,6 +13,17 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const userSelectThemeStyles = {
+    default: {
+        userRowHover: 'hover:bg-slate-50',
+    },
+    christmas: {
+        userRowHover: 'hover:bg-red-50',
+    },
+};
 
 const UserSelectList = ({
     users = [],
@@ -28,6 +39,8 @@ const UserSelectList = ({
     onRemoveUser,
     onClearSelected,
 }) => {
+    const { theme } = useThemeStore();
+    const themeStyle = userSelectThemeStyles[theme] || userSelectThemeStyles.default;
     const [searchKeyword, setSearchKeyword] = useState("");
 
     const handleSearch = () => {
@@ -96,7 +109,7 @@ const UserSelectList = ({
                         return (
                             <div
                                 key={user.userId}
-                                className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer"
+                                className={`px-4 py-3 flex items-center gap-3 ${themeStyle.userRowHover} cursor-pointer`}
                                 onClick={() => onSelectUser && onSelectUser(user)}
                             >
                                 <Checkbox checked={isSelected} />

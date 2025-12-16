@@ -1,7 +1,32 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldCheck, Calendar, CheckCircle, AlertCircle } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const depositModalThemeStyles = {
+  default: {
+    gradientBg: 'bg-gradient-to-br from-blue-50 to-purple-50',
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+    iconColorSecondary: 'text-purple-600',
+    border: 'border-2 border-slate-900',
+    shadow: 'shadow-2xl',
+    hoverBg: 'hover:bg-slate-100',
+  },
+  christmas: {
+    gradientBg: 'bg-gradient-to-br from-red-50 to-green-50',
+    iconBg: 'bg-red-100',
+    iconColor: 'text-red-800',
+    iconColorSecondary: 'text-green-800',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    hoverBg: 'hover:bg-red-50',
+  },
+};
 
 export default function DepositDetailModal({ isOpen, onClose, deposit }) {
+  const { theme } = useThemeStore();
+  const themeStyle = depositModalThemeStyles[theme] || depositModalThemeStyles.default;
   if (!deposit) return null;
 
   const getStatusLabel = (status) => {
@@ -49,17 +74,17 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className={`bg-white rounded-2xl ${themeStyle.shadow} max-w-md w-full max-h-[90vh] overflow-y-auto`}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-slate-200">
+              <div className={`flex items-center justify-between p-6 ${themeStyle.border} border-b`}>
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">보증금 상세</h2>
                   <p className="text-sm text-slate-500 mt-1">보증금 내역의 상세 정보입니다</p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors"
+                  className={`w-8 h-8 rounded-lg ${themeStyle.hoverBg} flex items-center justify-center transition-colors`}
                 >
                   <X className="w-5 h-5 text-slate-500" />
                 </button>
@@ -68,9 +93,9 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
               {/* Content */}
               <div className="p-6 space-y-6">
                 {/* Amount */}
-                <div className="text-center py-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
-                    <ShieldCheck className="w-6 h-6 text-blue-600" />
+                <div className={`text-center py-6 ${themeStyle.gradientBg} rounded-xl`}>
+                  <div className={`w-12 h-12 rounded-full ${themeStyle.iconBg} flex items-center justify-center mx-auto mb-3`}>
+                    <ShieldCheck className={`w-6 h-6 ${themeStyle.iconColor}`} />
                   </div>
                   <p className="text-sm text-slate-600 mb-2">보증금 금액</p>
                   <p className="text-3xl font-bold text-slate-900">
@@ -82,7 +107,7 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
                 {/* Details */}
                 <div className="space-y-4">
                   <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-                    <ShieldCheck className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <ShieldCheck className={`w-5 h-5 ${themeStyle.iconColor} mt-0.5`} />
                     <div className="flex-1">
                       <p className="text-xs text-slate-500 mb-1">상품명</p>
                       <p className="font-semibold text-slate-900">
@@ -92,7 +117,7 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
                   </div>
 
                   <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-                    <Calendar className="w-5 h-5 text-purple-600 mt-0.5" />
+                    <Calendar className={`w-5 h-5 ${themeStyle.iconColorSecondary} mt-0.5`} />
                     <div className="flex-1">
                       <p className="text-xs text-slate-500 mb-1">처리일자</p>
                       <p className="font-semibold text-slate-900">
@@ -155,9 +180,9 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
                 )}
 
                 {(deposit.depositStatus === "PAID" || deposit.status === "PAID") && (
-                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
-                    <ShieldCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-blue-700">
+                  <div className={`bg-${theme === 'christmas' ? 'red' : 'blue'}-50 p-4 rounded-xl border border-${theme === 'christmas' ? 'red' : 'blue'}-100 flex items-start gap-3`}>
+                    <ShieldCheck className={`w-5 h-5 ${themeStyle.iconColor} flex-shrink-0 mt-0.5`} />
+                    <p className={`text-sm text-${theme === 'christmas' ? 'red' : 'blue'}-700`}>
                       안전하게 보관중인 보증금입니다. 파티 종료 시 전액 환불됩니다.
                     </p>
                   </div>

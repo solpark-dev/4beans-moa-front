@@ -2,7 +2,30 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useMainStore } from "@/store/main/mainStore";
 import { useThemeStore } from "@/store/themeStore";
-import { ChristmasBackground } from "@/config/themeConfig";
+
+// 테마별 배경 orbs 스타일
+const mainPageThemeStyles = {
+  default: {
+    orb1: "rgba(249, 115, 22, 0.15)", // Orange
+    orb1Fade: "rgba(249, 115, 22, 0.05)",
+    orb2: "rgba(99, 102, 241, 0.12)", // Indigo
+    orb2Fade: "rgba(139, 92, 246, 0.05)",
+    orb3: "rgba(6, 182, 212, 0.1)", // Cyan
+    orb3Fade: "rgba(20, 184, 166, 0.04)",
+    orb4: "rgba(244, 114, 182, 0.1)", // Pink
+    orb4Fade: "rgba(236, 72, 153, 0.04)",
+  },
+  christmas: {
+    orb1: "rgba(196, 30, 58, 0.15)", // Christmas Red
+    orb1Fade: "rgba(196, 30, 58, 0.05)",
+    orb2: "rgba(26, 95, 42, 0.12)", // Christmas Green
+    orb2Fade: "rgba(26, 95, 42, 0.05)",
+    orb3: "rgba(196, 30, 58, 0.1)", // Red
+    orb3Fade: "rgba(196, 30, 58, 0.04)",
+    orb4: "rgba(26, 95, 42, 0.1)", // Green
+    orb4Fade: "rgba(26, 95, 42, 0.04)",
+  },
+};
 import MainHeroSection from "./sections/MainHeroSection";
 import MainFeaturesSection from "./sections/MainFeaturesSection";
 import MainProductsSection from "./sections/MainProductsSection";
@@ -21,6 +44,7 @@ export default function MainPage() {
   const stats = useMainStore((s) => s.stats);
   const error = useMainStore((s) => s.error);
   const { theme } = useThemeStore();
+  const themeStyle = mainPageThemeStyles[theme] || mainPageThemeStyles.default;
 
   useEffect(() => {
     loadMain();
@@ -37,12 +61,12 @@ export default function MainPage() {
       {theme === 'christmas' && <ChristmasBackground />}
       {/* Animated Gradient Orbs Background - portrait-v2 effect */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Primary Orb - Orange/Coral */}
+        {/* Primary Orb - Orange/Coral (or Christmas Red) */}
         <motion.div
           className="absolute w-[600px] h-[600px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, rgba(249, 115, 22, 0.05) 40%, transparent 70%)",
+              `radial-gradient(circle, ${themeStyle.orb1} 0%, ${themeStyle.orb1Fade} 40%, transparent 70%)`,
             top: "-10%",
             right: "-5%",
           }}
@@ -58,12 +82,12 @@ export default function MainPage() {
           }}
         />
 
-        {/* Secondary Orb - Indigo/Purple */}
+        {/* Secondary Orb - Indigo/Purple (or Christmas Green) */}
         <motion.div
           className="absolute w-[500px] h-[500px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%)",
+              `radial-gradient(circle, ${themeStyle.orb2} 0%, ${themeStyle.orb2Fade} 40%, transparent 70%)`,
             bottom: "10%",
             left: "-10%",
           }}
@@ -80,12 +104,12 @@ export default function MainPage() {
           }}
         />
 
-        {/* Tertiary Orb - Cyan/Teal */}
+        {/* Tertiary Orb - Cyan/Teal (or Christmas Red) */}
         <motion.div
           className="absolute w-[400px] h-[400px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(20, 184, 166, 0.04) 40%, transparent 70%)",
+              `radial-gradient(circle, ${themeStyle.orb3} 0%, ${themeStyle.orb3Fade} 40%, transparent 70%)`,
             top: "40%",
             left: "30%",
           }}
@@ -102,12 +126,12 @@ export default function MainPage() {
           }}
         />
 
-        {/* Fourth Orb - Pink/Rose */}
+        {/* Fourth Orb - Pink/Rose (or Christmas Green) */}
         <motion.div
           className="absolute w-[350px] h-[350px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(244, 114, 182, 0.1) 0%, rgba(236, 72, 153, 0.04) 40%, transparent 70%)",
+              `radial-gradient(circle, ${themeStyle.orb4} 0%, ${themeStyle.orb4Fade} 40%, transparent 70%)`,
             bottom: "30%",
             right: "15%",
           }}

@@ -14,10 +14,10 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
         switch (theme) {
             case 'christmas':
                 return {
-                    focusRing: 'focus:ring-[#c41e3a]',
-                    fileButton: 'file:bg-[#1a5f2a]',
-                    removeButton: 'bg-[#c41e3a] hover:bg-[#a51830]',
-                    submitButton: 'bg-[#c41e3a]',
+                    focusRing: 'focus:ring-red-800',
+                    fileButton: 'file:bg-green-800',
+                    removeButton: 'bg-red-800 hover:bg-red-900',
+                    submitButton: 'bg-red-800',
                     cardBg: theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white',
                     textColor: theme === 'dark' ? 'text-gray-200' : 'text-black',
                     inputBg: theme === 'dark' ? 'bg-[#0F172A] border-gray-700' : 'bg-white border-gray-200',
@@ -102,9 +102,9 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
         <NeoCard
             color={themeColors.cardBg}
             hoverable={false}
-            className="rounded-2xl p-6 h-[687px] flex flex-col"
+            className="rounded-2xl p-6 h-[687px] flex flex-col min-w-0"
         >
-            <div className="space-y-6 flex-1 overflow-y-auto">
+            <div className="space-y-6 flex-1 overflow-y-auto min-w-0 px-1">
                 {/* Category */}
                 <div>
                     <label className={`block text-sm font-black ${themeColors.textColor} mb-2`}>
@@ -114,7 +114,7 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                         name="communityCodeId"
                         value={formData.communityCodeId}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor}`}
+                        className={`w-full max-w-full min-w-0 px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor}`}
                     >
                         <option value="1">회원</option>
                         <option value="2">결제</option>
@@ -133,7 +133,7 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                         value={formData.title}
                         onChange={handleChange}
                         placeholder="문의 제목을 입력하세요"
-                        className={`w-full px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor} placeholder-gray-400`}
+                        className={`w-full max-w-full min-w-0 px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor} placeholder-gray-400`}
                     />
                 </div>
 
@@ -148,7 +148,7 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                         onChange={handleChange}
                         placeholder="문의 내용을 입력하세요"
                         rows={6}
-                        className={`w-full px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor} placeholder-gray-400 resize-none`}
+                        className={`w-full max-w-full min-w-0 px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor} placeholder-gray-400 resize-none`}
                     />
                 </div>
 

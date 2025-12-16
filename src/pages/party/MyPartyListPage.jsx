@@ -175,6 +175,45 @@ export default function MyPartyListPage() {
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
+      {/* Hero Header */}
+      <div className={`relative overflow-hidden ${theme === "dark" ? "bg-[#0B1120]" : theme === "pop" ? "bg-slate-50" : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+        }`}>
+        <ThemeBackground theme={theme} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-3 tracking-tight flex items-center gap-3 ${currentTheme.text}`}>
+                <LayoutGrid className={`w-8 h-8 md:w-10 md:h-10 ${theme === "pop" ? "text-pink-500" : "text-blue-600"}`} />
+                내 파티
+              </h1>
+              <p className={`text-base md:text-lg ${currentTheme.subtext}`}>
+                참여 중인 파티를 한눈에 확인하세요
+              </p>
+            </motion.div>
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/party/create")}
+              className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all shadow-lg ${
+                theme === "pop"
+                  ? "bg-red-800 text-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                  : theme === "christmas"
+                    ? "bg-red-800 hover:bg-red-900 text-white rounded-lg"
+                    : "bg-slate-900 hover:bg-slate-800 text-white rounded-lg"
+                }`}
+            >
+              <Plus className="w-5 h-5" />
+              새 파티 만들기
+            </motion.button>
+          </div>
+        </div>
       {/* Simple Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -275,6 +314,11 @@ export default function MyPartyListPage() {
         >
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Parties */}
+            <div className={`bg-white rounded-xl p-5 border transition-all hover:-translate-y-1 ${
+              theme === "christmas"
+                ? "border-gray-200 hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-slate-200 hover:shadow-lg"
+            }`}>
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
               theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
@@ -298,6 +342,11 @@ export default function MyPartyListPage() {
             </div>
 
             {/* As Leader */}
+            <div className={`bg-white rounded-xl p-5 border transition-all hover:-translate-y-1 ${
+              theme === "christmas"
+                ? "border-gray-200 hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-slate-200 hover:shadow-lg"
+            }`}>
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
               theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
@@ -321,6 +370,11 @@ export default function MyPartyListPage() {
             </div>
 
             {/* Active Parties */}
+            <div className={`bg-white rounded-xl p-5 border transition-all hover:-translate-y-1 ${
+              theme === "christmas"
+                ? "border-gray-200 hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-slate-200 hover:shadow-lg"
+            }`}>
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
               theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
@@ -344,6 +398,11 @@ export default function MyPartyListPage() {
             </div>
 
             {/* Recruiting */}
+            <div className={`bg-white rounded-xl p-5 border transition-all hover:-translate-y-1 ${
+              theme === "christmas"
+                ? "border-gray-200 hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-slate-200 hover:shadow-lg"
+            }`}>
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
               theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
@@ -461,6 +520,11 @@ export default function MyPartyListPage() {
                             to={`/party/${item.partyId}`}
                             className="group block"
                           >
+                            <div className={`relative h-full bg-white rounded-xl border transition-all duration-300 overflow-hidden hover:-translate-y-1 ${
+                              theme === "christmas"
+                                ? "border-gray-200 hover:border-gray-200 hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                                : "border-slate-200 hover:border-slate-300 hover:shadow-lg"
+                            }`}>
                             <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${
                               theme === "dark"
                                 ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
@@ -481,6 +545,9 @@ export default function MyPartyListPage() {
                                         <Crown className="w-3 h-3" /> 파티장
                                       </span>
                                     </div>
+                                    <h3 className={`text-lg font-bold text-slate-900 transition-colors ${
+                                      theme === "christmas" ? "group-hover:text-red-800" : "group-hover:text-blue-600"
+                                    }`}>
                                     <h3 className={`text-lg font-bold transition-colors ${currentTheme.text}`} style={{ "--hover-color": accentColor }}>
                                       {item.productName}
                                     </h3>
@@ -517,6 +584,11 @@ export default function MyPartyListPage() {
                                   </p>
                                 </div>
 
+                                <div className={`mt-4 flex items-center justify-end font-semibold text-sm ${
+                                  theme === "christmas"
+                                    ? "text-red-800 group-hover:text-red-900"
+                                    : "text-blue-600 group-hover:text-blue-700"
+                                }`}>
                                 <div className="mt-4 flex items-center justify-end font-semibold text-sm" style={{ color: accentColor }}>
                                   <span>상세 보기</span>
                                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -571,6 +643,11 @@ export default function MyPartyListPage() {
                             to={`/party/${item.partyId}`}
                             className="group block"
                           >
+                            <div className={`relative h-full bg-white rounded-xl border transition-all duration-300 overflow-hidden hover:-translate-y-1 ${
+                              theme === "christmas"
+                                ? "border-gray-200 hover:border-gray-200 hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                                : "border-slate-200 hover:border-slate-300 hover:shadow-lg"
+                            }`}>
                             <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${
                               theme === "dark"
                                 ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
@@ -588,6 +665,9 @@ export default function MyPartyListPage() {
                                         {badge.text}
                                       </span>
                                     </div>
+                                    <h3 className={`text-lg font-bold text-slate-900 transition-colors ${
+                                      theme === "christmas" ? "group-hover:text-red-800" : "group-hover:text-blue-600"
+                                    }`}>
                                     <h3 className={`text-lg font-bold transition-colors ${currentTheme.text}`}>
                                       {item.productName}
                                     </h3>
@@ -627,6 +707,11 @@ export default function MyPartyListPage() {
                                   </p>
                                 </div>
 
+                                <div className={`mt-4 flex items-center justify-end font-semibold text-sm ${
+                                  theme === "christmas"
+                                    ? "text-green-800 group-hover:text-green-900"
+                                    : "text-purple-600 group-hover:text-purple-700"
+                                }`}>
                                 <div className="mt-4 flex items-center justify-end font-semibold text-sm" style={{ color: accentColor }}>
                                   <span>상세 보기</span>
                                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />

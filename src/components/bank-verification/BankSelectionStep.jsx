@@ -9,11 +9,44 @@ import { Building2, AlertCircle, Loader2, Shield } from 'lucide-react';
 import useBankVerificationStore from '@/store/bankVerificationStore';
 import BankSelector from './BankSelector';
 import { requestVerification } from '@/api/bankAccountApi';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 스타일
+const bankSelectionThemeStyles = {
+    default: {
+        iconBg: 'bg-gradient-to-br from-orange-400 to-orange-600',
+        iconShadow: 'shadow-lg shadow-orange-200',
+        border: 'border-0',
+        shadow: 'shadow-lg',
+        inputBorder: 'border-2 border-slate-200 focus:border-orange-500 focus:ring-orange-100',
+        infoBg: 'bg-slate-50',
+        infoIconColor: 'text-slate-400',
+        infoText: 'text-slate-500',
+        accentText: 'text-orange-600',
+        buttonBg: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
+        buttonShadow: 'shadow-lg shadow-orange-200',
+    },
+    christmas: {
+        iconBg: 'bg-gradient-to-br from-red-800 to-green-800',
+        iconShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        border: 'border border-gray-200',
+        shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        inputBorder: 'border border-gray-200 focus:border-red-800 focus:ring-red-100',
+        infoBg: 'bg-red-50',
+        infoIconColor: 'text-red-400',
+        infoText: 'text-red-700',
+        accentText: 'text-red-800',
+        buttonBg: 'bg-gradient-to-r from-red-800 to-green-800 hover:from-red-900 hover:to-green-900',
+        buttonShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    },
+};
 
 /**
  * Step 1: 은행 및 계좌 정보 입력
  */
 export default function BankSelectionStep() {
+    const { theme } = useThemeStore();
+    const themeStyle = bankSelectionThemeStyles[theme] || bankSelectionThemeStyles.default;
     const {
         formData,
         setFormData,
@@ -105,13 +138,13 @@ export default function BankSelectionStep() {
     };
 
     return (
-        <Card className="border-0 shadow-lg">
+        <Card className={`${themeStyle.border} ${themeStyle.shadow}`}>
             <CardHeader className="text-center pb-2">
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                    className="mx-auto w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-orange-200"
+                    className={`mx-auto w-16 h-16 ${themeStyle.iconBg} rounded-full flex items-center justify-center mb-4 ${themeStyle.iconShadow}`}
                 >
                     <Building2 className="w-8 h-8 text-white" />
                 </motion.div>
@@ -163,7 +196,7 @@ export default function BankSelectionStep() {
                             placeholder="계좌번호 입력 (숫자만)"
                             maxLength={20}
                             disabled={isSubmitting}
-                            className="h-12 text-lg rounded-xl border-2 border-slate-200 focus:border-orange-500 focus:ring-orange-100"
+                            className={`h-12 text-lg rounded-xl ${themeStyle.inputBorder}`}
                         />
                         <p className="text-xs text-slate-400">
                             - 없이 숫자만 입력하세요
@@ -182,15 +215,15 @@ export default function BankSelectionStep() {
                             placeholder="예금주명 입력"
                             maxLength={20}
                             disabled={isSubmitting}
-                            className="h-12 text-lg rounded-xl border-2 border-slate-200 focus:border-orange-500 focus:ring-orange-100"
+                            className={`h-12 text-lg rounded-xl ${themeStyle.inputBorder}`}
                         />
                     </div>
 
                     {/* 안내 문구 */}
-                    <div className="flex items-start gap-2 p-3 bg-slate-50 rounded-xl">
-                        <Shield className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-slate-500 leading-relaxed">
-                            입력하신 계좌로 <span className="font-semibold text-orange-600">1원</span>이 입금됩니다.
+                    <div className={`flex items-start gap-2 p-3 ${themeStyle.infoBg} rounded-xl`}>
+                        <Shield className={`w-5 h-5 ${themeStyle.infoIconColor} flex-shrink-0 mt-0.5`} />
+                        <p className={`text-xs ${themeStyle.infoText} leading-relaxed`}>
+                            입력하신 계좌로 <span className={`font-semibold ${themeStyle.accentText}`}>1원</span>이 입금됩니다.
                             입금자명에 표시된 <span className="font-semibold">4자리 숫자</span>를 입력하면 인증이 완료됩니다.
                         </p>
                     </div>
@@ -199,7 +232,7 @@ export default function BankSelectionStep() {
                     <Button
                         type="submit"
                         disabled={!isValid() || isSubmitting}
-                        className="w-full h-14 text-lg font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`w-full h-14 text-lg font-semibold rounded-xl ${themeStyle.buttonBg} ${themeStyle.buttonShadow} transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {isSubmitting ? (
                             <>

@@ -5,6 +5,19 @@ import {
     AccordionContent
 } from '@/components/ui/accordion'
 import { getPushIcon } from '@/utils/pushUtils'
+import { useThemeStore } from '@/store/themeStore'
+
+// 테마별 스타일
+const notificationThemeStyles = {
+    default: {
+        unreadBg: 'bg-indigo-50/50 border-indigo-100',
+        unreadDot: 'bg-indigo-500',
+    },
+    christmas: {
+        unreadBg: 'bg-red-50/50 border-red-100',
+        unreadDot: 'bg-red-600',
+    },
+}
 
 const formatRelativeDate = (dateString) => {
     if (!dateString) return ''
@@ -22,13 +35,15 @@ const formatRelativeDate = (dateString) => {
     return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
 }
 
-const NotificationItem = ({ 
-    notification, 
+const NotificationItem = ({
+    notification,
     isExpanded = false,
     onToggle,
     onDelete,
-    onMarkAsRead 
+    onMarkAsRead
 }) => {
+    const { theme } = useThemeStore()
+    const themeStyle = notificationThemeStyles[theme] || notificationThemeStyles.default
     const isUnread = notification.isRead === 'N'
 
     const handleClick = () => {
@@ -52,7 +67,7 @@ const NotificationItem = ({
             value={notification.pushId.toString()}
             className={`border rounded-lg mb-2 overflow-hidden transition-colors ${
                 isUnread
-                    ? 'bg-indigo-50/50 border-indigo-100'
+                    ? themeStyle.unreadBg
                     : 'bg-white border-slate-100'
             }`}
         >
@@ -76,7 +91,7 @@ const NotificationItem = ({
                                 {notification.title}
                             </p>
                             {isUnread && (
-                                <span className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0" />
+                                <span className={`w-2 h-2 ${themeStyle.unreadDot} rounded-full flex-shrink-0`} />
                             )}
                         </div>
                         <p className="text-[11px] text-slate-400 mt-0.5">

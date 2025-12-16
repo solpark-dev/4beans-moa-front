@@ -7,10 +7,25 @@ import NoticeItem from '../../components/community/NoticeItem';
 import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
 
+// 테마별 스타일
+const listNoticeThemeStyles = {
+    default: {
+        button: 'bg-pink-500 text-white',
+        searchIconHover: 'hover:text-pink-500',
+        focusRing: 'focus:ring-pink-300',
+    },
+    christmas: {
+        button: 'bg-red-800 text-red-100',
+        searchIconHover: 'hover:text-red-800',
+        focusRing: 'focus:ring-red-800',
+    },
+};
+
 const ListNotice = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
+    const themeStyle = listNoticeThemeStyles[theme] || listNoticeThemeStyles.default;
     const [notices, setNotices] = useState([]);
     const [filteredNotices, setFilteredNotices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,35 +34,6 @@ const ListNotice = () => {
     const pageSize = 10;
 
     const isAdmin = user?.role === 'ADMIN';
-
-    // Theme-based button color
-    const getButtonColor = () => {
-        switch (theme) {
-            case 'christmas':
-                return 'bg-[#c41e3a]';
-            case 'dark':
-                return 'bg-[#635bff]';
-            case 'classic':
-                return 'bg-[#635bff]';
-            case 'pop':
-            default:
-                return 'bg-pink-500';
-        }
-    };
-
-    const getSearchIconColor = () => {
-        switch (theme) {
-            case 'christmas':
-                return 'hover:text-[#c41e3a]';
-            case 'dark':
-                return 'hover:text-[#635bff]';
-            case 'classic':
-                return 'hover:text-[#635bff]';
-            case 'pop':
-            default:
-                return 'hover:text-pink-500';
-        }
-    };
 
     useEffect(() => {
         loadNoticeList();
@@ -144,16 +130,15 @@ const ListNotice = () => {
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            className="w-56 px-4 py-2 pr-10 font-bold
+                            className={`w-56 px-4 py-2 pr-10 font-bold
                                 border border-gray-200 rounded-xl
                                 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                focus:outline-none focus:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                focus:translate-x-[2px] focus:translate-y-[2px]
-                                transition-all"
+                                focus:outline-none focus:ring-2 ${themeStyle.focusRing}
+                                transition-all`}
                         />
                         <button
                             onClick={handleSearch}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${getSearchIconColor()} transition-colors`}
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${themeStyle.searchIconHover} transition-colors`}
                         >
                             <Search className="w-5 h-5" />
                         </button>
@@ -194,7 +179,7 @@ const ListNotice = () => {
                     <div className="absolute right-0">
                         <NeoButton
                             onClick={() => navigate('/community/notice/add')}
-                            color={getButtonColor()}
+                            color={themeStyle.button}
                             size="sm"
                         >
                             등록

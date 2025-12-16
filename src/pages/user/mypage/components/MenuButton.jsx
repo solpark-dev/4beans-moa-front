@@ -1,4 +1,27 @@
 import { Button } from "@/components/ui/button";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const menuButtonThemeStyles = {
+  default: {
+    activeBg: "bg-indigo-600",
+    activeBorder: "border-black",
+    activeShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    inactiveBorder: "border-black",
+    inactiveShadow: "shadow-[4px_4px_0px_0px_rgba(0,0,0,0.7)]",
+    destructiveBorder: "border-black",
+    indicatorBg: "bg-indigo-500",
+  },
+  christmas: {
+    activeBg: "bg-red-800",
+    activeBorder: "border-gray-200",
+    activeShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    inactiveBorder: "border-gray-200",
+    inactiveShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    destructiveBorder: "border-gray-200",
+    indicatorBg: "bg-red-500",
+  },
+};
 
 export function MenuButton({
   icon,
@@ -7,7 +30,10 @@ export function MenuButton({
   variant = "default",
   active = false,
 }) {
+  const { theme } = useThemeStore();
+  const themeStyle = menuButtonThemeStyles[theme] || menuButtonThemeStyles.default;
   const isDestructive = variant === "destructive";
+
   return (
     <Button
       variant="ghost"
@@ -17,12 +43,12 @@ export function MenuButton({
         border-2 transition-all duration-200
         ${
           active
-            ? "bg-indigo-600 text-white border-black shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-            : "bg-white text-slate-800 border-black hover:bg-gray-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.7)]"
+            ? `${themeStyle.activeBg} text-white ${themeStyle.activeBorder} ${themeStyle.activeShadow}`
+            : `bg-white text-slate-800 ${themeStyle.inactiveBorder} hover:bg-gray-50 ${themeStyle.inactiveShadow}`
         }
         ${
           isDestructive
-            ? "text-red-600 hover:bg-red-50 border-black"
+            ? `text-red-600 hover:bg-red-50 ${themeStyle.destructiveBorder}`
             : ""
         }
       `}
@@ -30,7 +56,7 @@ export function MenuButton({
       <span className="mr-3 opacity-80">{icon}</span>
       {label}
       {active && (
-        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500" />
+        <div className={`ml-auto w-1.5 h-1.5 rounded-full ${themeStyle.indicatorBg}`} />
       )}
     </Button>
   );

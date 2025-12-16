@@ -1,8 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import httpClient from '../../api/httpClient';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 스타일
+const modalThemeStyles = {
+    default: {
+        modalShadow: 'shadow-2xl',
+        spinnerBorder: 'border-indigo-600',
+        priceText: 'text-indigo-600',
+        submitButton: 'bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200',
+    },
+    christmas: {
+        modalShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        spinnerBorder: 'border-red-800',
+        priceText: 'text-red-800',
+        submitButton: 'bg-red-800 hover:bg-red-900 shadow-lg shadow-red-200',
+    },
+};
 
 const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSuccess, user }) => {
+    const { theme } = useThemeStore();
+    const themeStyle = modalThemeStyles[theme] || modalThemeStyles.default;
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -72,7 +91,7 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 relative">
+            <div className={`bg-white w-full max-w-xl rounded-[2rem] ${themeStyle.modalShadow} overflow-hidden animate-in zoom-in-95 duration-200 relative`}>
                 {/* Close Button */}
                 <button
                     onClick={onClose}
@@ -83,7 +102,7 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
 
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${themeStyle.spinnerBorder}`}></div>
                     </div>
                 ) : product ? (
                     <div className="p-8">
@@ -104,7 +123,7 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
                                 </div>
                             )}
                             <h3 className="text-xl font-bold text-gray-900 mb-1">{product.productName}</h3>
-                            <p className="text-indigo-600 font-bold text-2xl">
+                            <p className={`${themeStyle.priceText} font-bold text-2xl`}>
                                 ₩{product.price?.toLocaleString()}
                                 <span className="text-sm text-gray-500 font-normal ml-1">/월</span>
                             </p>
@@ -135,7 +154,7 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
                             <button
                                 onClick={handleSubscribe}
                                 disabled={submitting}
-                                className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={`w-full ${themeStyle.submitButton} text-white py-4 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
                                 {submitting ? '처리 중...' : '구독 시작하기'}
                             </button>

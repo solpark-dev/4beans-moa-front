@@ -15,11 +15,11 @@ const CommunityLayout = ({ children }) => {
         switch (theme) {
             case 'christmas':
                 return {
-                    primary: 'bg-[#c41e3a]',
-                    secondary: 'bg-[#1a5f2a]',
+                    primary: 'bg-red-800',
+                    secondary: 'bg-green-800',
                     tertiary: 'bg-white',
-                    activeTab: 'bg-[#c41e3a]',
-                    inactiveTabHover: 'hover:bg-[#c41e3a]/10',
+                    activeTab: 'bg-red-800',
+                    inactiveTabHover: 'hover:bg-red-50',
                 };
             case 'dark':
                 return {

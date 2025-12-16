@@ -4,8 +4,19 @@ import { useLoginHistory } from "@/hooks/user/useLoginHistory";
 import { useBackupCodeModal } from "@/hooks/user/useBackupCodeModal";
 import { useOtpStore } from "@/store/user/otpStore";
 import { resolveProfileImageUrl } from "@/utils/profileImage";
+import { useThemeStore } from "@/store/themeStore";
 
 import { Separator } from "@/components/ui/separator";
+
+// 테마별 스타일
+const myPageThemeStyles = {
+  default: {
+    accentText: "text-indigo-600",
+  },
+  christmas: {
+    accentText: "text-red-800",
+  },
+};
 
 import { ProfileCard } from "./components/ProfileCard";
 import { AccountMenu } from "./components/AccountMenu";
@@ -22,6 +33,8 @@ const PANE_WRAPPER =
   "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl";
 
 export default function MyPage() {
+  const { theme } = useThemeStore();
+  const themeStyle = myPageThemeStyles[theme] || myPageThemeStyles.default;
   const { state, actions } = useMyPage();
 
   const {
@@ -88,7 +101,7 @@ export default function MyPage() {
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-3">
                   나의 구독과 계정
                   <br />
-                  <span className="text-indigo-600">한곳에서 관리해요</span>
+                  <span className={themeStyle.accentText}>한곳에서 관리해요</span>
                 </h2>
               </div>
 

@@ -3,6 +3,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const formCardThemeStyles = {
+  default: {
+    primaryButton: "bg-emerald-600 hover:bg-emerald-700",
+    focusRing: "focus-visible:ring-emerald-500 focus-visible:border-emerald-500",
+  },
+  christmas: {
+    primaryButton: "bg-green-800 hover:bg-green-900",
+    focusRing: "focus-visible:ring-green-600 focus-visible:border-green-600",
+  },
+};
 
 export default function RemoveBlacklistFormCard({
   userId,
@@ -13,6 +26,9 @@ export default function RemoveBlacklistFormCard({
   onSubmit,
   onCancel,
 }) {
+  const { theme } = useThemeStore();
+  const themeStyle = formCardThemeStyles[theme] || formCardThemeStyles.default;
+
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-10 -mt-10">
       <div className="mt-10 flex justify-center">
@@ -56,7 +72,7 @@ export default function RemoveBlacklistFormCard({
                 value={reason}
                 onChange={(e) => onChangeReason(e.target.value)}
                 rows={4}
-                className="resize-none bg-white border border-slate-300 focus-visible:ring-emerald-500 focus-visible:border-emerald-500"
+                className={`resize-none bg-white border border-slate-300 ${themeStyle.focusRing}`}
                 placeholder="해제 사유를 입력하세요. (예: 오인 신고, 본인 확인 완료 등)"
               />
             </div>
@@ -73,7 +89,7 @@ export default function RemoveBlacklistFormCard({
               </Button>
               <Button
                 type="button"
-                className="px-5 h-10 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                className={`px-5 h-10 rounded-lg ${themeStyle.primaryButton} text-white font-semibold`}
                 onClick={onSubmit}
                 disabled={submitting}
               >

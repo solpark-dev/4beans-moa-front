@@ -1,9 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NeoButton } from '@/components/common/neo';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 스타일
+const noticeFormThemeStyles = {
+    default: {
+        button: 'bg-pink-500 text-white',
+        focusRing: 'focus:ring-pink-300',
+    },
+    christmas: {
+        button: 'bg-red-800 text-red-100',
+        focusRing: 'focus:ring-red-300',
+    },
+};
 
 const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath }) => {
     const navigate = useNavigate();
+    const { theme } = useThemeStore();
+    const themeStyle = noticeFormThemeStyles[theme] || noticeFormThemeStyles.default;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,7 +41,7 @@ const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath })
                     value={formData.title}
                     onChange={handleChange}
                     placeholder="제목을 입력하세요"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400"
+                    className={`w-full px-4 py-3 border border-gray-200 rounded-xl font-bold focus:outline-none focus:ring-2 ${themeStyle.focusRing} placeholder-gray-400`}
                 />
             </div>
 
@@ -41,7 +56,7 @@ const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath })
                     onChange={handleChange}
                     placeholder="내용을 입력하세요"
                     rows={12}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400 resize-none"
+                    className={`w-full px-4 py-3 border border-gray-200 rounded-xl font-bold focus:outline-none focus:ring-2 ${themeStyle.focusRing} placeholder-gray-400 resize-none`}
                 />
             </div>
 
@@ -57,7 +72,7 @@ const NoticeForm = ({ formData, setFormData, onSubmit, submitText, cancelPath })
                 </NeoButton>
                 <NeoButton
                     type="submit"
-                    color="bg-pink-500 text-white"
+                    color={themeStyle.button}
                     size="sm"
                 >
                     {submitText}

@@ -2,11 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { NeoCard, NeoButton } from '@/components/common/neo';
+
+// 테마별 스타일
+const addFaqThemeStyles = {
+    default: {
+        button: 'bg-pink-500 text-white',
+        focusRing: 'focus:ring-pink-300',
+    },
+    christmas: {
+        button: 'bg-red-800 text-red-100',
+        focusRing: 'focus:ring-red-300',
+    },
+};
 
 const AddFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const { theme } = useThemeStore();
+    const themeStyle = addFaqThemeStyles[theme] || addFaqThemeStyles.default;
     const [category, setCategory] = useState('회원');
     const [formData, setFormData] = useState({
         communityCodeId: 4,
@@ -31,7 +46,7 @@ const AddFaq = () => {
                         <p className="text-gray-600 font-bold mb-6">관리자만 접근 가능합니다.</p>
                         <NeoButton
                             onClick={() => navigate('/community/faq')}
-                            color="bg-pink-500"
+                            color={themeStyle.button}
                             size="sm"
                         >
                             목록으로 돌아가기
@@ -94,99 +109,97 @@ const AddFaq = () => {
     return (
         <CommunityLayout>
             <div className="pt-8 max-w-3xl mx-auto">
+                <h2 className="text-lg font-black text-black mb-6">
+                    FAQ 등록
+                </h2>
+
                 <NeoCard
-                    color="bg-cyan-400"
+                    color="bg-white"
                     hoverable={false}
-                    className="inline-block px-4 py-2 rounded-xl mb-8"
+                    className="rounded-2xl p-6"
                 >
-                    <h2 className="text-xl font-black text-black">
-                        FAQ 등록
-                    </h2>
+                    <div className="space-y-6">
+                        {/* 카테고리 */}
+                        <div>
+                            <label className="block text-sm font-black text-black mb-2">
+                                카테고리
+                            </label>
+                            <select
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className={`w-full px-4 py-3 border border-gray-200 rounded-xl font-bold bg-white
+                                    focus:outline-none focus:ring-2 ${themeStyle.focusRing}`}
+                            >
+                                {categories.map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 질문 제목 */}
+                        <div>
+                            <label
+                                htmlFor="title"
+                                className="block text-sm font-black text-black mb-2"
+                            >
+                                질문 제목
+                            </label>
+                            <input
+                                id="title"
+                                name="title"
+                                type="text"
+                                placeholder="질문 제목을 입력하세요"
+                                value={formData.title}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-3 border border-gray-200 rounded-xl font-bold
+                                    focus:outline-none focus:ring-2 ${themeStyle.focusRing} placeholder-gray-400`}
+                            />
+                        </div>
+
+                        {/* 답변 내용 */}
+                        <div>
+                            <label
+                                htmlFor="content"
+                                className="block text-sm font-black text-black mb-2"
+                            >
+                                답변 내용
+                            </label>
+                            <textarea
+                                id="content"
+                                name="content"
+                                placeholder="답변 내용을 입력하세요"
+                                value={formData.content}
+                                onChange={handleChange}
+                                rows={10}
+                                className={`w-full px-4 py-3 border border-gray-200 rounded-xl font-bold resize-none
+                                    focus:outline-none focus:ring-2 ${themeStyle.focusRing} placeholder-gray-400`}
+                            />
+                        </div>
+
+                        <div className="flex justify-center gap-4 pt-6">
+                            <button
+                                onClick={handleCancel}
+                                className="px-6 py-2 text-sm font-black text-black bg-white
+                                    border border-gray-200 rounded-xl
+                                    shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
+                                    hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
+                                    transition-all"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleSubmit}
+                                className={`px-6 py-2 text-sm font-black ${themeStyle.button}
+                                    border border-gray-200 rounded-xl
+                                    shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
+                                    hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
+                                    transition-all`}
+                            >
+                                등록
+                            </button>
+                        </div>
+                    </div>
                 </NeoCard>
-
-                <div className="space-y-6">
-                    {/* 카테고리 */}
-                    <div>
-                        <label className="block text-sm font-black text-black mb-2">
-                            카테고리
-                        </label>
-                        <select
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl font-bold bg-white
-                                focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                        >
-                            {categories.map((cat) => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* 질문 제목 */}
-                    <div>
-                        <label
-                            htmlFor="title"
-                            className="block text-sm font-black text-black mb-2"
-                        >
-                            질문 제목
-                        </label>
-                        <input
-                            id="title"
-                            name="title"
-                            type="text"
-                            placeholder="질문 제목을 입력하세요"
-                            value={formData.title}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl font-bold
-                                focus:outline-none focus:ring-2 focus:ring-yellow-300 placeholder-gray-400"
-                        />
-                    </div>
-
-                    {/* 답변 내용 */}
-                    <div>
-                        <label
-                            htmlFor="content"
-                            className="block text-sm font-black text-black mb-2"
-                        >
-                            답변 내용
-                        </label>
-                        <textarea
-                            id="content"
-                            name="content"
-                            placeholder="답변 내용을 입력하세요"
-                            value={formData.content}
-                            onChange={handleChange}
-                            rows={10}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl font-bold resize-none
-                                focus:outline-none focus:ring-2 focus:ring-yellow-300 placeholder-gray-400"
-                        />
-                    </div>
-
-                    <div className="flex justify-center gap-4 pt-6">
-                        <button
-                            onClick={handleCancel}
-                            className="px-6 py-2 text-sm font-black text-black bg-white
-                                border border-gray-200 rounded-xl
-                                shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                
-                                transition-all"
-                        >
-                            취소
-                        </button>
-                        <button
-                            onClick={handleSubmit}
-                            className="px-6 py-2 text-sm font-black text-white bg-pink-500
-                                border border-gray-200 rounded-xl
-                                shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                
-                                transition-all"
-                        >
-                            등록
-                        </button>
-                    </div>
-                </div>
             </div>
         </CommunityLayout>
     );

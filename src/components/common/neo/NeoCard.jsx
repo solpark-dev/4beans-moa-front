@@ -1,6 +1,21 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 카드 스타일
+const cardThemeStyles = {
+  default: {
+    border: "border border-gray-200",
+    shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    hoverShadow: "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+  },
+  christmas: {
+    border: "border border-gray-200",
+    shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    hoverShadow: "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+  },
+};
 
 /**
  * NeoCard - 네오브루탈리즘 스타일 카드 컴포넌트
@@ -12,6 +27,9 @@ import { cn } from "@/lib/utils";
  */
 const NeoCard = React.forwardRef(
   ({ children, color = "bg-white", rotate = 0, hoverable = true, className, ...props }, ref) => {
+    const { theme } = useThemeStore();
+    const themeStyle = cardThemeStyles[theme] || cardThemeStyles.default;
+
     const Component = hoverable ? motion.div : "div";
     const motionProps = hoverable ? {
       whileHover: { scale: 1.02 },
@@ -24,9 +42,9 @@ const NeoCard = React.forwardRef(
         {...motionProps}
         className={cn(
           color,
-          "border border-gray-200",
-          "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-          hoverable && "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+          themeStyle.border,
+          themeStyle.shadow,
+          hoverable && themeStyle.hoverShadow,
           hoverable && "transition-all duration-200",
           className
         )}

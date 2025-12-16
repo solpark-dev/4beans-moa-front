@@ -20,6 +20,33 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Filter, AlertTriangle, Users } from "lucide-react";
 import SortIcon from "./SortIcon";
 import StatusBadge from "./StatusBadge";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const tableCardThemeStyles = {
+  default: {
+    iconBg: "bg-cyan-400",
+    searchButton: "bg-pink-500 hover:bg-pink-500",
+    activePage: "bg-pink-500 hover:bg-pink-500 text-white hover:brightness-95",
+    hoverBg: "hover:bg-slate-100",
+    sortButtonHover: "hover:bg-slate-200",
+    headerBorder: "border-b-4 border-black",
+    tableBorder: "border-b-4 border-black",
+    footerBorder: "border-t-4 border-black",
+    rowBorder: "border-b border-black/10",
+  },
+  christmas: {
+    iconBg: "bg-green-800",
+    searchButton: "bg-red-800 hover:bg-red-800",
+    activePage: "bg-red-800 hover:bg-red-800 text-red-100 hover:brightness-95",
+    hoverBg: "hover:bg-red-50",
+    sortButtonHover: "hover:bg-red-50",
+    headerBorder: "border-b border-gray-200",
+    tableBorder: "border-b border-gray-200",
+    footerBorder: "border-t border-gray-200",
+    rowBorder: "border-b border-gray-200",
+  },
+};
 
 export default function UserListTableCard({
   users,
@@ -35,6 +62,9 @@ export default function UserListTableCard({
   handlers,
   formatDate,
 }) {
+  const { theme } = useThemeStore();
+  const themeStyle = tableCardThemeStyles[theme] || tableCardThemeStyles.default;
+
   const {
     handleSearchChange,
     handleSearchKeyDown,
@@ -54,11 +84,11 @@ export default function UserListTableCard({
       <div className="max-w-7xl mx-auto">
         <div className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden">
           <Card className="border-0 shadow-none rounded-none">
-            <CardHeader className="border-b-4 border-black bg-white p-6">
+            <CardHeader className={`${themeStyle.headerBorder} bg-white p-6`}>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <CardTitle className="text-xl md:text-2xl font-black text-black flex items-center gap-3">
-                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-                    <Users className="w-6 h-6 text-black" />
+                  <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${themeStyle.iconBg} border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}>
+                    <Users className={`w-6 h-6 ${theme === 'christmas' ? 'text-green-100' : 'text-black'}`} />
                   </span>
                   회원 목록
                   <span className="ml-1 text-sm md:text-base font-bold text-slate-600">
@@ -117,7 +147,7 @@ export default function UserListTableCard({
                     </div>
 
                     <Button
-                      className="h-10 px-5 rounded-2xl bg-pink-500 hover:bg-pink-500 text-white font-black border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:brightness-95 transition"
+                      className={`h-10 px-5 rounded-2xl ${themeStyle.searchButton} text-white font-black border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:brightness-95 transition`}
                       onClick={handleSearchSubmit}
                     >
                       검색
@@ -137,7 +167,7 @@ export default function UserListTableCard({
 
             <CardContent className="p-0 bg-white">
               {error && (
-                <div className="px-6 py-4 flex items-center gap-2 bg-red-50 border-b-4 border-black text-sm text-red-600 font-bold">
+                <div className={`px-6 py-4 flex items-center gap-2 bg-red-50 ${themeStyle.headerBorder} text-sm text-red-600 font-bold`}>
                   <AlertTriangle className="w-4 h-4" />
                   <span>{error}</span>
                 </div>
@@ -145,7 +175,7 @@ export default function UserListTableCard({
 
               <div className="overflow-x-auto">
                 <Table className="min-w-full">
-                  <TableHeader className="bg-slate-100 border-b-4 border-black">
+                  <TableHeader className={`bg-slate-100 ${themeStyle.tableBorder}`}>
                     <TableRow>
                       <TableHead className="w-72 text-center text-black text-sm font-black">
                         이메일(아이디)
@@ -157,7 +187,7 @@ export default function UserListTableCard({
                         <Button
                           variant="ghost"
                           onClick={() => handleSortToggle("lastLoginDate")}
-                          className="w-full h-full rounded-none hover:bg-slate-200 text-black text-sm font-black flex items-center justify-center gap-1"
+                          className={`w-full h-full rounded-none ${themeStyle.sortButtonHover} text-black text-sm font-black flex items-center justify-center gap-1`}
                         >
                           최근 로그인 일자
                           <SortIcon currentSort={sort} field="lastLoginDate" />
@@ -167,7 +197,7 @@ export default function UserListTableCard({
                         <Button
                           variant="ghost"
                           onClick={() => handleSortToggle("regDate")}
-                          className="w-full h-full rounded-none hover:bg-slate-200 text-black text-sm font-black flex items-center justify-center gap-1"
+                          className={`w-full h-full rounded-none ${themeStyle.sortButtonHover} text-black text-sm font-black flex items-center justify-center gap-1`}
                         >
                           가입일자
                           <SortIcon currentSort={sort} field="regDate" />
@@ -181,7 +211,7 @@ export default function UserListTableCard({
                       Array.from({ length: 5 }).map((_, idx) => (
                         <TableRow
                           key={idx}
-                          className="border-b border-black/10"
+                          className={themeStyle.rowBorder}
                         >
                           <TableCell className="py-4">
                             <Skeleton className="h-4 w-48" />
@@ -213,7 +243,7 @@ export default function UserListTableCard({
                       users.map((user) => (
                         <TableRow
                           key={user.userId}
-                          className="hover:bg-slate-100 transition-colors border-b border-black/10"
+                          className={`${themeStyle.hoverBg} transition-colors ${themeStyle.rowBorder}`}
                         >
                           <TableCell className="py-3 text-sm text-center">
                             <button
@@ -246,7 +276,7 @@ export default function UserListTableCard({
                 </Table>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 border-t-4 border-black bg-white">
+              <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 ${themeStyle.footerBorder} bg-white`}>
                 <div className="text-xs text-slate-700 font-black">
                   페이지 {page} / {totalPages || 1}
                 </div>
@@ -278,7 +308,7 @@ export default function UserListTableCard({
                       size="icon"
                       className={`h-10 w-10 text-xs font-black border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] transition rounded-2xl ${
                         p === page
-                          ? "bg-pink-500 hover:bg-pink-500 text-white hover:brightness-95"
+                          ? themeStyle.activePage
                           : "bg-white hover:bg-white text-black hover:brightness-95"
                       }`}
                       onClick={() => handlePageClick(p)}

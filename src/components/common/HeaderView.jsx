@@ -1,4 +1,5 @@
 // src/components/layout/HeaderView.jsx
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LogOut,
@@ -44,18 +45,16 @@ function NavPill({ to, icon: Icon, children, active, theme = "classic" }) {
   return (
     <Link
       to={to}
-      className={`group inline-flex items-center gap-2 px-4 py-2 font-black text-[15px] rounded-2xl border-0 whitespace-nowrap transition-colors
-      ${active
-          ? "bg-black text-white"
-          : "bg-transparent text-black hover:bg-black hover:text-white"
-        }`}
+      className={`group inline-flex items-center gap-2 px-4 py-2 font-black text-[15px] rounded-2xl whitespace-nowrap transition-all duration-200
+        ${style.base}
+        ${active ? style.active : style.inactive}
+      `}
     >
       <span
-        className={`inline-flex items-center justify-center w-7 h-7 rounded-xl border-0 transition-colors
-        ${active
-            ? "bg-white text-black"
-            : "bg-transparent text-black group-hover:bg-white group-hover:text-black"
-          }`}
+        className={`inline-flex items-center justify-center w-7 h-7 rounded-xl transition-all duration-200
+          ${style.iconBase}
+          ${active ? style.iconActive : style.iconInactive}
+        `}
       >
         <Icon className="w-4 h-4" />
       </span>
@@ -78,6 +77,18 @@ export default function HeaderView({
   const location = useLocation();
   const { theme: currentTheme } = useThemeStore();
   const themeStyle = headerThemes[currentTheme] || headerThemes.classic;
+
+  // Scroll detection for floating header background
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isActive = (to) => {
     const p = location.pathname || "/";
@@ -257,7 +268,22 @@ export default function HeaderView({
   };
   return (
     <header className="sticky top-0 z-[200] isolate w-full bg-transparent border-b border-transparent">
-      <div className="w-full max-w-7xl mx-auto h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+      {/* 스크롤시 슈웅~ 나타나는 반투명 배경 */}
+      <div
+        className={`
+          absolute left-1/2 -translate-x-1/2 top-2 h-16
+          w-[calc(100%-2rem)] max-w-7xl
+          bg-white/40 backdrop-blur-2xl backdrop-saturate-150
+          rounded-2xl border border-white/30
+          shadow-[0_8px_32px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.4)]
+          transition-all duration-300 ease-out
+          ${isScrolled
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-4 pointer-events-none"
+          }
+        `}
+      />
+      <div className="relative w-full max-w-7xl mx-auto h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6 min-w-0">
           <Link to="/" className="shrink-0">
             <Sticker className="px-4 py-2 rounded-2xl">
@@ -366,39 +392,63 @@ export default function HeaderView({
                 className={`h-9 hidden sm:block ${themeStyle.separatorColor}`}
               />
 
-              <Link to="/mypage" className="hidden sm:flex items-center gap-3">
-                <Sticker className="rounded-2xl p-2">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border border-gray-200 bg-slate-50">
-                      <AvatarImage
-                        src={profileImageUrl}
-                        alt={displayNickname}
-                      />
-                      <AvatarFallback
-                        className={`text-lg font-black ${themeStyle.avatarFallback}`}
-                      >
-                        {userInitial}
-                      </AvatarFallback>
-                    </Avatar>
+              {/* 데스크탑용 아바타 드롭다운 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden md:flex items-center gap-3 cursor-pointer">
+                    <Sticker className="rounded-2xl p-2">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border border-gray-200 bg-slate-50">
+                          <AvatarImage
+                            src={profileImageUrl}
+                            alt={displayNickname}
+                          />
+                          <AvatarFallback className={`text-lg font-black ${themeStyle.avatarFallback}`}>
+                            {userInitial}
+                          </AvatarFallback>
+                        </Avatar>
 
-                    <div className="hidden xl:flex flex-col gap-1 w-32 overflow-hidden">
-                      <span
-                        className={`text-[15px] font-black leading-tight truncate ${themeStyle.stickerText}`}
-                      >
-                        {displayNickname}
-                      </span>
-                      {renderProviderBadge()}
+                        <div className="hidden xl:flex flex-col items-start gap-0.5 w-32 overflow-hidden">
+                          <span className={`text-[15px] font-black leading-tight truncate text-left ${themeStyle.stickerText}`}>
+                            {displayNickname}
+                          </span>
+                          {renderProviderBadge()}
+                        </div>
+                      </div>
+                    </Sticker>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48 p-2 mt-2 bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                >
+                  <DropdownMenuItem asChild className="cursor-pointer focus:bg-transparent p-0 mb-1">
+                    <Link
+                      to="/mypage"
+                      className="w-full px-3 py-2.5 flex items-center gap-2 font-bold text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+                    >
+                      <Home className="w-4 h-4" />
+                      마이페이지
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="cursor-pointer focus:bg-transparent p-0"
+                  >
+                    <div className="w-full px-3 py-2.5 flex items-center gap-2 font-bold text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                      <LogOut className="w-4 h-4" />
+                      로그아웃
                     </div>
-                  </div>
-                </Sticker>
-              </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="p-0 border-0 bg-transparent hover:bg-transparent"
+                    className="p-0 border-0 bg-transparent hover:bg-transparent md:hidden"
                   >
                     <div
                       className={`${themeStyle.menuBg} ${themeStyle.menuBorder

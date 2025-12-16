@@ -13,20 +13,58 @@ import {
 } from "@/utils/format";
 
 // ============================================
+// 테마별 히어로 섹션 스타일
+// ============================================
+const heroThemeStyles = {
+  default: {
+    confettiColors: ["bg-pink-400", "bg-cyan-400", "bg-lime-400", "bg-yellow-400", "bg-pink-500", "bg-blue-400", "bg-purple-400", "bg-cyan-300", "bg-orange-400", "bg-lime-300"],
+    badgeBg: "bg-white",
+    badgeText: "text-pink-500",
+    headlineAccent1: "text-cyan-400",
+    headlineAccent2: "text-pink-500",
+    primaryBtn: "bg-pink-500 text-white",
+    primaryBtnHover: "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+    secondaryBtn: "bg-cyan-400 text-black",
+    secondaryBtnHover: "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+    stickerLeft: "bg-lime-400",
+    stickerRight: "bg-cyan-400",
+    hotPartyBadge: "bg-lime-400",
+    subtext: "text-gray-700",
+  },
+  christmas: {
+    confettiColors: ["bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-white", "bg-red-300", "bg-green-300", "bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-white", "bg-red-200", "bg-green-200"],
+    badgeBg: "bg-white",
+    badgeText: "text-[#c41e3a]",
+    headlineAccent1: "text-[#1a5f2a]",
+    headlineAccent2: "text-[#c41e3a]",
+    primaryBtn: "bg-[#c41e3a] text-white",
+    primaryBtnHover: "hover:bg-[#a51830] hover:shadow-[6px_6px_16px_rgba(196,30,58,0.2)]",
+    secondaryBtn: "bg-[#1a5f2a] text-white",
+    secondaryBtnHover: "hover:bg-[#145222] hover:shadow-[6px_6px_16px_rgba(26,95,42,0.2)]",
+    stickerLeft: "bg-[#1a5f2a]",
+    stickerRight: "bg-[#c41e3a]",
+    hotPartyBadge: "bg-[#c41e3a]",
+    subtext: "text-gray-700",
+  },
+};
+
+// ============================================
 // Confetti Component - 둥둥 떠다니는 종이 조각
 // ============================================
-const Confetti = ({ isDark }) => {
+const Confetti = ({ themeStyle }) => {
+  const colors = themeStyle?.confettiColors || heroThemeStyles.default.confettiColors;
+
   const confettiPieces = [
-    { color: "bg-pink-400", size: "w-4 h-4", left: "5%", delay: 0, duration: 8, rotate: 45 },
-    { color: "bg-cyan-400", size: "w-3 h-3", left: "15%", delay: 1.2, duration: 10, rotate: -30 },
-    { color: "bg-lime-400", size: "w-5 h-2", left: "25%", delay: 0.5, duration: 9, rotate: 60 },
-    { color: "bg-yellow-400", size: "w-3 h-3", left: "35%", delay: 2, duration: 11, rotate: -45 },
-    { color: "bg-pink-500", size: "w-2 h-5", left: "45%", delay: 0.8, duration: 8.5, rotate: 30 },
-    { color: "bg-blue-400", size: "w-4 h-3", left: "55%", delay: 1.5, duration: 10.5, rotate: -60 },
-    { color: "bg-purple-400", size: "w-3 h-4", left: "65%", delay: 0.3, duration: 9.5, rotate: 45 },
-    { color: "bg-cyan-300", size: "w-2 h-2", left: "75%", delay: 2.5, duration: 8, rotate: -30 },
-    { color: "bg-orange-400", size: "w-4 h-2", left: "85%", delay: 1, duration: 11, rotate: 60 },
-    { color: "bg-lime-300", size: "w-3 h-3", left: "92%", delay: 0.7, duration: 9, rotate: -45 },
+    { color: colors[0], size: "w-4 h-4", left: "5%", delay: 0, duration: 8, rotate: 45 },
+    { color: colors[1], size: "w-3 h-3", left: "15%", delay: 1.2, duration: 10, rotate: -30 },
+    { color: colors[2], size: "w-5 h-2", left: "25%", delay: 0.5, duration: 9, rotate: 60 },
+    { color: colors[3], size: "w-3 h-3", left: "35%", delay: 2, duration: 11, rotate: -45 },
+    { color: colors[4], size: "w-2 h-5", left: "45%", delay: 0.8, duration: 8.5, rotate: 30 },
+    { color: colors[5], size: "w-4 h-3", left: "55%", delay: 1.5, duration: 10.5, rotate: -60 },
+    { color: colors[6], size: "w-3 h-4", left: "65%", delay: 0.3, duration: 9.5, rotate: 45 },
+    { color: colors[7], size: "w-2 h-2", left: "75%", delay: 2.5, duration: 8, rotate: -30 },
+    { color: colors[8], size: "w-4 h-2", left: "85%", delay: 1, duration: 11, rotate: 60 },
+    { color: colors[9], size: "w-3 h-3", left: "92%", delay: 0.7, duration: 9, rotate: -45 },
   ];
 
   return (
@@ -56,8 +94,10 @@ const Confetti = ({ isDark }) => {
 export default function MainHeroSection({ parties, products = [] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
+
+  // 테마 설정
   const { theme } = useThemeStore();
-  const isDark = theme === 'dark';
+  const themeStyle = heroThemeStyles[theme] || heroThemeStyles.default;
 
   // portrait-v2 스타일: useInView로 섹션 감지
   const heroRef = useRef(null);
@@ -185,7 +225,7 @@ export default function MainHeroSection({ parties, products = [] }) {
     <>
       {/* 히어로 섹션 */}
       <section ref={heroRef} className="relative pt-32 pb-10 flex flex-col items-center justify-center overflow-hidden px-6">
-        <Confetti isDark={isDark} />
+        <Confetti themeStyle={themeStyle} />
 
         {/* 메인 헤드라인 */}
         <motion.div
@@ -205,8 +245,8 @@ export default function MainHeroSection({ parties, products = [] }) {
               animate={{ y: [0, -15, 0], rotate: [-8, -12, -8] }}
               transition={{ duration: 4, repeat: Infinity }}
             >
-              <NeoCard color="bg-lime-400" rotate={-8} className="px-3 py-1 rounded-lg">
-                <span className="font-bold text-sm">NEW!</span>
+              <NeoCard color={themeStyle.stickerLeft} rotate={-8} className="px-3 py-1 rounded-lg">
+                <span className="font-bold text-sm">{theme === "christmas" ? "🎄" : "NEW!"}</span>
               </NeoCard>
             </motion.div>
           </motion.div>
@@ -222,8 +262,8 @@ export default function MainHeroSection({ parties, products = [] }) {
               animate={{ y: [0, -15, 0], rotate: [12, 15, 12] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              <NeoCard color="bg-cyan-400" rotate={12} className="px-4 py-2 rounded-xl">
-                <span className="font-black text-lg">75% OFF!</span>
+              <NeoCard color={themeStyle.stickerRight} rotate={12} className="px-4 py-2 rounded-xl">
+                <span className={`font-black text-lg ${theme === "christmas" ? "text-white" : ""}`}>{theme === "christmas" ? "🎅 75% OFF!" : "75% OFF!"}</span>
               </NeoCard>
             </motion.div>
           </motion.div>
@@ -233,10 +273,10 @@ export default function MainHeroSection({ parties, products = [] }) {
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.3 }}
           >
-            <NeoCard color={isDark ? "bg-[#1E293B]" : "bg-white"} rotate={1} className="inline-block px-5 py-2 rounded-xl mb-6">
+            <NeoCard color={themeStyle.badgeBg} rotate={1} className="inline-block px-5 py-2 rounded-xl mb-8">
               <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-pink-500" />
-                <span className={`font-bold ${isDark ? 'text-white' : ''}`}>구독료, 이제 똑똑하게 나눠요</span>
+                <Sparkles size={16} className={themeStyle.badgeText} />
+                <span className="font-bold">{theme === "christmas" ? "🎁 구독료, 크리스마스 특별 할인!" : "구독료, 이제 똑똑하게 나눠요"}</span>
               </div>
             </NeoCard>
           </motion.div>
@@ -245,47 +285,49 @@ export default function MainHeroSection({ parties, products = [] }) {
             initial={{ opacity: 0, y: 30 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-[56px] md:text-[80px] lg:text-[100px] font-black leading-[0.95] tracking-tighter mb-6"
+            className="text-[56px] md:text-[80px] lg:text-[100px] font-black leading-[0.95] tracking-tighter mb-8"
           >
             <span className="block transform -rotate-1">SHARE</span>
             <span className="block transform rotate-1">
-              <span className="text-cyan-400 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">YOUR</span>
+              <span className={`${themeStyle.headlineAccent1} drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]`}>YOUR</span>
             </span>
-            <span className="block transform -rotate-1 text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+            <span className={`block transform -rotate-1 ${themeStyle.headlineAccent2} drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]`}>
               OTT!
             </span>
           </motion.h1>
 
-          <motion.div
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.5, duration: 0.8 }}
+            className="text-lg md:text-xl font-bold text-gray-700 mb-10"
           >
-            <NeoCard color={isDark ? "bg-[#1E293B]" : "bg-white"} rotate={-1} className="inline-block px-6 py-3 rounded-xl mb-8">
-              <p className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : ''}`}>
-                넷플릭스, 디즈니+, 유튜브 프리미엄까지 함께 나누면 최대 75% 절약!
-              </p>
-            </NeoCard>
-          </motion.div>
+            넷플릭스, 디즈니+, 유튜브 프리미엄까지 함께 나누면 최대 75% 절약!
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col gap-5 items-center"
           >
-            <Link to="/signup">
-              <button className="px-4 py-3 font-bold bg-pink-500 text-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all text-sm flex items-center gap-2">
-                회원가입
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </Link>
-            <Link to="/party/create">
-              <button className="px-4 py-3 font-bold bg-cyan-400 text-black border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all text-sm flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                파티 만들기
-              </button>
-            </Link>
+            {/* 버튼 그룹 - 항상 나란히 */}
+            <div className="flex flex-row gap-3">
+              <Link to="/signup">
+                <button className={`px-4 py-3 font-bold ${themeStyle.primaryBtn} border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.primaryBtnHover} transition-all text-sm flex items-center gap-2`}>
+                  회원가입
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </Link>
+              <Link to="/party/create">
+                <button className={`px-4 py-3 font-bold ${themeStyle.secondaryBtn} border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.secondaryBtnHover} transition-all text-sm flex items-center gap-2`}>
+                  <Plus className="w-4 h-4" />
+                  파티 만들기
+                </button>
+              </Link>
+            </div>
+
+            {/* 검색창 - 아래에 배치 */}
             <div className="relative">
               <input
                 type="text"
@@ -294,7 +336,7 @@ export default function MainHeroSection({ parties, products = [] }) {
                 onFocus={() => setShowResults(true)}
                 onBlur={() => setTimeout(() => setShowResults(false), 200)}
                 placeholder="구독상품 검색"
-                className={`w-36 sm:w-44 px-4 py-3 pl-10 font-bold ${isDark ? 'bg-[#1E293B] border-gray-600 text-white placeholder:text-gray-400' : 'bg-white border-gray-200'} border rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-sm`}
+                className="w-52 px-4 py-3 pl-10 font-bold bg-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-sm"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 
@@ -334,7 +376,7 @@ export default function MainHeroSection({ parties, products = [] }) {
           initial={{ opacity: 0 }}
           animate={isHeroInView ? { opacity: 1 } : {}}
           transition={{ delay: 1 }}
-          className="mt-16 flex justify-center"
+          className="mt-20 flex justify-center"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
@@ -355,8 +397,8 @@ export default function MainHeroSection({ parties, products = [] }) {
           transition={{ duration: 0.6 }}
           className="text-center mb-16 md:mb-24 z-20"
         >
-          <NeoCard color="bg-lime-400" rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
-            <span className="text-xl font-black">HOT PARTY! 🔥</span>
+          <NeoCard color={themeStyle.hotPartyBadge} rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
+            <span className={`text-xl font-black ${theme === "christmas" ? "text-white" : ""}`}>{theme === "christmas" ? "🎄 HOT PARTY! 🎅" : "HOT PARTY! 🔥"}</span>
           </NeoCard>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black">
             지금 인기 있는 파티
@@ -394,7 +436,7 @@ export default function MainHeroSection({ parties, products = [] }) {
                 }}
                 className="absolute"
               >
-                <ServiceCard card={card} isDark={isDark} />
+                <ServiceCard card={card} theme={theme} themeStyle={themeStyle} />
               </motion.div>
             );
           })}
@@ -413,7 +455,7 @@ export default function MainHeroSection({ parties, products = [] }) {
                 ease: [0.4, 0.0, 0.2, 1]
               }}
             >
-              <ServiceCard card={card} isDark={isDark} />
+              <ServiceCard card={card} theme={theme} themeStyle={themeStyle} />
             </motion.div>
           ))}
         </div>
@@ -429,9 +471,9 @@ export default function MainHeroSection({ parties, products = [] }) {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-pink-500 text-white font-black rounded-full border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all"
+              className={`px-6 py-3 ${themeStyle.primaryBtn} font-black rounded-full border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.primaryBtnHover} transition-all`}
             >
-              🍿 파티 전체보기
+              {theme === "christmas" ? "🎄 파티 전체보기" : "🍿 파티 전체보기"}
             </motion.div>
           </Link>
         </motion.div>
@@ -441,10 +483,10 @@ export default function MainHeroSection({ parties, products = [] }) {
 }
 
 // 서비스 카드 컴포넌트
-function ServiceCard({ card, isDark }) {
-  const cardBg = isDark ? 'bg-[#1E293B] border-gray-600' : 'bg-white border-gray-200';
-  const textColor = isDark ? 'text-white' : 'text-black';
-  const subTextColor = isDark ? 'text-gray-400' : 'text-gray-500';
+function ServiceCard({ card, theme, themeStyle }) {
+  const accentColor = themeStyle?.headlineAccent2 || "text-pink-500";
+  const badgeBg = theme === "christmas" ? "bg-[#1a5f2a]" : "bg-lime-400";
+  const badgeText = theme === "christmas" ? "text-white" : "text-black";
 
   // 파티가 없는 빈 카드
   if (card.isEmpty) {
@@ -458,8 +500,8 @@ function ServiceCard({ card, isDark }) {
           <div className={`w-10 h-10 ${card.bgColor} rounded-xl ${isDark ? 'border-gray-600' : 'border-gray-200'} border flex items-center justify-center mb-3`}>
             <span className="text-white font-black text-lg">{card.emoji}</span>
           </div>
-          <h3 className={`font-black ${textColor} text-sm mb-1`}>{card.serviceName}</h3>
-          <div className="mt-2 flex items-center gap-1 text-pink-500">
+          <h3 className="font-black text-black text-sm mb-1">{card.serviceName}</h3>
+          <div className={`mt-2 flex items-center gap-1 ${accentColor}`}>
             <Plus size={14} className="stroke-[3]" />
             <span className="text-xs font-black">파티원 찾기</span>
           </div>
@@ -484,10 +526,10 @@ function ServiceCard({ card, isDark }) {
       <p className={`text-xs ${subTextColor} font-bold mb-3`}>{card.category}</p>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-lg font-black text-pink-500">{card.price}</p>
-          <p className={`text-[10px] ${subTextColor} font-bold`}>월 비용</p>
+          <p className={`text-lg font-black ${accentColor}`}>{card.price}</p>
+          <p className="text-[10px] text-gray-400 font-bold">월 비용</p>
         </div>
-        <div className={`flex items-center gap-1 text-xs font-bold text-black bg-lime-400 px-2 py-1 rounded-full ${isDark ? 'border-gray-600' : 'border-gray-200'} border`}>
+        <div className={`flex items-center gap-1 text-xs font-bold ${badgeText} ${badgeBg} px-2 py-1 rounded-full border border-gray-200`}>
           <Users size={12} />
           <span>{card.members}</span>
         </div>

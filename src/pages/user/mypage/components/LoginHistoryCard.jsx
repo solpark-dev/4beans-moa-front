@@ -1,9 +1,26 @@
 import React from "react";
+import { useThemeStore } from "@/store/themeStore";
 
 const BTN =
   "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm hover:bg-slate-50 active:translate-y-[1px]";
 
+// 테마별 스타일
+const loginHistoryThemeStyles = {
+  default: {
+    titleBar: "h-[2px] bg-black",
+    headerBorder: "border-b-2 border-black",
+    rowBorder: "border-b border-black/10",
+  },
+  christmas: {
+    titleBar: "h-[2px] bg-gray-200",
+    headerBorder: "border-b border-gray-200",
+    rowBorder: "border-b border-gray-200",
+  },
+};
+
 export function LoginHistoryCard({ loginHistory, onBack }) {
+  const { theme } = useThemeStore();
+  const themeStyle = loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.default;
   const items =
     loginHistory?.items ||
     loginHistory?.data?.items ||
@@ -22,7 +39,7 @@ export function LoginHistoryCard({ loginHistory, onBack }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-black tracking-widest text-sm">LOGIN HISTORY</p>
-          <div className="mt-4 h-[2px] bg-black w-full" />
+          <div className={`mt-4 ${themeStyle.titleBar} w-full`} />
         </div>
       </div>
 
@@ -33,7 +50,7 @@ export function LoginHistoryCard({ loginHistory, onBack }) {
       <div className="mt-4 border border-gray-200 rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-white">
-            <tr className="border-b-2 border-black">
+            <tr className={themeStyle.headerBorder}>
               <th className="text-left p-3 font-black">일시</th>
               <th className="text-left p-3 font-black">결과</th>
               <th className="text-left p-3 font-black">IP</th>
@@ -44,7 +61,7 @@ export function LoginHistoryCard({ loginHistory, onBack }) {
           <tbody>
             {Array.isArray(items) && items.length > 0 ? (
               items.map((row, idx) => (
-                <tr key={idx} className="border-b border-black/10">
+                <tr key={idx} className={themeStyle.rowBorder}>
                   <td className="p-3 font-bold text-slate-800">
                     {row?.createdAt || row?.dateTime || row?.loginAt || "-"}
                   </td>

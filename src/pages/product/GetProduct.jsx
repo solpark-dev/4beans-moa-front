@@ -5,9 +5,28 @@ import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 import UpdateProductModal from '../../components/product/UpdateProductModal';
 import { useThemeStore } from '@/store/themeStore';
-import { useTheme, ChristmasBackground } from '@/config/themeConfig';
+
+// 테마별 스타일
+const getProductThemeStyles = {
+    default: {
+        spinnerBorder: 'border-indigo-600',
+        cardShadow: 'shadow-2xl',
+        sparklesIcon: 'text-indigo-500',
+        benefitIcon1: 'bg-indigo-50 text-indigo-600',
+        focusRing: 'focus:ring-indigo-500',
+    },
+    christmas: {
+        spinnerBorder: 'border-red-800',
+        cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        sparklesIcon: 'text-red-800',
+        benefitIcon1: 'bg-red-50 text-red-800',
+        focusRing: 'focus:ring-red-800',
+    },
+};
 
 const GetProduct = () => {
+    const { theme } = useThemeStore();
+    const themeStyle = getProductThemeStyles[theme] || getProductThemeStyles.default;
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
@@ -63,9 +82,8 @@ const GetProduct = () => {
 
     if (loading) {
         return (
-            <div className={`min-h-screen flex justify-center items-center ${theme === 'christmas' ? '' : theme === 'dark' ? 'bg-[#0B1120]' : 'bg-stone-50'}`}>
-                {theme === 'christmas' && <ChristmasBackground />}
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: accent }}></div>
+            <div className="flex justify-center items-center h-64">
+                <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${themeStyle.spinnerBorder}`}></div>
             </div>
         );
     }
@@ -73,21 +91,13 @@ const GetProduct = () => {
     if (!product) return null;
 
     return (
-        <div className={`min-h-screen ${theme === 'christmas' ? '' : theme === 'dark' ? 'bg-[#0B1120]' : 'bg-stone-50'}`}>
-            {theme === 'christmas' && <ChristmasBackground />}
-            <div className="container mx-auto px-4 py-12 max-w-4xl">
-                <div className={`rounded-[2rem] shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-[#1E293B] border border-gray-700' : 'bg-white'}`}>
-                    {/* Header Section (Horizontal Layout with Gradient) */}
-                    <div className={`p-8 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden ${theme === 'dark' ? 'bg-gray-800/50' : ''
-                        }`}
-                        style={{
-                            background: theme === 'dark' ? undefined : `linear-gradient(135deg, ${accent}15 0%, ${accent}05 100%)`
-                        }}>
-                        {/* Blur Circles */}
-                        <div className="absolute top-0 left-0 w-32 h-32 rounded-full filter blur-3xl opacity-30 -ml-10 -mt-10"
-                            style={{ backgroundColor: accent }}></div>
-                        <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full filter blur-3xl opacity-30 -mr-10 -mb-10"
-                            style={{ backgroundColor: theme === 'pop' ? '#f472b6' : accent }}></div>
+        <div className="container mx-auto px-4 py-12 max-w-4xl">
+            <div className={`bg-white rounded-[2rem] ${themeStyle.cardShadow} overflow-hidden`}>
+                {/* Header Section (Horizontal Layout with Gradient) */}
+                <div className="bg-purple-50 p-8 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+                    {/* Blur Circles */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-purple-200 rounded-full filter blur-3xl opacity-50 -ml-10 -mt-10"></div>
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-200 rounded-full filter blur-3xl opacity-50 -mr-10 -mb-10"></div>
 
                         {/* Icon */}
                         <div className="relative z-10 flex-shrink-0">
@@ -143,82 +153,72 @@ const GetProduct = () => {
                             </div>
                         )}
 
-                        {/* MoA 구독 관리 혜택 */}
-                        <div className="mb-8">
-                            <h3 className={`font-bold mb-6 flex items-center gap-2 text-base ${theme === 'dark' ? 'text-white' : 'text-stone-800'}`}>
-                                <Sparkles className="w-5 h-5" style={{ color: accent }} /> MoA 구독 관리 혜택
-                            </h3>
-                            <div className="space-y-5">
-                                {[
-                                    {
-                                        icon: LayoutGrid,
-                                        bgColor: accent,
-                                        title: "1. 모든 구독을 한눈에 정리하세요",
-                                        desc: "흩어진 구독을 한 곳에서 확인하고 더 쉽고 편하게 관리할 수 있어요."
-                                    },
-                                    {
-                                        icon: Bell,
-                                        bgColor: '#ef4444',
-                                        title: "2. 매달 빠져나가는 구독비, 미리 대비하세요",
-                                        desc: "결제일을 자동으로 알려주어 불필요한 지출을 막아줘요."
-                                    },
-                                    {
-                                        icon: Users,
-                                        bgColor: '#f97316',
-                                        title: "3. 가족의 구독도 함께 관리하는 패밀리 센터",
-                                        desc: "가족이 어떤 서비스에 가입했는지 쉽고 투명하게 관리하세요."
-                                    },
-                                    {
-                                        icon: Lightbulb,
-                                        bgColor: '#eab308',
-                                        title: "4. 꼭 필요한 구독만 남기는 똑똑한 소비 도우미",
-                                        desc: "활용도가 낮은 구독을 알려줘서 해지·유지 판단을 도와줘요."
-                                    }
-                                ].map((item, idx) => (
-                                    <div key={idx} className="flex gap-4 items-start">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5`}
-                                            style={{
-                                                backgroundColor: `${item.bgColor}20`,
-                                                color: item.bgColor
-                                            }}>
-                                            <item.icon className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className={`text-sm font-bold leading-tight mb-1 ${theme === 'dark' ? 'text-white' : 'text-stone-800'}`}>
-                                                {item.title}
-                                            </h4>
-                                            <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-gray-400' : 'text-stone-500'}`}>
-                                                {item.desc}
-                                            </p>
-                                        </div>
+                    {/* MoA 구독 관리 혜택 */}
+                    <div className="mb-8">
+                        <h3 className="font-bold text-stone-800 mb-6 flex items-center gap-2 text-base">
+                            <Sparkles className={`w-5 h-5 ${themeStyle.sparklesIcon}`} /> MoA 구독 관리 혜택
+                        </h3>
+                        <div className="space-y-5">
+                            {[
+                                {
+                                    icon: LayoutGrid,
+                                    color: themeStyle.benefitIcon1,
+                                    title: "1. 모든 구독을 한눈에 정리하세요",
+                                    desc: "흩어진 구독을 한 곳에서 확인하고 더 쉽고 편하게 관리할 수 있어요."
+                                },
+                                {
+                                    icon: Bell,
+                                    color: 'bg-rose-50 text-rose-600',
+                                    title: "2. 매달 빠져나가는 구독비, 미리 대비하세요",
+                                    desc: "결제일을 자동으로 알려주어 불필요한 지출을 막아줘요."
+                                },
+                                {
+                                    icon: Users,
+                                    color: 'bg-orange-50 text-orange-600',
+                                    title: "3. 가족의 구독도 함께 관리하는 패밀리 센터",
+                                    desc: "가족이 어떤 서비스에 가입했는지 쉽고 투명하게 관리하세요."
+                                },
+                                {
+                                    icon: Lightbulb,
+                                    color: 'bg-yellow-50 text-yellow-600',
+                                    title: "4. 꼭 필요한 구독만 남기는 똑똑한 소비 도우미",
+                                    desc: "활용도가 낮은 구독을 알려줘서 해지·유지 판단을 도와줘요."
+                                }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex gap-4 items-start">
+                                    <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                                        <item.icon className="w-5 h-5" />
                                     </div>
-                                ))}
+                                    <div className="flex-1">
+                                        <h4 className="text-sm font-bold text-stone-800 leading-tight mb-1">
+                                            {item.title}
+                                        </h4>
+                                        <p className="text-sm text-stone-500 leading-relaxed">
+                                            {item.desc}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 구독 시작일 선택 (일반 사용자만) */}
+                    {user?.role !== 'ADMIN' && (
+                        <div className="mb-8 pt-6 border-t border-stone-100">
+                            <label className="block text-sm font-bold text-stone-700 mb-3">
+                                구독 시작일 (결제일) 지정
+                            </label>
+                            <div className="relative">
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className={`w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 ${themeStyle.focusRing} focus:border-transparent font-medium text-stone-900`}
+                                />
                             </div>
                         </div>
-
-                        {/* 구독 시작일 선택 (일반 사용자만) */}
-                        {user?.role !== 'ADMIN' && (
-                            <div className={`mb-8 pt-6 border-t ${theme === 'dark' ? 'border-gray-700' : 'border-stone-100'}`}>
-                                <label className={`block text-sm font-bold mb-3 ${theme === 'dark' ? 'text-gray-300' : 'text-stone-700'}`}>
-                                    구독 시작일 (결제일) 지정
-                                </label>
-                                <div className="relative">
-                                    <Calendar className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === 'dark' ? 'text-gray-500' : 'text-stone-400'}`} />
-                                    <input
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                        className={`w-full pl-12 pr-4 py-3 rounded-xl focus:ring-2 focus:border-transparent font-medium ${theme === 'dark'
-                                                ? 'bg-[#0B1120] border border-gray-600 text-white'
-                                                : 'bg-stone-50 border border-stone-200 text-stone-900'
-                                            }`}
-                                        style={{
-                                            '--tw-ring-color': accent
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        )}
+                    )}
 
                         {/* Action Buttons */}
                         <div className="flex gap-3 pt-4">

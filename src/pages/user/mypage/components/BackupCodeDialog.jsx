@@ -5,8 +5,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const backupCodeThemeStyles = {
+  default: {
+    primaryButton: "bg-indigo-600 hover:bg-indigo-700",
+  },
+  christmas: {
+    primaryButton: "bg-red-800 hover:bg-red-900",
+  },
+};
 
 export function BackupCodeDialog({ backup }) {
+  const { theme } = useThemeStore();
+  const themeStyle = backupCodeThemeStyles[theme] || backupCodeThemeStyles.default;
   return (
     <Dialog
       open={backup.open}
@@ -66,7 +79,7 @@ export function BackupCodeDialog({ backup }) {
               </Button>
               <Button
                 type="button"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                className={`${themeStyle.primaryButton} text-white`}
                 onClick={backup.close}
               >
                 닫기

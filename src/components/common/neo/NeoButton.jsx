@@ -1,6 +1,21 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 버튼 스타일
+const buttonThemeStyles = {
+  default: {
+    border: "border border-gray-200",
+    shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    hoverShadow: "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+  },
+  christmas: {
+    border: "border border-gray-200",
+    shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    hoverShadow: "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+  },
+};
 
 /**
  * NeoButton - 네오브루탈리즘 스타일 버튼 컴포넌트
@@ -11,6 +26,9 @@ import { cn } from "@/lib/utils";
  */
 const NeoButton = React.forwardRef(
   ({ children, color = "bg-pink-500", size = "md", className, ...props }, ref) => {
+    const { theme } = useThemeStore();
+    const themeStyle = buttonThemeStyles[theme] || buttonThemeStyles.default;
+
     const sizeClasses = {
       xs: "px-4 py-3 text-sm font-bold",
       sm: "px-4 py-2 text-sm font-black",
@@ -26,9 +44,9 @@ const NeoButton = React.forwardRef(
         className={cn(
           color,
           sizeClasses[size],
-          "border border-gray-200",
-          "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-          "hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]",
+          themeStyle.border,
+          themeStyle.shadow,
+          themeStyle.hoverShadow,
           "transition-all duration-200",
           "rounded-xl",
           "flex items-center gap-2",

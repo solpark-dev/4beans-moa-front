@@ -2,8 +2,31 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { KeyRound } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const historyCardThemeStyles = {
+  default: {
+    iconBg: "bg-cyan-400",
+    activePage: "bg-pink-500 text-white",
+    hoverBg: "hover:bg-slate-100",
+    headerBorder: "border-b-4 border-black",
+    tableBorder: "border-b-4 border-black",
+    rowBorder: "border-b border-black/10",
+  },
+  christmas: {
+    iconBg: "bg-green-800",
+    activePage: "bg-red-800 text-red-100",
+    hoverBg: "hover:bg-red-50",
+    headerBorder: "border-b border-gray-200",
+    tableBorder: "border-b border-gray-200",
+    rowBorder: "border-b border-gray-200",
+  },
+};
 
 export default function AdminLoginHistoryCard({ loginHistory }) {
+  const { theme } = useThemeStore();
+  const themeStyle = historyCardThemeStyles[theme] || historyCardThemeStyles.default;
   const {
     state: { items, page, pages, pageCount, loading, totalCount },
     actions: { goFirst, goPrev, goPage, goNextBlock, goLast },
@@ -11,10 +34,10 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
 
   return (
     <Card className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden">
-      <CardHeader className="pb-6 border-b-4 border-black bg-slate-50">
+      <CardHeader className={`pb-6 ${themeStyle.headerBorder} bg-slate-50`}>
         <CardTitle className="text-sm font-black uppercase tracking-[0.18em] flex items-center gap-3 text-black">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-            <KeyRound className="w-4 h-4 text-black" />
+          <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${themeStyle.iconBg} border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}>
+            <KeyRound className={`w-4 h-4 ${theme === 'christmas' ? 'text-green-100' : 'text-black'}`} />
           </span>
           LOGIN HISTORY
         </CardTitle>
@@ -44,7 +67,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
             <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
               <table className="w-full text-sm bg-white">
                 <thead>
-                  <tr className="border-b-4 border-black bg-slate-100">
+                  <tr className={`${themeStyle.tableBorder} bg-slate-100`}>
                     <th className="py-3 px-3 text-left font-black text-black">
                       일시
                     </th>
@@ -66,7 +89,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
                   {items.map((item, idx) => (
                     <tr
                       key={`${item.loginAt}-${idx}`}
-                      className="border-b border-black/10 hover:bg-slate-100 transition-colors"
+                      className={`${themeStyle.rowBorder} ${themeStyle.hoverBg} transition-colors`}
                     >
                       <td className="py-3 px-3 font-bold text-slate-900 whitespace-nowrap">
                         {item.loginAtFormatted}
@@ -119,7 +142,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
                   variant={p === page ? "default" : "outline"}
                   className={`h-10 min-w-[2.5rem] text-xs font-black border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-xl hover:brightness-95 ${
                     p === page
-                      ? "bg-pink-500 text-white"
+                      ? themeStyle.activePage
                       : "bg-white text-black"
                   }`}
                   onClick={() => goPage(p)}

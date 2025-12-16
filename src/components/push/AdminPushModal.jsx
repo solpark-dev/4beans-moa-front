@@ -11,8 +11,25 @@ import TemplatesTab from "./admin/TemplatesTab";
 import HistoryTab from "./admin/HistoryTab";
 import SendTab from "./admin/SendTab";
 import TemplateForm from "./forms/TemplateForm";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const adminPushThemeStyles = {
+    default: {
+        iconBg: "bg-indigo-100",
+        iconColor: "text-indigo-600",
+        tabActive: "data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600",
+    },
+    christmas: {
+        iconBg: "bg-red-100",
+        iconColor: "text-red-800",
+        tabActive: "data-[state=active]:border-red-800 data-[state=active]:text-red-800",
+    },
+};
 
 const AdminPushModal = ({ isOpen, onClose }) => {
+    const { theme } = useThemeStore();
+    const themeStyle = adminPushThemeStyles[theme] || adminPushThemeStyles.default;
     const {
         activeTab,
         setActiveTab,
@@ -59,8 +76,8 @@ const AdminPushModal = ({ isOpen, onClose }) => {
                 <DialogContent className="max-w-4xl h-[700px] p-0 flex flex-col">
                     <DialogHeader className="px-6 py-4 border-b border-slate-100 flex-shrink-0">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                <Bell className="w-5 h-5 text-indigo-600" />
+                            <div className={`w-10 h-10 rounded-full ${themeStyle.iconBg} flex items-center justify-center`}>
+                                <Bell className={`w-5 h-5 ${themeStyle.iconColor}`} />
                             </div>
                             <div>
                                 <DialogTitle className="text-lg font-semibold text-slate-800">
@@ -82,21 +99,21 @@ const AdminPushModal = ({ isOpen, onClose }) => {
                             <TabsList className="bg-transparent h-12 p-0 gap-1">
                                 <TabsTrigger
                                     value="templates"
-                                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-4 h-12"
+                                    className={`data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 ${themeStyle.tabActive} rounded-none px-4 h-12`}
                                 >
                                     <FileText className="w-4 h-4 mr-2" />
                                     템플릿 관리
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="history"
-                                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-4 h-12"
+                                    className={`data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 ${themeStyle.tabActive} rounded-none px-4 h-12`}
                                 >
                                     <History className="w-4 h-4 mr-2" />
                                     발송 내역
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="send"
-                                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 rounded-none px-4 h-12"
+                                    className={`data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 ${themeStyle.tabActive} rounded-none px-4 h-12`}
                                 >
                                     <Send className="w-4 h-4 mr-2" />
                                     수동 발송

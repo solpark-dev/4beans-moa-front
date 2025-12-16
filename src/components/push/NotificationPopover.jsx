@@ -12,9 +12,22 @@ import usePushNotification from '@/hooks/push/usePushNotification'
 import AdminPushModal from '@/components/push/AdminPushModal'
 import NotificationItem from '@/components/push/shared/NotificationItem'
 import { useAuthStore } from '@/store/authStore'
+import { useThemeStore } from '@/store/themeStore'
+
+// 테마별 스타일
+const popoverThemeStyles = {
+    default: {
+        readAllHover: 'hover:text-indigo-600',
+    },
+    christmas: {
+        readAllHover: 'hover:text-red-700',
+    },
+}
 
 export default function NotificationPopover({ children }) {
     const { user } = useAuthStore()
+    const { theme } = useThemeStore()
+    const themeStyle = popoverThemeStyles[theme] || popoverThemeStyles.default
     const isAdmin = user?.role === 'ADMIN'
     const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
 
@@ -92,7 +105,7 @@ export default function NotificationPopover({ children }) {
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleReadAll}
-                                className="h-8 px-2 text-xs text-slate-600 hover:text-indigo-600"
+                                className={`h-8 px-2 text-xs text-slate-600 ${themeStyle.readAllHover}`}
                             >
                                 <Check className="w-3.5 h-3.5 mr-1" />
                                 전체 읽음

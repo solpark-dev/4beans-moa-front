@@ -1,11 +1,22 @@
 import React from "react";
+import { useThemeStore } from "@/store/themeStore";
 
 const CARD =
   "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl";
 const BTN =
-  "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm hover:bg-slate-50 active:translate-y-[1px]";
+  "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]";
 const BTN_DANGER =
-  "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm hover:bg-slate-50 active:translate-y-[1px]";
+  "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm active:translate-y-[1px]";
+
+// 테마별 스타일
+const profileCardThemeStyles = {
+  default: {
+    buttonHover: "hover:bg-slate-50",
+  },
+  christmas: {
+    buttonHover: "hover:bg-red-50",
+  },
+};
 
 export function ProfileCard({
   user,
@@ -14,6 +25,9 @@ export function ProfileCard({
   actions,
   profileImageUrl,
 }) {
+  const { theme } = useThemeStore();
+  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.default;
+
   const name = user?.nickname || "USER";
   const idText = shortId || user?.userId || "";
   const displayImageUrl = profileImageUrl || "";
@@ -78,13 +92,13 @@ export function ProfileCard({
       <div className="mt-5 flex flex-wrap gap-3">
         {!isAdmin && (
           <>
-            <button type="button" className={BTN} onClick={goUpdate}>
+            <button type="button" className={`${BTN} ${themeStyle.buttonHover}`} onClick={goUpdate}>
               회원정보 수정
             </button>
-            <button type="button" className={BTN} onClick={goPassword}>
+            <button type="button" className={`${BTN} ${themeStyle.buttonHover}`} onClick={goPassword}>
               비밀번호 변경
             </button>
-            <button type="button" className={BTN_DANGER} onClick={goDelete}>
+            <button type="button" className={`${BTN_DANGER} ${themeStyle.buttonHover}`} onClick={goDelete}>
               회원 탈퇴
             </button>
           </>

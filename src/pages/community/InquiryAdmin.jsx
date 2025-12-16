@@ -5,13 +5,32 @@ import InquiryStatusBadge from '../../components/community/InquiryStatusBadge';
 import InquiryDetailModal from '../../components/community/InquiryDetailModal';
 import InquiryAnswerModal from '../../components/community/InquiryAnswerModal';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { formatDate, getCategoryName } from '../../utils/communityUtils';
 import { NeoCard, NeoButton, NeoPagination } from '@/components/common/neo';
 import { ImageIcon } from 'lucide-react';
 
+// 테마별 스타일
+const inquiryAdminThemeStyles = {
+    default: {
+        categoryBadge: 'bg-gray-100 text-gray-700',
+        answerButton: 'bg-gray-700 text-white',
+        redirectButton: 'bg-pink-500 text-white',
+        hoverBg: 'hover:bg-lime-100',
+    },
+    christmas: {
+        categoryBadge: 'bg-amber-100 text-amber-700',
+        answerButton: 'bg-red-800 text-red-100',
+        redirectButton: 'bg-red-800 text-red-100',
+        hoverBg: 'hover:bg-red-50',
+    },
+};
+
 const InquiryAdmin = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const { theme } = useThemeStore();
+    const themeStyle = inquiryAdminThemeStyles[theme] || inquiryAdminThemeStyles.default;
     const [inquiries, setInquiries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -58,7 +77,7 @@ const InquiryAdmin = () => {
                         <p className="text-gray-600 font-bold mb-6">관리자만 접근 가능합니다.</p>
                         <NeoButton
                             onClick={() => navigate('/community/inquiry')}
-                            color="bg-pink-500"
+                            color={themeStyle.redirectButton}
                             size="sm"
                         >
                             문의하기로 이동
@@ -115,15 +134,9 @@ const InquiryAdmin = () => {
     return (
         <CommunityLayout>
             <div className="max-w-5xl mx-auto">
-                <NeoCard
-                    color="bg-cyan-400"
-                    hoverable={false}
-                    className="inline-block px-4 py-2 rounded-xl mb-6"
-                >
-                    <h2 className="text-lg font-black text-black">
-                        문의 관리
-                    </h2>
-                </NeoCard>
+                <h2 className="text-lg font-black text-black mb-6">
+                    문의 관리
+                </h2>
 
                 <NeoCard
                     color="bg-white"
@@ -152,14 +165,14 @@ const InquiryAdmin = () => {
                             <div
                                 key={inquiry.communityId}
                                 onClick={() => handleTitleClick(inquiry)}
-                                className="grid gap-4 py-4 px-4 border-b border-gray-200 last:border-b-0 hover:bg-slate-50 items-center text-sm cursor-pointer transition-colors"
+                                className={`grid gap-4 py-4 px-4 border-b border-gray-200 last:border-b-0 ${themeStyle.hoverBg} items-center text-sm cursor-pointer transition-colors`}
                                 style={{ gridTemplateColumns: 'repeat(19, minmax(0, 1fr))' }}
                             >
                                 <div className="col-span-1 text-center font-bold text-gray-600">
                                     {(currentPage - 1) * pageSize + index + 1}
                                 </div>
                                 <div className="col-span-1 flex justify-center">
-                                    <span className="px-2 py-1 text-xs font-black rounded-lg bg-cyan-400 border border-gray-200" style={{ whiteSpace: 'nowrap' }}>
+                                    <span className={`px-2 py-1 text-xs font-black rounded-lg ${themeStyle.categoryBadge} border border-gray-200`} style={{ whiteSpace: 'nowrap' }}>
                                         {getCategoryName(inquiry.communityCodeId)}
                                     </span>
                                 </div>
@@ -187,11 +200,10 @@ const InquiryAdmin = () => {
                                         className={`px-3 py-1.5 text-xs font-black rounded-lg border border-gray-200
                                             shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
                                             hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
-                                            
                                             transition-all
                                             ${inquiry.answerStatus === '답변완료'
                                                 ? 'bg-white text-black'
-                                                : 'bg-pink-500 text-white'
+                                                : themeStyle.answerButton
                                             }`}
                                         style={{ whiteSpace: 'nowrap' }}
                                     >

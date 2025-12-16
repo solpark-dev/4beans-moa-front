@@ -1,10 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, User, UserX, LayoutDashboard } from "lucide-react";
 import { MenuButton } from "./MenuButton";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const adminMenuThemeStyles = {
+  default: {
+    cardShadow: "shadow-2xl",
+  },
+  christmas: {
+    cardShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+  },
+};
 
 export function AdminMenu({ actions }) {
+  const { theme } = useThemeStore();
+  const themeStyle = adminMenuThemeStyles[theme] || adminMenuThemeStyles.default;
+
   return (
-    <Card className="bg-white border border-gray-100 shadow-2xl rounded-3xl">
+    <Card className={`bg-white border border-gray-200 ${themeStyle.cardShadow} rounded-3xl`}>
       <CardHeader className="pb-2 pt-6 px-6">
         <CardTitle className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4" />

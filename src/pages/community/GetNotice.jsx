@@ -5,12 +5,27 @@ import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
 import { NeoCard, NeoButton } from '@/components/common/neo';
 
+// 테마별 스타일
+const getNoticeThemeStyles = {
+    default: {
+        dateBadge: 'bg-gray-100 text-gray-700',
+        viewBadge: 'bg-gray-100 text-gray-700',
+        editButton: 'bg-gray-700 text-white',
+    },
+    christmas: {
+        dateBadge: 'bg-green-800 text-green-100',
+        viewBadge: 'bg-amber-100 text-amber-700',
+        editButton: 'bg-red-800 text-red-100',
+    },
+};
+
 const GetNotice = () => {
     const navigate = useNavigate();
     const params = useParams();
     const noticeId = params.id || params.communityId;
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
+    const themeStyle = getNoticeThemeStyles[theme] || getNoticeThemeStyles.default;
     const [notice, setNotice] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -101,57 +116,54 @@ const GetNotice = () => {
     return (
         <CommunityLayout>
             <div className="max-w-3xl mx-auto pt-8">
-                <div className="border-b border-gray-200 pb-6 mb-6">
-                    <h2 className={`text-xl font-black ${getTextColor()} mb-4`}>
-                        {notice.title}
-                    </h2>
-                    <div className="flex items-center gap-4">
-                        <span
-                            className={`px-3 py-1 border border-gray-200 rounded-lg text-sm font-black ${getTextColor()}`}
-                            style={{ backgroundColor: getSecondaryColor() }}
-                        >
-                            등록일: {formatDate(notice.createdAt)}
-                        </span>
-                        <span
-                            className={`px-3 py-1 border border-gray-200 rounded-lg text-sm font-black ${getTextColor()}`}
-                            style={{ backgroundColor: getAccentColor() }}
-                        >
-                            조회수: {notice.viewCount || 0}
-                        </span>
+                <NeoCard
+                    color="bg-white"
+                    hoverable={false}
+                    className="rounded-2xl p-6"
+                >
+                    <div className="border-b border-gray-200 pb-6 mb-6">
+                        <h2 className="text-xl font-black text-black mb-4">
+                            {notice.title}
+                        </h2>
+                        <div className="flex items-center gap-4">
+                            <span className={`px-3 py-1 ${themeStyle.dateBadge} border border-gray-200 rounded-lg text-sm font-black`}>
+                                등록일: {formatDate(notice.createdAt)}
+                            </span>
+                            <span className={`px-3 py-1 ${themeStyle.viewBadge} border border-gray-200 rounded-lg text-sm font-black`}>
+                                조회수: {notice.viewCount || 0}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div className="min-h-[300px] py-6 text-gray-700 font-medium leading-relaxed whitespace-pre-wrap">
-                    {notice.content}
-                </div>
+                    <div className="min-h-[300px] py-6 text-gray-700 font-medium leading-relaxed whitespace-pre-wrap">
+                        {notice.content}
+                    </div>
 
-                <div className="flex items-center justify-end mt-10 pt-6 border-t border-gray-200 gap-3">
-                    {isAdmin && (
+                    <div className="flex items-center justify-end mt-10 pt-6 border-t border-gray-200 gap-3">
+                        {isAdmin && (
+                            <button
+                                onClick={() => navigate(`/community/notice/update/${noticeId}`)}
+                                className={`px-6 py-2 text-sm font-black ${themeStyle.editButton}
+                                    border border-gray-200 rounded-xl
+                                    shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
+                                    hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
+                                    transition-all`}
+                            >
+                                수정
+                            </button>
+                        )}
                         <button
-                            onClick={() => navigate(`/community/notice/update/${noticeId}`)}
-                            className={`px-6 py-2 text-sm font-black ${getTextColor()}
+                            onClick={() => navigate('/community/notice')}
+                            className="px-6 py-2 text-sm font-black text-black bg-white
                                 border border-gray-200 rounded-xl
                                 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-
-                                transition-all`}
-                            style={{ backgroundColor: getAccentColor() }}
+                                hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
+                                transition-all"
                         >
-                            수정
+                            목록
                         </button>
-                    )}
-                    <button
-                        onClick={() => navigate('/community/notice')}
-                        className={`px-6 py-2 text-sm font-black ${getTextColor()} bg-white
-                            border border-gray-200 rounded-xl
-                            shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                            hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-
-                            transition-all`}
-                    >
-                        목록
-                    </button>
-                </div>
+                    </div>
+                </NeoCard>
             </div>
         </CommunityLayout>
     );

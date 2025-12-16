@@ -11,11 +11,11 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
             case 'christmas':
                 return {
                     cardBg: 'bg-white',
-                    cardHover: 'hover:bg-[#c41e3a]/10',
+                    cardHover: 'hover:bg-red-50',
                     textColor: 'text-black',
                     indexColor: 'text-gray-400',
                     dateColor: 'text-gray-500',
-                    viewBadge: 'bg-[#c41e3a]',
+                    viewBadge: 'bg-red-800',
                 };
             case 'dark':
                 return {

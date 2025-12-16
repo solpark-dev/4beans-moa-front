@@ -7,10 +7,29 @@ import FaqItem from '../../components/community/FaqItem';
 import { NeoButton, NeoPagination } from '@/components/common/neo';
 import { Search } from 'lucide-react';
 
+// 테마별 스타일
+const listFaqThemeStyles = {
+    default: {
+        button: 'bg-pink-500 text-white',
+        searchIconHover: 'hover:text-pink-500',
+        categoryButtonActive: 'bg-pink-500 text-white',
+        categoryButtonInactive: 'bg-white text-black hover:bg-slate-100',
+        focusRing: 'focus:ring-pink-300',
+    },
+    christmas: {
+        button: 'bg-red-800 text-red-100',
+        searchIconHover: 'hover:text-red-800',
+        categoryButtonActive: 'bg-red-800 text-white',
+        categoryButtonInactive: 'bg-white text-black hover:bg-red-50',
+        focusRing: 'focus:ring-red-800',
+    },
+};
+
 const ListFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
+    const themeStyle = listFaqThemeStyles[theme] || listFaqThemeStyles.default;
     const [faqs, setFaqs] = useState([]);
     const [filteredFaqs, setFilteredFaqs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -23,35 +42,6 @@ const ListFaq = () => {
     const isAdmin = user?.role === 'ADMIN';
 
     const categories = ['전체', '회원', '결제', '구독', '파티', '정산', '기타'];
-
-    // Theme-based colors
-    const getButtonColor = () => {
-        switch (theme) {
-            case 'christmas':
-                return 'bg-[#c41e3a]';
-            case 'dark':
-                return 'bg-[#635bff]';
-            case 'classic':
-                return 'bg-[#635bff]';
-            case 'pop':
-            default:
-                return 'bg-pink-500';
-        }
-    };
-
-    const getSearchIconColor = () => {
-        switch (theme) {
-            case 'christmas':
-                return 'hover:text-[#c41e3a]';
-            case 'dark':
-                return 'hover:text-[#635bff]';
-            case 'classic':
-                return 'hover:text-[#635bff]';
-            case 'pop':
-            default:
-                return 'hover:text-pink-500';
-        }
-    };
 
     useEffect(() => {
         loadFaqList();
@@ -188,8 +178,8 @@ const ListFaq = () => {
                                     ${theme === 'pop' ? 'border border-gray-200' : theme === 'dark' ? 'border border-gray-600' : 'border border-gray-200'}
                                     transition-all duration-200
                                     ${activeCategory === category
-                                        ? `${getButtonColor()} text-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`
-                                        : `${theme === 'dark' ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-white text-black hover:bg-slate-100'} shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] `
+                                        ? `${themeStyle.categoryButtonActive} shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`
+                                        : `${theme === 'dark' ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : themeStyle.categoryButtonInactive} shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] `
                                     }
                                 `}
                             >
@@ -205,16 +195,15 @@ const ListFaq = () => {
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            className="w-56 px-4 py-2 pr-10 font-bold
+                            className={`w-56 px-4 py-2 pr-10 font-bold
                                 border border-gray-200 rounded-xl
                                 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                focus:outline-none focus:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                focus:translate-x-[2px] focus:translate-y-[2px]
-                                transition-all"
+                                focus:outline-none focus:ring-2 ${themeStyle.focusRing}
+                                transition-all`}
                         />
                         <button
                             onClick={handleSearch}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${getSearchIconColor()} transition-colors`}
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-black'} ${themeStyle.searchIconHover} transition-colors`}
                         >
                             <Search className="w-5 h-5" />
                         </button>
@@ -258,7 +247,7 @@ const ListFaq = () => {
                     <div className="absolute right-0">
                         <NeoButton
                             onClick={() => navigate('/community/faq/add')}
-                            color={getButtonColor()}
+                            color={themeStyle.button}
                             size="sm"
                         >
                             FAQ 등록

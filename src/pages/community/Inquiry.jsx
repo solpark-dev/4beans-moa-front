@@ -7,9 +7,22 @@ import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
 import { NeoCard, NeoPagination } from '@/components/common/neo';
 
+// 테마별 스타일
+const inquiryThemeStyles = {
+    default: {
+        cardBg: 'bg-white',
+        textColor: 'text-black',
+    },
+    christmas: {
+        cardBg: 'bg-white',
+        textColor: 'text-black',
+    },
+};
+
 const Inquiry = () => {
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
+    const themeStyle = inquiryThemeStyles[theme] || inquiryThemeStyles.default;
     const [inquiries, setInquiries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -25,35 +38,6 @@ const Inquiry = () => {
     const pageSize = 5;
 
     const userId = user?.userId;
-
-    // Theme-based card colors
-    const getCardColors = () => {
-        switch (theme) {
-            case 'christmas':
-                return {
-                    primary: 'bg-[#c41e3a]',
-                    secondary: 'bg-[#1a5f2a]',
-                };
-            case 'dark':
-                return {
-                    primary: 'bg-[#635bff]',
-                    secondary: 'bg-gray-700',
-                };
-            case 'classic':
-                return {
-                    primary: 'bg-[#635bff]',
-                    secondary: 'bg-blue-500',
-                };
-            case 'pop':
-            default:
-                return {
-                    primary: 'bg-cyan-400',
-                    secondary: 'bg-lime-400',
-                };
-        }
-    };
-
-    const cardColors = getCardColors();
 
     useEffect(() => {
         if (userId) {
@@ -140,18 +124,12 @@ const Inquiry = () => {
     return (
         <CommunityLayout>
             <div className="max-w-[1100px] mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 min-w-0">
                     {/* 문의하기 섹션 */}
-                    <div>
-                        <NeoCard
-                            color={cardColors.primary}
-                            hoverable={false}
-                            className="inline-block px-4 py-2 rounded-xl mb-6"
-                        >
-                            <h3 className={`text-lg font-black ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-                                문의하기
-                            </h3>
-                        </NeoCard>
+                    <div className="min-w-0 overflow-hidden">
+                        <h3 className={`text-lg font-black mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                            문의하기
+                        </h3>
                         <InquiryForm
                             formData={formData}
                             setFormData={setFormData}
@@ -163,16 +141,10 @@ const Inquiry = () => {
                     </div>
 
                     {/* 나의 문의 내역 섹션 */}
-                    <div>
-                        <NeoCard
-                            color={cardColors.secondary}
-                            hoverable={false}
-                            className="inline-block px-4 py-2 rounded-xl mb-6"
-                        >
-                            <h3 className={`text-lg font-black ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-                                나의 문의 내역
-                            </h3>
-                        </NeoCard>
+                    <div className="min-w-0 overflow-hidden">
+                        <h3 className={`text-lg font-black mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                            나의 문의 내역
+                        </h3>
 
                         {/* 리스트를 하나의 카드로 감싸기 (문의하기 폼과 동일한 높이) */}
                         <NeoCard

@@ -1,4 +1,17 @@
 import React from 'react';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 페이지네이션 스타일
+const paginationThemeStyles = {
+    default: {
+        activeBg: 'bg-pink-500',
+        activeText: 'text-white',
+    },
+    christmas: {
+        activeBg: 'bg-[#c41e3a]',
+        activeText: 'text-white',
+    },
+};
 
 /**
  * NeoPagination - 네오브루탈리즘 스타일 페이지네이션 컴포넌트
@@ -9,6 +22,8 @@ import React from 'react';
  * @param {number} maxVisible - 표시할 최대 페이지 수 (기본값: 5)
  */
 const NeoPagination = ({ currentPage, totalPages, onPageChange, maxVisible = 5 }) => {
+    const { theme } = useThemeStore();
+    const themeStyle = paginationThemeStyles[theme] || paginationThemeStyles.default;
     if (totalPages <= 0) return null;
 
     const getPageNumbers = () => {
@@ -56,7 +71,7 @@ const NeoPagination = ({ currentPage, totalPages, onPageChange, maxVisible = 5 }
                         onClick={() => handlePageChange(pageNum)}
                         className={`w-10 h-10 font-black text-sm border border-gray-200 rounded-xl transition-all shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
                             ${currentPage === pageNum
-                                ? 'bg-pink-500 text-white'
+                                ? `${themeStyle.activeBg} ${themeStyle.activeText}`
                                 : 'bg-white text-black hover:bg-slate-100 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]'
                             }`}
                     >

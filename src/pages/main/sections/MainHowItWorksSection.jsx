@@ -2,6 +2,18 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useThemeStore } from "@/store/themeStore";
 
+// 테마별 HowItWorks 섹션 스타일
+const howItWorksThemeStyles = {
+  default: {
+    stepColors: ["bg-cyan-400", "bg-pink-500", "bg-lime-400"],
+    emojis: ["🔍", "💳", "🎬"],
+  },
+  christmas: {
+    stepColors: ["bg-[#1a5f2a]", "bg-[#c41e3a]", "bg-[#1a5f2a]"],
+    emojis: ["🎄", "🎁", "🎅"],
+  },
+};
+
 function Sticker({ children, color = "bg-white", rotate = 0, className = "", isDark = false }) {
   return (
     <motion.div
@@ -23,13 +35,13 @@ function Sticker({ children, color = "bg-white", rotate = 0, className = "", isD
 }
 
 export default function MainHowItWorksSection() {
-  const theme = useThemeStore((state) => state.theme);
-  const isDark = theme === "dark";
+  const { theme } = useThemeStore();
+  const themeStyle = howItWorksThemeStyles[theme] || howItWorksThemeStyles.default;
 
   const steps = [
-    { num: "01", title: "파티 찾기", desc: "원하는 파티를 검색!", emoji: "🔍", color: "bg-cyan-400" },
-    { num: "02", title: "결제하기", desc: "안전하게 결제 완료!", emoji: "💳", color: "bg-pink-500" },
-    { num: "03", title: "바로 시청", desc: "즉시 시청 시작!", emoji: "🎬", color: "bg-lime-400" },
+    { num: "01", title: "파티 찾기", desc: "원하는 파티를 검색!", emoji: themeStyle.emojis[0], color: themeStyle.stepColors[0] },
+    { num: "02", title: "결제하기", desc: "안전하게 결제 완료!", emoji: themeStyle.emojis[1], color: themeStyle.stepColors[1] },
+    { num: "03", title: "바로 시청", desc: "즉시 시청 시작!", emoji: themeStyle.emojis[2], color: themeStyle.stepColors[2] },
   ];
 
   return (

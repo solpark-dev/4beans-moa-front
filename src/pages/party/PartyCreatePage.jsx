@@ -250,7 +250,14 @@ export default function PartyCreatePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${theme === "pop" ? "bg-pink-400 text-black border-2 border-black" : theme === "dark" ? "bg-[#635bff]/20 text-[#635bff]" : "bg-[#635bff]/10 text-[#635bff]"
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${
+              theme === "pop"
+                ? "bg-red-800 text-white border border-gray-200"
+                : theme === "dark"
+                  ? "bg-[#635bff]/20 text-[#635bff]"
+                  : theme === "christmas"
+                    ? "bg-red-800/10 text-red-800"
+                    : "bg-[#635bff]/10 text-[#635bff]"
               }`}>
               <Sparkles className="w-4 h-4" />
               파티장 혜택
@@ -397,24 +404,30 @@ export default function PartyCreatePage() {
               </div>
 
               {/* Selected Product Display */}
-              <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-[#635bff]/5 to-[#00d4ff]/5 rounded-2xl border border-[#635bff]/10">
+              <div className={`flex items-center gap-4 p-5 rounded-2xl border ${
+                theme === "christmas"
+                  ? "bg-gradient-to-br from-red-50 to-green-50 border-gray-200"
+                  : "bg-gradient-to-br from-[#635bff]/5 to-[#00d4ff]/5 border-[#635bff]/10"
+              }`}>
                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                  <Sparkles className="w-6 h-6 text-[#635bff]" />
+                  <Sparkles className={`w-6 h-6 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                 </div>
                 <div className="flex-1">
                   <p className="font-bold text-gray-900 text-lg">{selectedProduct.productName}</p>
-                  <p className="text-[#635bff] font-semibold">
+                  <p className={`font-semibold ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
                     월 {selectedProduct.price.toLocaleString()}원
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-8 bg-white rounded-2xl p-6 border border-gray-100">
+              <div className={`space-y-8 bg-white rounded-2xl p-6 border ${
+                theme === "christmas" ? "border-gray-200" : "border-gray-100"
+              }`}>
                 {/* Max Members - 2, 3, 4 Button Selection */}
                 <div id="maxMembers">
                   <label className="block text-sm font-bold text-gray-900 mb-4">
                     <span className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-[#635bff]" />
+                      <Users className={`w-5 h-5 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                       파티 인원
                     </span>
                   </label>
@@ -431,16 +444,29 @@ export default function PartyCreatePage() {
                             setMaxMembers(count);
                             setErrors({ ...errors, maxMembers: "" });
                           }}
-                          className={`relative p-4 rounded-xl border-2 transition-all ${isSelected
-                            ? "border-[#635bff] bg-[#635bff]/5 shadow-md shadow-[#635bff]/10"
-                            : "border-gray-100 bg-white hover:border-[#635bff]/30 hover:bg-gray-50"
+                          className={`relative p-4 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? theme === "christmas"
+                                ? "border-red-800 bg-red-50 shadow-md shadow-red-800/10"
+                                : "border-[#635bff] bg-[#635bff]/5 shadow-md shadow-[#635bff]/10"
+                              : theme === "christmas"
+                                ? "border-gray-200 bg-white hover:border-red-800/30 hover:bg-red-50"
+                                : "border-gray-100 bg-white hover:border-[#635bff]/30 hover:bg-gray-50"
                             }`}
                         >
                           <div className="text-center">
-                            <div className={`text-2xl font-bold mb-1 ${isSelected ? "text-[#635bff]" : "text-gray-900"}`}>
+                            <div className={`text-2xl font-bold mb-1 ${
+                              isSelected
+                                ? theme === "christmas" ? "text-red-800" : "text-[#635bff]"
+                                : "text-gray-900"
+                            }`}>
                               {count}명
                             </div>
-                            <div className={`text-sm ${isSelected ? "text-[#635bff]/70" : "text-gray-500"}`}>
+                            <div className={`text-sm ${
+                              isSelected
+                                ? theme === "christmas" ? "text-red-800/70" : "text-[#635bff]/70"
+                                : "text-gray-500"
+                            }`}>
                               월 {perPersonFee.toLocaleString()}원
                             </div>
                           </div>
@@ -448,7 +474,11 @@ export default function PartyCreatePage() {
                             <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              className="absolute -top-2 -right-2 w-6 h-6 bg-[#635bff] rounded-full flex items-center justify-center shadow-lg shadow-[#635bff]/25"
+                              className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-lg ${
+                                theme === "christmas"
+                                  ? "bg-red-800 shadow-red-800/25"
+                                  : "bg-[#635bff] shadow-[#635bff]/25"
+                              }`}
                             >
                               <Check className="w-4 h-4 text-white" />
                             </motion.div>
@@ -474,7 +504,7 @@ export default function PartyCreatePage() {
                 <div id="startDate">
                   <label className="block text-sm font-bold text-gray-900 mb-3">
                     <span className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-[#00d4ff]" />
+                      <Calendar className={`w-5 h-5 ${theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
                       시작일
                     </span>
                   </label>
@@ -490,7 +520,12 @@ export default function PartyCreatePage() {
                         setDates({ ...dates, startDate: start, endDate: end });
                         setErrors({ ...errors, startDate: "" });
                       }}
-                      className={`w-full bg-gray-50 border-2 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 outline-none text-gray-900 transition-all font-semibold ${errors.startDate ? "border-red-300" : "border-gray-100 focus:border-[#635bff]"
+                      className={`w-full bg-gray-50 border-2 p-4 rounded-xl focus:ring-2 outline-none text-gray-900 transition-all font-semibold ${
+                        errors.startDate
+                          ? "border-red-300"
+                          : theme === "christmas"
+                            ? "border-gray-200 focus:border-red-800 focus:ring-red-800/20"
+                            : "border-gray-100 focus:border-[#635bff] focus:ring-[#635bff]/20"
                         }`}
                     />
                     {!dates.startDate && (
@@ -516,7 +551,7 @@ export default function PartyCreatePage() {
                 <div id="months">
                   <label className="block text-sm font-bold text-gray-900 mb-4">
                     <span className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-[#00d4ff]" />
+                      <Calendar className={`w-5 h-5 ${theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
                       이용 기간
                     </span>
                   </label>
@@ -529,7 +564,7 @@ export default function PartyCreatePage() {
                       animate={{ scale: 1, opacity: 1 }}
                       className="inline-flex items-baseline gap-1"
                     >
-                      <span className="text-5xl font-bold text-[#635bff]">{dates.months}</span>
+                      <span className={`text-5xl font-bold ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>{dates.months}</span>
                       <span className="text-xl text-gray-400">개월</span>
                     </motion.div>
                   </div>
@@ -572,9 +607,14 @@ export default function PartyCreatePage() {
                           setDates({ ...dates, months: month, endDate: end });
                           setErrors({ ...errors, months: "" });
                         }}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${dates.months === month
-                          ? "bg-[#635bff] text-white shadow-md shadow-[#635bff]/25"
-                          : "bg-gray-100 text-gray-600 hover:bg-[#635bff]/10 hover:text-[#635bff]"
+                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                          dates.months === month
+                            ? theme === "christmas"
+                              ? "bg-red-800 text-white shadow-md shadow-red-800/25"
+                              : "bg-[#635bff] text-white shadow-md shadow-[#635bff]/25"
+                            : theme === "christmas"
+                              ? "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-800"
+                              : "bg-gray-100 text-gray-600 hover:bg-[#635bff]/10 hover:text-[#635bff]"
                           }`}
                       >
                         {month === 3 && "3개월"}
@@ -650,7 +690,11 @@ export default function PartyCreatePage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-5 bg-gradient-to-r from-[#635bff]/5 to-[#00d4ff]/5 border border-[#635bff]/10 rounded-xl"
+                    className={`p-5 rounded-xl border ${
+                      theme === "christmas"
+                        ? "bg-gradient-to-r from-red-50 to-green-50 border-gray-200"
+                        : "bg-gradient-to-r from-[#635bff]/5 to-[#00d4ff]/5 border-[#635bff]/10"
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-gray-500 uppercase">계약 기간</span>
@@ -780,7 +824,9 @@ export default function PartyCreatePage() {
                 <p className="text-gray-500">공유할 계정 정보를 입력해주세요</p>
               </div>
 
-              <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
+              <div className={`bg-white border rounded-2xl p-6 space-y-4 ${
+                theme === "christmas" ? "border-gray-200" : "border-gray-100"
+              }`}>
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3">
                     아이디 (이메일)
@@ -791,7 +837,11 @@ export default function PartyCreatePage() {
                     value={ottInfo.ottId}
                     onChange={handleOttChange}
                     placeholder="user@example.com"
-                    className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] outline-none text-gray-900"
+                    className={`w-full bg-gray-50 border p-4 rounded-xl focus:ring-2 outline-none text-gray-900 ${
+                      theme === "christmas"
+                        ? "border-gray-200 focus:ring-red-800/20 focus:border-red-800"
+                        : "border-gray-200 focus:ring-[#635bff]/20 focus:border-[#635bff]"
+                    }`}
                     required
                   />
                 </div>
@@ -803,7 +853,11 @@ export default function PartyCreatePage() {
                     value={ottInfo.ottPassword}
                     onChange={handleOttChange}
                     placeholder="비밀번호 입력"
-                    className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-[#635bff]/20 focus:border-[#635bff] outline-none text-gray-900"
+                    className={`w-full bg-gray-50 border p-4 rounded-xl focus:ring-2 outline-none text-gray-900 ${
+                      theme === "christmas"
+                        ? "border-gray-200 focus:ring-red-800/20 focus:border-red-800"
+                        : "border-gray-200 focus:ring-[#635bff]/20 focus:border-[#635bff]"
+                    }`}
                     required
                   />
                 </div>

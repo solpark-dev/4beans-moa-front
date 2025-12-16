@@ -3,6 +3,21 @@ import { motion } from "framer-motion";
 import { Users, Shield, Zap } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
+// 테마별 Features 섹션 스타일
+const featuresThemeStyles = {
+  default: {
+    stickerBg: "bg-lime-400",
+    accentText: "text-pink-500",
+    cardColors: ["bg-cyan-400", "bg-lime-400", "bg-pink-400"],
+  },
+  christmas: {
+    stickerBg: "bg-[#c41e3a]",
+    accentText: "text-[#c41e3a]",
+    cardColors: ["bg-[#1a5f2a]", "bg-[#c41e3a]", "bg-[#1a5f2a]"],
+    stickerText: "text-white",
+  },
+};
+
 function Sticker({ children, color = "bg-white", rotate = 0, className = "", isDark = false }) {
   return (
     <motion.div
@@ -46,29 +61,30 @@ function BouncyCard({ children, className = "", delay = 0, isDark = false }) {
 }
 
 export default function MainFeaturesSection() {
-  const { theme, isDark } = useThemeStore();
+  const { theme } = useThemeStore();
+  const themeStyle = featuresThemeStyles[theme] || featuresThemeStyles.default;
 
   const features = [
     {
       icon: Users,
       title: "파티 공유",
       desc: "최대 4명과 함께 나눠요!",
-      color: "bg-cyan-400",
-      emoji: "🎉",
+      color: themeStyle.cardColors[0],
+      emoji: theme === "christmas" ? "🎄" : "🎉",
     },
     {
       icon: Shield,
       title: "안전 보장",
       desc: "검증/정산으로 안심!",
-      color: "bg-lime-400",
-      emoji: "🛡️",
+      color: themeStyle.cardColors[1],
+      emoji: theme === "christmas" ? "🎅" : "🛡️",
     },
     {
       icon: Zap,
       title: "즉시 시작",
       desc: "찾고 결제하면 바로!",
-      color: "bg-pink-400",
-      emoji: "⚡",
+      color: themeStyle.cardColors[2],
+      emoji: theme === "christmas" ? "🎁" : "⚡",
     },
   ];
 
@@ -82,15 +98,17 @@ export default function MainFeaturesSection() {
           className="text-center mb-14"
         >
           <Sticker
-            color="bg-lime-400"
+            color={themeStyle.stickerBg}
             rotate={-2}
             className="inline-block px-6 py-3 rounded-xl mb-6"
             isDark={isDark}
           >
-            <span className="text-xl md:text-2xl font-black">WHY MoA? 🤔</span>
+            <span className={`text-xl md:text-2xl font-black ${themeStyle.stickerText || ""}`}>
+              {theme === "christmas" ? "🎄 WHY MoA? 🎅" : "WHY MoA? 🤔"}
+            </span>
           </Sticker>
-          <h2 className={`text-4xl md:text-6xl font-black tracking-tight ${isDark ? 'text-white' : ''}`}>
-            이래서 <span className="text-pink-500">MoA</span>야!
+          <h2 className="text-4xl md:text-6xl font-black tracking-tight">
+            이래서 <span className={themeStyle.accentText}>MoA</span>야!
           </h2>
         </motion.div>
 

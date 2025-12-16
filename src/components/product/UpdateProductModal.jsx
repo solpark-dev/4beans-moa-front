@@ -13,8 +13,43 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 스타일
+const productModalThemeStyles = {
+    default: {
+        focusRing: 'focus:ring-indigo-500',
+        dragOverlay: 'bg-indigo-500/10',
+        dragBorder: 'border-indigo-500',
+        dragBg: 'bg-indigo-50',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-600',
+        iconColorAlt: 'text-indigo-500',
+        textAccent: 'text-indigo-600',
+        textDark: 'text-indigo-900',
+        hoverBorder: 'hover:border-indigo-400',
+        buttonBg: 'bg-indigo-600 hover:bg-indigo-700',
+        buttonShadow: 'shadow-indigo-200 hover:shadow-indigo-300',
+    },
+    christmas: {
+        focusRing: 'focus:ring-red-800',
+        dragOverlay: 'bg-red-800/10',
+        dragBorder: 'border-red-800',
+        dragBg: 'bg-red-50',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-800',
+        iconColorAlt: 'text-red-700',
+        textAccent: 'text-red-800',
+        textDark: 'text-red-900',
+        hoverBorder: 'hover:border-red-400',
+        buttonBg: 'bg-red-800 hover:bg-red-900',
+        buttonShadow: 'shadow-red-200 hover:shadow-red-300',
+    },
+};
 
 const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData }) => {
+    const { theme } = useThemeStore();
+    const themeStyle = productModalThemeStyles[theme] || productModalThemeStyles.default;
     const {
         formData,
         setFormData,
@@ -199,11 +234,11 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
 
                     <div className="p-8 overflow-y-auto custom-scrollbar flex-1 relative">
                         {isDragging && !selectedFile && !previewUrl && (
-                            <div className="absolute inset-0 z-50 bg-indigo-500/10 backdrop-blur-sm border-4 border-indigo-500 rounded-xl flex items-center justify-center m-4 pointer-events-none">
+                            <div className={`absolute inset-0 z-50 ${themeStyle.dragOverlay} backdrop-blur-sm border-4 ${themeStyle.dragBorder} rounded-xl flex items-center justify-center m-4 pointer-events-none`}>
                                 <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center animate-bounce">
-                                    <Upload className="w-16 h-16 text-indigo-600 mb-4" />
-                                    <h3 className="text-2xl font-bold text-indigo-900">여기에 파일을 놓으세요</h3>
-                                    <p className="text-indigo-600">이미지가 자동으로 업로드됩니다.</p>
+                                    <Upload className={`w-16 h-16 ${themeStyle.iconColor} mb-4`} />
+                                    <h3 className={`text-2xl font-bold ${themeStyle.textDark}`}>여기에 파일을 놓으세요</h3>
+                                    <p className={themeStyle.textAccent}>이미지가 자동으로 업로드됩니다.</p>
                                 </div>
                             </div>
                         )}
@@ -217,7 +252,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                     name="productName"
                                     value={formData.productName}
                                     onChange={handleChange}
-                                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium"
+                                    className={`w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none transition-all font-medium`}
                                     placeholder="예: Netflix Premium"
                                     required
                                 />
@@ -232,7 +267,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                             name="categoryId"
                                             value={formData.categoryId}
                                             onChange={handleChange}
-                                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none font-medium cursor-pointer"
+                                            className={`w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none appearance-none font-medium cursor-pointer`}
                                             required
                                         >
                                             <option value="">선택하세요</option>
@@ -255,7 +290,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                             name="price"
                                             value={formData.price}
                                             onChange={handleChange}
-                                            className="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-4 py-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-bold"
+                                            className={`w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none transition-all font-bold`}
                                             placeholder="0"
                                             required
                                         />
@@ -271,7 +306,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                         name="productStatus"
                                         value={formData.productStatus}
                                         onChange={handleChange}
-                                        className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none font-medium cursor-pointer"
+                                        className={`w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none appearance-none font-medium cursor-pointer`}
                                     >
                                         <option value="ACTIVE">판매중 (ACTIVE)</option>
                                         <option value="INACTIVE">판매중지 (INACTIVE)</option>
@@ -300,15 +335,15 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                                 htmlFor="update-modal-image-upload"
                                                 className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-2xl cursor-pointer transition-all group-hover:scale-[0.99]
                                                     ${isDragging
-                                                        ? 'border-indigo-500 bg-indigo-50'
-                                                        : 'border-stone-300 bg-stone-50 hover:bg-stone-100 hover:border-indigo-400'
+                                                        ? `${themeStyle.dragBorder} ${themeStyle.dragBg}`
+                                                        : `border-stone-300 bg-stone-50 hover:bg-stone-100 ${themeStyle.hoverBorder}`
                                                     }`}
                                             >
                                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <div className={`w-12 h-12 rounded-full shadow-sm flex items-center justify-center mb-3 transition-colors ${isDragging ? 'bg-indigo-100' : 'bg-white'}`}>
-                                                        <Upload className={`w-6 h-6 ${isDragging ? 'text-indigo-600' : 'text-indigo-500'}`} />
+                                                    <div className={`w-12 h-12 rounded-full shadow-sm flex items-center justify-center mb-3 transition-colors ${isDragging ? themeStyle.iconBg : 'bg-white'}`}>
+                                                        <Upload className={`w-6 h-6 ${isDragging ? themeStyle.iconColor : themeStyle.iconColorAlt}`} />
                                                     </div>
-                                                    <p className="mb-2 text-sm text-stone-600 font-bold"><span className="text-indigo-600">클릭하여 업로드</span> 또는 파일 놓기</p>
+                                                    <p className="mb-2 text-sm text-stone-600 font-bold"><span className={themeStyle.textAccent}>클릭하여 업로드</span> 또는 파일 놓기</p>
                                                     <p className="text-xs text-stone-400">PNG, JPG, GIF (MAX. 10MB)</p>
                                                 </div>
                                             </label>
@@ -366,10 +401,10 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                 type="submit"
                                 form="update-product-form"
                                 disabled={loading}
-                                className={`flex-[2] py-6 rounded-xl font-bold text-lg text-white shadow-lg shadow-indigo-200 transition-all transform active:scale-[0.98] 
+                                className={`flex-[2] py-6 rounded-xl font-bold text-lg text-white shadow-lg ${themeStyle.buttonShadow} transition-all transform active:scale-[0.98]
                                     ${loading
                                         ? 'bg-stone-400 cursor-not-allowed'
-                                        : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
+                                        : themeStyle.buttonBg
                                     }`}
                             >
                                 {loading ? (
@@ -401,7 +436,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                                 setAlertInfo(prev => ({ ...prev, isOpen: false }));
                                 if (alertInfo.onConfirm) alertInfo.onConfirm();
                             }}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+                            className={`${themeStyle.buttonBg} text-white rounded-xl`}
                         >
                             확인
                         </Button>

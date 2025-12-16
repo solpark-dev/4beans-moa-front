@@ -3,9 +3,26 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import httpClient from '../../api/httpClient';
 import { useThemeStore } from '@/store/themeStore';
-import { ChristmasBackground } from '@/config/themeConfig';
+
+// 테마별 스타일
+const addSubscriptionThemeStyles = {
+    default: {
+        priceText: 'text-indigo-600',
+        submitButton: 'bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200',
+        modalShadow: 'shadow-2xl',
+        iconBg: 'bg-purple-100 text-purple-600',
+    },
+    christmas: {
+        priceText: 'text-red-800',
+        submitButton: 'bg-red-800 hover:bg-red-900 shadow-lg shadow-red-200',
+        modalShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        iconBg: 'bg-red-100 text-red-800',
+    },
+};
 
 const AddSubscription = () => {
+    const { theme } = useThemeStore();
+    const themeStyle = addSubscriptionThemeStyles[theme] || addSubscriptionThemeStyles.default;
     const { productId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -115,10 +132,8 @@ const AddSubscription = () => {
                         alt={product.productName}
                         className="w-24 h-24 object-cover rounded-lg mx-auto mb-4"
                     />
-                    <h3 className={`text-xl font-bold mb-1 ${
-                        theme === 'dark' ? 'text-white' : 'text-gray-900'
-                    }`}>{product.productName}</h3>
-                    <p className="font-bold text-2xl" style={{ color: accentColor }}>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">{product.productName}</h3>
+                    <p className={`${themeStyle.priceText} font-bold text-2xl`}>
                         ₩{product.price?.toLocaleString()}
                         <span className={`text-sm font-normal ml-1 ${
                             theme === 'dark' ? 'text-slate-400' : 'text-gray-500'
@@ -164,17 +179,7 @@ const AddSubscription = () => {
                 <div className="space-y-3">
                     <button
                         onClick={handleSubscribeClick}
-                        className="w-full text-white py-4 rounded-xl font-bold transition-colors shadow-lg"
-                        style={{
-                            backgroundColor: accentColor,
-                            boxShadow: `0 10px 15px -3px ${accentColor}33`
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = '0.9';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = '1';
-                        }}
+                        className={`w-full ${themeStyle.submitButton} text-white py-4 rounded-xl font-bold transition-colors`}
                     >
                         구독 시작하기
                     </button>
@@ -194,15 +199,8 @@ const AddSubscription = () => {
             {/* Confirmation Modal */}
             {showConfirmModal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className={`w-full max-w-sm rounded-[2rem] shadow-2xl p-6 animate-in zoom-in-95 duration-200 text-center ${
-                        theme === 'dark'
-                            ? 'bg-[#1E293B]'
-                            : theme === 'christmas'
-                            ? 'bg-white/95 backdrop-blur-sm'
-                            : 'bg-white'
-                    }`}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                             style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
+                    <div className={`bg-white w-full max-w-sm rounded-[2rem] ${themeStyle.modalShadow} p-6 animate-in zoom-in-95 duration-200 text-center`}>
+                        <div className={`w-16 h-16 ${themeStyle.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
                             <AlertTriangle className="w-8 h-8" />
                         </div>
                         <h2 className={`text-xl font-extrabold mb-2 ${

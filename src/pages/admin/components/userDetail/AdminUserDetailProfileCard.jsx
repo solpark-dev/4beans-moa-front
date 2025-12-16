@@ -3,6 +3,27 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import OutlineCard from "./OutlineCard";
 import { resolveProfileImageUrl } from "@/utils/profileImage";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const profileCardThemeStyles = {
+  default: {
+    avatarBorder: "border-2 border-slate-900",
+    statusDotBorder: "border-2 border-slate-900",
+    badgeBorder: "border-2 border-slate-900",
+    buttonBorder: "border-2 border-slate-900",
+    buttonHover: "hover:bg-slate-50",
+    blacklistActive: "bg-slate-900 text-white hover:bg-slate-900",
+  },
+  christmas: {
+    avatarBorder: "border border-gray-200",
+    statusDotBorder: "border border-gray-200",
+    badgeBorder: "border border-gray-200",
+    buttonBorder: "border border-gray-200",
+    buttonHover: "hover:bg-red-50",
+    blacklistActive: "bg-red-800 text-white hover:bg-red-800",
+  },
+};
 
 export default function AdminUserDetailProfileCard({
   user,
@@ -13,12 +34,15 @@ export default function AdminUserDetailProfileCard({
   goLoginHistory,
   goBlacklistAdd,
 }) {
+  const { theme } = useThemeStore();
+  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.default;
+
   return (
     <OutlineCard>
       <div className="p-6 flex flex-col md:flex-row gap-6 md:items-center">
         <div className="flex items-center gap-5">
           <div className="relative">
-            <Avatar className="w-20 h-20 border-2 border-slate-900 bg-slate-100">
+            <Avatar className={`w-20 h-20 ${themeStyle.avatarBorder} bg-slate-100`}>
               <AvatarImage
                 src={resolveProfileImageUrl(user.profileImage)}
                 className="object-cover"
@@ -27,7 +51,7 @@ export default function AdminUserDetailProfileCard({
                 {user.nickname?.substring(0, 1)}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full border-2 border-slate-900">
+            <div className={`absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full ${themeStyle.statusDotBorder}`}>
               <div className={`w-3 h-3 rounded-full ${statusDotClass}`} />
             </div>
           </div>
@@ -38,15 +62,15 @@ export default function AdminUserDetailProfileCard({
                 {user.nickname}
               </p>
               {isAdmin && (
-                <Badge className="bg-white text-slate-900 border-2 border-slate-900 text-[10px] font-black">
+                <Badge className={`bg-white text-slate-900 ${themeStyle.badgeBorder} text-[10px] font-black`}>
                   ADMINISTRATOR
                 </Badge>
               )}
-              <Badge className="bg-white text-slate-900 border-2 border-slate-900 text-[10px] font-black">
+              <Badge className={`bg-white text-slate-900 ${themeStyle.badgeBorder} text-[10px] font-black`}>
                 MEMBER
               </Badge>
               {isBlacklisted && (
-                <Badge className="bg-red-500 text-white border-2 border-slate-900 text-[10px] font-black">
+                <Badge className={`bg-red-500 text-white ${themeStyle.badgeBorder} text-[10px] font-black`}>
                   BLACKLIST
                 </Badge>
               )}
@@ -61,7 +85,7 @@ export default function AdminUserDetailProfileCard({
           <Button
             type="button"
             onClick={goBackList}
-            className="h-10 px-4 rounded-2xl border-2 border-slate-900 bg-white text-slate-900 font-black hover:bg-slate-50"
+            className={`h-10 px-4 rounded-2xl ${themeStyle.buttonBorder} bg-white text-slate-900 font-black ${themeStyle.buttonHover}`}
           >
             회원 목록
           </Button>
@@ -69,7 +93,7 @@ export default function AdminUserDetailProfileCard({
           <Button
             type="button"
             onClick={goLoginHistory}
-            className="h-10 px-4 rounded-2xl border-2 border-slate-900 bg-white text-slate-900 font-black hover:bg-slate-50"
+            className={`h-10 px-4 rounded-2xl ${themeStyle.buttonBorder} bg-white text-slate-900 font-black ${themeStyle.buttonHover}`}
           >
             로그인 이력
           </Button>
@@ -77,10 +101,10 @@ export default function AdminUserDetailProfileCard({
           <Button
             type="button"
             onClick={goBlacklistAdd}
-            className={`h-10 px-4 rounded-2xl border-2 border-slate-900 font-black ${
+            className={`h-10 px-4 rounded-2xl ${themeStyle.buttonBorder} font-black ${
               isBlacklisted
-                ? "bg-slate-900 text-white hover:bg-slate-900"
-                : "bg-red-500 text-white hover:bg-red-500"
+                ? themeStyle.blacklistActive
+                : "bg-red-500 text-white hover:bg-red-600"
             }`}
           >
             {isBlacklisted ? "블랙리스트 해제" : "블랙리스트 등록"}

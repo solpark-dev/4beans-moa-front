@@ -10,8 +10,21 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 스타일
+const deleteProductThemeStyles = {
+    default: {
+        confirmButton: 'bg-indigo-600 hover:bg-indigo-700',
+    },
+    christmas: {
+        confirmButton: 'bg-red-800 hover:bg-red-900',
+    },
+};
 
 const DeleteProduct = () => {
+    const { theme } = useThemeStore();
+    const themeStyle = deleteProductThemeStyles[theme] || deleteProductThemeStyles.default;
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -91,7 +104,7 @@ const DeleteProduct = () => {
                         <Button
                             type="button"
                             onClick={handleClose}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+                            className={`${themeStyle.confirmButton} text-white rounded-xl`}
                         >
                             확인
                         </Button>

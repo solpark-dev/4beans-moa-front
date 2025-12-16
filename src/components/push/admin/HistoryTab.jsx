@@ -11,8 +11,21 @@ import {
     SelectValue
 } from '@/components/ui/select'
 import { formatDate } from '@/utils/pushUtils'
+import { useThemeStore } from '@/store/themeStore'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100]
+
+// 테마별 스타일
+const historyThemeStyles = {
+    default: {
+        searchButton: 'bg-indigo-600 hover:bg-indigo-700',
+        tableRowHover: 'hover:bg-slate-50',
+    },
+    christmas: {
+        searchButton: 'bg-red-800 hover:bg-red-900',
+        tableRowHover: 'hover:bg-red-50',
+    },
+}
 
 const HistoryTab = ({
     history,
@@ -28,6 +41,9 @@ const HistoryTab = ({
     onPageChange,
     onPageSizeChange
 }) => {
+    const { theme } = useThemeStore()
+    const themeStyle = historyThemeStyles[theme] || historyThemeStyles.default
+
     return (
         <div className="h-full flex flex-col">
             <div className="px-6 py-3 border-b border-slate-100 flex flex-wrap items-center gap-3 flex-shrink-0">
@@ -69,7 +85,7 @@ const HistoryTab = ({
                     className="w-36"
                 />
 
-                <Button onClick={onSearch} size="sm">
+                <Button onClick={onSearch} size="sm" className={themeStyle.searchButton}>
                     <Search className="w-4 h-4 mr-1" />
                     검색
                 </Button>
@@ -99,7 +115,7 @@ const HistoryTab = ({
                             </thead>
                             <tbody>
                                 {history.map((item) => (
-                                    <tr key={item.pushId} className="border-b border-slate-100 hover:bg-slate-50">
+                                    <tr key={item.pushId} className={`border-b border-slate-100 ${themeStyle.tableRowHover}`}>
                                         <td className="py-2.5 px-3 text-slate-700">{item.receiverId}</td>
                                         <td className="py-2.5 px-3">
                                             <Badge variant="outline" className="font-mono text-xs">

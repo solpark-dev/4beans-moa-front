@@ -12,9 +12,48 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useThemeStore } from '@/store/themeStore';
-import { useTheme, ChristmasBackground } from '@/config/themeConfig';
+
+// 테마별 스타일
+const updateProductThemeStyles = {
+    default: {
+        primary: 'indigo',
+        focusRing: 'focus:ring-indigo-500',
+        dragBorder: 'border-indigo-500',
+        dragBg: 'bg-indigo-50',
+        dragOverlay: 'bg-indigo-500/10',
+        dragShadow: 'shadow-2xl',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-600',
+        iconColorAlt: 'text-indigo-500',
+        textAccent: 'text-indigo-600',
+        textDark: 'text-indigo-900',
+        buttonBg: 'bg-indigo-600 hover:bg-indigo-700',
+        buttonShadow: 'shadow-indigo-200 hover:shadow-indigo-300',
+        hoverBorder: 'hover:border-indigo-400',
+        spinnerBorder: 'border-indigo-500',
+    },
+    christmas: {
+        primary: 'red',
+        focusRing: 'focus:ring-red-800',
+        dragBorder: 'border-red-800',
+        dragBg: 'bg-red-50',
+        dragOverlay: 'bg-red-800/10',
+        dragShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-800',
+        iconColorAlt: 'text-red-700',
+        textAccent: 'text-red-800',
+        textDark: 'text-red-900',
+        buttonBg: 'bg-red-800 hover:bg-red-900',
+        buttonShadow: 'shadow-red-200 hover:shadow-red-300',
+        hoverBorder: 'hover:border-red-400',
+        spinnerBorder: 'border-red-800',
+    },
+};
 
 const UpdateProduct = () => {
+    const { theme } = useThemeStore();
+    const themeStyle = updateProductThemeStyles[theme] || updateProductThemeStyles.default;
     const { id } = useParams();
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
@@ -302,31 +341,24 @@ const UpdateProduct = () => {
 
     if (loading && !formData.productName) { // 초기 로딩 중일 때만 표시 (데이터 없는 경우)
         return (
-            <div className={`flex justify-center items-center min-h-screen ${theme === 'christmas' ? '' : theme === 'dark' ? 'bg-[#0B1120]' : 'bg-stone-50'}`}>
-                {theme === 'christmas' && <ChristmasBackground />}
-                <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: `${accent}40`, borderTopColor: accent }}></div>
+            <div className="flex justify-center items-center min-h-screen">
+                <div className={`w-8 h-8 border-4 ${themeStyle.spinnerBorder} border-t-transparent rounded-full animate-spin`}></div>
             </div>
         );
     }
 
     return (
-        <div className={`min-h-screen ${theme === 'christmas' ? '' : theme === 'dark' ? 'bg-[#0B1120]' : 'bg-stone-50'}`}>
-            {theme === 'christmas' && <ChristmasBackground />}
-            <div className="container mx-auto px-4 py-12 max-w-2xl relative">
-                {/* 전체 화면 드래그 오버레이 */}
-                {isDragging && !selectedFile && !previewUrl && (
-                    <div className="fixed inset-0 z-50 backdrop-blur-sm border-4 rounded-xl flex items-center justify-center m-4 pointer-events-none"
-                        style={{
-                            backgroundColor: `${accent}1A`,
-                            borderColor: accent
-                        }}>
-                        <div className={`p-8 rounded-3xl shadow-2xl flex flex-col items-center animate-bounce ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white'}`}>
-                            <Upload className="w-16 h-16 mb-4" style={{ color: accent }} />
-                            <h3 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>여기에 파일을 놓으세요</h3>
-                            <p style={{ color: accent }}>이미지가 자동으로 업로드됩니다.</p>
-                        </div>
+        <div className="container mx-auto px-4 py-12 max-w-2xl relative">
+            {/* 전체 화면 드래그 오버레이 */}
+            {isDragging && !selectedFile && !previewUrl && (
+                <div className={`fixed inset-0 z-50 ${themeStyle.dragOverlay} backdrop-blur-sm border-4 ${themeStyle.dragBorder} rounded-xl flex items-center justify-center m-4 pointer-events-none`}>
+                    <div className={`bg-white p-8 rounded-3xl ${themeStyle.dragShadow} flex flex-col items-center animate-bounce`}>
+                        <Upload className={`w-16 h-16 ${themeStyle.iconColor} mb-4`} />
+                        <h3 className={`text-2xl font-bold ${themeStyle.textDark}`}>여기에 파일을 놓으세요</h3>
+                        <p className={themeStyle.textAccent}>이미지가 자동으로 업로드됩니다.</p>
                     </div>
-                )}
+                </div>
+            )}
 
                 <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-stone-900'}`}>상품 정보 수정</h1>
                 <p className={`mb-8 ${theme === 'dark' ? 'text-gray-400' : 'text-stone-500'}`}>관리자 권한으로 기존 구독 상품 정보를 수정합니다.</p>
@@ -340,14 +372,7 @@ const UpdateProduct = () => {
                         name="productName"
                         value={formData.productName}
                         onChange={handleChange}
-                        className={`w-full rounded-xl px-4 py-3.5 focus:ring-2 focus:border-transparent outline-none transition-all font-medium ${
-                            theme === 'dark'
-                                ? 'bg-[#0B1120] border border-gray-600 text-white'
-                                : 'bg-stone-50 border border-stone-200 text-gray-900'
-                        }`}
-                        style={{
-                            '--tw-ring-color': accent
-                        } as React.CSSProperties}
+                        className={`w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none transition-all font-medium`}
                         placeholder="예: Netflix Premium"
                         required
                     />
@@ -362,14 +387,7 @@ const UpdateProduct = () => {
                                 name="categoryId"
                                 value={formData.categoryId}
                                 onChange={handleChange}
-                                className={`w-full rounded-xl px-4 py-3.5 focus:ring-2 focus:border-transparent outline-none appearance-none font-medium cursor-pointer ${
-                                    theme === 'dark'
-                                        ? 'bg-[#0B1120] border border-gray-600 text-white'
-                                        : 'bg-stone-50 border border-stone-200 text-gray-900'
-                                }`}
-                                style={{
-                                    '--tw-ring-color': accent
-                                } as React.CSSProperties}
+                                className={`w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none appearance-none font-medium cursor-pointer`}
                                 required
                             >
                                 <option value="">선택하세요</option>
@@ -392,14 +410,7 @@ const UpdateProduct = () => {
                                 name="price"
                                 value={formData.price}
                                 onChange={handleChange}
-                                className={`w-full rounded-xl pl-9 pr-4 py-3.5 focus:ring-2 focus:border-transparent outline-none transition-all font-bold ${
-                                    theme === 'dark'
-                                        ? 'bg-[#0B1120] border border-gray-600 text-white'
-                                        : 'bg-stone-50 border border-stone-200 text-gray-900'
-                                }`}
-                                style={{
-                                    '--tw-ring-color': accent
-                                } as React.CSSProperties}
+                                className={`w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none transition-all font-bold`}
                                 placeholder="0"
                                 required
                             />
@@ -415,14 +426,7 @@ const UpdateProduct = () => {
                             name="productStatus"
                             value={formData.productStatus}
                             onChange={handleChange}
-                            className={`w-full rounded-xl px-4 py-3.5 focus:ring-2 focus:border-transparent outline-none appearance-none font-medium cursor-pointer ${
-                                theme === 'dark'
-                                    ? 'bg-[#0B1120] border border-gray-600 text-white'
-                                    : 'bg-stone-50 border border-stone-200 text-gray-900'
-                            }`}
-                            style={{
-                                '--tw-ring-color': accent
-                            } as React.CSSProperties}
+                            className={`w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 focus:ring-2 ${themeStyle.focusRing} focus:border-transparent outline-none appearance-none font-medium cursor-pointer`}
                         >
                             <option value="ACTIVE">판매중 (ACTIVE)</option>
                             <option value="INACTIVE">판매중지 (INACTIVE)</option>
@@ -451,35 +455,18 @@ const UpdateProduct = () => {
                                 />
                                 <label
                                     htmlFor="image-upload"
-                                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-2xl cursor-pointer transition-all group-hover:scale-[0.99] ${
-                                        theme === 'dark'
-                                            ? isDragging
-                                                ? 'bg-opacity-20'
-                                                : 'border-gray-600 bg-[#0B1120] hover:bg-gray-800/50'
-                                            : isDragging
-                                                ? 'bg-opacity-20'
-                                                : 'border-stone-300 bg-stone-50 hover:bg-stone-100'
-                                    }`}
-                                    style={{
-                                        borderColor: isDragging ? accent : undefined,
-                                        backgroundColor: isDragging ? `${accent}20` : undefined
-                                    }}
+                                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-2xl cursor-pointer transition-all group-hover:scale-[0.99]
+                                        ${isDragging
+                                            ? `${themeStyle.dragBorder} ${themeStyle.dragBg}`
+                                            : `border-stone-300 bg-stone-50 hover:bg-stone-100 ${themeStyle.hoverBorder}`
+                                        }`}
                                 >
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <div className={`w-12 h-12 rounded-full shadow-sm flex items-center justify-center mb-3 transition-colors ${
-                                            theme === 'dark'
-                                                ? isDragging ? 'bg-opacity-30' : 'bg-gray-800'
-                                                : isDragging ? 'bg-opacity-30' : 'bg-white'
-                                        }`}
-                                        style={{
-                                            backgroundColor: isDragging ? `${accent}30` : undefined
-                                        }}>
-                                            <Upload className="w-6 h-6" style={{ color: isDragging ? accent : theme === 'dark' ? '#9CA3AF' : accent }} />
+                                        <div className={`w-12 h-12 rounded-full shadow-sm flex items-center justify-center mb-3 transition-colors ${isDragging ? themeStyle.iconBg : 'bg-white'}`}>
+                                            <Upload className={`w-6 h-6 ${isDragging ? themeStyle.iconColor : themeStyle.iconColorAlt}`} />
                                         </div>
-                                        <p className={`mb-2 text-sm font-bold ${theme === 'dark' ? 'text-gray-300' : 'text-stone-600'}`}>
-                                            <span style={{ color: accent }}>클릭하여 업로드</span> 또는 파일 놓기
-                                        </p>
-                                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-stone-400'}`}>PNG, JPG, GIF (MAX. 10MB)</p>
+                                        <p className="mb-2 text-sm text-stone-600 font-bold"><span className={themeStyle.textAccent}>클릭하여 업로드</span> 또는 파일 놓기</p>
+                                        <p className="text-xs text-stone-400">PNG, JPG, GIF (MAX. 10MB)</p>
                                     </div>
                                 </label>
                             </div>
@@ -529,25 +516,11 @@ const UpdateProduct = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
+                        className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg ${themeStyle.buttonShadow} transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
                             ${loading
                                 ? 'bg-stone-400 cursor-not-allowed'
-                                : ''
+                                : themeStyle.buttonBg
                             }`}
-                        style={{
-                            backgroundColor: loading ? undefined : accent,
-                            boxShadow: loading ? undefined : `0 10px 15px -3px ${accent}33`
-                        }}
-                        onMouseEnter={(e) => {
-                            if (!loading) {
-                                e.currentTarget.style.filter = 'brightness(0.9)';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (!loading) {
-                                e.currentTarget.style.filter = 'brightness(1)';
-                            }
-                        }}
                     >
                         {loading ? (
                             <>
@@ -588,10 +561,7 @@ const UpdateProduct = () => {
                                 setAlertInfo(prev => ({ ...prev, isOpen: false }));
                                 if (alertInfo.onConfirm) alertInfo.onConfirm();
                             }}
-                            className="text-white rounded-xl"
-                            style={{ backgroundColor: accent }}
-                            onMouseEnter={(e) => e.currentTarget.style.filter = 'brightness(0.9)'}
-                            onMouseLeave={(e) => e.currentTarget.style.filter = 'brightness(1)'}
+                            className={`${themeStyle.buttonBg} text-white rounded-xl`}
                         >
                             확인
                         </Button>

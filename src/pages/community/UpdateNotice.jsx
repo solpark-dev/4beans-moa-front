@@ -3,13 +3,26 @@ import { useNavigate, useParams } from 'react-router-dom';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import NoticeForm from '../../components/community/NoticeForm';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { NeoCard, NeoButton } from '@/components/common/neo';
+
+// 테마별 스타일
+const updateNoticeThemeStyles = {
+    default: {
+        button: 'bg-pink-500 text-white',
+    },
+    christmas: {
+        button: 'bg-red-800 text-red-100',
+    },
+};
 
 const UpdateNotice = () => {
     const navigate = useNavigate();
     const params = useParams();
     const noticeId = params.id || params.communityId;
     const { user } = useAuthStore();
+    const { theme } = useThemeStore();
+    const themeStyle = updateNoticeThemeStyles[theme] || updateNoticeThemeStyles.default;
     const [formData, setFormData] = useState({
         communityCodeId: 10,
         title: '',
@@ -64,7 +77,7 @@ const UpdateNotice = () => {
                         <p className="text-gray-600 font-bold mb-6">관리자만 접근 가능합니다.</p>
                         <NeoButton
                             onClick={() => navigate('/community/notice')}
-                            color="bg-pink-500"
+                            color={themeStyle.button}
                             size="sm"
                         >
                             목록으로 돌아가기
@@ -124,22 +137,22 @@ const UpdateNotice = () => {
     return (
         <CommunityLayout>
             <div className="max-w-3xl mx-auto pt-8">
+                <h2 className="text-lg font-black text-black mb-6">
+                    공지사항 수정
+                </h2>
                 <NeoCard
-                    color="bg-lime-400"
+                    color="bg-white"
                     hoverable={false}
-                    className="inline-block px-4 py-2 rounded-xl mb-8"
+                    className="rounded-2xl p-6"
                 >
-                    <h2 className="text-xl font-black text-black">
-                        공지사항 수정
-                    </h2>
+                    <NoticeForm
+                        formData={formData}
+                        setFormData={setFormData}
+                        onSubmit={handleSubmit}
+                        submitText="수정"
+                        cancelPath={`/community/notice/${noticeId}`}
+                    />
                 </NeoCard>
-                <NoticeForm
-                    formData={formData}
-                    setFormData={setFormData}
-                    onSubmit={handleSubmit}
-                    submitText="수정"
-                    cancelPath={`/community/notice/${noticeId}`}
-                />
             </div>
         </CommunityLayout>
     );

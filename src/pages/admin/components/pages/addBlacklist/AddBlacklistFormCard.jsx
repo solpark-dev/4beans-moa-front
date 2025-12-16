@@ -10,6 +10,19 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
+
+// 테마별 스타일
+const blacklistFormThemeStyles = {
+  default: {
+    headerBorder: "border-b-4 border-black",
+    footerBorder: "border-t-4 border-black",
+  },
+  christmas: {
+    headerBorder: "border-b border-gray-200",
+    footerBorder: "border-t border-gray-200",
+  },
+};
 
 export default function AddBlacklistFormCard({
   userId,
@@ -23,11 +36,14 @@ export default function AddBlacklistFormCard({
   onSubmit,
   onCancel,
 }) {
+  const { theme } = useThemeStore();
+  const themeStyle = blacklistFormThemeStyles[theme] || blacklistFormThemeStyles.default;
+
   return (
     <section className="relative px-6 md:px-12 pb-24">
       <div className="max-w-3xl mx-auto">
         <Card className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden">
-          <CardHeader className="border-b-4 border-black bg-slate-100">
+          <CardHeader className={`${themeStyle.headerBorder} bg-slate-100`}>
             <CardTitle className="text-xl font-black">
               블랙리스트 대상 및 사유 입력
             </CardTitle>
@@ -86,7 +102,7 @@ export default function AddBlacklistFormCard({
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 border-t-4 border-black">
+            <div className={`flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 ${themeStyle.footerBorder}`}>
               <Button
                 type="button"
                 variant="outline"
