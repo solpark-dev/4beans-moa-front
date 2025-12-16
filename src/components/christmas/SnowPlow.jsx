@@ -16,6 +16,29 @@ export const SnowPlowProvider = ({ children }) => {
   const [isSnowCleared, setIsSnowCleared] = useState(false);
   const [plowProgress, setPlowProgress] = useState(0); // 0 to 100
   const [accumulation, setAccumulation] = useState(0); // 0 to 100 (Snow accumulation level)
+  const [showSnowman, setShowSnowman] = useState(false); // 눈사람 표시 여부
+  const snowmanTimerRef = useRef(null);
+
+  // 30초 후 눈사람 표시
+  useEffect(() => {
+    // 처음 마운트 시 30초 후 눈사람 표시
+    snowmanTimerRef.current = setTimeout(() => {
+      setShowSnowman(true);
+    }, 30000); // 30초
+
+    return () => {
+      if (snowmanTimerRef.current) {
+        clearTimeout(snowmanTimerRef.current);
+      }
+    };
+  }, []);
+
+  // 제설차가 눈사람에 닿으면 사라지게 (plowProgress 85% 이상)
+  useEffect(() => {
+    if (isPlowing && plowProgress >= 85 && showSnowman) {
+      setShowSnowman(false);
+    }
+  }, [isPlowing, plowProgress, showSnowman]);
 
   // Start plowing animation
   const startPlow = () => {
@@ -23,6 +46,11 @@ export const SnowPlowProvider = ({ children }) => {
 
     setIsPlowing(true);
     setPlowProgress(0);
+
+    // 기존 타이머 클리어
+    if (snowmanTimerRef.current) {
+      clearTimeout(snowmanTimerRef.current);
+    }
 
     // Animate progress from 0 to 100 over 2.5 seconds
     const duration = 2500;
@@ -43,6 +71,11 @@ export const SnowPlowProvider = ({ children }) => {
         // Restart accumulation after a short delay
         setTimeout(() => {
           setIsSnowCleared(false);
+
+          // 제설 완료 후 30초 뒤에 다시 눈사람 표시
+          snowmanTimerRef.current = setTimeout(() => {
+            setShowSnowman(true);
+          }, 30000); // 30초
         }, 1000);
       }
     };
@@ -79,6 +112,7 @@ export const SnowPlowProvider = ({ children }) => {
     startPlow,
     resetSnow,
     accumulation, // Expose accumulation level to children
+    showSnowman, // 눈사람 표시 여부
   };
 
   return (
@@ -213,6 +247,84 @@ const PushedSnowMound = ({ progress }) => {
 
 
 // ============================================
+// Snowman Component
+// ============================================
+const Snowman = ({ visible }) => {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0, y: 20 }}
+          transition={{
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+            duration: 0.5
+          }}
+          className="absolute z-30"
+          style={{
+            right: "70px", // 트리 왼쪽에 배치
+            bottom: "8px", // 검색박스 바로 위에 붙이기
+          }}
+        >
+          <motion.div
+            animate={{
+              rotate: [-2, 2, -2],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="relative"
+          >
+            <span
+              className="text-4xl drop-shadow-lg select-none"
+              style={{
+                filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))"
+              }}
+            >
+              &#9924;
+            </span>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// ============================================
+// Christmas Tree Component
+// ============================================
+const ChristmasTree = () => {
+  return (
+    <div
+      className="absolute z-30 pointer-events-none"
+      style={{
+        right: "10px",
+        bottom: "-5px", // 검색박스 바로 위에 붙이기
+      }}
+    >
+      <motion.img
+        src="/christmas-tree.png"
+        alt="Christmas Tree"
+        className="w-14 h-auto drop-shadow-lg select-none"
+        animate={{
+          scale: [1, 1.02, 1],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+    </div>
+  );
+};
+
+// ============================================
 // Snow Pile with Plow Animation
 // ============================================
 export const ClearableSnowPile = () => {
@@ -247,13 +359,18 @@ export const ClearableSnowPile = () => {
 
   if (!context) return null;
 
-  const { isPlowing, isSnowCleared, plowProgress, accumulation } = context;
+  const { isPlowing, isSnowCleared, plowProgress, accumulation, showSnowman } = context;
 
   return (
     <div
       ref={containerRef}
       className="absolute -top-10 left-0 right-0 h-14 pointer-events-none overflow-visible"
     >
+      {/* Christmas Tree - 검색박스 오른쪽 상단 */}
+      <ChristmasTree />
+
+      {/* Snowman - 트리 왼쪽, 30초 후 나타남 */}
+      <Snowman visible={showSnowman} />
       {/* 제설차 애니메이션 - Left to Right */}
       <AnimatePresence>
         {isPlowing && (

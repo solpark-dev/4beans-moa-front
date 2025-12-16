@@ -6,7 +6,8 @@ export const useThemeStore = create(
   persist(
     (set, get) => ({
       // Current theme: 'classic' | 'dark' | 'pop' | 'portrait' | 'christmas'
-      theme: "christmas",
+      // 기본 테마는 pop
+      theme: "pop",
 
       // Set theme
       setTheme: (theme) => {
@@ -29,14 +30,7 @@ export const useThemeStore = create(
     {
       name: "app-theme-storage",
       storage: createJSONStorage(() => localStorage),
-      // Force christmas theme on rehydration
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // Force set to christmas theme
-          state.theme = "christmas";
-          localStorage.setItem("partyListTheme", "christmas");
-        }
-      },
+      // 저장된 테마 유지 (강제 변경 제거)
     }
   )
 );
