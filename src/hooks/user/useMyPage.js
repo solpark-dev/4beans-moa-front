@@ -34,10 +34,12 @@ export const useMyPage = () => {
 
     if (p === "kakao") return "KAKAO";
     if (p === "google") return "GOOGLE";
-    if (p === "password" || p === "local" || p === "email") return "EMAIL";
-
     return "EMAIL";
   };
+
+  /* ===============================
+   * 사용자 정보 로딩
+   * =============================== */
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -45,155 +47,129 @@ export const useMyPage = () => {
         const { success, data } = res;
 
         if (!success || !data) {
-          alert("Login required. Please sign in again.");
           navigate("/login", { replace: true });
           return;
         }
 
         setUser(data);
         setEnabled(!!data.otpEnabled);
-      } catch (e) {
-        console.error(e);
-        alert("Login required. Please sign in again.");
+      } catch {
         navigate("/login", { replace: true });
       }
     };
 
-    if (!user) {
-      fetchUserData();
-    }
+    if (!user) fetchUserData();
   }, [user, setUser, setEnabled, navigate]);
 
   useEffect(() => {
     setEnabled(!!user?.otpEnabled);
   }, [user, setEnabled]);
 
+  /* ===============================
+   * 기본 파생 상태
+   * =============================== */
   const marketingAgreed = user
     ? user.agreeMarketing ?? user.marketing ?? false
     : false;
-  const shortId = user?.userId?.split("@")[0] || user?.userId || "";
 
-  const googleConn = Boolean(
-    (user?.loginProvider || "").toLowerCase() === "google" ||
-    (user?.oauthConnections || []).find(
-      (c) => c.provider?.toLowerCase() === "google" && !c.releaseDate
-    )
+  const shortId = user?.userId?.split("@")[0] || user?.userId || "";
+  const isAdmin = user?.role === "ADMIN";
+
+  /* ===============================
+   * ✅ 실제 OAuth 연결 객체
+   * =============================== */
+  const googleOAuth = (user?.oauthConnections || []).find(
+    (c) => c.provider?.toLowerCase() === "google" && !c.releaseDate
   );
+
+  const kakaoOAuth = (user?.oauthConnections || []).find(
+    (c) => c.provider?.toLowerCase() === "kakao" && !c.releaseDate
+  );
+
+  /* ===============================
+   * 화면 표시용 boolean (기존 유지)
+   * =============================== */
+  const googleConn = Boolean(
+    (user?.loginProvider || "").toLowerCase() === "google" || googleOAuth
+  );
+
   const kakaoConn = Boolean(
-    (user?.loginProvider || "").toLowerCase() === "kakao" ||
-    (user?.oauthConnections || []).find(
-      (c) => c.provider?.toLowerCase() === "kakao" && !c.releaseDate
-    )
+    (user?.loginProvider || "").toLowerCase() === "kakao" || kakaoOAuth
   );
 
   const loginProviderLabel = getLoginProviderLabel(user);
 
-  const isAdmin = user?.role === "ADMIN";
-
+  /* ===============================
+   * 공통 핸들러
+   * =============================== */
   const handlers = {
-    goSubscription: () => navigate("/subscription"),
-    goMyParties: () => navigate("/my-parties"),
-    goChangePwd: () => navigate("/mypage/password"),
-    goWallet: () => navigate("/user/wallet"),
-    goPayment: () => navigate("/payment/method/list"),
-    goFinancialHistory: () => navigate("/user/financial-history"),
-    goEditUser: () => navigate("/mypage/edit"),
-    goAdminUserList: () => navigate("/admin/users"),
-    goAdminBlacklist: () => navigate("/admin/blacklist"),
-    goAdminHome: () => navigate("/admin"),
-    goBlacklistAdd: (userId) => navigate(`/admin/blacklist/add?user=${userId}`),
-    goDeleteUser: () => navigate("/mypage/delete"),
-
     oauthConnect: async (provider) => {
-      try {
-        const res = await httpClient.get(`/oauth/${provider}/auth`, {
-          params: { mode: "connect" },
-        });
-        const body = res?.data;
-        let url =
-          typeof body === "string"
-            ? body
-            : body?.url || body?.data?.url || body?.redirectUrl;
+      const res = await httpClient.get(`/oauth/${provider}/auth`, {
+        params: { mode: "connect" },
+      });
 
-        if (!url) {
-          alert("연동을 시작할 수 없습니다. 다시 시도해 주세요.");
-          return;
-        }
+      const body = res?.data;
+      const url =
+        typeof body === "string"
+          ? body
+          : body?.url || body?.data?.url || body?.redirectUrl;
 
-        try {
-          const u = new URL(url);
-          u.searchParams.set("prompt", "login");
-          url = u.toString();
-        } catch {
-          // URL 파싱 실패 시 원본 URL 사용
-        }
-
-        window.location.assign(url);
-      } catch (e) {
-        console.error(e);
-        alert(
-          e?.response?.data?.error?.message ||
-          "소셜 연동을 시작하는 중 오류가 발생했습니다."
-        );
+      if (!url) {
+        alert("연동을 시작할 수 없습니다.");
+        return;
       }
+
+      window.location.assign(url);
     },
 
-    oauthRelease: async (oauthId, provider) => {
-      try {
-        let targetId = oauthId;
+    oauthRelease: async (oauthId) => {
+      if (!oauthId) {
+        alert("현재 로그인 계정은 해제할 수 없습니다.");
+        return;
+      }
 
-        if (!targetId && provider) {
-          const conn = (user?.oauthConnections || []).find(
-            (c) =>
-              c.provider?.toLowerCase() === provider.toLowerCase() &&
-              !c.releaseDate
-          );
-          targetId = conn?.oauthId;
-        }
+      const res = await httpClient.post("/oauth/release", { oauthId });
 
-        if (!targetId) {
-          alert("연동 해제 정보가 올바르지 않습니다.");
-          return;
-        }
-
-        const res = await httpClient.post("/oauth/release", {
-          oauthId: targetId,
-        });
-
-        if (res.success) {
-          alert(`${provider.toUpperCase()} 계정 연동이 해제되었습니다.`);
-          await useAuthStore.getState().fetchSession();
-        } else {
-          alert(res.error?.message || "소셜 계정 연동 해제에 실패했습니다.");
-        }
-      } catch (e) {
-        console.error(e);
-        alert(
-          e?.response?.data?.error?.message ||
-            "소셜 계정 연동 해제 중 오류가 발생했습니다."
-        );
+      if (res.success) {
+        await useAuthStore.getState().fetchSession();
+      } else {
+        alert("소셜 계정 연동 해제 실패");
       }
     },
 
     formatDate,
   };
 
+  /* ===============================
+   * ✅ 수정된 버튼 클릭 로직
+   * =============================== */
   const handleGoogleClick = () => {
-    if (googleConn) return handlers.oauthRelease(googleConn.oauthId, "google");
+    if (googleOAuth) {
+      return handlers.oauthRelease(googleOAuth.oauthId);
+    }
     return handlers.oauthConnect("google");
   };
 
   const handleKakaoClick = () => {
-    if (kakaoConn) return handlers.oauthRelease(kakaoConn.oauthId, "kakao");
+    if ((user?.loginProvider || "").toLowerCase() === "kakao") {
+      alert("카카오는 현재 로그인 계정이므로 해제할 수 없습니다.");
+      return;
+    }
+
+    if (kakaoOAuth) {
+      return handlers.oauthRelease(kakaoOAuth.oauthId);
+    }
+
     return handlers.oauthConnect("kakao");
   };
 
   const handleOtpModalChange = (isOpen) => {
-    if (!isOpen) {
-      otpActionHandlers.closeModal();
-    }
+    if (!isOpen) otpActionHandlers.closeModal();
   };
 
+  /* ===============================
+   * 반환
+   * =============================== */
   return {
     state: {
       user,

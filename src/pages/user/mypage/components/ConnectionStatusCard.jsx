@@ -8,6 +8,8 @@ const BTN =
   "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm hover:bg-slate-50 active:translate-y-[1px]";
 const BTN_DANGER =
   "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm hover:bg-slate-50 active:translate-y-[1px]";
+const BTN_DISABLED =
+  "px-4 py-2 rounded-2xl border border-gray-200 bg-gray-100 text-gray-400 font-black text-sm cursor-not-allowed";
 
 export function ConnectionStatusCard({
   user,
@@ -18,29 +20,16 @@ export function ConnectionStatusCard({
   actions,
 }) {
   const phone = formatPhone(user?.phone);
+  const isPrimaryKakao = (user?.loginProvider || "").toLowerCase() === "kakao";
 
-  const toggleGoogle = () => {
-    if (typeof actions?.handleGoogleClick === "function") {
-      return actions.handleGoogleClick();
-    }
-  };
-
-  const toggleKakao = () => {
-    if (typeof actions?.handleKakaoClick === "function") {
-      return actions.handleKakaoClick();
-    }
-  };
+  const toggleGoogle = () => actions?.handleGoogleClick?.();
+  const toggleKakao = () => actions?.handleKakaoClick?.();
 
   const openOtp = () => {
-    if (!otp?.enabled) {
-      if (typeof actions?.otp?.openSetup === "function")
-        return actions.otp.openSetup();
-    } else {
-      if (typeof actions?.otp?.prepareDisable === "function")
-        return actions.otp.prepareDisable();
-    }
-    if (typeof actions?.handleOtpModalChange === "function")
-      return actions.handleOtpModalChange(true);
+    if (!otp?.enabled) actions?.otp?.openSetup?.();
+    else actions?.otp?.prepareDisable?.();
+
+    actions?.handleOtpModalChange?.(true);
   };
 
   return (
@@ -83,7 +72,10 @@ export function ConnectionStatusCard({
 
           <button
             type="button"
-            className={kakaoConn ? BTN_DANGER : BTN}
+            disabled={isPrimaryKakao}
+            className={
+              isPrimaryKakao ? BTN_DISABLED : kakaoConn ? BTN_DANGER : BTN
+            }
             onClick={toggleKakao}
           >
             {kakaoConn ? "KAKAO 해제" : "KAKAO 연동"}
