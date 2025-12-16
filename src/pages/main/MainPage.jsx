@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMainStore } from "@/store/main/mainStore";
@@ -29,6 +30,11 @@ const mainPageThemeStyles = {
     orb4Fade: "rgba(26, 95, 42, 0.04)",
   },
 };
+=======
+import { useEffect } from "react";
+import { useMainStore } from "@/store/main/mainStore";
+import { useThemeStore } from "@/store/themeStore";
+>>>>>>> service
 import MainHeroSection from "./sections/MainHeroSection";
 import MainFeaturesSection from "./sections/MainFeaturesSection";
 import MainProductsSection from "./sections/MainProductsSection";
@@ -47,13 +53,17 @@ export default function MainPage() {
   const stats = useMainStore((s) => s.stats);
   const error = useMainStore((s) => s.error);
   const { theme } = useThemeStore();
+<<<<<<< HEAD
   const themeStyle = mainPageThemeStyles[theme] || mainPageThemeStyles.default;
   const [showIntro, setShowIntro] = useState(true);
+=======
+>>>>>>> service
 
   useEffect(() => {
     loadMain();
   }, [loadMain]);
 
+<<<<<<< HEAD
   useEffect(() => {
     if (sessionStorage.getItem("introPlayed")) {
       setShowIntro(false);
@@ -92,6 +102,15 @@ export default function MainPage() {
         {/* Animated Gradient Orbs */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
           {/* orb motion.div들 그대로 */}
+=======
+  return (
+    <div className="min-h-screen -mt-35 pt-5">
+      {error ? (
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 py-10">
+          <div className={`${theme === 'dark' ? 'bg-[#1E293B] border-gray-700 text-white' : 'bg-white border-gray-200 text-black'} border rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] p-6 font-black`}>
+            {error}
+          </div>
+>>>>>>> service
         </div>
 
         {/* Dot Pattern */}
