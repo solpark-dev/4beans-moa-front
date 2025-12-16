@@ -14,6 +14,7 @@ import { useThemeStore } from '@/store/themeStore';
 // 테마별 스타일
 const bankSelectionThemeStyles = {
     default: {
+        cardBg: '',
         iconBg: 'bg-gradient-to-br from-orange-400 to-orange-600',
         iconShadow: 'shadow-lg shadow-orange-200',
         border: 'border-0',
@@ -25,8 +26,12 @@ const bankSelectionThemeStyles = {
         accentText: 'text-orange-600',
         buttonBg: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
         buttonShadow: 'shadow-lg shadow-orange-200',
+        titleText: 'text-slate-800',
+        subtitleText: 'text-slate-500',
+        labelText: 'text-slate-700',
     },
     christmas: {
+        cardBg: '',
         iconBg: 'bg-gradient-to-br from-red-800 to-green-800',
         iconShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
         border: 'border border-gray-200',
@@ -38,6 +43,43 @@ const bankSelectionThemeStyles = {
         accentText: 'text-red-800',
         buttonBg: 'bg-gradient-to-r from-red-800 to-green-800 hover:from-red-900 hover:to-green-900',
         buttonShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        titleText: 'text-slate-800',
+        subtitleText: 'text-slate-500',
+        labelText: 'text-slate-700',
+    },
+    dark: {
+        cardBg: 'bg-[#1E293B]',
+        iconBg: 'bg-gradient-to-br from-[#635bff] to-[#00d4ff]',
+        iconShadow: 'shadow-lg shadow-[#635bff]/25',
+        border: 'border border-gray-700',
+        shadow: 'shadow-lg',
+        inputBorder: 'border border-gray-600 bg-gray-800 text-white focus:border-[#635bff] focus:ring-[#635bff]/20',
+        infoBg: 'bg-gray-800',
+        infoIconColor: 'text-[#635bff]',
+        infoText: 'text-gray-300',
+        accentText: 'text-[#635bff]',
+        buttonBg: 'bg-gradient-to-r from-[#635bff] to-[#00d4ff] hover:from-[#5851e8] hover:to-[#00c0e8]',
+        buttonShadow: 'shadow-lg shadow-[#635bff]/25',
+        titleText: 'text-white',
+        subtitleText: 'text-gray-400',
+        labelText: 'text-gray-300',
+    },
+    pop: {
+        cardBg: '',
+        iconBg: 'bg-gradient-to-br from-pink-400 to-pink-600',
+        iconShadow: 'shadow-lg',
+        border: 'border-2 border-black',
+        shadow: 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
+        inputBorder: 'border-2 border-black focus:border-pink-500 focus:ring-pink-100',
+        infoBg: 'bg-pink-50',
+        infoIconColor: 'text-pink-400',
+        infoText: 'text-pink-600',
+        accentText: 'text-pink-600',
+        buttonBg: 'bg-pink-500 hover:bg-pink-600',
+        buttonShadow: 'shadow-lg',
+        titleText: 'text-slate-800',
+        subtitleText: 'text-slate-500',
+        labelText: 'text-slate-700',
     },
 };
 
@@ -138,7 +180,7 @@ export default function BankSelectionStep() {
     };
 
     return (
-        <Card className={`${themeStyle.border} ${themeStyle.shadow}`}>
+        <Card className={`${themeStyle.border} ${themeStyle.shadow} ${themeStyle.cardBg}`}>
             <CardHeader className="text-center pb-2">
                 <motion.div
                     initial={{ scale: 0 }}
@@ -148,10 +190,10 @@ export default function BankSelectionStep() {
                 >
                     <Building2 className="w-8 h-8 text-white" />
                 </motion.div>
-                <CardTitle className="text-xl font-bold text-slate-800">
+                <CardTitle className={`text-xl font-bold ${themeStyle.titleText}`}>
                     정산받을 계좌를 등록해주세요
                 </CardTitle>
-                <CardDescription className="text-slate-500">
+                <CardDescription className={themeStyle.subtitleText}>
                     1원 인증을 통해 본인 계좌를 확인합니다
                 </CardDescription>
             </CardHeader>
@@ -173,7 +215,7 @@ export default function BankSelectionStep() {
 
                     {/* 은행 선택 */}
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-slate-700">
+                        <Label className={`text-sm font-medium ${themeStyle.labelText}`}>
                             은행 선택
                         </Label>
                         <BankSelector
@@ -185,7 +227,7 @@ export default function BankSelectionStep() {
 
                     {/* 계좌번호 */}
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-slate-700">
+                        <Label className={`text-sm font-medium ${themeStyle.labelText}`}>
                             계좌번호
                         </Label>
                         <Input
@@ -198,14 +240,14 @@ export default function BankSelectionStep() {
                             disabled={isSubmitting}
                             className={`h-12 text-lg rounded-xl ${themeStyle.inputBorder}`}
                         />
-                        <p className="text-xs text-slate-400">
+                        <p className={`text-xs ${themeStyle.subtitleText}`}>
                             - 없이 숫자만 입력하세요
                         </p>
                     </div>
 
                     {/* 예금주명 */}
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium text-slate-700">
+                        <Label className={`text-sm font-medium ${themeStyle.labelText}`}>
                             예금주명
                         </Label>
                         <Input

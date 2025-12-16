@@ -203,45 +203,6 @@ export default function MyPartyListPage() {
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
-      {/* Hero Header */}
-      <div className="relative overflow-hidden bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-3 tracking-tight flex items-center gap-3 ${currentTheme.text}`}>
-                <LayoutGrid className={`w-8 h-8 md:w-10 md:h-10 ${theme === "pop" ? "text-pink-500" : "text-blue-600"}`} />
-                내 파티
-              </h1>
-              <p className={`text-base md:text-lg ${currentTheme.subtext}`}>
-                참여 중인 파티를 한눈에 확인하세요
-              </p>
-            </motion.div>
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/party/create")}
-              className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all shadow-lg ${
-                theme === "pop"
-                  ? "bg-red-800 text-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : theme === "christmas"
-                    ? "bg-red-800 hover:bg-red-900 text-white rounded-lg"
-                    : "bg-slate-900 hover:bg-slate-800 text-white rounded-lg"
-                }`}
-            >
-              <Plus className="w-5 h-5" />
-              새 파티 만들기
-            </motion.button>
-          </div>
-        </div>
-      </div>
-
       {/* Simple Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -265,15 +226,14 @@ export default function MyPartyListPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate("/party/create")}
-            className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all shadow-lg ${
-              theme === "pop"
-                ? "bg-pink-500 text-white border-2 border-black rounded-xl"
-                : theme === "dark"
-                  ? "bg-[#635bff] hover:bg-[#5851e8] text-white rounded-xl"
-                  : theme === "christmas"
-                    ? "bg-[#c41e3a] hover:bg-[#a31830] text-white rounded-xl"
-                    : "bg-[#635bff] hover:bg-[#5851e8] text-white rounded-xl"
-            }`}
+            className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all shadow-lg ${theme === "pop"
+              ? "bg-pink-500 text-white border-2 border-black rounded-xl"
+              : theme === "dark"
+                ? "bg-[#635bff] hover:bg-[#5851e8] text-white rounded-xl"
+                : theme === "christmas"
+                  ? "bg-[#c41e3a] hover:bg-[#a31830] text-white rounded-xl"
+                  : "bg-[#635bff] hover:bg-[#5851e8] text-white rounded-xl"
+              }`}
           >
             <Plus className="w-5 h-5" />
             새 파티 만들기
@@ -290,41 +250,39 @@ export default function MyPartyListPage() {
           <Filter className={`w-4 h-4 ${currentTheme.subtext}`} />
           <button
             onClick={() => setShowClosed(false)}
-            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all ${
-              !showClosed
-                ? theme === "dark"
-                  ? "bg-[#635bff] text-white"
-                  : theme === "pop"
-                    ? "bg-pink-500 text-white border-2 border-black"
-                    : theme === "christmas"
-                      ? "bg-[#c41e3a] text-white"
-                      : "bg-[#635bff] text-white"
-                : theme === "dark"
-                  ? "bg-[#1E293B] text-gray-400 hover:bg-[#334155]"
-                  : theme === "pop"
-                    ? "bg-white text-black border-2 border-black hover:bg-gray-100"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all ${!showClosed
+              ? theme === "dark"
+                ? "bg-[#635bff] text-white"
+                : theme === "pop"
+                  ? "bg-pink-500 text-white border-2 border-black"
+                  : theme === "christmas"
+                    ? "bg-[#c41e3a] text-white"
+                    : "bg-[#635bff] text-white"
+              : theme === "dark"
+                ? "bg-[#1E293B] text-gray-400 hover:bg-[#334155]"
+                : theme === "pop"
+                  ? "bg-white text-black border-2 border-black hover:bg-gray-100"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
           >
             진행 중 ({list.length})
           </button>
           <button
             onClick={() => setShowClosed(true)}
-            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all flex items-center gap-2 ${
-              showClosed
-                ? theme === "dark"
-                  ? "bg-[#635bff] text-white"
-                  : theme === "pop"
-                    ? "bg-pink-500 text-white border-2 border-black"
-                    : theme === "christmas"
-                      ? "bg-[#c41e3a] text-white"
-                      : "bg-[#635bff] text-white"
-                : theme === "dark"
-                  ? "bg-[#1E293B] text-gray-400 hover:bg-[#334155]"
-                  : theme === "pop"
-                    ? "bg-white text-black border-2 border-black hover:bg-gray-100"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all flex items-center gap-2 ${showClosed
+              ? theme === "dark"
+                ? "bg-[#635bff] text-white"
+                : theme === "pop"
+                  ? "bg-pink-500 text-white border-2 border-black"
+                  : theme === "christmas"
+                    ? "bg-[#c41e3a] text-white"
+                    : "bg-[#635bff] text-white"
+              : theme === "dark"
+                ? "bg-[#1E293B] text-gray-400 hover:bg-[#334155]"
+                : theme === "pop"
+                  ? "bg-white text-black border-2 border-black hover:bg-gray-100"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
           >
             <Archive className="w-4 h-4" />
             종료된 파티
@@ -342,19 +300,17 @@ export default function MyPartyListPage() {
         >
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Parties */}
-            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "pop"
-                  ? "bg-white border-2 border-black"
-                  : theme === "christmas"
-                    ? "bg-white border border-gray-200"
-                    : "bg-white border border-gray-200"
-            }`}>
+            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : theme === "pop"
+                ? "bg-white border-2 border-black"
+                : theme === "christmas"
+                  ? "bg-white border border-gray-200"
+                  : "bg-white border border-gray-200"
+              }`}>
               <div className="flex items-center justify-between mb-2">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  theme === "dark" ? "bg-[#635bff]/20" : "bg-blue-50"
-                }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === "dark" ? "bg-[#635bff]/20" : "bg-blue-50"
+                  }`}>
                   <Users className="w-5 h-5" style={{ color: accentColor }} />
                 </div>
                 <span className={`text-2xl font-bold ${currentTheme.text}`}>
@@ -365,19 +321,17 @@ export default function MyPartyListPage() {
             </div>
 
             {/* As Leader */}
-            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "pop"
-                  ? "bg-white border-2 border-black"
-                  : theme === "christmas"
-                    ? "bg-white border border-gray-200"
-                    : "bg-white border border-gray-200"
-            }`}>
+            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : theme === "pop"
+                ? "bg-white border-2 border-black"
+                : theme === "christmas"
+                  ? "bg-white border border-gray-200"
+                  : "bg-white border border-gray-200"
+              }`}>
               <div className="flex items-center justify-between mb-2">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  theme === "dark" ? "bg-amber-500/20" : "bg-amber-50"
-                }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === "dark" ? "bg-amber-500/20" : "bg-amber-50"
+                  }`}>
                   <Crown className="w-5 h-5 text-amber-500" />
                 </div>
                 <span className={`text-2xl font-bold ${currentTheme.text}`}>
@@ -388,19 +342,17 @@ export default function MyPartyListPage() {
             </div>
 
             {/* Active Parties */}
-            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "pop"
-                  ? "bg-white border-2 border-black"
-                  : theme === "christmas"
-                    ? "bg-white border border-gray-200"
-                    : "bg-white border border-gray-200"
-            }`}>
+            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : theme === "pop"
+                ? "bg-white border-2 border-black"
+                : theme === "christmas"
+                  ? "bg-white border border-gray-200"
+                  : "bg-white border border-gray-200"
+              }`}>
               <div className="flex items-center justify-between mb-2">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  theme === "dark" ? "bg-emerald-500/20" : "bg-emerald-50"
-                }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === "dark" ? "bg-emerald-500/20" : "bg-emerald-50"
+                  }`}>
                   <Activity className="w-5 h-5 text-emerald-500" />
                 </div>
                 <span className={`text-2xl font-bold ${currentTheme.text}`}>
@@ -411,19 +363,17 @@ export default function MyPartyListPage() {
             </div>
 
             {/* Recruiting */}
-            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "pop"
-                  ? "bg-white border-2 border-black"
-                  : theme === "christmas"
-                    ? "bg-white border border-gray-200"
-                    : "bg-white border border-gray-200"
-            }`}>
+            <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : theme === "pop"
+                ? "bg-white border-2 border-black"
+                : theme === "christmas"
+                  ? "bg-white border border-gray-200"
+                  : "bg-white border border-gray-200"
+              }`}>
               <div className="flex items-center justify-between mb-2">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  theme === "dark" ? "bg-purple-500/20" : "bg-purple-50"
-                }`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${theme === "dark" ? "bg-purple-500/20" : "bg-purple-50"
+                  }`}>
                   <TrendingUp className="w-5 h-5 text-purple-500" />
                 </div>
                 <span className={`text-2xl font-bold ${currentTheme.text}`}>
@@ -444,16 +394,14 @@ export default function MyPartyListPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-16"
           >
-            <div className={`inline-block p-8 rounded-xl ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "pop"
-                  ? "bg-white border-2 border-black"
-                  : "bg-white border border-gray-200"
-            }`}>
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                theme === "dark" ? "bg-[#635bff]/20" : "bg-gradient-to-br from-blue-50 to-purple-50"
+            <div className={`inline-block p-8 rounded-xl ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : theme === "pop"
+                ? "bg-white border-2 border-black"
+                : "bg-white border border-gray-200"
               }`}>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${theme === "dark" ? "bg-[#635bff]/20" : "bg-gradient-to-br from-blue-50 to-purple-50"
+                }`}>
                 <Sparkles className="w-8 h-8" style={{ color: accentColor }} />
               </div>
               <p className={`text-xl font-bold mb-2 ${currentTheme.text}`}>
@@ -465,27 +413,25 @@ export default function MyPartyListPage() {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => navigate("/party")}
-                  className={`px-6 py-3 font-semibold rounded-lg transition-all ${
-                    theme === "pop"
-                      ? "bg-pink-500 text-white border-2 border-black"
-                      : theme === "dark"
-                        ? "bg-[#635bff] hover:bg-[#5851e8] text-white"
-                        : theme === "christmas"
-                          ? "bg-[#c41e3a] hover:bg-[#a31830] text-white"
-                          : "bg-[#635bff] hover:bg-[#5851e8] text-white"
-                  }`}
+                  className={`px-6 py-3 font-semibold rounded-lg transition-all ${theme === "pop"
+                    ? "bg-pink-500 text-white border-2 border-black"
+                    : theme === "dark"
+                      ? "bg-[#635bff] hover:bg-[#5851e8] text-white"
+                      : theme === "christmas"
+                        ? "bg-[#c41e3a] hover:bg-[#a31830] text-white"
+                        : "bg-[#635bff] hover:bg-[#5851e8] text-white"
+                    }`}
                 >
                   파티 찾아보기
                 </button>
                 <button
                   onClick={() => navigate("/party/create")}
-                  className={`px-6 py-3 font-semibold rounded-lg transition-all ${
-                    theme === "dark"
-                      ? "bg-transparent border border-gray-600 text-gray-300 hover:bg-gray-700"
-                      : theme === "pop"
-                        ? "bg-white border-2 border-black text-black hover:bg-gray-50"
-                        : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`px-6 py-3 font-semibold rounded-lg transition-all ${theme === "dark"
+                    ? "bg-transparent border border-gray-600 text-gray-300 hover:bg-gray-700"
+                    : theme === "pop"
+                      ? "bg-white border-2 border-black text-black hover:bg-gray-50"
+                      : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
                 >
                   파티 만들기
                 </button>
@@ -498,9 +444,8 @@ export default function MyPartyListPage() {
             {stats.asLeader > 0 && (
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    theme === "dark" ? "bg-amber-500/20" : "bg-amber-50"
-                  }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === "dark" ? "bg-amber-500/20" : "bg-amber-50"
+                    }`}>
                     <Crown className="w-5 h-5 text-amber-500" />
                   </div>
                   <h2 className={`text-xl font-bold ${currentTheme.text}`}>
@@ -520,7 +465,7 @@ export default function MyPartyListPage() {
                     .filter((item) => item.partyLeaderId === currentUserId)
                     .map((item) => {
                       const badge = getStatusBadge(item.partyStatus);
-                      const perPersonFee = item.monthlyFee;
+                      const perPersonFee = item.monthlyFee ?? 0;
 
                       return (
                         <motion.div key={item.partyId} variants={itemVariants}>
@@ -528,13 +473,12 @@ export default function MyPartyListPage() {
                             to={`/party/${item.partyId}`}
                             className="group block"
                           >
-                            <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${
-                              theme === "dark"
-                                ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
-                                : theme === "pop"
-                                  ? "bg-white border-2 border-black"
-                                  : "bg-white border border-gray-200 hover:border-gray-300"
-                            }`}>
+                            <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${theme === "dark"
+                              ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
+                              : theme === "pop"
+                                ? "bg-white border-2 border-black"
+                                : "bg-white border border-gray-200 hover:border-gray-300"
+                              }`}>
                               <div className="p-5">
                                 <div className="flex items-start justify-between mb-4">
                                   <div className="flex-1">
@@ -564,15 +508,14 @@ export default function MyPartyListPage() {
                                   </span>
                                 </div>
 
-                                <div className={`rounded-lg p-4 ${
-                                  theme === "dark"
-                                    ? "bg-[#635bff]/10 border border-[#635bff]/20"
-                                    : theme === "pop"
-                                      ? "bg-pink-50 border border-pink-200"
-                                      : theme === "christmas"
-                                        ? "bg-[#c41e3a]/5 border border-[#c41e3a]/20"
-                                        : "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100"
-                                }`}>
+                                <div className={`rounded-lg p-4 ${theme === "dark"
+                                  ? "bg-[#635bff]/10 border border-[#635bff]/20"
+                                  : theme === "pop"
+                                    ? "bg-pink-50 border border-pink-200"
+                                    : theme === "christmas"
+                                      ? "bg-[#c41e3a]/5 border border-[#c41e3a]/20"
+                                      : "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100"
+                                  }`}>
                                   <p className={`text-xs mb-1 ${currentTheme.subtext}`}>
                                     인당 월 구독료
                                   </p>
@@ -602,21 +545,19 @@ export default function MyPartyListPage() {
             {stats.asMember > 0 && (
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    theme === "dark" ? "bg-[#635bff]/20" : "bg-gradient-to-br from-blue-50 to-purple-50"
-                  }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === "dark" ? "bg-[#635bff]/20" : "bg-gradient-to-br from-blue-50 to-purple-50"
+                    }`}>
                     <Users className="w-5 h-5" style={{ color: accentColor }} />
                   </div>
                   <h2 className={`text-xl font-bold ${currentTheme.text}`}>
                     참여 중인 파티
                   </h2>
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                    theme === "pop"
-                      ? "bg-pink-100 text-pink-700"
-                      : theme === "christmas"
-                        ? "bg-[#c41e3a]/10 text-[#c41e3a]"
-                        : "bg-blue-100 text-blue-700"
-                  }`}>
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${theme === "pop"
+                    ? "bg-pink-100 text-pink-700"
+                    : theme === "christmas"
+                      ? "bg-[#c41e3a]/10 text-[#c41e3a]"
+                      : "bg-blue-100 text-blue-700"
+                    }`}>
                     {stats.asMember}
                   </span>
                 </div>
@@ -630,7 +571,7 @@ export default function MyPartyListPage() {
                     .filter((item) => item.partyLeaderId !== currentUserId)
                     .map((item) => {
                       const badge = getStatusBadge(item.partyStatus);
-                      const perPersonFee = item.monthlyFee;
+                      const perPersonFee = item.monthlyFee ?? 0;
 
                       return (
                         <motion.div key={item.partyId} variants={itemVariants}>
@@ -638,13 +579,12 @@ export default function MyPartyListPage() {
                             to={`/party/${item.partyId}`}
                             className="group block"
                           >
-                            <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${
-                              theme === "dark"
-                                ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
-                                : theme === "pop"
-                                  ? "bg-white border-2 border-black"
-                                  : "bg-white border border-gray-200 hover:border-gray-300"
-                            }`}>
+                            <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${theme === "dark"
+                              ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
+                              : theme === "pop"
+                                ? "bg-white border-2 border-black"
+                                : "bg-white border border-gray-200 hover:border-gray-300"
+                              }`}>
                               <div className="p-5">
                                 <div className="flex items-start justify-between mb-4">
                                   <div className="flex-1">
@@ -674,15 +614,14 @@ export default function MyPartyListPage() {
                                   </span>
                                 </div>
 
-                                <div className={`rounded-lg p-4 ${
-                                  theme === "dark"
-                                    ? "bg-purple-500/10 border border-purple-500/20"
-                                    : theme === "pop"
-                                      ? "bg-yellow-50 border border-yellow-200"
-                                      : theme === "christmas"
-                                        ? "bg-[#1a5f2a]/5 border border-[#1a5f2a]/20"
-                                        : "bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
-                                }`}>
+                                <div className={`rounded-lg p-4 ${theme === "dark"
+                                  ? "bg-purple-500/10 border border-purple-500/20"
+                                  : theme === "pop"
+                                    ? "bg-yellow-50 border border-yellow-200"
+                                    : theme === "christmas"
+                                      ? "bg-[#1a5f2a]/5 border border-[#1a5f2a]/20"
+                                      : "bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
+                                  }`}>
                                   <p className={`text-xs mb-1 ${currentTheme.subtext}`}>
                                     내 월 구독료
                                   </p>

@@ -9,11 +9,70 @@ import CodeInput from './CodeInput';
 import CountdownTimer from './CountdownTimer';
 import { verifyAndRegister } from '@/api/bankAccountApi';
 import { BANKS } from './BankSelector';
+import { useThemeStore } from '@/store/themeStore';
+
+// 테마별 스타일
+const verificationThemeStyles = {
+    default: {
+        cardBorder: 'border-0 shadow-lg',
+        iconBg: 'bg-gradient-to-br from-green-400 to-green-600',
+        iconShadow: 'shadow-lg shadow-green-200',
+        infoBg: 'bg-slate-50',
+        buttonBg: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
+        buttonShadow: 'shadow-lg shadow-orange-200',
+        hoverBorder: 'hover:border-orange-300 hover:bg-orange-50',
+        iconColor: 'text-orange-500',
+        linkHover: 'hover:text-orange-600',
+        titleText: 'text-slate-800',
+        subtitleText: 'text-slate-500',
+    },
+    christmas: {
+        cardBorder: 'border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        iconBg: 'bg-gradient-to-br from-green-600 to-green-800',
+        iconShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        infoBg: 'bg-red-50',
+        buttonBg: 'bg-gradient-to-r from-red-800 to-green-800 hover:from-red-900 hover:to-green-900',
+        buttonShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        hoverBorder: 'hover:border-red-300 hover:bg-red-50',
+        iconColor: 'text-red-800',
+        linkHover: 'hover:text-red-800',
+        titleText: 'text-slate-800',
+        subtitleText: 'text-slate-500',
+    },
+    dark: {
+        cardBorder: 'border border-gray-700 bg-[#1E293B] shadow-lg',
+        iconBg: 'bg-gradient-to-br from-[#635bff] to-[#00d4ff]',
+        iconShadow: 'shadow-lg shadow-[#635bff]/25',
+        infoBg: 'bg-gray-800',
+        buttonBg: 'bg-gradient-to-r from-[#635bff] to-[#00d4ff] hover:from-[#5851e8] hover:to-[#00c0e8]',
+        buttonShadow: 'shadow-lg shadow-[#635bff]/25',
+        hoverBorder: 'hover:border-[#635bff] hover:bg-gray-700',
+        iconColor: 'text-[#635bff]',
+        linkHover: 'hover:text-[#635bff]',
+        titleText: 'text-white',
+        subtitleText: 'text-gray-400',
+    },
+    pop: {
+        cardBorder: 'border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
+        iconBg: 'bg-gradient-to-br from-pink-400 to-pink-600',
+        iconShadow: 'shadow-lg',
+        infoBg: 'bg-pink-50',
+        buttonBg: 'bg-pink-500 hover:bg-pink-600',
+        buttonShadow: 'shadow-lg',
+        hoverBorder: 'hover:border-pink-500 hover:bg-pink-50',
+        iconColor: 'text-pink-500',
+        linkHover: 'hover:text-pink-600',
+        titleText: 'text-slate-800',
+        subtitleText: 'text-slate-500',
+    },
+};
 
 /**
  * Step 3: 인증코드 입력
  */
 export default function VerificationStep() {
+    const { theme } = useThemeStore();
+    const themeStyle = verificationThemeStyles[theme] || verificationThemeStyles.default;
     const {
         formData,
         verification,
@@ -94,27 +153,27 @@ export default function VerificationStep() {
     };
 
     return (
-        <Card className="border-0 shadow-lg">
+        <Card className={themeStyle.cardBorder}>
             <CardHeader className="text-center pb-2">
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                    className="mx-auto w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-green-200"
+                    className={`mx-auto w-16 h-16 ${themeStyle.iconBg} rounded-full flex items-center justify-center mb-4 ${themeStyle.iconShadow}`}
                 >
                     <CheckCircle2 className="w-8 h-8 text-white" />
                 </motion.div>
-                <CardTitle className="text-xl font-bold text-slate-800">
+                <CardTitle className={`text-xl font-bold ${themeStyle.titleText}`}>
                     1원이 입금되었습니다!
                 </CardTitle>
-                <CardDescription className="text-slate-500">
+                <CardDescription className={themeStyle.subtitleText}>
                     입금자명에서 4자리 인증코드를 확인해주세요
                 </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
                 {/* 계좌 정보 */}
-                <div className="flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-xl">
+                <div className={`flex items-center justify-center gap-3 p-4 ${themeStyle.infoBg} rounded-xl`}>
                     {bank && (
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
@@ -127,8 +186,8 @@ export default function VerificationStep() {
                         </div>
                     )}
                     <div className="text-left">
-                        <p className="font-medium text-slate-800">{formData.bankName}</p>
-                        <p className="text-sm text-slate-500">
+                        <p className={`font-medium ${themeStyle.titleText}`}>{formData.bankName}</p>
+                        <p className={`text-sm ${themeStyle.subtitleText}`}>
                             {verification.maskedAccount || formData.accountNum}
                         </p>
                     </div>
@@ -138,18 +197,18 @@ export default function VerificationStep() {
                 <div className="grid grid-cols-2 gap-3">
                     <Button
                         variant="outline"
-                        className="h-14 flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-orange-300 hover:bg-orange-50"
+                        className={`h-14 flex flex-col items-center justify-center gap-1 rounded-xl border-2 ${themeStyle.hoverBorder}`}
                         onClick={() => window.open('https://mail.google.com', '_blank')}
                     >
-                        <Mail className="w-5 h-5 text-orange-500" />
+                        <Mail className={`w-5 h-5 ${themeStyle.iconColor}`} />
                         <span className="text-xs">이메일 확인</span>
                     </Button>
                     <Button
                         variant="outline"
-                        className="h-14 flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-orange-300 hover:bg-orange-50"
+                        className={`h-14 flex flex-col items-center justify-center gap-1 rounded-xl border-2 ${themeStyle.hoverBorder}`}
                         onClick={openVirtualBankModal}
                     >
-                        <Smartphone className="w-5 h-5 text-orange-500" />
+                        <Smartphone className={`w-5 h-5 ${themeStyle.iconColor}`} />
                         <span className="text-xs">가상 은행앱</span>
                     </Button>
                 </div>
@@ -176,7 +235,7 @@ export default function VerificationStep() {
 
                 {/* 인증코드 입력 */}
                 <div className="space-y-4">
-                    <p className="text-center text-sm text-slate-600 font-medium">
+                    <p className={`text-center text-sm font-medium ${themeStyle.subtitleText}`}>
                         인증코드 4자리
                     </p>
                     <CodeInput
@@ -200,7 +259,7 @@ export default function VerificationStep() {
                 <Button
                     onClick={() => handleSubmit()}
                     disabled={code.length !== 4 || isSubmitting}
-                    className="w-full h-14 text-lg font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-200 transition-all duration-300 disabled:opacity-50"
+                    className={`w-full h-14 text-lg font-semibold rounded-xl ${themeStyle.buttonBg} ${themeStyle.buttonShadow} transition-all duration-300 disabled:opacity-50`}
                 >
                     {isSubmitting ? (
                         <>
@@ -217,7 +276,7 @@ export default function VerificationStep() {
                     <button
                         onClick={handleResend}
                         disabled={isSubmitting}
-                        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-orange-600 transition-colors"
+                        className={`inline-flex items-center gap-1 text-sm ${themeStyle.subtitleText} ${themeStyle.linkHover} transition-colors`}
                     >
                         <RefreshCw className="w-4 h-4" />
                         코드를 못 받으셨나요? 재전송

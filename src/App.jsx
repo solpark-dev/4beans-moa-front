@@ -197,6 +197,10 @@ export default function App() {
             element={<ProtectedRoute element={<MyWalletPage />} />}
           />
           <Route
+            path="/mypage/wallet"
+            element={<ProtectedRoute element={<MyWalletPage />} />}
+          />
+          <Route
             path="/user/account-register"
             element={<ProtectedRoute element={<BankVerificationPage />} />}
           />

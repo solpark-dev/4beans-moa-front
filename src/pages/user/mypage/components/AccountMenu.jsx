@@ -48,7 +48,7 @@ export function AccountMenu({
     if (typeof actions?.goMyParties === "function")
       return actions.goMyParties();
     if (typeof actions?.navigate === "function")
-      return actions.navigate("/party/my");
+      return actions.navigate("/my-parties");
   };
 
   const goWallet = () => {
