@@ -17,14 +17,15 @@ export const SnowPlowProvider = ({ children }) => {
   const [plowProgress, setPlowProgress] = useState(0); // 0 to 100
   const [accumulation, setAccumulation] = useState(0); // 0 to 100 (Snow accumulation level)
   const [showSnowman, setShowSnowman] = useState(false); // 눈사람 표시 여부
+  const [plowId, setPlowId] = useState(0); // For forcing animation reset
   const snowmanTimerRef = useRef(null);
 
-  // 30초 후 눈사람 표시
+  // 10초 후 눈사람 표시 (테스트용)
   useEffect(() => {
-    // 처음 마운트 시 30초 후 눈사람 표시
+    // 처음 마운트 시 10초 후 눈사람 표시
     snowmanTimerRef.current = setTimeout(() => {
       setShowSnowman(true);
-    }, 30000); // 30초
+    }, 10000); // 10초
 
     return () => {
       if (snowmanTimerRef.current) {
@@ -45,6 +46,7 @@ export const SnowPlowProvider = ({ children }) => {
     if (isPlowing || isSnowCleared) return;
 
     setIsPlowing(true);
+    setPlowId(Date.now()); // Force new animation instance
     setPlowProgress(0);
 
     // 기존 타이머 클리어
@@ -72,10 +74,10 @@ export const SnowPlowProvider = ({ children }) => {
         setTimeout(() => {
           setIsSnowCleared(false);
 
-          // 제설 완료 후 30초 뒤에 다시 눈사람 표시
+          // 제설 완료 후 10초 뒤에 다시 눈사람 표시
           snowmanTimerRef.current = setTimeout(() => {
             setShowSnowman(true);
-          }, 30000); // 30초
+          }, 10000); // 10초
         }, 1000);
       }
     };
@@ -113,6 +115,7 @@ export const SnowPlowProvider = ({ children }) => {
     resetSnow,
     accumulation, // Expose accumulation level to children
     showSnowman, // 눈사람 표시 여부
+    plowId, // Expose for key prop
   };
 
   return (
@@ -245,80 +248,38 @@ const PushedSnowMound = ({ progress }) => {
   );
 };
 
+// ============================================
+// Thanksgiving (actually Christmas) Decoration
+// ============================================
+const ChristmasDecorations = () => {
+  const { showSnowman } = useSnowPlow();
 
-// ============================================
-// Snowman Component
-// ============================================
-const Snowman = ({ visible }) => {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0, y: 20 }}
-          transition={{
-            type: "spring",
-            stiffness: 200,
-            damping: 15,
-            duration: 0.5
-          }}
-          className="absolute z-30"
-          style={{
-            right: "70px", // 트리 왼쪽에 배치
-            bottom: "8px", // 검색박스 바로 위에 붙이기
-          }}
-        >
-          <motion.div
-            animate={{
-              rotate: [-2, 2, -2],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="relative"
-          >
-            <span
-              className="text-4xl drop-shadow-lg select-none"
-              style={{
-                filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.2))"
-              }}
-            >
-              &#9924;
-            </span>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-// ============================================
-// Christmas Tree Component
-// ============================================
-const ChristmasTree = () => {
   return (
     <div
-      className="absolute z-30 pointer-events-none"
+      className="absolute z-30 pointer-events-none flex items-end"
       style={{
-        right: "10px",
+        right: "-30px", // Move further right as requested (negative value to push past padding)
         bottom: "-5px", // 검색박스 바로 위에 붙이기
       }}
     >
+
+      {/* 1. Snowman - Permanent (No Timer) */}
+      <motion.img
+        src="/snowman.png"
+        alt="Snowman"
+        className="w-36 h-auto drop-shadow-lg select-none relative z-30 -mr-16" // Increased size to 36 & tighter spacing
+        initial={{ scale: 0.9 }}
+        animate={{ scale: [0.9, 0.95, 0.9], rotate: [0, -2, 0, 2, 0] }} // Subtle breathing/wiggle
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* 2. Christmas Tree */}
       <motion.img
         src="/christmas-tree.png"
         alt="Christmas Tree"
-        className="w-14 h-auto drop-shadow-lg select-none"
-        animate={{
-          scale: [1, 1.02, 1],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
+        className="w-36 h-auto drop-shadow-lg select-none relative z-40 -ml-10" // Increased size to 36 & tighter spacing
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       />
     </div>
   );
@@ -359,22 +320,21 @@ export const ClearableSnowPile = () => {
 
   if (!context) return null;
 
-  const { isPlowing, isSnowCleared, plowProgress, accumulation, showSnowman } = context;
+  const { isPlowing, isSnowCleared, plowProgress, accumulation, plowId } = context; // destructure plowId
 
   return (
     <div
       ref={containerRef}
       className="absolute -top-10 left-0 right-0 h-14 pointer-events-none overflow-visible"
     >
-      {/* Christmas Tree - 검색박스 오른쪽 상단 */}
-      <ChristmasTree />
+      {/* Christmas Decorations Group (Tree + Characters) */}
+      <ChristmasDecorations />
 
-      {/* Snowman - 트리 왼쪽, 30초 후 나타남 */}
-      <Snowman visible={showSnowman} />
       {/* 제설차 애니메이션 - Left to Right */}
       <AnimatePresence>
         {isPlowing && (
           <motion.div
+            key={plowId} // Add key to force remount on new plowId
             className="absolute z-50"
             initial={{ left: "-80px" }}
             animate={{ left: "calc(100% - 100px)" }}
@@ -382,10 +342,6 @@ export const ClearableSnowPile = () => {
             transition={{ duration: 2.5, ease: "linear" }}
             style={{
               top: "-15px"
-              // Removed scaleX(-1) so it faces Right by default (assuming emoji faces left? No, usually tractor faces left. Check)
-              // Tractor Emoji 🚜 usually faces Left. To make it face Right, we need scaleX(-1).
-              // Wait, if I want it to move L->R, it should face Right.
-              // So I DO need scaleX(-1).
             }}
           >
             <motion.div
