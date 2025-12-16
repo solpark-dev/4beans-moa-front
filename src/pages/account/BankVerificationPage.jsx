@@ -86,8 +86,16 @@ export default function BankVerificationPage() {
                                         w-8 h-8 rounded-full flex items-center justify-center
                                         text-sm font-semibold transition-all duration-300
                                         ${index + 1 <= getStepNumber()
-                                            ? 'bg-orange-500 text-white'
-                                            : 'bg-slate-200 text-slate-500'
+                                            ? theme === "dark"
+                                                ? "bg-[#635bff] text-white"
+                                                : theme === "pop"
+                                                    ? "bg-pink-500 text-white"
+                                                    : theme === "christmas"
+                                                        ? "bg-[#c41e3a] text-white"
+                                                        : "bg-[#635bff] text-white"
+                                            : theme === "dark"
+                                                ? "bg-gray-700 text-gray-400"
+                                                : "bg-slate-200 text-slate-500"
                                         }
                                     `}
                                 >
@@ -101,7 +109,18 @@ export default function BankVerificationPage() {
                                 </div>
                                 <span className={`
                                     text-xs mt-1 transition-colors duration-300
-                                    ${index + 1 <= getStepNumber() ? 'text-orange-600 font-medium' : 'text-slate-400'}
+                                    ${index + 1 <= getStepNumber()
+                                        ? theme === "dark"
+                                            ? "text-[#635bff] font-medium"
+                                            : theme === "pop"
+                                                ? "text-pink-600 font-medium"
+                                                : theme === "christmas"
+                                                    ? "text-[#c41e3a] font-medium"
+                                                    : "text-[#635bff] font-medium"
+                                        : theme === "dark"
+                                            ? "text-gray-500"
+                                            : "text-slate-400"
+                                    }
                                 `}>
                                     {label}
                                 </span>
@@ -109,9 +128,17 @@ export default function BankVerificationPage() {
                         ))}
                     </div>
                     {/* 프로그레스 바 */}
-                    <div className="relative h-1 bg-slate-200 rounded-full overflow-hidden">
+                    <div className={`relative h-1 rounded-full overflow-hidden ${theme === "dark" ? "bg-gray-700" : "bg-slate-200"
+                        }`}>
                         <motion.div
-                            className="absolute top-0 left-0 h-full bg-orange-500 rounded-full"
+                            className={`absolute top-0 left-0 h-full rounded-full ${theme === "dark"
+                                    ? "bg-[#635bff]"
+                                    : theme === "pop"
+                                        ? "bg-pink-500"
+                                        : theme === "christmas"
+                                            ? "bg-[#c41e3a]"
+                                            : "bg-[#635bff]"
+                                }`}
                             initial={{ width: '0%' }}
                             animate={{ width: `${((getStepNumber() - 1) / 3) * 100}%` }}
                             transition={{ duration: 0.5, ease: 'easeInOut' }}

@@ -86,25 +86,23 @@ export default function MyWalletPage() {
     }
   };
 
-  const handleDeleteAccount = async (e) => {
-    e.stopPropagation();
-    if (!window.confirm("정말 계좌를 삭제하시겠습니까?")) return;
-    try {
-      await deleteAccountAction();
-      toast.success("계좌가 삭제되었습니다");
-    } catch (error) {
-      toast.error("계좌 삭제에 실패했습니다");
+  const handleAccountClick = () => {
+    if (account) {
+      if (window.confirm("계좌를 변경하시겠습니까?")) {
+        navigate("/user/account-register");
+      }
+    } else {
+      navigate("/user/account-register");
     }
   };
 
-  const handleDeleteCard = async (e) => {
-    e.stopPropagation();
-    if (!window.confirm("정말 카드를 삭제하시겠습니까?\n삭제 시 정기결제가 중단됩니다.")) return;
-    try {
-      await deleteCardAction();
-      toast.success("카드가 삭제되었습니다");
-    } catch (error) {
-      toast.error("카드 삭제에 실패했습니다");
+  const handleCardClick = () => {
+    if (card) {
+      if (window.confirm("카드를 변경하시겠습니까?")) {
+        requestBillingAuth(user.userId);
+      }
+    } else {
+      handleRegisterCard();
     }
   };
 
@@ -238,7 +236,7 @@ export default function MyWalletPage() {
           </div>
 
           <div
-            onClick={() => navigate("/user/account-register")}
+            onClick={handleAccountClick}
             className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
               ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
               : theme === "dark"
@@ -282,35 +280,14 @@ export default function MyWalletPage() {
                     {account.accountNumber?.replace(/(\d{4})(\d{2})(.*)/, "$1-$2-******")}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleDeleteAccount}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${theme === "dark"
-                      ? "bg-gray-700 hover:bg-red-500/20"
-                      : "bg-gray-100 hover:bg-red-100"
-                      }`}
-                    title="계좌 삭제"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </button>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${theme === "dark"
-                    ? "bg-gray-700 group-hover:bg-[#635bff]/20"
-                    : theme === "pop"
-                      ? "bg-gray-100 group-hover:bg-pink-200"
-                      : theme === "christmas"
-                        ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
-                        : "bg-gray-100 group-hover:bg-[#635bff]/10"
-                    }`}>
-                    <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                      ? "text-gray-400 group-hover:text-[#635bff]"
-                      : theme === "pop"
-                        ? "text-gray-400 group-hover:text-pink-500"
-                        : theme === "christmas"
-                          ? "text-gray-400 group-hover:text-[#c41e3a]"
-                          : "text-gray-400 group-hover:text-[#635bff]"
-                      }`} />
-                  </div>
-                </div>
+                <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
+                  ? "text-gray-400 group-hover:text-[#635bff]"
+                  : theme === "pop"
+                    ? "text-gray-400 group-hover:text-pink-500"
+                    : theme === "christmas"
+                      ? "text-gray-400 group-hover:text-[#c41e3a]"
+                      : "text-gray-400 group-hover:text-[#635bff]"
+                  }`} />
               </div>
             ) : (
               <div className={`flex flex-col items-center py-6 transition-colors ${currentTheme.subtext}`}>
@@ -363,7 +340,7 @@ export default function MyWalletPage() {
           </div>
 
           <div
-            onClick={handleRegisterCard}
+            onClick={handleCardClick}
             className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
               ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
               : theme === "dark"
@@ -407,47 +384,14 @@ export default function MyWalletPage() {
                     **** **** **** {card.cardNumber?.slice(-4) || "****"}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleDeleteCard}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${theme === "dark"
-                        ? "bg-gray-700 hover:bg-red-500/20"
-                        : "bg-gray-100 hover:bg-red-100"
-                      }`}
-                    title="카드 삭제"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </button>
-                  <div className="flex flex-col items-end gap-1">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${theme === "dark"
-                      ? "bg-gray-700 group-hover:bg-[#635bff]/20"
-                      : theme === "pop"
-                        ? "bg-gray-100 group-hover:bg-pink-200"
-                        : theme === "christmas"
-                          ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
-                          : "bg-gray-100 group-hover:bg-[#635bff]/10"
-                      }`}>
-                      <Zap className={`w-4 h-4 fill-current transition-colors ${theme === "dark"
-                        ? "text-gray-400 group-hover:text-[#635bff]"
-                        : theme === "pop"
-                          ? "text-gray-400 group-hover:text-pink-500"
-                          : theme === "christmas"
-                            ? "text-gray-400 group-hover:text-[#c41e3a]"
-                            : "text-gray-400 group-hover:text-[#635bff]"
-                        }`} />
-                    </div>
-                    <span className={`text-[10px] font-semibold transition-colors ${theme === "dark"
-                      ? "text-gray-400 group-hover:text-[#635bff]"
-                      : theme === "pop"
-                        ? "text-gray-400 group-hover:text-pink-500"
-                        : theme === "christmas"
-                          ? "text-gray-400 group-hover:text-[#c41e3a]"
-                          : "text-gray-400 group-hover:text-[#635bff]"
-                      }`}>
-                      변경
-                    </span>
-                  </div>
-                </div>
+                <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
+                  ? "text-gray-400 group-hover:text-[#635bff]"
+                  : theme === "pop"
+                    ? "text-gray-400 group-hover:text-pink-500"
+                    : theme === "christmas"
+                      ? "text-gray-400 group-hover:text-[#c41e3a]"
+                      : "text-gray-400 group-hover:text-[#635bff]"
+                  }`} />
               </div>
             ) : (
               <div className={`flex flex-col items-center py-6 transition-colors ${currentTheme.subtext}`}>
