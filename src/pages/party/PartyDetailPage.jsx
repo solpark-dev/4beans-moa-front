@@ -173,7 +173,7 @@ export default function PartyDetailPage() {
   const getStatusBadge = (status) => {
     const badges = {
       RECRUITING: {
-        bg: theme === "christmas" ? "bg-green-800" : "bg-[#635bff]",
+        bg: theme === "pop" ? "bg-pink-500" : theme === "christmas" ? "bg-green-800" : "bg-[#635bff]",
         text: "모집중"
       },
       ACTIVE: {
@@ -223,9 +223,11 @@ export default function PartyDetailPage() {
             onClick={() => navigate("/party")}
             className={`flex items-center gap-2 mb-8 transition-colors group ${theme === "dark"
                 ? "text-gray-400 hover:text-[#635bff]"
-                : theme === "christmas"
-                  ? "text-gray-500 hover:text-red-800"
-                  : "text-gray-500 hover:text-[#635bff]"
+                : theme === "pop"
+                  ? "text-gray-500 hover:text-pink-500"
+                  : theme === "christmas"
+                    ? "text-gray-500 hover:text-red-800"
+                    : "text-gray-500 hover:text-[#635bff]"
               }`}
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -275,9 +277,12 @@ export default function PartyDetailPage() {
                       </span>
                     )}
                     {isMember && !isLeader && (
-                      <span className={`bg-white px-3 py-1.5 rounded-full text-xs font-bold border ${theme === "christmas"
-                          ? "text-green-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
-                          : "text-[#635bff] shadow-lg border-[#635bff]/20"
+                      <span className={`bg-white px-3 py-1.5 rounded-full text-xs font-bold border ${
+                        theme === "pop"
+                          ? "text-pink-500 shadow-lg border-pink-200"
+                          : theme === "christmas"
+                            ? "text-green-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
+                            : "text-[#635bff] shadow-lg border-[#635bff]/20"
                         }`}>
                         <Check className="w-3 h-3 inline mr-1" />
                         참여중
@@ -319,7 +324,7 @@ export default function PartyDetailPage() {
                     }`}
                 >
                   <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-                    <Users className={`w-4 h-4 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Users className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                     <span>파티 인원</span>
                   </div>
                   <p className="text-2xl font-black text-gray-900">
@@ -348,7 +353,7 @@ export default function PartyDetailPage() {
                     }`}
                 >
                   <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-                    <Calendar className={`w-4 h-4 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Calendar className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                     <span>이용 기간</span>
                   </div>
                   <p className="text-sm font-bold text-gray-900">
@@ -371,7 +376,7 @@ export default function PartyDetailPage() {
                   : "border-gray-100 shadow-xl"
                 }`}
             >
-              <div className={`flex items-center gap-2 mb-4 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
+              <div className={`flex items-center gap-2 mb-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
                 <TrendingDown className="w-5 h-5" />
                 <span className="text-sm font-semibold">최대 75% 할인</span>
               </div>
@@ -395,7 +400,7 @@ export default function PartyDetailPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">첫 결제 총액</span>
-                  <span className={`font-bold ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
+                  <span className={`font-bold ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
                     {(perPersonFee * 2).toLocaleString()}원
                   </span>
                 </div>
@@ -603,28 +608,31 @@ export default function PartyDetailPage() {
                 }`}
             >
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Shield className={`w-5 h-5 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                <Shield className={`w-5 h-5 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                 안전한 파티 이용을 위한 안내
               </h3>
               <ul className="space-y-3 text-sm text-gray-600">
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
-                    <Check className={`w-3 h-3 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
                   <span>보증금은 파티 종료 시 전액 환불됩니다</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
-                    <Check className={`w-3 h-3 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
                   <span>매월 자동 결제로 편리하게 이용하세요</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
-                    <Check className={`w-3 h-3 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
                   <span>탈퇴 시 다음 결제일 전까지 이용 가능합니다</span>
                 </li>
@@ -643,7 +651,7 @@ export default function PartyDetailPage() {
                 }`}
             >
               <h3 className="text-sm font-bold text-gray-500 mb-4 uppercase tracking-wide flex items-center gap-2">
-                <Users className={`w-4 h-4 ${theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                <Users className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                 파티 멤버
               </h3>
 

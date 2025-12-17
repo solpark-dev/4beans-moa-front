@@ -17,6 +17,12 @@ const modalThemeStyles = {
         priceText: 'text-[#c41e3a]',
         submitButton: 'bg-[#c41e3a] hover:bg-red-700 shadow-lg shadow-red-200',
     },
+    pop: {
+        modalShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        spinnerBorder: 'border-pink-500',
+        priceText: 'text-pink-500',
+        submitButton: 'bg-pink-500 hover:bg-pink-600 shadow-lg shadow-pink-200',
+    },
 };
 
 const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSuccess, user }) => {

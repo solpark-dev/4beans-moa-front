@@ -14,6 +14,9 @@ const getProductThemeStyles = {
         sparklesIcon: 'text-indigo-500',
         benefitIcon1: 'bg-indigo-50 text-indigo-600',
         focusRing: 'focus:ring-indigo-500',
+        headerBg: 'bg-purple-50',
+        blurCircle1: 'bg-purple-200',
+        blurCircle2: 'bg-pink-200',
     },
     christmas: {
         spinnerBorder: 'border-[#c41e3a]',
@@ -21,6 +24,19 @@ const getProductThemeStyles = {
         sparklesIcon: 'text-[#c41e3a]',
         benefitIcon1: 'bg-red-50 text-[#c41e3a]',
         focusRing: 'focus:ring-[#c41e3a]',
+        headerBg: 'bg-red-50',
+        blurCircle1: 'bg-red-200',
+        blurCircle2: 'bg-green-200',
+    },
+    pop: {
+        spinnerBorder: 'border-pink-500',
+        cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        sparklesIcon: 'text-pink-500',
+        benefitIcon1: 'bg-pink-50 text-pink-500',
+        focusRing: 'focus:ring-pink-500',
+        headerBg: 'bg-pink-50',
+        blurCircle1: 'bg-pink-200',
+        blurCircle2: 'bg-cyan-200',
     },
 };
 
@@ -92,10 +108,10 @@ const GetProduct = () => {
         <div className="container mx-auto px-4 py-12 max-w-4xl">
             <div className={`bg-white rounded-[2rem] ${themeStyle.cardShadow} overflow-hidden`}>
                 {/* Header Section (Horizontal Layout with Gradient) */}
-                <div className="bg-purple-50 p-8 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+                <div className={`${themeStyle.headerBg} p-8 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden`}>
                     {/* Blur Circles */}
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-purple-200 rounded-full filter blur-3xl opacity-50 -ml-10 -mt-10"></div>
-                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-200 rounded-full filter blur-3xl opacity-50 -mr-10 -mb-10"></div>
+                    <div className={`absolute top-0 left-0 w-32 h-32 ${themeStyle.blurCircle1} rounded-full filter blur-3xl opacity-50 -ml-10 -mt-10`}></div>
+                    <div className={`absolute bottom-0 right-0 w-32 h-32 ${themeStyle.blurCircle2} rounded-full filter blur-3xl opacity-50 -mr-10 -mb-10`}></div>
 
                         {/* Icon */}
                         <div className="relative z-10 flex-shrink-0">

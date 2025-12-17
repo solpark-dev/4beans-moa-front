@@ -45,6 +45,20 @@ const productModalThemeStyles = {
         buttonBg: 'bg-[#c41e3a] hover:bg-red-700',
         buttonShadow: 'shadow-red-200 hover:shadow-red-300',
     },
+    pop: {
+        focusRing: 'focus:ring-pink-500',
+        dragOverlay: 'bg-pink-500/10',
+        dragBorder: 'border-pink-500',
+        dragBg: 'bg-pink-50',
+        iconBg: 'bg-pink-100',
+        iconColor: 'text-pink-500',
+        iconColorAlt: 'text-pink-400',
+        textAccent: 'text-pink-500',
+        textDark: 'text-pink-900',
+        hoverBorder: 'hover:border-pink-400',
+        buttonBg: 'bg-pink-500 hover:bg-pink-600',
+        buttonShadow: 'shadow-pink-200 hover:shadow-pink-300',
+    },
 };
 
 const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
