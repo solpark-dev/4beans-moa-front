@@ -33,6 +33,22 @@ const heroThemeStyles = {
     subtext: "text-gray-700",
     searchResultHover: "hover:bg-pink-50",
   },
+  dark: {
+    confettiColors: ["bg-[#635bff]", "bg-[#00d4ff]", "bg-[#4fd1c5]", "bg-gray-600", "bg-[#635bff]", "bg-[#00d4ff]", "bg-gray-500", "bg-[#4fd1c5]", "bg-gray-600", "bg-[#635bff]"],
+    badgeBg: "bg-[#1E293B]",
+    badgeText: "text-[#635bff]",
+    headlineAccent1: "text-[#00d4ff]",
+    headlineAccent2: "text-[#635bff]",
+    primaryBtn: "bg-[#635bff] text-white",
+    primaryBtnHover: "hover:bg-[#5851e8] hover:shadow-[6px_6px_16px_rgba(99,91,255,0.3)]",
+    secondaryBtn: "bg-[#1E293B] text-white border border-gray-600",
+    secondaryBtnHover: "hover:bg-[#2D3B4F]",
+    stickerLeft: "bg-[#635bff]",
+    stickerRight: "bg-[#00d4ff]",
+    hotPartyBadge: "bg-[#635bff]",
+    subtext: "text-gray-400",
+    searchResultHover: "hover:bg-[#2D3B4F]",
+  },
   christmas: {
     confettiColors: ["bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-white", "bg-red-300", "bg-green-300", "bg-[#c41e3a]", "bg-[#1a5f2a]", "bg-white", "bg-red-200", "bg-green-200"],
     badgeBg: "bg-white",
@@ -317,7 +333,7 @@ export default function MainHeroSection({ parties, products = [] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-lg md:text-xl font-bold text-gray-700 mb-10"
+            className={`text-lg md:text-xl font-bold mb-10 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
           >
             넷플릭스, 디즈니+, 유튜브 프리미엄까지 함께 나누면 최대 75% 절약!
           </motion.p>
@@ -353,7 +369,7 @@ export default function MainHeroSection({ parties, products = [] }) {
                 onFocus={() => setShowResults(true)}
                 onBlur={() => setTimeout(() => setShowResults(false), 200)}
                 placeholder="구독상품 검색"
-                className="w-52 px-4 py-3 pl-10 font-bold bg-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-sm"
+                className={`w-52 px-4 py-3 pl-10 font-bold border rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-sm ${isDark ? 'bg-[#1E293B] border-gray-600 text-white placeholder:text-gray-400' : 'bg-white border-gray-200'}`}
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 
@@ -417,10 +433,10 @@ export default function MainHeroSection({ parties, products = [] }) {
           <NeoCard color={themeStyle.hotPartyBadge} rotate={-2} className="inline-block px-6 py-3 rounded-xl mb-4">
             <span className={`text-xl font-black ${theme === "christmas" ? "text-white" : ""}`}>{theme === "christmas" ? "🎄 HOT PARTY! 🎅" : "HOT PARTY! 🔥"}</span>
           </NeoCard>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black">
+          <h2 className={`text-3xl md:text-4xl lg:text-5xl font-black ${isDark ? 'text-white' : ''}`}>
             지금 인기 있는 파티
           </h2>
-          <p className="text-sm md:text-base text-gray-600 mt-3 font-bold">원하는 서비스를 골라 바로 참여하세요</p>
+          <p className={`text-sm md:text-base mt-3 font-bold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>원하는 서비스를 골라 바로 참여하세요</p>
         </motion.div>
 
         {/* 데스크탑 버전 - 카드가 날아와서 모임 */}

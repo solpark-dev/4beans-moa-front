@@ -166,7 +166,7 @@ export default function MainSearchSection({ products = [] }) {
             <button
               key={tag}
               onClick={() => setSearchQuery(tag)}
-              className={`px-4 py-2 bg-slate-100 border border-gray-200 rounded-full font-bold text-sm ${themeStyle.tagHover} transition-all`}
+              className={`px-4 py-2 border rounded-full font-bold text-sm transition-all ${isDark ? 'bg-[#1E293B] border-gray-600 text-white hover:bg-[#2D3B4F] hover:border-[#635bff]' : `bg-slate-100 border-gray-200 ${themeStyle.tagHover}`}`}
             >
               {tag}
             </button>

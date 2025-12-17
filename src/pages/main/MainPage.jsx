@@ -59,7 +59,7 @@ export default function MainPage() {
    * MAIN VIEW
    * ========================= */
   return (
-    <div className="min-h-screen -mt-35 pt-5 relative">
+    <div className={`min-h-screen -mt-[5rem] pt-[5rem] relative ${theme === "dark" ? "bg-[#0B1120]" : "bg-white"}`}>
       <MainHeroSection
         products={products}
         parties={parties}

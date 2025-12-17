@@ -218,8 +218,8 @@ export default function MainProductsSection() {
                         <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>요금제</span>
                         <span className={isDark ? 'text-white' : 'text-black'}>{tier || "-"}</span>
                       </div>
-                      <div className="flex justify-between border-b border-gray-100 pb-2">
-                        <span className="text-gray-600">가격</span>
+                      <div className={`flex justify-between pb-2 ${isDark ? 'border-gray-600' : 'border-gray-100'} border-b`}>
+                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>가격</span>
                         <span className={`${themeStyle.priceColor} font-black`}>
                           {formatCurrency(price, { fallback: "-" })}
                         </span>

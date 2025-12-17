@@ -62,9 +62,9 @@ export function ProfileCard({
   };
 
   return (
-    <div className={`${CARD} p-6`}>
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full border border-gray-200 bg-slate-100 flex items-center justify-center overflow-hidden">
+    <div className={`${CARD} p-4`}>
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full border border-gray-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
           {displayImageUrl ? (
             <img
               src={displayImageUrl}
@@ -72,24 +72,24 @@ export function ProfileCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="font-black text-xl">{name?.[0] || "U"}</span>
+            <span className="font-black text-lg">{name?.[0] || "U"}</span>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-black text-lg leading-none">{name}</p>
+            <p className="font-black text-base leading-none">{name}</p>
             <span className="px-2 py-0.5 rounded-full border border-gray-200 text-xs font-black bg-white">
               {isAdmin ? "ADMIN" : "MEMBER"}
             </span>
           </div>
-          <p className="mt-2 text-xs text-slate-600 font-bold truncate">
+          <p className="mt-1 text-xs text-slate-600 font-bold truncate">
             ID: {idText}
           </p>
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-3 flex flex-wrap gap-2">
         {!isAdmin && (
           <>
             <button type="button" className={`${BTN} ${themeStyle.buttonHover}`} onClick={goUpdate}>

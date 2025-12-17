@@ -264,7 +264,7 @@ export default function PartyListPage() {
   }, [lastScrollY]);
 
   const content = (
-    <div className="min-h-screen bg-transparent pb-20 -mt-20 pt-20 transition-colors duration-300 relative z-10">
+    <div className={`min-h-screen pb-20 -mt-20 pt-20 transition-colors duration-300 relative z-10 ${currentTheme.bg}`}>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-transparent">
@@ -431,12 +431,12 @@ export default function PartyListPage() {
                 <input
                   type="text"
                   className={`block w-full pl-10 pr-10 py-2.5 border-none rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${theme === "pop"
-                      ? "bg-gray-50 text-black focus:ring-pink-500/20 focus:bg-white"
-                      : theme === "dark"
-                        ? "bg-[#0F172A] text-white focus:ring-[#635bff]/20"
-                        : theme === "christmas"
-                          ? "bg-gray-50/80 text-gray-900 focus:ring-[#c41e3a]/20 focus:bg-white"
-                          : "bg-gray-50 text-gray-900 focus:ring-[#635bff]/20 focus:bg-white"
+                    ? "bg-gray-50 text-black focus:ring-pink-500/20 focus:bg-white"
+                    : theme === "dark"
+                      ? "bg-[#0F172A] text-white focus:ring-[#635bff]/20"
+                      : theme === "christmas"
+                        ? "bg-gray-50/80 text-gray-900 focus:ring-[#c41e3a]/20 focus:bg-white"
+                        : "bg-gray-50 text-gray-900 focus:ring-[#635bff]/20 focus:bg-white"
                     }`}
                   placeholder="파티 이름, 방장 닉네임 검색"
                   value={searchQuery}
@@ -466,20 +466,20 @@ export default function PartyListPage() {
                       key={filter.value}
                       onClick={() => setSelectedStatus(filter.value)}
                       className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${theme === "pop"
+                        ? selectedStatus === filter.value
+                          ? "bg-pink-500 text-white border border-gray-200"
+                          : "bg-white text-black hover:bg-gray-50 border border-gray-200"
+                        : theme === "dark"
                           ? selectedStatus === filter.value
-                            ? "bg-pink-500 text-white border border-gray-200"
-                            : "bg-white text-black hover:bg-gray-50 border border-gray-200"
-                          : theme === "dark"
+                            ? "bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30"
+                            : "bg-[#0F172A] text-gray-400 hover:bg-gray-800 border border-gray-700"
+                          : theme === "christmas"
                             ? selectedStatus === filter.value
+                              ? "bg-[#c41e3a]/10 text-[#c41e3a] ring-1 ring-[#c41e3a]/30"
+                              : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
+                            : selectedStatus === filter.value
                               ? "bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30"
-                              : "bg-[#0F172A] text-gray-400 hover:bg-gray-800 border border-gray-700"
-                            : theme === "christmas"
-                              ? selectedStatus === filter.value
-                                ? "bg-[#c41e3a]/10 text-[#c41e3a] ring-1 ring-[#c41e3a]/30"
-                                : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
-                              : selectedStatus === filter.value
-                                ? "bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30"
-                                : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
+                              : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
                         }`}
                     >
                       {filter.label}
@@ -500,12 +500,12 @@ export default function PartyListPage() {
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       className={`appearance-none text-sm font-bold rounded-xl pl-4 pr-4 py-2 focus:outline-none focus:ring-2 transition-all cursor-pointer ${theme === "pop"
-                          ? "bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20"
-                          : theme === "dark"
-                            ? "bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20"
-                            : theme === "christmas"
-                              ? "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20"
-                              : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20"
+                        ? "bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20"
+                        : theme === "dark"
+                          ? "bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20"
+                          : theme === "christmas"
+                            ? "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20"
+                            : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20"
                         }`}
                     />
                   </div>
@@ -516,12 +516,12 @@ export default function PartyListPage() {
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                       className={`appearance-none rounded-xl pl-4 pr-10 py-2 text-sm font-bold cursor-pointer transition-all focus:outline-none focus:ring-2 ${theme === "pop"
-                          ? "bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20"
-                          : theme === "dark"
-                            ? "bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20"
-                            : theme === "christmas"
-                              ? "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20"
-                              : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20"
+                        ? "bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20"
+                        : theme === "dark"
+                          ? "bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20"
+                          : theme === "christmas"
+                            ? "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20"
+                            : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20"
                         }`}
                     >
                       <option value="latest">최신순</option>
@@ -540,19 +540,19 @@ export default function PartyListPage() {
 
         {/* Parties Grid */}
         {isInitialLoading ? (
-          // Shimmer Loading - Variant T Style
+          // Shimmer Loading - Theme aware
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white border border-gray-100 rounded-2xl overflow-hidden animate-pulse"
+                className={`rounded-2xl overflow-hidden animate-pulse ${theme === "dark" ? "bg-[#1E293B] border border-gray-700" : "bg-white border border-gray-100"}`}
               >
-                <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-50" />
+                <div className={`h-40 ${theme === "dark" ? "bg-gradient-to-br from-gray-700 to-gray-800" : "bg-gradient-to-br from-gray-100 to-gray-50"}`} />
                 <div className="p-5 space-y-3">
-                  <div className="h-5 bg-gray-100 rounded-lg w-1/3" />
-                  <div className="h-4 bg-gray-100 rounded-lg w-3/4" />
-                  <div className="h-4 bg-gray-100 rounded-lg w-1/2" />
-                  <div className="h-6 bg-gray-100 rounded-lg w-2/5 mt-4" />
+                  <div className={`h-5 rounded-lg w-1/3 ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`} />
+                  <div className={`h-4 rounded-lg w-3/4 ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`} />
+                  <div className={`h-4 rounded-lg w-1/2 ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`} />
+                  <div className={`h-6 rounded-lg w-2/5 mt-4 ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`} />
                 </div>
               </div>
             ))}
@@ -623,7 +623,7 @@ export default function PartyListPage() {
                     }`}
                 >
                   {/* Service Banner */}
-                  <div className="relative h-40 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 sm:p-6">
+                  <div className={`relative h-40 flex items-center justify-center p-4 sm:p-6 ${theme === "dark" ? "bg-gradient-to-br from-gray-700 to-gray-800" : "bg-gradient-to-br from-gray-50 to-gray-100"}`}>
                     {party.productImage ? (
                       <img
                         src={party.productImage}

@@ -425,14 +425,14 @@ const GetProductList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-transparent flex justify-center items-center relative z-10">
-        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${theme === 'dark' ? 'border-[#635bff]' : 'border-indigo-600'}`}></div>
+      <div className={`min-h-screen flex justify-center items-center relative z-10 ${themeStyles.bg}`}>
+        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${theme === 'dark' ? 'border-[#635bff]' : theme === 'christmas' ? 'border-[#c41e3a]' : theme === 'pop' ? 'border-pink-500' : 'border-[#635bff]'}`}></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-transparent relative z-10">
+    <div className={`min-h-screen relative z-10 ${themeStyles.bg}`}>
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
@@ -630,7 +630,7 @@ const GetProductList = () => {
                     </div>
                   </div>
 
-                  <div className={`rounded-2xl p-5 flex-1 border transition-colors backdrop-blur-sm ${themeStyles.priceBox} group-hover:bg-white group-hover:border-stone-200`}>
+                  <div className={`rounded-2xl p-5 flex-1 border transition-colors backdrop-blur-sm ${themeStyles.priceBox} ${theme === 'dark' ? 'group-hover:bg-[#1E293B] group-hover:border-gray-600' : 'group-hover:bg-white group-hover:border-stone-200'}`}>
                     <div className="flex items-center justify-between">
                       <span className={`text-sm font-medium ${themeStyles.subtext}`}>월 공식 구독료</span>
                       <span className={`text-xl font-bold ${themeStyles.text}`}>

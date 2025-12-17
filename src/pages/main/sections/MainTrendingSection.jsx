@@ -28,6 +28,16 @@ const trendingThemeStyles = {
     emoji: "⏰",
     cardBgColors: ["bg-red-500", "bg-blue-500", "bg-indigo-500"],
   },
+  dark: {
+    stickerBg: "bg-[#635bff]",
+    recruitingBg: "bg-[#00d4ff]",
+    recruitingText: "text-black",
+    priceColor: "text-[#635bff]",
+    progressGradient: "bg-gradient-to-r from-[#635bff] to-[#00d4ff]",
+    percentColor: "text-[#00d4ff]",
+    emoji: "⏰",
+    cardBgColors: ["bg-[#635bff]", "bg-[#00d4ff]", "bg-[#4fd1c5]"],
+  },
   christmas: {
     stickerBg: "bg-[#c41e3a]",
     recruitingBg: "bg-[#1a5f2a]",
@@ -40,14 +50,14 @@ const trendingThemeStyles = {
   },
 };
 
-function Sticker({ children, color = "bg-white", rotate = 0, className = "" }) {
+function Sticker({ children, color = "bg-white", rotate = 0, className = "", isDark = false }) {
   return (
     <motion.div
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.98 }}
       className={`
         ${color}
-        border border-gray-200
+        border ${isDark ? 'border-gray-600' : 'border-gray-200'}
         shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
         hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
         transition-all duration-200
@@ -60,7 +70,7 @@ function Sticker({ children, color = "bg-white", rotate = 0, className = "" }) {
   );
 }
 
-function BouncyCard({ children, className = "", delay = 0, onClick }) {
+function BouncyCard({ children, className = "", delay = 0, onClick, isDark = false }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30, rotate: -2 }}
@@ -70,8 +80,9 @@ function BouncyCard({ children, className = "", delay = 0, onClick }) {
       whileHover={{ y: -8, rotate: 1 }}
       onClick={onClick}
       className={`
-        bg-white
-        border border-gray-200
+        ${isDark ? 'bg-[#1E293B]' : 'bg-white'}
+        ${isDark ? 'border-gray-600' : 'border-gray-200'}
+        border
         shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
         rounded-3xl
         overflow-hidden
@@ -164,8 +175,8 @@ export default function MainTrendingSection() {
                 {theme === "christmas" ? "🎅 마감 임박 🎄" : `마감 임박 ${themeStyle.emoji}`}
               </span>
             </Sticker>
-            <h2 className="text-4xl md:text-5xl font-black">서두르세요!</h2>
-            <p className="text-gray-700 font-medium mt-3">곧 마감되는 파티에 지금 바로 참여하세요.</p>
+            <h2 className={`text-4xl md:text-5xl font-black ${isDark ? 'text-white' : ''}`}>서두르세요!</h2>
+            <p className={`font-medium mt-3 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>곧 마감되는 파티에 지금 바로 참여하세요.</p>
           </div>
           <Link to="/party">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="px-5 py-3 rounded-xl cursor-pointer bg-black">

@@ -167,8 +167,8 @@ export default function PartyDetailPage() {
 
   if (loading.detail || !party) {
     return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center relative z-10">
-        <div className="w-10 h-10 border-2 border-gray-200 border-t-[#635bff] rounded-full animate-spin"></div>
+      <div className={`min-h-screen flex items-center justify-center relative z-10 ${theme === "dark" ? "bg-[#0B1120]" : "bg-transparent"}`}>
+        <div className={`w-10 h-10 border-2 rounded-full animate-spin ${theme === "dark" ? "border-gray-700 border-t-[#635bff]" : "border-gray-200 border-t-[#635bff]"}`}></div>
       </div>
     );
   }
@@ -217,7 +217,7 @@ export default function PartyDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent pb-20 transition-colors duration-300 relative z-10">
+    <div className={`min-h-screen pb-20 transition-colors duration-300 relative z-10 ${currentTheme.bg}`}>
       {/* Pop Theme Marquee */}
       <ThemeMarquee theme={theme} />
 
@@ -252,9 +252,11 @@ export default function PartyDetailPage() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4 }}
-                  className={`flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-white border ${theme === "christmas"
-                    ? "shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
-                    : "shadow-lg border-gray-100"
+                  className={`flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border ${theme === "dark"
+                    ? "bg-[#1E293B] border-gray-700 shadow-lg"
+                    : theme === "christmas"
+                      ? "bg-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
+                      : "bg-white shadow-lg border-gray-100"
                     }`}
                 >
                   {party.productImage ? (
@@ -300,20 +302,20 @@ export default function PartyDetailPage() {
                   </div>
 
                   {/* Title */}
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-3 tracking-tight">
+                  <h1 className={`text-3xl md:text-4xl lg:text-5xl font-black mb-3 tracking-tight ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {party.productName}
                   </h1>
 
                   {/* Leader Info */}
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#635bff] to-[#00d4ff] flex items-center justify-center ring-2 ring-white shadow-sm">
+                  <div className={`flex items-center gap-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-[#635bff] to-[#00d4ff] flex items-center justify-center ring-2 shadow-sm ${theme === "dark" ? "ring-gray-700" : "ring-white"}`}>
                       <span className="text-xs font-bold text-white">
                         {party.leaderNickname?.[0]?.toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">파티장</p>
-                      <p className="text-sm font-semibold text-gray-900">{party.leaderNickname}</p>
+                      <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>파티장</p>
+                      <p className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{party.leaderNickname}</p>
                     </div>
                   </div>
                 </div>
@@ -327,19 +329,21 @@ export default function PartyDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                   whileHover={{ y: -2 }}
-                  className={`bg-white rounded-2xl p-5 border transition-all ${theme === "christmas"
-                    ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                    : "border-gray-100 shadow-sm hover:shadow-lg"
+                  className={`rounded-2xl p-5 border transition-all ${theme === "dark"
+                    ? "bg-[#1E293B] border-gray-700 shadow-lg hover:shadow-xl"
+                    : theme === "christmas"
+                      ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                      : "bg-white border-gray-100 shadow-sm hover:shadow-lg"
                     }`}
                 >
-                  <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
+                  <div className={`flex items-center gap-2 text-sm mb-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                     <Users className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                     <span>파티 인원</span>
                   </div>
-                  <p className="text-2xl font-black text-gray-900">
+                  <p className={`text-2xl font-black ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {party.currentMembers} / {party.maxMembers}
                   </p>
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden mt-3">
+                  <div className={`h-2 w-full rounded-full overflow-hidden mt-3 ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${(party.currentMembers / party.maxMembers) * 100}%` }}
@@ -356,19 +360,21 @@ export default function PartyDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                   whileHover={{ y: -2 }}
-                  className={`bg-white rounded-2xl p-5 border transition-all ${theme === "christmas"
-                    ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                    : "border-gray-100 shadow-sm hover:shadow-lg"
+                  className={`rounded-2xl p-5 border transition-all ${theme === "dark"
+                    ? "bg-[#1E293B] border-gray-700 shadow-lg hover:shadow-xl"
+                    : theme === "christmas"
+                      ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                      : "bg-white border-gray-100 shadow-sm hover:shadow-lg"
                     }`}
                 >
-                  <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
+                  <div className={`flex items-center gap-2 text-sm mb-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                     <Calendar className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                     <span>이용 기간</span>
                   </div>
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className={`text-sm font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {formatDate(party.startDate)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className={`text-xs mt-1 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>
                     ~ {formatDate(party.endDate)}
                   </p>
                 </motion.div>
@@ -380,9 +386,11 @@ export default function PartyDetailPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className={`w-full lg:w-80 bg-white rounded-2xl p-6 border sticky top-24 ${theme === "christmas"
-                ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                : "border-gray-100 shadow-xl"
+              className={`w-full lg:w-80 rounded-2xl p-6 border sticky top-24 ${theme === "dark"
+                ? "bg-[#1E293B] border-gray-700 shadow-xl"
+                : theme === "christmas"
+                  ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                  : "bg-white border-gray-100 shadow-xl"
                 }`}
             >
               <div className={`flex items-center gap-2 mb-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
@@ -391,24 +399,24 @@ export default function PartyDetailPage() {
               </div>
 
               <div className="mb-6">
-                <p className="text-sm text-gray-500 mb-1">월 분담금</p>
+                <p className={`text-sm mb-1 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>월 분담금</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-gray-900">
+                  <span className={`text-4xl font-black ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {perPersonFee.toLocaleString()}
                   </span>
-                  <span className="text-lg text-gray-500">원</span>
+                  <span className={`text-lg ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>원</span>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-4 border-t border-gray-100 mb-6">
+              <div className={`space-y-3 pt-4 border-t mb-6 ${theme === "dark" ? "border-gray-700" : "border-gray-100"}`}>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">보증금</span>
-                  <span className="font-semibold text-gray-900">
+                  <span className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>보증금</span>
+                  <span className={`font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {perPersonFee.toLocaleString()}원
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">첫 결제 총액</span>
+                  <span className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>첫 결제 총액</span>
                   <span className={`font-bold ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
                     {(perPersonFee * 2).toLocaleString()}원
                   </span>
@@ -611,19 +619,21 @@ export default function PartyDetailPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className={`bg-white rounded-2xl p-6 border ${theme === "christmas"
-                ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                : "border-gray-100 shadow-sm"
+              className={`rounded-2xl p-6 border ${theme === "dark"
+                ? "bg-[#1E293B] border-gray-700 shadow-lg"
+                : theme === "christmas"
+                  ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                  : "bg-white border-gray-100 shadow-sm"
                 }`}
             >
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                 <Shield className={`w-5 h-5 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                 안전한 파티 이용을 위한 안내
               </h3>
-              <ul className="space-y-3 text-sm text-gray-600">
+              <ul className={`space-y-3 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 <li className="flex items-start gap-3">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                    theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
                     <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
@@ -631,7 +641,7 @@ export default function PartyDetailPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                    theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
                     <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
@@ -639,7 +649,7 @@ export default function PartyDetailPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                    theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
                     <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
@@ -654,12 +664,14 @@ export default function PartyDetailPage() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`bg-white rounded-2xl p-6 border h-fit sticky top-24 ${theme === "christmas"
-                ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                : "border-gray-100 shadow-sm"
+              className={`rounded-2xl p-6 border h-fit sticky top-24 ${theme === "dark"
+                ? "bg-[#1E293B] border-gray-700 shadow-lg"
+                : theme === "christmas"
+                  ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                  : "bg-white border-gray-100 shadow-sm"
                 }`}
             >
-              <h3 className="text-sm font-bold text-gray-500 mb-4 uppercase tracking-wide flex items-center gap-2">
+              <h3 className={`text-sm font-bold mb-4 uppercase tracking-wide flex items-center gap-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                 <Users className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                 파티 멤버
               </h3>
@@ -672,13 +684,13 @@ export default function PartyDetailPage() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100"
+                      className={`flex items-center gap-3 p-3 rounded-xl border ${theme === "dark" ? "bg-gray-800/50 border-gray-700" : "bg-gray-50 border-gray-100"}`}
                     >
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#635bff] to-[#00d4ff] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                         {m.nickname?.[0]?.toUpperCase()}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">{m.nickname}</p>
+                        <p className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{m.nickname}</p>
                         {m.role === 'LEADER' && (
                           <p className="text-xs text-amber-600 font-semibold">파티장</p>
                         )}
@@ -690,7 +702,7 @@ export default function PartyDetailPage() {
                 {[...Array(availableSlots)].map((_, i) => (
                   <div
                     key={`empty-${i}`}
-                    className="p-3 border border-dashed border-gray-200 rounded-xl flex items-center justify-center text-gray-400 text-xs"
+                    className={`p-3 border border-dashed rounded-xl flex items-center justify-center text-xs ${theme === "dark" ? "border-gray-600 text-gray-500" : "border-gray-200 text-gray-400"}`}
                   >
                     대기중...
                   </div>

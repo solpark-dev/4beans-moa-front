@@ -51,12 +51,12 @@ const getThemeStyles = (theme) => {
         bg: 'bg-slate-50',
         text: 'text-black',
         subtext: 'text-gray-600',
-        card: 'bg-white border-2 border-black rounded-3xl shadow-[6px_6px_0px_rgba(0,0,0,1)]',
-        section: 'bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)]',
-        input: 'bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black',
-        button: 'bg-pink-500 text-white hover:bg-pink-600 border-2 border-black',
+        card: 'bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        section: 'bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        input: 'bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] text-black',
+        button: 'bg-pink-500 text-white hover:bg-pink-600 border border-gray-200',
         highlight: 'text-pink-500',
-        stepBg: 'bg-black',
+        stepBg: 'bg-pink-500',
       };
     case 'classic':
       return {

@@ -5,7 +5,6 @@ import { getMyParties, getMyClosedParties } from "../../api/partyApi";
 import { fetchCurrentUser } from "../../api/authApi";
 import {
   useTheme,
-  ThemeMarquee,
   ChristmasBackground,
   themeConfig
 } from "../../config/themeConfig";
@@ -205,9 +204,6 @@ export default function MyPartyListPage() {
 
   return (
     <div className="min-h-screen bg-transparent pb-20 transition-colors duration-300 relative z-10">
-      {/* Pop Theme Marquee */}
-      <ThemeMarquee theme={theme} />
-
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
@@ -235,7 +231,7 @@ export default function MyPartyListPage() {
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate("/party/create")}
             className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all shadow-lg ${theme === "pop"
-              ? "bg-pink-500 text-white border-2 border-black rounded-xl"
+              ? "bg-pink-500 text-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
               : theme === "dark"
                 ? "bg-[#635bff] hover:bg-[#5851e8] text-white rounded-xl"
                 : theme === "christmas"
@@ -311,7 +307,7 @@ export default function MyPartyListPage() {
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
               ? "bg-[#1E293B] border border-gray-700"
               : theme === "pop"
-                ? "bg-white border-2 border-black"
+                ? "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
                 : theme === "christmas"
                   ? "bg-white border border-gray-200"
                   : "bg-white border border-gray-200"
@@ -405,7 +401,7 @@ export default function MyPartyListPage() {
             <div className={`inline-block p-8 rounded-xl ${theme === "dark"
               ? "bg-[#1E293B] border border-gray-700"
               : theme === "pop"
-                ? "bg-white border-2 border-black"
+                ? "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
                 : "bg-white border border-gray-200"
               }`}>
               <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${theme === "dark" ? "bg-[#635bff]/20" : "bg-gradient-to-br from-blue-50 to-purple-50"
@@ -422,7 +418,7 @@ export default function MyPartyListPage() {
                 <button
                   onClick={() => navigate("/party")}
                   className={`px-6 py-3 font-semibold rounded-lg transition-all ${theme === "pop"
-                    ? "bg-pink-500 text-white border-2 border-black"
+                    ? "bg-pink-500 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
                     : theme === "dark"
                       ? "bg-[#635bff] hover:bg-[#5851e8] text-white"
                       : theme === "christmas"
@@ -437,8 +433,8 @@ export default function MyPartyListPage() {
                   className={`px-6 py-3 font-semibold rounded-lg transition-all ${theme === "dark"
                     ? "bg-transparent border border-gray-600 text-gray-300 hover:bg-gray-700"
                     : theme === "pop"
-                      ? "bg-white border-2 border-black text-black hover:bg-gray-50"
-                      : "bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                      ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
                 >
                   파티 만들기

@@ -167,7 +167,7 @@ function AppContent() {
   return (
     <div
       data-theme={theme}
-      className={`min-h-screen flex flex-col transition-colors duration-300 bg-theme-bg text-theme-text`}
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${getBgClass()}`}
     >
       <NeoBackground />
       <ScrollToTop />
@@ -351,7 +351,7 @@ function AppContent() {
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-            // TODO: Add role check for ADMIN
+          // TODO: Add role check for ADMIN
           />
           <Route
             path="/subscription/add/:productId"

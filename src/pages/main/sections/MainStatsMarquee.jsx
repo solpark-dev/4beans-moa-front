@@ -8,6 +8,10 @@ const statsMarqueeThemeStyles = {
     bg: "bg-pink-500",
     border: "border-pink-400",
   },
+  dark: {
+    bg: "bg-[#635bff]",
+    border: "border-[#5851e8]",
+  },
   christmas: {
     bg: "bg-[#c41e3a]",
     border: "border-[#a51830]",
