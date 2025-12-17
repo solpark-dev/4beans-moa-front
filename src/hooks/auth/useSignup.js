@@ -45,6 +45,8 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
     setField(name, type === "checkbox" ? checked : value);
   };
 
+  const handleBlur = () => {};
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
