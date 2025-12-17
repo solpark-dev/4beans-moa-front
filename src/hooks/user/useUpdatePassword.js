@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import httpClient from "@/api/httpClient";
 import { useUpdatePwdStore } from "@/store/user/updatePwdStore";
+import { checkCurrentPassword } from "@/api/authApi";
 
 const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,20}$/;
 
@@ -76,10 +77,7 @@ export const useUpdatePwdLogic = () => {
       setError("rule", "새 비밀번호를 입력해주세요.");
       valid = false;
     } else if (!PASSWORD_RULE.test(newPassword)) {
-      setError(
-        "rule",
-        "영문, 숫자, 특수문자를 포함한 8~20자를 입력해주세요."
-      );
+      setError("rule", "영문, 숫자, 특수문자를 포함한 8~20자를 입력해주세요.");
       valid = false;
     } else {
       setError("rule", "");
@@ -98,20 +96,47 @@ export const useUpdatePwdLogic = () => {
     return valid;
   }, [newPassword, newPasswordConfirm, setError]);
 
-  const verify = useCallback(() => {
+  const verify = useCallback(async () => {
     clearErrors();
+
     if (!validateCurrent()) return false;
-    setVerified(true);
-    setModal(false);
-    return true;
-  }, [clearErrors, setModal, setVerified, validateCurrent]);
+
+    try {
+      setLoading(true);
+
+      await checkCurrentPassword(currentPassword);
+
+      setVerified(true);
+      setModal(false);
+      return true;
+    } catch (err) {
+      const message =
+        err?.response?.data?.error?.message ||
+        "현재 비밀번호가 일치하지 않습니다.";
+
+      setError("current", message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    clearErrors,
+    currentPassword,
+    setError,
+    setModal,
+    setVerified,
+    validateCurrent,
+  ]);
 
   const update = useCallback(async () => {
     clearErrors();
 
-    if (!stepVerified && !verify()) {
-      setModal(true);
-      return false;
+    if (!stepVerified) {
+      const ok = await verify();
+      if (!ok) {
+        setModal(true);
+        return false;
+      }
     }
 
     const validCurrent = validateCurrent();
@@ -127,8 +152,7 @@ export const useUpdatePwdLogic = () => {
       });
 
       if (!res?.success) {
-        const message =
-          res?.error?.message || "비밀번호 변경에 실패했습니다.";
+        const message = res?.error?.message || "비밀번호 변경에 실패했습니다.";
         setError("current", message);
         alert(message);
         return false;
