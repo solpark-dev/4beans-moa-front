@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
+import RequireAuth from "@/routes/RequireAuth";
 import { useGlobalLinkHandler } from "@/hooks/common/useGlobalLinkHandler";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
@@ -38,56 +39,6 @@ import AdminLoginHistoryPage from "@/pages/admin/AdminLoginHistoryPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 import ChartComparisonPage from "@/pages/admin/ChartComparisonPage";
 import AdminAuthGuard from "@/pages/admin/components/AdminAuthGuard";
-
-import LandingTestPage from "./pages/landing/LandingTestPage";
-import LandingPageA from "./pages/landing/LandingPageA";
-import LandingPageB from "./pages/landing/LandingPageB";
-import LandingPageC from "./pages/landing/LandingPageC";
-import LandingPageD from "./pages/landing/LandingPageD";
-import LandingPageE from "./pages/landing/LandingPageE";
-import LandingPageF from "./pages/landing/LandingPageF";
-import LandingPageG from "./pages/landing/LandingPageG";
-import LandingPageH from "./pages/landing/LandingPageH";
-import LandingPageI from "./pages/landing/LandingPageI";
-import LandingPageJ from "./pages/landing/LandingPageJ";
-import LandingPageK from "./pages/landing/LandingPageK";
-import LandingPageL from "./pages/landing/LandingPageL";
-import LandingPageM from "./pages/landing/LandingPageM";
-import LandingPageN from "./pages/landing/LandingPageN";
-import LandingPageO from "./pages/landing/LandingPageO";
-import LandingPageP from "./pages/landing/LandingPageP";
-import LandingPageQ from "./pages/landing/LandingPageQ";
-import LandingPageR from "./pages/landing/LandingPageR";
-import LandingPageS from "./pages/landing/LandingPageS";
-import LandingPageT from "./pages/landing/LandingPageT";
-import LandingPageU from "./pages/landing/LandingPageU";
-import LandingPageV from "./pages/landing/LandingPageV";
-import LandingPageW from "./pages/landing/LandingPageW";
-import LandingPageX from "./pages/landing/LandingPageX";
-import LandingPageY from "./pages/landing/LandingPageY";
-import LandingPageZ from "./pages/landing/LandingPageZ";
-import LandingPageZHyundai from "./pages/landing/LandingPageZHyundai";
-import LandingPageZO2 from "./pages/landing/LandingPageZO2";
-import LandingPageZO3 from "./pages/landing/LandingPageZO3";
-import LandingPageZMemphis from "./pages/landing/LandingPageZMemphis";
-import LandingPageZCollage from "./pages/landing/LandingPageZCollage";
-import LandingPageZRiso from "./pages/landing/LandingPageZRiso";
-import LandingPageZRiso2 from "./pages/landing/LandingPageZRiso2";
-import LandingPageZParticles from "./pages/landing/LandingPageZParticles";
-import LandingPageZPhysics from "./pages/landing/LandingPageZPhysics";
-import LandingPageZQQ from "./pages/landing/LandingPageZQQ";
-import LandingPageZRetro from "./pages/landing/LandingPageZRetro";
-import LandingPageZSwiss from "./pages/landing/LandingPageZSwiss";
-import LandingPageZCinematic from "./pages/landing/LandingPageZCinematic";
-import LandingPageZSolar from "./pages/landing/LandingPageZSolar";
-import LandingPageZSpatial from "./pages/landing/LandingPageZSpatial";
-import LandingPageZChat from "./pages/landing/LandingPageZChat";
-import LandingPageZLinear from "./pages/landing/LandingPageZLinear";
-import LandingPageZGlassLight from "./pages/landing/LandingPageZGlassLight";
-import LandingPageZParallax from "./pages/landing/LandingPageZParallax";
-import LandingPageZPortrait from "./pages/landing/LandingPageZPortrait";
-import LandingPageZPortraitV2 from "./pages/landing/LandingPageZPortraitV2";
-import LandingPageYSa01 from "./pages/landing/LandingPageYSa01";
 
 import GetProductList from "./pages/product/GetProductList";
 import GetProduct from "./pages/product/GetProduct";
@@ -128,7 +79,7 @@ export default function App() {
   const currentTheme = themeConfig[theme] || themeConfig.default;
 
   // Check if current route is admin page
-  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   // Header visibility state for admin pages
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
@@ -172,10 +123,10 @@ export default function App() {
       lastScrollYRef.current = currentScrollY;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
   }, [isAdminPage, location.pathname]);
@@ -187,17 +138,19 @@ export default function App() {
   // 테마별 배경색 설정
   const getBgClass = () => {
     switch (theme) {
-      case 'dark':
-        return 'bg-[#0B1120] text-white';
-      case 'christmas':
-        return 'bg-transparent text-black';
+      case "dark":
+        return "bg-[#0B1120] text-white";
+      case "christmas":
+        return "bg-transparent text-black";
       default:
-        return 'bg-slate-50 text-black';
+        return "bg-slate-50 text-black";
     }
   };
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${getBgClass()}`}>
+    <div
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${getBgClass()}`}
+    >
       <NeoBackground />
       <ScrollToTop />
       {showEasterEgg && <PineappleEasterEgg />}
@@ -225,7 +178,7 @@ export default function App() {
 
       <main
         className="flex-1 transition-all duration-500 ease-out"
-        style={{ paddingTop: isAdminPage && isHeaderHidden ? '1rem' : '5rem' }}
+        style={{ paddingTop: isAdminPage && isHeaderHidden ? "1rem" : "5rem" }}
       >
         <Routes>
           {/* Main/Party */}
@@ -245,6 +198,14 @@ export default function App() {
           <Route path="/register/social" element={<SocialRegisterPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
+          <Route
+            path="/mypage"
+            element={
+              <RequireAuth>
+                <MyPage />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/user/register/social"
             element={<SocialRegisterPage />}
@@ -302,22 +263,65 @@ export default function App() {
           />
           <Route
             path="/admin/blacklist/add"
-            element={<AdminAuthGuard><AddBlacklistPage /></AdminAuthGuard>}
+            element={
+              <AdminAuthGuard>
+                <AddBlacklistPage />
+              </AdminAuthGuard>
+            }
           />
-          <Route path="/admin/users" element={<AdminAuthGuard><AdminUserListPage /></AdminAuthGuard>} />
-          <Route path="/admin/dashboard" element={<AdminAuthGuard><AdminDashboardPage /></AdminAuthGuard>} />
-          <Route path="/admin/chart-comparison" element={<AdminAuthGuard><ChartComparisonPage /></AdminAuthGuard>} />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminAuthGuard>
+                <AdminUserListPage />
+              </AdminAuthGuard>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminAuthGuard>
+                <AdminDashboardPage />
+              </AdminAuthGuard>
+            }
+          />
+          <Route
+            path="/admin/chart-comparison"
+            element={
+              <AdminAuthGuard>
+                <ChartComparisonPage />
+              </AdminAuthGuard>
+            }
+          />
+          <Route path="/admin/users" element={<AdminUserListPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route
+            path="/admin/chart-comparison"
+            element={<ChartComparisonPage />}
+          />
           <Route
             path="/admin/users/:userId"
-            element={<AdminAuthGuard><AdminUserDetailPage /></AdminAuthGuard>}
+            element={
+              <AdminAuthGuard>
+                <AdminUserDetailPage />
+              </AdminAuthGuard>
+            }
           />
           <Route
             path="/admin/blacklist/delete"
-            element={<AdminAuthGuard><AdminBlacklistDeletePage /></AdminAuthGuard>}
+            element={
+              <AdminAuthGuard>
+                <AdminBlacklistDeletePage />
+              </AdminAuthGuard>
+            }
           />
           <Route
             path="/admin/users/:userId/login-history"
-            element={<AdminAuthGuard><AdminLoginHistoryPage /></AdminAuthGuard>}
+            element={
+              <AdminAuthGuard>
+                <AdminLoginHistoryPage />
+              </AdminAuthGuard>
+            }
           />
           <Route path="/product" element={<GetProductList />} />
           <Route path="/product/:id" element={<GetProduct />} />
@@ -325,7 +329,7 @@ export default function App() {
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-          // TODO: Add role check for ADMIN
+            // TODO: Add role check for ADMIN
           />
           <Route
             path="/subscription/add/:productId"
@@ -376,65 +380,6 @@ export default function App() {
 
           <Route path="/community/inquiry" element={<Inquiry />} />
           <Route path="/community/inquiry/admin" element={<InquiryAdmin />} />
-
-          <Route path="/landing-test" element={<LandingTestPage />} />
-          <Route path="/landing/a" element={<LandingPageA />} />
-          <Route path="/landing/b" element={<LandingPageB />} />
-          <Route path="/landing/c" element={<LandingPageC />} />
-          <Route path="/landing/d" element={<LandingPageD />} />
-          <Route path="/landing/e" element={<LandingPageE />} />
-          <Route path="/landing/f" element={<LandingPageF />} />
-          <Route path="/landing/g" element={<LandingPageG />} />
-          <Route path="/landing/h" element={<LandingPageH />} />
-          <Route path="/landing/i" element={<LandingPageI />} />
-          <Route path="/landing/j" element={<LandingPageJ />} />
-          <Route path="/landing/k" element={<LandingPageK />} />
-          <Route path="/landing/l" element={<LandingPageL />} />
-          <Route path="/landing/m" element={<LandingPageM />} />
-          <Route path="/landing/n" element={<LandingPageN />} />
-          <Route path="/landing/o" element={<LandingPageO />} />
-          <Route path="/landing/p" element={<LandingPageP />} />
-          <Route path="/landing/q" element={<LandingPageQ />} />
-          <Route path="/landing/r" element={<LandingPageR />} />
-          <Route path="/landing/s" element={<LandingPageS />} />
-          <Route path="/landing/t" element={<LandingPageT />} />
-          <Route path="/landing/u" element={<LandingPageU />} />
-          <Route path="/landing/v" element={<LandingPageV />} />
-          <Route path="/landing/w" element={<LandingPageW />} />
-          <Route path="/landing/x" element={<LandingPageX />} />
-          <Route path="/landing/y" element={<LandingPageY />} />
-          <Route path="/landing/z" element={<LandingPageZ />} />
-          <Route path="/landing/hyundai" element={<LandingPageZHyundai />} />
-          <Route path="/landing/o2" element={<LandingPageZO2 />} />
-          <Route path="/landing/o3" element={<LandingPageZO3 />} />
-          <Route path="/landing/memphis" element={<LandingPageZMemphis />} />
-          <Route path="/landing/collage" element={<LandingPageZCollage />} />
-          <Route path="/landing/riso" element={<LandingPageZRiso />} />
-          <Route path="/landing/riso2" element={<LandingPageZRiso2 />} />
-          <Route
-            path="/landing/particles"
-            element={<LandingPageZParticles />}
-          />
-          <Route path="/landing/physics" element={<LandingPageZPhysics />} />
-          <Route path="/landing/qq" element={<LandingPageZQQ />} />
-          <Route path="/landing/swiss" element={<LandingPageZSwiss />} />
-          <Route path="/landing/retro" element={<LandingPageZRetro />} />
-          <Route
-            path="/landing/cinematic"
-            element={<LandingPageZCinematic />}
-          />
-          <Route path="/landing/solar" element={<LandingPageZSolar />} />
-          <Route path="/landing/spatial" element={<LandingPageZSpatial />} />
-          <Route path="/landing/chat" element={<LandingPageZChat />} />
-          <Route path="/landing/linear" element={<LandingPageZLinear />} />
-          <Route
-            path="/landing/glass-light"
-            element={<LandingPageZGlassLight />}
-          />
-          <Route path="/landing/parallax" element={<LandingPageZParallax />} />
-          <Route path="/landing/portrait" element={<LandingPageZPortrait />} />
-          <Route path="/landing/portrait-v2" element={<LandingPageZPortraitV2 />} />
-          <Route path="/landing/ysa01" element={<LandingPageYSa01 />} />
         </Routes>
       </main>
 
@@ -442,9 +387,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
-

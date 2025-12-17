@@ -166,10 +166,6 @@ export const useMyPage = () => {
   const handleOtpModalChange = (isOpen) => {
     if (!isOpen) otpActionHandlers.closeModal();
   };
-
-  /* ===============================
-   * 반환
-   * =============================== */
   return {
     state: {
       user,

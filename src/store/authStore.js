@@ -18,18 +18,14 @@ export const purgeLoginPasswords = () => {
     PASSWORD_STORAGE_KEYS.forEach((key) => {
       try {
         storage.removeItem(key);
-      } catch {
-        // ignore
-      }
+      } catch {}
     });
   });
 
   try {
     useLoginStore.getState().setField("password", "");
     useLoginStore.getState().setField("otpCode", "");
-  } catch {
-    // ignore store reset errors
-  }
+  } catch {}
 };
 
 export const useAuthStore = create(
@@ -41,6 +37,9 @@ export const useAuthStore = create(
       accessTokenExpiresIn: null,
       loading: false,
 
+      /* =========================
+       * TOKEN SET
+       * ========================= */
       setTokens: ({ accessToken, refreshToken, accessTokenExpiresIn }) => {
         set({
           accessToken,
@@ -51,6 +50,7 @@ export const useAuthStore = create(
       },
 
       setUser: (user) => set({ user }),
+
       clearAuth: () => {
         set({
           user: null,
@@ -61,15 +61,9 @@ export const useAuthStore = create(
         });
         localStorage.removeItem("auth-storage");
       },
+
       fetchSession: async () => {
-        const { clearAuth, accessToken } = get();
-
-        // ✅ 로그인 안 된 상태면 호출 자체를 안 함
-        if (!accessToken) {
-          clearAuth();
-          return;
-        }
-
+        const { clearAuth } = get();
         set({ loading: true });
 
         try {
@@ -82,16 +76,12 @@ export const useAuthStore = create(
             clearAuth();
           }
         } catch (error) {
-          const status = error?.response?.status;
-
-          if (status !== 401) {
-            console.error("Session Fetch Error:", error);
-          }
           clearAuth();
         } finally {
           set({ loading: false });
         }
       },
+
       logout: async () => {
         try {
           await httpClient.post("/auth/logout");

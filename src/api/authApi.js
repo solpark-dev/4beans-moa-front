@@ -25,6 +25,11 @@ export const checkPasswordFormat = (password) =>
 export const checkPasswordConfirm = (password, passwordConfirm) =>
   httpClient.post("/users/checkPasswordConfirm", { password, passwordConfirm });
 
+export const checkCurrentPassword = (currentPassword) =>
+  httpClient.post("/users/checkCurrentPassword", {
+    currentPassword,
+  });
+
 export const startPassAuth = () => httpClient.get("/signup/pass/start");
 
 export const verifyPassAuth = (data) =>
