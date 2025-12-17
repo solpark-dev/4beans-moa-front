@@ -4,14 +4,32 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const depositModalThemeStyles = {
-  default: {
-    gradientBg: 'bg-gradient-to-br from-blue-50 to-purple-50',
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
+  pop: {
+    gradientBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
+    iconBg: 'bg-pink-100',
+    iconColor: 'text-pink-600',
+    iconColorSecondary: 'text-cyan-600',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    hoverBg: 'hover:bg-pink-50',
+  },
+  classic: {
+    gradientBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
+    iconBg: 'bg-indigo-100',
+    iconColor: 'text-[#635bff]',
     iconColorSecondary: 'text-purple-600',
-    border: 'border-2 border-slate-900',
-    shadow: 'shadow-2xl',
-    hoverBg: 'hover:bg-slate-100',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+    hoverBg: 'hover:bg-indigo-50',
+  },
+  dark: {
+    gradientBg: 'bg-gradient-to-br from-gray-800 to-gray-900',
+    iconBg: 'bg-gray-700',
+    iconColor: 'text-[#635bff]',
+    iconColorSecondary: 'text-purple-400',
+    border: 'border border-gray-700',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
+    hoverBg: 'hover:bg-gray-700',
   },
   christmas: {
     gradientBg: 'bg-gradient-to-br from-red-50 to-green-50',
@@ -19,14 +37,14 @@ const depositModalThemeStyles = {
     iconColor: 'text-[#c41e3a]',
     iconColorSecondary: 'text-green-800',
     border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    shadow: 'shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
     hoverBg: 'hover:bg-red-50',
   },
 };
 
 export default function DepositDetailModal({ isOpen, onClose, deposit }) {
   const { theme } = useThemeStore();
-  const themeStyle = depositModalThemeStyles[theme] || depositModalThemeStyles.default;
+  const themeStyle = depositModalThemeStyles[theme] || depositModalThemeStyles.pop;
   if (!deposit) return null;
 
   const getStatusLabel = (status) => {

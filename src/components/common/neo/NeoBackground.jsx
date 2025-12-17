@@ -4,17 +4,6 @@ import { ChristmasBackground } from "@/config/themeConfig";
 
 // 테마별 배경 orbs 스타일
 const backgroundThemeStyles = {
-  default: {
-    orb1: "rgba(249, 115, 22, 0.15)", // Orange
-    orb1Fade: "rgba(249, 115, 22, 0.05)",
-    orb2: "rgba(99, 102, 241, 0.12)", // Indigo
-    orb2Fade: "rgba(139, 92, 246, 0.05)",
-    orb3: "rgba(6, 182, 212, 0.1)", // Cyan
-    orb3Fade: "rgba(20, 184, 166, 0.04)",
-    orb4: "rgba(244, 114, 182, 0.1)", // Pink
-    orb4Fade: "rgba(236, 72, 153, 0.04)",
-    bgColor: "bg-slate-50",
-  },
   classic: {
     orb1: "rgba(99, 91, 255, 0.12)", // Purple
     orb1Fade: "rgba(99, 91, 255, 0.04)",
@@ -66,7 +55,7 @@ const backgroundThemeStyles = {
  */
 const NeoBackground = () => {
   const { theme } = useThemeStore();
-  const themeStyle = backgroundThemeStyles[theme] || backgroundThemeStyles.default;
+  const themeStyle = backgroundThemeStyles[theme] || backgroundThemeStyles.pop;
 
   return (
     <>

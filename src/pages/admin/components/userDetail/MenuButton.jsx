@@ -1,24 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 스타일
-const menuButtonThemeStyles = {
-  default: {
-    activeBg: "bg-slate-900 hover:bg-slate-900",
-    activeBorder: "border-slate-900",
-    inactiveHover: "hover:bg-slate-50",
-  },
-  christmas: {
-    activeBg: "bg-[#c41e3a] hover:bg-red-700",
-    activeBorder: "border-[#c41e3a]",
-    inactiveHover: "hover:bg-red-50",
-  },
-};
-
+/**
+ * 메뉴 버튼 컴포넌트
+ * CSS 변수 기반 테마 적용
+ */
 export default function MenuButton({ icon, label, onClick, active = false }) {
-  const { theme } = useThemeStore();
-  const themeStyle = menuButtonThemeStyles[theme] || menuButtonThemeStyles.default;
-
   return (
     <Button
       type="button"
@@ -26,8 +12,8 @@ export default function MenuButton({ icon, label, onClick, active = false }) {
       onClick={onClick}
       className={`w-full justify-start h-11 px-4 text-sm font-bold rounded-2xl border-2 transition-colors ${
         active
-          ? `${themeStyle.activeBorder} ${themeStyle.activeBg} text-white`
-          : `border-slate-200 bg-white text-slate-900 ${themeStyle.inactiveHover}`
+          ? 'border-[var(--theme-primary)] bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-hover)] text-white'
+          : 'border-[var(--theme-border-light)] bg-[var(--theme-bg-card)] text-[var(--theme-text)] hover:bg-[var(--theme-primary-light)]'
       }`}
     >
       <span className="mr-3">{icon}</span>

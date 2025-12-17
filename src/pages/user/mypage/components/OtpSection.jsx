@@ -3,7 +3,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const otpThemeStyles = {
-  default: {
+  pop: {
     buttonBg: "bg-indigo-600",
     buttonText: "text-indigo-700",
     buttonHover: "hover:bg-indigo-50",
@@ -17,7 +17,7 @@ const otpThemeStyles = {
 
 export function OtpSection({ otp, backup, actions }) {
   const { theme } = useThemeStore();
-  const themeStyle = otpThemeStyles[theme] || otpThemeStyles.default;
+  const themeStyle = otpThemeStyles[theme] || otpThemeStyles.pop;
   return (
     <div className="space-y-1.5">
       <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
@@ -26,9 +26,8 @@ export function OtpSection({ otp, backup, actions }) {
 
       <div className="flex items-center justify-between gap-2">
         <span
-          className={`text-[11px] font-bold ${
-            otp.enabled ? "text-emerald-600" : "text-slate-400"
-          }`}
+          className={`text-[11px] font-bold ${otp.enabled ? "text-emerald-600" : "text-slate-400"
+            }`}
         >
           {otp.enabled ? "OTP 사용중" : "OTP 미사용"}
         </span>
@@ -59,10 +58,9 @@ export function OtpSection({ otp, backup, actions }) {
                 className={`
                   h-7 px-3 text-[11px] font-black
                   border border-gray-200 rounded-lg
-                  ${
-                    backup.issued
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : `bg-white ${themeStyle.buttonText} ${themeStyle.buttonHover}`
+                  ${backup.issued
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    : `bg-white ${themeStyle.buttonText} ${themeStyle.buttonHover}`
                   }
                 `}
               >

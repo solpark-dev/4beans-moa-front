@@ -11,42 +11,13 @@ import {
     SelectValue
 } from '@/components/ui/select'
 import { formatDate } from '@/utils/pushUtils'
-import { useThemeStore } from '@/store/themeStore'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100]
 
-// 테마별 스타일
-const historyThemeStyles = {
-    default: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열 (깔끔한 흰색 배경)
-        searchButton: 'bg-pink-500 hover:bg-pink-600',
-        tableRowHover: 'hover:bg-pink-50',
-        headerBg: 'bg-white',
-        headerBorder: 'border-gray-100',
-        inputFocus: 'focus:ring-pink-500 focus:border-pink-500',
-        selectTrigger: 'focus:ring-pink-500',
-        tableHeader: 'text-pink-600',
-        tableBorder: 'border-gray-200',
-        paginationHover: 'hover:bg-pink-50',
-        paginationBorder: 'border-gray-200',
-        readBadge: 'bg-cyan-100 text-cyan-700',
-        emptyIcon: 'text-pink-300',
-    },
-    christmas: {
-        searchButton: 'bg-[#c41e3a] hover:bg-red-700',
-        tableRowHover: 'hover:bg-red-50',
-        headerBg: 'bg-red-50',
-        headerBorder: 'border-red-100',
-        inputFocus: 'focus:ring-[#c41e3a] focus:border-[#c41e3a]',
-        selectTrigger: 'focus:ring-[#c41e3a]',
-        tableHeader: 'text-[#c41e3a]',
-        tableBorder: 'border-red-200',
-        paginationHover: 'hover:bg-red-50',
-        paginationBorder: 'border-red-200',
-        readBadge: 'bg-green-100 text-[#1a5f2a]',
-        emptyIcon: 'text-[#c41e3a]/50',
-    },
-}
+/**
+ * 발송 내역 탭 컴포넌트
+ * CSS 변수 기반 테마 적용
+ */
 
 const HistoryTab = ({
     history,
@@ -62,17 +33,14 @@ const HistoryTab = ({
     onPageChange,
     onPageSizeChange
 }) => {
-    const { theme } = useThemeStore()
-    const themeStyle = historyThemeStyles[theme] || historyThemeStyles.default
-
     return (
         <div className="h-full flex flex-col">
-            <div className={`px-6 py-3 border-b ${themeStyle.headerBorder} ${themeStyle.headerBg} flex flex-wrap items-center gap-3 flex-shrink-0`}>
+            <div className="px-6 py-3 border-b border-[var(--theme-border-light)] bg-[var(--theme-bg-card)] flex flex-wrap items-center gap-3 flex-shrink-0">
                 <Select
                     value={filters.pushCode || 'all'}
                     onValueChange={(v) => onFilterChange('pushCode', v === 'all' ? '' : v)}
                 >
-                    <SelectTrigger className={`w-40 ${themeStyle.selectTrigger}`}>
+                    <SelectTrigger className="w-40 focus:ring-[var(--theme-primary)]">
                         <SelectValue placeholder="푸시 코드" />
                     </SelectTrigger>
                     <SelectContent>
@@ -89,24 +57,24 @@ const HistoryTab = ({
                     value={filters.receiverId}
                     onChange={(e) => onFilterChange('receiverId', e.target.value)}
                     placeholder="수신자 ID"
-                    className={`w-40 ${themeStyle.inputFocus}`}
+                    className="w-40 focus:ring-[var(--theme-primary)] focus:border-[var(--theme-primary)]"
                 />
 
                 <Input
                     type="date"
                     value={filters.startDate}
                     onChange={(e) => onFilterChange('startDate', e.target.value)}
-                    className={`w-36 ${themeStyle.inputFocus}`}
+                    className="w-36 focus:ring-[var(--theme-primary)] focus:border-[var(--theme-primary)]"
                 />
-                <span className="text-slate-400">~</span>
+                <span className="text-[var(--theme-text-muted)]">~</span>
                 <Input
                     type="date"
                     value={filters.endDate}
                     onChange={(e) => onFilterChange('endDate', e.target.value)}
-                    className={`w-36 ${themeStyle.inputFocus}`}
+                    className="w-36 focus:ring-[var(--theme-primary)] focus:border-[var(--theme-primary)]"
                 />
 
-                <Button onClick={onSearch} size="sm" className={`${themeStyle.searchButton} text-white`}>
+                <Button onClick={onSearch} size="sm" className="bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-hover)] text-white">
                     <Search className="w-4 h-4 mr-1" />
                     검색
                 </Button>
@@ -115,43 +83,43 @@ const HistoryTab = ({
             <ScrollArea className="flex-1">
                 {isLoading ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+                        <Loader2 className="w-6 h-6 animate-spin text-[var(--theme-text-muted)]" />
                     </div>
                 ) : history.length === 0 ? (
-                    <div className={`flex flex-col items-center justify-center py-12 ${themeStyle.emptyIcon}`}>
-                        <History className="w-10 h-10 mb-2 opacity-50" />
+                    <div className="flex flex-col items-center justify-center py-12 text-[var(--theme-primary)] opacity-50">
+                        <History className="w-10 h-10 mb-2" />
                         <p className="text-sm">발송 내역이 없습니다</p>
                     </div>
                 ) : (
                     <div className="p-4">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className={`border-b ${themeStyle.tableBorder}`}>
-                                    <th className={`text-left py-2 px-3 font-medium ${themeStyle.tableHeader}`}>수신자</th>
-                                    <th className={`text-left py-2 px-3 font-medium ${themeStyle.tableHeader}`}>푸시코드</th>
-                                    <th className={`text-left py-2 px-3 font-medium ${themeStyle.tableHeader}`}>제목</th>
-                                    <th className={`text-left py-2 px-3 font-medium ${themeStyle.tableHeader}`}>발송일시</th>
-                                    <th className={`text-center py-2 px-3 font-medium ${themeStyle.tableHeader}`}>읽음</th>
+                                <tr className="border-b border-[var(--theme-border-light)]">
+                                    <th className="text-left py-2 px-3 font-medium text-[var(--theme-primary)]">수신자</th>
+                                    <th className="text-left py-2 px-3 font-medium text-[var(--theme-primary)]">푸시코드</th>
+                                    <th className="text-left py-2 px-3 font-medium text-[var(--theme-primary)]">제목</th>
+                                    <th className="text-left py-2 px-3 font-medium text-[var(--theme-primary)]">발송일시</th>
+                                    <th className="text-center py-2 px-3 font-medium text-[var(--theme-primary)]">읽음</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {history.map((item) => (
-                                    <tr key={item.pushId} className={`border-b ${themeStyle.headerBorder} ${themeStyle.tableRowHover}`}>
-                                        <td className="py-2.5 px-3 text-slate-700">{item.receiverId}</td>
+                                    <tr key={item.pushId} className="border-b border-[var(--theme-border-light)] hover:bg-[var(--theme-primary-light)]">
+                                        <td className="py-2.5 px-3 text-[var(--theme-text)]">{item.receiverId}</td>
                                         <td className="py-2.5 px-3">
                                             <Badge variant="outline" className="font-mono text-xs">
                                                 {item.pushCode}
                                             </Badge>
                                         </td>
-                                        <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">
+                                        <td className="py-2.5 px-3 text-[var(--theme-text)] max-w-xs truncate">
                                             {item.title}
                                         </td>
-                                        <td className="py-2.5 px-3 text-slate-500 text-xs">
+                                        <td className="py-2.5 px-3 text-[var(--theme-text-muted)] text-xs">
                                             {formatDate(item.sentAt)}
                                         </td>
                                         <td className="py-2.5 px-3 text-center">
                                             {item.isRead === 'Y' ? (
-                                                <Badge className={themeStyle.readBadge}>읽음</Badge>
+                                                <Badge className="bg-[var(--theme-primary-light)] text-[var(--theme-primary)]">읽음</Badge>
                                             ) : (
                                                 <Badge variant="outline">안읽음</Badge>
                                             )}
@@ -164,11 +132,11 @@ const HistoryTab = ({
                 )}
             </ScrollArea>
 
-            <div className={`px-6 py-3 border-t ${themeStyle.headerBorder} flex items-center justify-between flex-shrink-0`}>
+            <div className="px-6 py-3 border-t border-[var(--theme-border-light)] flex items-center justify-between flex-shrink-0">
                 <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-500">표시 개수:</span>
+                    <span className="text-sm text-[var(--theme-text-muted)]">표시 개수:</span>
                     <Select value={pageSize.toString()} onValueChange={onPageSizeChange}>
-                        <SelectTrigger className={`w-20 h-8 ${themeStyle.selectTrigger}`}>
+                        <SelectTrigger className="w-20 h-8 focus:ring-[var(--theme-primary)]">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -180,7 +148,7 @@ const HistoryTab = ({
                         </SelectContent>
                     </Select>
                     {totalCount !== undefined && (
-                        <span className="text-sm text-slate-400 ml-2">
+                        <span className="text-sm text-[var(--theme-text-muted)] ml-2">
                             총 {totalCount}건
                         </span>
                     )}
@@ -193,11 +161,11 @@ const HistoryTab = ({
                             size="icon"
                             onClick={() => onPageChange(page - 1)}
                             disabled={page <= 1}
-                            className={`h-8 w-8 ${themeStyle.paginationHover} ${themeStyle.paginationBorder}`}
+                            className="h-8 w-8 hover:bg-[var(--theme-primary-light)] border-[var(--theme-border-light)]"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </Button>
-                        <span className="text-sm text-slate-600 px-3">
+                        <span className="text-sm text-[var(--theme-text)] px-3">
                             {page} / {totalPages}
                         </span>
                         <Button
@@ -205,7 +173,7 @@ const HistoryTab = ({
                             size="icon"
                             onClick={() => onPageChange(page + 1)}
                             disabled={page >= totalPages}
-                            className={`h-8 w-8 ${themeStyle.paginationHover} ${themeStyle.paginationBorder}`}
+                            className="h-8 w-8 hover:bg-[var(--theme-primary-light)] border-[var(--theme-border-light)]"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </Button>

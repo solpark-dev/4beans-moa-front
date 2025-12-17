@@ -10,7 +10,7 @@ const BTN_DANGER =
 
 // 테마별 스타일
 const profileCardThemeStyles = {
-  default: {
+  pop: {
     buttonHover: "hover:bg-slate-50",
   },
   christmas: {
@@ -26,7 +26,7 @@ export function ProfileCard({
   profileImageUrl,
 }) {
   const { theme } = useThemeStore();
-  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.default;
+  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.pop;
 
   const name = user?.nickname || "USER";
   const idText = shortId || user?.userId || "";
@@ -64,16 +64,16 @@ export function ProfileCard({
   return (
     <div className={`${CARD} p-6`}>
       <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full border border-gray-200 bg-slate-100 flex items-center justify-center overflow-hidden">
-            {displayImageUrl ? (
-              <img
-                src={displayImageUrl}
-                alt={`${name} profile`}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="font-black text-xl">{name?.[0] || "U"}</span>
-            )}
+        <div className="w-16 h-16 rounded-full border border-gray-200 bg-slate-100 flex items-center justify-center overflow-hidden">
+          {displayImageUrl ? (
+            <img
+              src={displayImageUrl}
+              alt={`${name} profile`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="font-black text-xl">{name?.[0] || "U"}</span>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">

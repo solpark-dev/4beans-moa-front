@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 
 // 테마별 스타일
 const myPageThemeStyles = {
-  default: {
+  pop: {
     // Neo/Pop 스타일 - 핑크, 시안 계열
     accent: "text-pink-500",
     accentBg: "bg-pink-500",
@@ -36,14 +36,14 @@ import { LoginHistoryCard } from "./components/LoginHistoryCard";
 import { OtpDialog } from "./components/OtpDialog";
 import { BackupCodeDialog } from "./components/BackupCodeDialog";
 
-const HERO_WRAPPER = "relative mt-10 overflow-hidden";
+const HERO_WRAPPER = "relative mt-6 sm:mt-10 overflow-hidden";
 
 const PANE_WRAPPER =
-  "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl";
+  "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-2xl sm:rounded-3xl";
 
 export default function MyPage() {
   const { theme } = useThemeStore();
-  const themeStyle = myPageThemeStyles[theme] || myPageThemeStyles.default;
+  const themeStyle = myPageThemeStyles[theme] || myPageThemeStyles.pop;
   const { state, actions } = useMyPage();
 
   const {
@@ -104,8 +104,8 @@ export default function MyPage() {
     <div className="min-h-screen bg-transparent text-slate-900 font-sans pb-20 relative z-10">
       <section className={HERO_WRAPPER}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-          <div className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-[32px] min-h-[320px] flex items-center">
-            <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-10 px-6 lg:px-10 py-10">
+          <div className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-2xl sm:rounded-[32px] min-h-[280px] sm:min-h-[320px] flex items-center">
+            <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-10 px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
               <div className="text-center lg:text-left max-w-2xl">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-3">
                   나의 구독과 계정
@@ -122,9 +122,8 @@ export default function MyPage() {
                   actions={actions}
                   profileImageUrl={
                     user?.profileImage
-                      ? `${resolveProfileImageUrl(user.profileImage)}${
-                          user.updatedAt ? `?v=${user.updatedAt}` : ""
-                        }`
+                      ? `${resolveProfileImageUrl(user.profileImage)}${user.updatedAt ? `?v=${user.updatedAt}` : ""
+                      }`
                       : ""
                   }
                 />
@@ -134,9 +133,9 @@ export default function MyPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-12">
-        <div className="flex flex-col lg:flex-row gap-8 min-h-[520px]">
-          <aside className="w-full lg:w-80 flex flex-col gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-8 sm:mt-12">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 min-h-[400px] sm:min-h-[520px]">
+          <aside className="w-full lg:w-80 flex flex-col gap-3 sm:gap-4">
             {showUserUI && (
               <div className={PANE_WRAPPER}>
                 <AccountMenu
@@ -156,9 +155,9 @@ export default function MyPage() {
           </aside>
 
           {showUserUI && (
-            <main className="flex-1 flex flex-col gap-8">
+            <main className="flex-1 flex flex-col gap-4 sm:gap-8">
               {activeView === "main" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                   <div className={PANE_WRAPPER}>
                     <AccountInfoCard
                       user={user}

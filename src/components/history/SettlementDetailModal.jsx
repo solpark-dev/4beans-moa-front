@@ -4,15 +4,35 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const settlementModalThemeStyles = {
-  default: {
-    gradientBg: 'bg-gradient-to-br from-purple-50 to-pink-50',
+  pop: {
+    gradientBg: 'bg-gradient-to-br from-pink-50 to-lime-50',
     iconBg: 'bg-emerald-100',
     iconColor: 'text-emerald-600',
-    iconColorSecondary: 'text-purple-600',
-    iconColorTertiary: 'text-blue-600',
-    border: 'border-2 border-slate-900',
-    shadow: 'shadow-2xl',
-    hoverBg: 'hover:bg-slate-100',
+    iconColorSecondary: 'text-pink-600',
+    iconColorTertiary: 'text-cyan-600',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    hoverBg: 'hover:bg-pink-50',
+  },
+  classic: {
+    gradientBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
+    iconBg: 'bg-emerald-100',
+    iconColor: 'text-emerald-600',
+    iconColorSecondary: 'text-[#635bff]',
+    iconColorTertiary: 'text-purple-600',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+    hoverBg: 'hover:bg-indigo-50',
+  },
+  dark: {
+    gradientBg: 'bg-gradient-to-br from-gray-800 to-gray-900',
+    iconBg: 'bg-gray-700',
+    iconColor: 'text-emerald-400',
+    iconColorSecondary: 'text-[#635bff]',
+    iconColorTertiary: 'text-purple-400',
+    border: 'border border-gray-700',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
+    hoverBg: 'hover:bg-gray-700',
   },
   christmas: {
     gradientBg: 'bg-gradient-to-br from-red-50 to-green-50',
@@ -21,14 +41,14 @@ const settlementModalThemeStyles = {
     iconColorSecondary: 'text-[#c41e3a]',
     iconColorTertiary: 'text-green-800',
     border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    shadow: 'shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
     hoverBg: 'hover:bg-red-50',
   },
 };
 
 export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
   const { theme } = useThemeStore();
-  const themeStyle = settlementModalThemeStyles[theme] || settlementModalThemeStyles.default;
+  const themeStyle = settlementModalThemeStyles[theme] || settlementModalThemeStyles.pop;
   if (!settlement) return null;
 
   const getStatusLabel = (status) => {

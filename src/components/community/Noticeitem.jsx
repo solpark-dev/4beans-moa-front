@@ -7,7 +7,7 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
 
     // Theme-based colors
     const communityThemeStyles = {
-        default: {
+        pop: {
             // Neo/Pop 스타일 - 핑크, 시안 계열
             cardBg: 'bg-white',
             cardHover: 'hover:bg-pink-50',
@@ -15,6 +15,22 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
             indexColor: 'text-gray-400',
             dateColor: 'text-gray-500',
             viewBadge: 'bg-pink-500',
+        },
+        classic: {
+            cardBg: 'bg-white',
+            cardHover: 'hover:bg-indigo-50',
+            textColor: 'text-black',
+            indexColor: 'text-gray-400',
+            dateColor: 'text-gray-500',
+            viewBadge: 'bg-[#635bff]',
+        },
+        dark: {
+            cardBg: 'bg-[#1E293B]',
+            cardHover: 'hover:bg-gray-700',
+            textColor: 'text-gray-200',
+            indexColor: 'text-gray-500',
+            dateColor: 'text-gray-400',
+            viewBadge: 'bg-[#635bff]',
         },
         christmas: {
             cardBg: 'bg-white',
@@ -26,7 +42,7 @@ const NoticeItem = ({ notice, index, formatDate, onClick }) => {
         },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.default;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
 
     return (
         <div className="mb-3">

@@ -12,13 +12,27 @@ const CommunityLayout = ({ children }) => {
 
     // Theme-based colors
     const communityThemeStyles = {
-        default: {
+        pop: {
             // Neo/Pop 스타일 - 핑크, 시안 계열
             primary: 'bg-pink-500',
             secondary: 'bg-cyan-500',
             tertiary: 'bg-lime-400',
             activeTab: 'bg-pink-500',
             inactiveTabHover: 'hover:bg-pink-50',
+        },
+        classic: {
+            primary: 'bg-[#635bff]',
+            secondary: 'bg-indigo-500',
+            tertiary: 'bg-purple-400',
+            activeTab: 'bg-[#635bff]',
+            inactiveTabHover: 'hover:bg-indigo-50',
+        },
+        dark: {
+            primary: 'bg-[#635bff]',
+            secondary: 'bg-indigo-500',
+            tertiary: 'bg-purple-400',
+            activeTab: 'bg-[#635bff]',
+            inactiveTabHover: 'hover:bg-gray-700',
         },
         christmas: {
             primary: 'bg-[#c41e3a]',
@@ -29,7 +43,7 @@ const CommunityLayout = ({ children }) => {
         },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.default;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
 
     const isActiveTab = (path) => {
         if (path === '/community/inquiry') {

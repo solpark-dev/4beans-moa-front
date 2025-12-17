@@ -66,17 +66,23 @@ import InquiryAdmin from "./pages/community/InquiryAdmin";
 
 import ScrollToTop from "./components/common/ScrollToTop";
 import PineappleEasterEgg from "./components/common/PineappleEasterEgg";
+import FloatingButtonsContainer from "./components/common/FloatingButtonsContainer";
 import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
-import { ThemeSwitcher, themeConfig } from "./config/themeConfig";
+import { themeConfig } from "./config/themeConfig";
 import { NeoBackground } from "./components/common/neo";
+import { SnowPlowProvider } from "./components/christmas/SnowPlow";
 
-export default function App() {
+// Inner App component that uses SnowPlow context
+function AppContent() {
   useGlobalLinkHandler();
   const location = useLocation();
   const { user } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
-  const currentTheme = themeConfig[theme] || themeConfig.default;
+  const currentTheme = themeConfig[theme] || themeConfig.pop;
+
+  // Pineapple easter egg state
+  const [pineappleEnabled, setPineappleEnabled] = useState(true);
 
   // Check if current route is admin page
   const isAdminPage = location.pathname.startsWith("/admin");
@@ -131,6 +137,17 @@ export default function App() {
     };
   }, [isAdminPage, location.pathname]);
 
+  // CSS Variables Injection
+  useEffect(() => {
+    const currentThemeConfig = themeConfig[theme] || themeConfig.pop;
+    const cssVars = currentThemeConfig.cssVars;
+    if (cssVars) {
+      Object.entries(cssVars).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value);
+      });
+    }
+  }, [theme]);
+
   // Easter egg for specific test accounts
   const showEasterEgg =
     user && (user.userId === "usertest1" || user.userId === "admintest");
@@ -149,12 +166,17 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${getBgClass()}`}
+      data-theme={theme}
+      className={`min-h-screen flex flex-col transition-colors duration-300 bg-theme-bg text-theme-text`}
     >
       <NeoBackground />
       <ScrollToTop />
-      {showEasterEgg && <PineappleEasterEgg />}
-      <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+      {showEasterEgg && pineappleEnabled && <PineappleEasterEgg showToggle={false} />}
+      <FloatingButtonsContainer
+        showPineapple={showEasterEgg}
+        pineappleEnabled={pineappleEnabled}
+        setPineappleEnabled={setPineappleEnabled}
+      />
 
       {/* Header with slide animation for admin pages */}
       {isAdminPage ? (
@@ -387,3 +409,14 @@ export default function App() {
     </div>
   );
 }
+
+// Main App wrapper with SnowPlowProvider
+export default function App() {
+  return (
+    <SnowPlowProvider>
+      <AppContent />
+    </SnowPlowProvider>
+  );
+}
+
+

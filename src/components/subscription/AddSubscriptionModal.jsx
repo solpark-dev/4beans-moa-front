@@ -1,33 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import httpClient from '../../api/httpClient';
-import { useThemeStore } from '@/store/themeStore';
+import { getProductIconUrl } from '@/utils/imageUtils';
 
-// 테마별 스타일
-const modalThemeStyles = {
-    default: {
-        modalShadow: 'shadow-2xl',
-        spinnerBorder: 'border-indigo-600',
-        priceText: 'text-indigo-600',
-        submitButton: 'bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200',
-    },
-    christmas: {
-        modalShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        spinnerBorder: 'border-[#c41e3a]',
-        priceText: 'text-[#c41e3a]',
-        submitButton: 'bg-[#c41e3a] hover:bg-red-700 shadow-lg shadow-red-200',
-    },
-    pop: {
-        modalShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        spinnerBorder: 'border-pink-500',
-        priceText: 'text-pink-500',
-        submitButton: 'bg-pink-500 hover:bg-pink-600 shadow-lg shadow-pink-200',
-    },
-};
+/**
+ * 구독 추가 모달 컴포넌트
+ * CSS 변수 기반 테마 적용
+ */
 
 const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSuccess, user }) => {
-    const { theme } = useThemeStore();
-    const themeStyle = modalThemeStyles[theme] || modalThemeStyles.default;
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -97,60 +78,60 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className={`bg-white w-full max-w-xl rounded-[2rem] ${themeStyle.modalShadow} overflow-hidden animate-in zoom-in-95 duration-200 relative`}>
+            <div className="bg-[var(--theme-bg-card)] w-full max-w-xl rounded-[2rem] shadow-[var(--theme-shadow)] overflow-hidden animate-in zoom-in-95 duration-200 relative">
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors z-10"
+                    className="absolute top-4 right-4 p-2 bg-[var(--theme-primary-light)] rounded-full hover:bg-[var(--theme-border-light)] transition-colors z-10"
                 >
-                    <X className="w-5 h-5 text-stone-500" />
+                    <X className="w-5 h-5 text-[var(--theme-text-muted)]" />
                 </button>
 
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
-                        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${themeStyle.spinnerBorder}`}></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--theme-primary)]"></div>
                     </div>
                 ) : product ? (
                     <div className="p-8">
-                        <h1 className="text-2xl font-bold mb-2 text-center">구독 신청</h1>
-                        <p className="text-gray-500 mb-8 text-center">선택하신 상품의 구독 정보를 확인해주세요.</p>
+                        <h1 className="text-2xl font-bold mb-2 text-center text-[var(--theme-text)]">구독 신청</h1>
+                        <p className="text-[var(--theme-text-muted)] mb-8 text-center">선택하신 상품의 구독 정보를 확인해주세요.</p>
 
                         {/* 상품 정보 */}
-                        <div className="bg-gray-50 p-6 rounded-xl mb-6 text-center">
+                        <div className="bg-[var(--theme-primary-light)] p-6 rounded-xl mb-6 text-center">
                             {product.image ? (
                                 <img
-                                    src={product.image}
+                                    src={getProductIconUrl(product.image)}
                                     alt={product.productName}
-                                    className="w-24 h-24 object-cover rounded-lg mx-auto mb-4"
+                                    className="w-24 h-24 object-contain rounded-lg mx-auto mb-4 bg-[var(--theme-bg-card)] p-2"
                                 />
                             ) : (
-                                <div className="w-24 h-24 bg-stone-100 rounded-lg mx-auto mb-4 flex items-center justify-center text-stone-400">
+                                <div className="w-24 h-24 bg-[var(--theme-border-light)] rounded-lg mx-auto mb-4 flex items-center justify-center text-[var(--theme-text-muted)]">
                                     No Img
                                 </div>
                             )}
-                            <h3 className="text-xl font-bold text-gray-900 mb-1">{product.productName}</h3>
-                            <p className={`${themeStyle.priceText} font-bold text-2xl`}>
+                            <h3 className="text-xl font-bold text-[var(--theme-text)] mb-1">{product.productName}</h3>
+                            <p className="text-[var(--theme-primary)] font-bold text-2xl">
                                 ₩{product.price?.toLocaleString()}
-                                <span className="text-sm text-gray-500 font-normal ml-1">/월</span>
+                                <span className="text-sm text-[var(--theme-text-muted)] font-normal ml-1">/월</span>
                             </p>
                         </div>
 
                         {/* 구독 일정 정보 */}
-                        <div className="bg-stone-50 rounded-2xl p-5 mb-6 border border-stone-100">
-                            <h4 className="font-bold text-stone-800 mb-3 text-sm">구독 일정</h4>
+                        <div className="bg-[var(--theme-primary-light)] rounded-2xl p-5 mb-6 border border-[var(--theme-border-light)]">
+                            <h4 className="font-bold text-[var(--theme-text)] mb-3 text-sm">구독 일정</h4>
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-stone-600 text-sm">시작일 (결제일)</span>
-                                    <span className="font-bold text-orange-600">{startDate}</span>
+                                    <span className="text-[var(--theme-text-muted)] text-sm">시작일 (결제일)</span>
+                                    <span className="font-bold text-[var(--theme-primary)]">{startDate}</span>
                                 </div>
                                 {endDate && (
                                     <div className="flex justify-between items-center">
-                                        <span className="text-stone-600 text-sm">종료일</span>
-                                        <span className="font-bold text-orange-600">{endDate}</span>
+                                        <span className="text-[var(--theme-text-muted)] text-sm">종료일</span>
+                                        <span className="font-bold text-[var(--theme-primary)]">{endDate}</span>
                                     </div>
                                 )}
                                 {!endDate && (
-                                    <p className="text-xs text-stone-400 pt-1">종료일 미지정 - 자동 갱신으로 계속 유지됩니다</p>
+                                    <p className="text-xs text-[var(--theme-text-muted)] pt-1">종료일 미지정 - 자동 갱신으로 계속 유지됩니다</p>
                                 )}
                             </div>
                         </div>
@@ -160,14 +141,14 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
                             <button
                                 onClick={handleSubscribe}
                                 disabled={submitting}
-                                className={`w-full ${themeStyle.submitButton} text-white py-4 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                                className="w-full bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-hover)] text-white py-4 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                             >
                                 {submitting ? '처리 중...' : '구독 시작하기'}
                             </button>
                             <button
                                 onClick={onClose}
                                 disabled={submitting}
-                                className="w-full bg-white border border-gray-300 text-gray-600 py-4 rounded-xl font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                className="w-full bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] text-[var(--theme-text)] py-4 rounded-xl font-bold hover:bg-[var(--theme-primary-light)] transition-colors disabled:opacity-50"
                             >
                                 취소
                             </button>

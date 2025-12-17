@@ -6,7 +6,7 @@ const BTN =
 
 // 테마별 스타일
 const loginHistoryThemeStyles = {
-  default: {
+  pop: {
     titleBar: "h-[2px] bg-black",
     headerBorder: "border-b-2 border-black",
     rowBorder: "border-b border-black/10",
@@ -20,7 +20,7 @@ const loginHistoryThemeStyles = {
 
 export function LoginHistoryCard({ loginHistory, onBack }) {
   const { theme } = useThemeStore();
-  const themeStyle = loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.default;
+  const themeStyle = loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.pop;
   const items =
     loginHistory?.items ||
     loginHistory?.data?.items ||

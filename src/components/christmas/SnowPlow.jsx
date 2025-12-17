@@ -120,7 +120,7 @@ export const SnowPlowProvider = ({ children }) => {
 };
 
 // ============================================
-// Snow Plow Button
+// Snow Plow Button (Larger, positioned near search bar)
 // ============================================
 export const SnowPlowButton = ({ className = "" }) => {
   const context = useSnowPlow();
@@ -129,7 +129,7 @@ export const SnowPlowButton = ({ className = "" }) => {
 
   if (theme !== 'christmas') return null;
 
-  // 30초 후 버튼 흔들기 힌트 (Only if snow piled up)
+  // 눈이 쌓이면 버튼 흔들기 힌트
   useEffect(() => {
     if (!context || context.accumulation < 80) return;
 
@@ -145,13 +145,10 @@ export const SnowPlowButton = ({ className = "" }) => {
 
   if (!context) return null;
 
-  const { isPlowing, isSnowCleared, startPlow, activeCursor, setActiveCursor } = context;
+  const { isPlowing, isSnowCleared, startPlow } = context;
 
   return (
-    <div className={`flex flex-col gap-4 items-center ${className}`}>
-      {/* Cursor Selector (Passed Props) */}
-      <CursorSelector activeCursor={activeCursor} setActiveCursor={setActiveCursor} />
-
+    <div className={`${className}`}>
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -174,7 +171,15 @@ export const SnowPlowButton = ({ className = "" }) => {
           }`}
         title={isSnowCleared ? "눈이 치워졌어요!" : isPlowing ? "제설 중..." : "눈 치우기"}
       >
-        <span className="text-xl">{isPlowing ? "🚜" : isSnowCleared ? "✨" : "🚜"}</span>
+        {isSnowCleared ? (
+          <span className="text-xl">✨</span>
+        ) : (
+          <img
+            src="/snowplow.png"
+            alt="Snow Plow"
+            className="w-8 h-8 object-contain"
+          />
+        )}
       </motion.button>
     </div>
   );
@@ -264,7 +269,11 @@ const SantaSleigh = () => {
       }}
     >
       <div className="relative">
-        <span className="text-[150px] filter drop-shadow-2xl">🎅🛷🦌💨</span>
+        <img
+          src="/santa.png"
+          alt="Santa Sleigh"
+          className="w-[300px] h-auto filter drop-shadow-2xl"
+        />
         <motion.div
           className="absolute top-1/2 left-0 w-full h-4 bg-white opacity-20 blur-xl"
           style={{ transform: "translateY(-50%) scaleX(2)" }}
@@ -466,18 +475,18 @@ export const ClearableSnowPile = () => {
           <motion.div
             key={plowId}
             className="absolute z-50 pointer-events-auto cursor-pointer"
-            initial={{ left: "-80px" }}
-            animate={{ left: "calc(100% - 100px)" }}
+            initial={{ left: "-120px", opacity: 1 }}
+            animate={{ left: "calc(100% - 60px)", opacity: [1, 1, 1, 0] }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 2.5, ease: "linear" }}
-            style={{ top: "-15px" }}
+            transition={{ duration: 2.5, ease: "linear", opacity: { duration: 2.5, times: [0, 0.85, 0.95, 1] } }}
+            style={{ top: "-2px" }}
           >
             <motion.div
               className="relative"
               style={{ transform: "scaleX(-1)" }}
               animate={{
-                y: [0, -2, 0, -1, 0],
-                rotate: [0, 1, 0, -1, 0]
+                y: [0, -3, 0, -2, 0],
+                rotate: [0, 2, 0, -2, 0]
               }}
               transition={{
                 duration: 0.3,
@@ -485,7 +494,11 @@ export const ClearableSnowPile = () => {
                 ease: "easeInOut",
               }}
             >
-              <span className="text-6xl drop-shadow-xl filter saturate-150">🚜</span>
+              <img
+                src="/snowplow.png"
+                alt="Snow Plow"
+                className="w-24 h-24 object-contain drop-shadow-2xl"
+              />
             </motion.div>
           </motion.div>
         )}

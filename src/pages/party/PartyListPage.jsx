@@ -9,11 +9,7 @@ import {
   themeConfig,
   GridPattern,
 } from "../../config/themeConfig";
-import {
-  SnowPlowProvider,
-  SnowPlowButton,
-  ClearableSnowPile,
-} from "../../components/christmas/SnowPlow";
+import { ClearableSnowPile } from "../../components/christmas/SnowPlow";
 import {
   Sparkles,
   Search,
@@ -25,6 +21,7 @@ import {
   Shield,
   Zap,
   Filter,
+  Home,
 } from "lucide-react";
 
 // O3 Sticker Component (Pop theme only)
@@ -42,12 +39,12 @@ const Sticker = ({ children, color = "bg-white", rotate = 0, className = "", onC
 
 // Party 페이지 테마 스타일
 const partyThemeStyles = {
-  default: {
-    accent: 'text-indigo-600',
-    accentBg: 'bg-indigo-600',
-    hoverAccentBg: 'hover:bg-indigo-700',
-    badge: 'bg-indigo-50 text-indigo-600',
-    buttonShadow: 'shadow-indigo-600/25',
+  pop: {
+    accent: 'text-pink-500',
+    accentBg: 'bg-pink-500',
+    hoverAccentBg: 'hover:bg-pink-600',
+    badge: 'bg-pink-50 text-pink-600',
+    buttonShadow: 'shadow-pink-500/25',
   },
   christmas: {
     accent: 'text-[#c41e3a]',
@@ -59,13 +56,6 @@ const partyThemeStyles = {
     greenBadge: 'bg-green-50 text-[#1a5f2a]',
     buttonShadow: 'shadow-[#c41e3a]/25',
     cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-  },
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
   },
 };
 
@@ -96,7 +86,7 @@ export default function PartyListPage() {
   // Theme State from Zustand Store
   const { theme, setTheme } = useThemeStore();
   const currentTheme = themeConfig[theme] || themeConfig.classic;
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.default;
+  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
 
   const myPartyIds = Array.isArray(myParties) ? myParties.map(p => p.partyId) : [];
   const isInitialLoading = loadingParties && list.length === 0;
@@ -275,12 +265,6 @@ export default function PartyListPage() {
 
   const content = (
     <div className="min-h-screen bg-transparent pb-20 -mt-20 pt-20 transition-colors duration-300 relative z-10">
-      {/* Snow Plow Button - Christmas theme only */}
-      {theme === "christmas" && (
-        <div className="fixed bottom-8 left-8 z-50">
-          <SnowPlowButton />
-        </div>
-      )}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-transparent">
@@ -338,7 +322,7 @@ export default function PartyListPage() {
               </>
             </motion.h1>
 
-            {/* CTA Button */}
+            {/* CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -346,33 +330,66 @@ export default function PartyListPage() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               {theme === "pop" ? (
-                <Sticker
-                  color="bg-pink-500"
-                  rotate={2}
-                  className="px-8 py-4 rounded-2xl cursor-pointer shadow-lg shadow-pink-500/25"
-                  onClick={() => navigate("/party/create")}
-                >
-                  <span className="flex items-center gap-2 text-white font-black text-xl">
-                    파티 만들기
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
-                </Sticker>
+                <>
+                  <Sticker
+                    color="bg-pink-500"
+                    rotate={2}
+                    className="px-8 py-4 rounded-2xl cursor-pointer shadow-lg shadow-pink-500/25"
+                    onClick={() => navigate("/party/create")}
+                  >
+                    <span className="flex items-center gap-2 text-white font-black text-xl">
+                      파티 만들기
+                      <ArrowRight className="w-5 h-5" />
+                    </span>
+                  </Sticker>
+                  {user && (
+                    <Sticker
+                      color="bg-white"
+                      rotate={-2}
+                      className="px-8 py-4 rounded-2xl cursor-pointer shadow-lg border-2 border-pink-500"
+                      onClick={() => navigate("/my-parties")}
+                    >
+                      <span className="flex items-center gap-2 text-pink-500 font-black text-xl">
+                        <Home className="w-5 h-5" />
+                        내 파티
+                      </span>
+                    </Sticker>
+                  )}
+                </>
               ) : (
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate("/party/create")}
-                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${theme === "christmas"
-                    ? "bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25"
-                    : theme === "dark"
-                      ? "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
-                      : "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
-                    }`}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  파티 만들기
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate("/party/create")}
+                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${theme === "christmas"
+                      ? "bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25"
+                      : theme === "dark"
+                        ? "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
+                        : "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
+                      }`}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    파티 만들기
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                  {user && (
+                    <motion.button
+                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate("/my-parties")}
+                      className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-colors duration-200 ${theme === "christmas"
+                        ? "bg-white hover:bg-gray-50 text-[#c41e3a] border-2 border-[#c41e3a]"
+                        : theme === "dark"
+                          ? "bg-transparent hover:bg-[#635bff]/10 text-[#635bff] border-2 border-[#635bff]"
+                          : "bg-white hover:bg-gray-50 text-[#635bff] border-2 border-[#635bff]"
+                        }`}
+                    >
+                      <Home className="w-4 h-4" />
+                      내 파티
+                    </motion.button>
+                  )}
+                </>
               )}
             </motion.div>
           </div>
@@ -413,15 +430,14 @@ export default function PartyListPage() {
                 </div>
                 <input
                   type="text"
-                  className={`block w-full pl-10 pr-10 py-2.5 border-none rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${
-                    theme === "pop"
+                  className={`block w-full pl-10 pr-10 py-2.5 border-none rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 transition-all ${theme === "pop"
                       ? "bg-gray-50 text-black focus:ring-pink-500/20 focus:bg-white"
                       : theme === "dark"
                         ? "bg-[#0F172A] text-white focus:ring-[#635bff]/20"
                         : theme === "christmas"
                           ? "bg-gray-50/80 text-gray-900 focus:ring-[#c41e3a]/20 focus:bg-white"
                           : "bg-gray-50 text-gray-900 focus:ring-[#635bff]/20 focus:bg-white"
-                  }`}
+                    }`}
                   placeholder="파티 이름, 방장 닉네임 검색"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -449,8 +465,7 @@ export default function PartyListPage() {
                     <button
                       key={filter.value}
                       onClick={() => setSelectedStatus(filter.value)}
-                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                        theme === "pop"
+                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${theme === "pop"
                           ? selectedStatus === filter.value
                             ? "bg-pink-500 text-white border border-gray-200"
                             : "bg-white text-black hover:bg-gray-50 border border-gray-200"
@@ -465,7 +480,7 @@ export default function PartyListPage() {
                               : selectedStatus === filter.value
                                 ? "bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30"
                                 : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-200"
-                      }`}
+                        }`}
                     >
                       {filter.label}
                     </button>
@@ -484,15 +499,14 @@ export default function PartyListPage() {
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className={`appearance-none text-sm font-bold rounded-xl pl-4 pr-4 py-2 focus:outline-none focus:ring-2 transition-all cursor-pointer ${
-                        theme === "pop"
+                      className={`appearance-none text-sm font-bold rounded-xl pl-4 pr-4 py-2 focus:outline-none focus:ring-2 transition-all cursor-pointer ${theme === "pop"
                           ? "bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20"
                           : theme === "dark"
                             ? "bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20"
                             : theme === "christmas"
                               ? "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20"
                               : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20"
-                      }`}
+                        }`}
                     />
                   </div>
 
@@ -501,15 +515,14 @@ export default function PartyListPage() {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className={`appearance-none rounded-xl pl-4 pr-10 py-2 text-sm font-bold cursor-pointer transition-all focus:outline-none focus:ring-2 ${
-                        theme === "pop"
+                      className={`appearance-none rounded-xl pl-4 pr-10 py-2 text-sm font-bold cursor-pointer transition-all focus:outline-none focus:ring-2 ${theme === "pop"
                           ? "bg-white text-black border border-gray-200 hover:bg-gray-50 focus:ring-pink-500/20"
                           : theme === "dark"
                             ? "bg-[#0F172A] text-white border border-gray-700 hover:bg-gray-800 focus:ring-[#635bff]/20"
                             : theme === "christmas"
                               ? "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#c41e3a]/20"
                               : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 focus:ring-[#635bff]/20"
-                      }`}
+                        }`}
                     >
                       <option value="latest">최신순</option>
                       <option value="start_date_asc">시작 빠른순</option>
@@ -610,12 +623,12 @@ export default function PartyListPage() {
                     }`}
                 >
                   {/* Service Banner */}
-                  <div className="relative h-40 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                  <div className="relative h-40 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 sm:p-6">
                     {party.productImage ? (
                       <img
                         src={party.productImage}
                         alt={party.productName}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="max-w-[80%] max-h-[80%] object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
                       <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg ${theme === "christmas" ? "bg-[#c41e3a]" : "bg-[#635bff]"}`}>
@@ -653,7 +666,7 @@ export default function PartyListPage() {
                     {/* Service Badge */}
                     <div className="flex items-center gap-2 mb-3">
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${theme === "pop"
-                        ? "text-red-800 bg-red-100 border border-gray-200"
+                        ? "text-pink-600 bg-pink-50 border border-gray-200"
                         : theme === "dark"
                           ? "text-[#635bff] bg-[#635bff]/20"
                           : theme === "christmas"
@@ -666,7 +679,7 @@ export default function PartyListPage() {
 
                     {/* Title */}
                     <h3 className={`font-bold mb-3 line-clamp-1 transition-colors ${theme === "pop"
-                      ? "text-black group-hover:text-red-800"
+                      ? "text-black group-hover:text-pink-500"
                       : theme === "dark"
                         ? "text-white group-hover:text-[#635bff]"
                         : theme === "christmas"
@@ -723,15 +736,6 @@ export default function PartyListPage() {
       </div>
     </div>
   );
-
-  // Wrap with SnowPlowProvider for Christmas theme
-  if (theme === "christmas") {
-    return (
-      <SnowPlowProvider enabled={true}>
-        {content}
-      </SnowPlowProvider>
-    );
-  }
 
   return content;
 }

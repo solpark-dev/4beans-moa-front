@@ -3,20 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 스타일
-const formCardThemeStyles = {
-  default: {
-    primaryButton: "bg-emerald-600 hover:bg-emerald-700",
-    focusRing: "focus-visible:ring-emerald-500 focus-visible:border-emerald-500",
-  },
-  christmas: {
-    primaryButton: "bg-[#1a5f2a] hover:bg-green-900",
-    focusRing: "focus-visible:ring-[#1a5f2a] focus-visible:border-[#1a5f2a]",
-  },
-};
-
+/**
+ * 블랙리스트 해제 폼 카드
+ * CSS 변수 기반 테마 적용
+ */
 export default function RemoveBlacklistFormCard({
   userId,
   reason,
@@ -26,15 +17,12 @@ export default function RemoveBlacklistFormCard({
   onSubmit,
   onCancel,
 }) {
-  const { theme } = useThemeStore();
-  const themeStyle = formCardThemeStyles[theme] || formCardThemeStyles.default;
-
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-10 -mt-10">
       <div className="mt-10 flex justify-center">
-        <Card className="w-full max-w-3xl shadow-md border-slate-200 rounded-2xl">
-          <CardHeader className="border-b border-slate-100 bg-slate-50/70 rounded-t-2xl">
-            <CardTitle className="text-lg font-semibold text-slate-900">
+        <Card className="w-full max-w-3xl shadow-[var(--theme-shadow)] border-[var(--theme-border-light)] bg-[var(--theme-bg-card)] rounded-2xl">
+          <CardHeader className="border-b border-[var(--theme-border-light)] bg-[var(--theme-primary-light)] rounded-t-2xl">
+            <CardTitle className="text-lg font-semibold text-[var(--theme-text)]">
               블랙리스트 해제 정보 확인
             </CardTitle>
           </CardHeader>
@@ -48,23 +36,23 @@ export default function RemoveBlacklistFormCard({
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">
+              <label className="text-sm font-medium text-[var(--theme-text)]">
                 회원 아이디(이메일)
               </label>
               <Input
                 value={userId}
                 readOnly
-                className="h-10 bg-slate-100 border border-slate-300 text-slate-500"
+                className="h-10 bg-[var(--theme-primary-light)] border border-[var(--theme-border-light)] text-[var(--theme-text-muted)]"
               />
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-[var(--theme-text-muted)]">
                 회원 상세에서 이동한 계정만 해제할 수 있습니다.
               </p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">
+              <label className="text-sm font-medium text-[var(--theme-text)]">
                 해제 사유
-                <span className="ml-1 text-xs text-slate-400">
+                <span className="ml-1 text-xs text-[var(--theme-text-muted)]">
                   (필수, 내부 참고용)
                 </span>
               </label>
@@ -72,16 +60,16 @@ export default function RemoveBlacklistFormCard({
                 value={reason}
                 onChange={(e) => onChangeReason(e.target.value)}
                 rows={4}
-                className={`resize-none bg-white border border-slate-300 ${themeStyle.focusRing}`}
+                className="resize-none bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] text-[var(--theme-text)] focus-visible:ring-[var(--theme-primary)] focus-visible:border-[var(--theme-primary)]"
                 placeholder="해제 사유를 입력하세요. (예: 오인 신고, 본인 확인 완료 등)"
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-4 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-4 border-t border-[var(--theme-border-light)]">
               <Button
                 type="button"
                 variant="outline"
-                className="px-4 h-10 rounded-lg border-slate-200 text-slate-700"
+                className="px-4 h-10 rounded-lg border-[var(--theme-border-light)] text-[var(--theme-text)] bg-[var(--theme-bg-card)]"
                 onClick={onCancel}
                 disabled={submitting}
               >
@@ -89,7 +77,7 @@ export default function RemoveBlacklistFormCard({
               </Button>
               <Button
                 type="button"
-                className={`px-5 h-10 rounded-lg ${themeStyle.primaryButton} text-white font-semibold`}
+                className="px-5 h-10 rounded-lg bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-hover)] text-white font-semibold"
                 onClick={onSubmit}
                 disabled={submitting}
               >

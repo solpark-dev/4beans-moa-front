@@ -3,41 +3,13 @@ import useBankVerificationStore from '@/store/bankVerificationStore';
 import { Button } from '@/components/ui/button';
 import { X, ArrowDownCircle, Bell, ChevronRight, Info } from 'lucide-react';
 import { BANKS } from './BankSelector';
-import { useThemeStore } from '@/store/themeStore';
-
-// 테마별 스타일
-const virtualBankModalThemeStyles = {
-    default: {
-        cardBg: 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200',
-        iconBg: 'bg-green-500',
-        textAccent: 'text-green-600',
-        textAccentAlt: 'text-green-700',
-        border: 'border-green-200',
-        infoBg: 'bg-blue-50',
-        infoText: 'text-blue-700',
-        buttonBg: 'bg-slate-900 hover:bg-slate-800',
-        shadow: 'shadow-2xl',
-    },
-    christmas: {
-        cardBg: 'bg-gradient-to-br from-red-50 to-green-50 border border-gray-200',
-        iconBg: 'bg-[#c41e3a]',
-        textAccent: 'text-[#c41e3a]',
-        textAccentAlt: 'text-red-700',
-        border: 'border-gray-200',
-        infoBg: 'bg-green-50',
-        infoText: 'text-green-800',
-        buttonBg: 'bg-[#c41e3a] hover:bg-red-700',
-        shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-    },
-};
 
 /**
  * 가상 은행 앱 모달 (토스 스타일)
  * 실제 은행 앱처럼 1원 입금 알림을 보여줍니다
+ * CSS 변수 기반 테마 적용
  */
 export default function VirtualBankModal() {
-    const { theme } = useThemeStore();
-    const themeStyle = virtualBankModalThemeStyles[theme] || virtualBankModalThemeStyles.default;
     const {
         showVirtualBankModal,
         closeVirtualBankModal,
@@ -79,7 +51,7 @@ export default function VirtualBankModal() {
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 50 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className={`w-full max-w-sm bg-slate-900 rounded-[2.5rem] overflow-hidden ${themeStyle.shadow}`}
+                        className="w-full max-w-sm bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-[var(--theme-shadow-hover)]"
                     >
                         {/* 노치 */}
                         <div className="relative h-8 bg-slate-900 flex items-center justify-center">
@@ -140,16 +112,16 @@ export default function VirtualBankModal() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className={`${themeStyle.cardBg} rounded-2xl p-5 mb-6`}
+                                className="bg-[var(--theme-primary-light)] border border-[var(--theme-border-light)] rounded-2xl p-5 mb-6"
                             >
                                 {/* 입금 표시 */}
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-10 h-10 ${themeStyle.iconBg} rounded-full flex items-center justify-center`}>
+                                        <div className="w-10 h-10 bg-[var(--theme-primary)] rounded-full flex items-center justify-center">
                                             <ArrowDownCircle className="w-5 h-5 text-white" />
                                         </div>
                                         <div>
-                                            <p className={`${themeStyle.textAccentAlt} font-semibold`}>입금</p>
+                                            <p className="text-[var(--theme-primary)] font-semibold">입금</p>
                                             <p className="text-slate-500 text-xs">{timeString}</p>
                                         </div>
                                     </div>
@@ -158,11 +130,11 @@ export default function VirtualBankModal() {
 
                                 {/* 금액 */}
                                 <div className="mb-4">
-                                    <p className={`text-3xl font-bold ${themeStyle.textAccent}`}>+1원</p>
+                                    <p className="text-3xl font-bold text-[var(--theme-primary)]">+1원</p>
                                 </div>
 
                                 {/* 입금자명 (인증코드 포함) */}
-                                <div className={`bg-white rounded-xl p-4 border ${themeStyle.border}`}>
+                                <div className="bg-white rounded-xl p-4 border border-[var(--theme-border-light)]">
                                     <p className="text-xs text-slate-500 mb-1">입금자명</p>
                                     <div className="flex items-center gap-2">
                                         <motion.p
@@ -193,8 +165,8 @@ export default function VirtualBankModal() {
                                         </motion.p>
                                     </div>
                                     <div className="flex items-center gap-1 mt-2">
-                                        <div className={`w-2 h-2 ${theme === 'christmas' ? 'bg-[#c41e3a]' : 'bg-orange-500'} rounded-full animate-pulse`} />
-                                        <p className={`text-xs ${theme === 'christmas' ? 'text-[#c41e3a]' : 'text-orange-600'} font-medium`}>
+                                        <div className="w-2 h-2 bg-[var(--theme-primary)] rounded-full animate-pulse" />
+                                        <p className="text-xs text-[var(--theme-primary)] font-medium">
                                             숫자 4자리가 인증코드입니다
                                         </p>
                                     </div>
@@ -202,19 +174,19 @@ export default function VirtualBankModal() {
                             </motion.div>
 
                             {/* 안내 문구 */}
-                            <div className={`flex items-start gap-2 p-3 ${themeStyle.infoBg} rounded-xl mb-6`}>
-                                <Info className={`w-4 h-4 ${theme === 'christmas' ? 'text-green-800' : 'text-blue-500'} flex-shrink-0 mt-0.5`} />
-                                <p className={`text-xs ${themeStyle.infoText} leading-relaxed`}>
+                            <div className="flex items-start gap-2 p-3 bg-[var(--theme-primary-light)] rounded-xl mb-6">
+                                <Info className="w-4 h-4 text-[var(--theme-primary)] flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-[var(--theme-text-muted)] leading-relaxed">
                                     실제 서비스에서는 본인의 은행 앱에서 입금 내역을 확인합니다.
                                     <br />
-                                    <span className={theme === 'christmas' ? 'text-green-700' : 'text-blue-500'}>(데모용 화면입니다)</span>
+                                    <span className="text-[var(--theme-primary)]">(데모용 화면입니다)</span>
                                 </p>
                             </div>
 
                             {/* 확인 버튼 */}
                             <Button
                                 onClick={closeVirtualBankModal}
-                                className={`w-full h-14 text-lg font-semibold rounded-xl ${themeStyle.buttonBg}`}
+                                className="w-full h-14 text-lg font-semibold rounded-xl bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-hover)]"
                             >
                                 확인했어요
                             </Button>

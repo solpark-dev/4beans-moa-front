@@ -14,6 +14,7 @@ import {
   Sticker,
   themeConfig
 } from "../../config/themeConfig";
+import { getProductIconUrl } from "../../utils/imageUtils";
 import {
   Eye,
   EyeOff,
@@ -32,12 +33,28 @@ import {
 
 // Party 페이지 테마 스타일
 const partyThemeStyles = {
-  default: {
-    accent: 'text-indigo-600',
-    accentBg: 'bg-indigo-600',
-    hoverAccentBg: 'hover:bg-indigo-700',
-    badge: 'bg-indigo-50 text-indigo-600',
-    buttonShadow: 'shadow-indigo-600/25',
+  pop: {
+    accent: 'text-pink-500',
+    accentBg: 'bg-pink-500',
+    hoverAccentBg: 'hover:bg-pink-600',
+    badge: 'bg-pink-50 text-pink-600',
+    buttonShadow: 'shadow-pink-500/25',
+    accentColor: '#ec4899',
+  },
+  classic: {
+    accent: 'text-[#635bff]',
+    accentBg: 'bg-[#635bff]',
+    hoverAccentBg: 'hover:bg-[#5851e8]',
+    badge: 'bg-indigo-50 text-[#635bff]',
+    buttonShadow: 'shadow-[#635bff]/25',
+    accentColor: '#635bff',
+  },
+  dark: {
+    accent: 'text-[#635bff]',
+    accentBg: 'bg-[#635bff]',
+    hoverAccentBg: 'hover:bg-[#5851e8]',
+    badge: 'bg-gray-800 text-[#635bff]',
+    buttonShadow: 'shadow-gray-900/25',
     accentColor: '#635bff',
   },
   christmas: {
@@ -52,14 +69,6 @@ const partyThemeStyles = {
     cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
     accentColor: '#c41e3a',
   },
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
-    accentColor: '#ec4899',
-  },
 };
 
 export default function PartyDetailPage() {
@@ -69,7 +78,7 @@ export default function PartyDetailPage() {
 
   // Theme
   const { theme, setTheme, currentTheme } = useTheme("appTheme");
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.default;
+  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
 
   // 테마별 악센트 색상
   const getAccentColor = () => {
@@ -244,15 +253,15 @@ export default function PartyDetailPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4 }}
                   className={`flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-white border ${theme === "christmas"
-                      ? "shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
-                      : "shadow-lg border-gray-100"
+                    ? "shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
+                    : "shadow-lg border-gray-100"
                     }`}
                 >
                   {party.productImage ? (
                     <img
-                      src={party.productImage}
+                      src={getProductIconUrl(party.productImage)}
                       alt={party.productName}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain p-2"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#635bff]/10 to-[#00d4ff]/10">
@@ -319,8 +328,8 @@ export default function PartyDetailPage() {
                   transition={{ delay: 0.1 }}
                   whileHover={{ y: -2 }}
                   className={`bg-white rounded-2xl p-5 border transition-all ${theme === "christmas"
-                      ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                      : "border-gray-100 shadow-sm hover:shadow-lg"
+                    ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                    : "border-gray-100 shadow-sm hover:shadow-lg"
                     }`}
                 >
                   <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
@@ -348,8 +357,8 @@ export default function PartyDetailPage() {
                   transition={{ delay: 0.2 }}
                   whileHover={{ y: -2 }}
                   className={`bg-white rounded-2xl p-5 border transition-all ${theme === "christmas"
-                      ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                      : "border-gray-100 shadow-sm hover:shadow-lg"
+                    ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                    : "border-gray-100 shadow-sm hover:shadow-lg"
                     }`}
                 >
                   <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
@@ -372,8 +381,8 @@ export default function PartyDetailPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
               className={`w-full lg:w-80 bg-white rounded-2xl p-6 border sticky top-24 ${theme === "christmas"
-                  ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "border-gray-100 shadow-xl"
+                ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-gray-100 shadow-xl"
                 }`}
             >
               <div className={`flex items-center gap-2 mb-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
@@ -603,8 +612,8 @@ export default function PartyDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               className={`bg-white rounded-2xl p-6 border ${theme === "christmas"
-                  ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "border-gray-100 shadow-sm"
+                ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-gray-100 shadow-sm"
                 }`}
             >
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -646,8 +655,8 @@ export default function PartyDetailPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className={`bg-white rounded-2xl p-6 border h-fit sticky top-24 ${theme === "christmas"
-                  ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "border-gray-100 shadow-sm"
+                ? "border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                : "border-gray-100 shadow-sm"
                 }`}
             >
               <h3 className="text-sm font-bold text-gray-500 mb-4 uppercase tracking-wide flex items-center gap-2">

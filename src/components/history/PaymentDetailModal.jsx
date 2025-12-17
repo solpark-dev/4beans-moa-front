@@ -6,14 +6,32 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const paymentModalThemeStyles = {
-  default: {
-    gradientBg: 'bg-gradient-to-br from-blue-50 to-purple-50',
-    buttonBg: 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700',
-    iconColorPrimary: 'text-blue-600',
+  pop: {
+    gradientBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
+    buttonBg: 'bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600',
+    iconColorPrimary: 'text-pink-600',
+    iconColorSecondary: 'text-cyan-600',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    hoverBg: 'hover:bg-pink-50',
+  },
+  classic: {
+    gradientBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
+    buttonBg: 'bg-gradient-to-r from-[#635bff] to-purple-600 hover:from-indigo-700 hover:to-purple-700',
+    iconColorPrimary: 'text-[#635bff]',
     iconColorSecondary: 'text-purple-600',
-    border: 'border-2 border-slate-900',
-    shadow: 'shadow-2xl',
-    hoverBg: 'hover:bg-slate-100',
+    border: 'border border-gray-200',
+    shadow: 'shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+    hoverBg: 'hover:bg-indigo-50',
+  },
+  dark: {
+    gradientBg: 'bg-gradient-to-br from-gray-800 to-gray-900',
+    buttonBg: 'bg-gradient-to-r from-[#635bff] to-purple-600 hover:from-indigo-700 hover:to-purple-700',
+    iconColorPrimary: 'text-[#635bff]',
+    iconColorSecondary: 'text-purple-400',
+    border: 'border border-gray-700',
+    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
+    hoverBg: 'hover:bg-gray-700',
   },
   christmas: {
     gradientBg: 'bg-gradient-to-br from-red-50 to-green-50',
@@ -21,14 +39,14 @@ const paymentModalThemeStyles = {
     iconColorPrimary: 'text-[#c41e3a]',
     iconColorSecondary: 'text-green-800',
     border: 'border border-gray-200',
-    shadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+    shadow: 'shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
     hoverBg: 'hover:bg-red-50',
   },
 };
 
 export default function PaymentDetailModal({ isOpen, onClose, payment, onRetrySuccess }) {
   const { theme } = useThemeStore();
-  const themeStyle = paymentModalThemeStyles[theme] || paymentModalThemeStyles.default;
+  const themeStyle = paymentModalThemeStyles[theme] || paymentModalThemeStyles.pop;
   const [isRetrying, setIsRetrying] = useState(false);
 
   if (!payment) return null;
@@ -142,20 +160,19 @@ export default function PaymentDetailModal({ isOpen, onClose, payment, onRetrySu
                   <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <span className="text-slate-600 font-medium">상태</span>
                     <span
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-sm ${
-                        payment.paymentStatus === "COMPLETED"
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-sm ${payment.paymentStatus === "COMPLETED"
                           ? "bg-emerald-500 text-white"
                           : payment.paymentStatus === "FAILED"
-                          ? "bg-red-500 text-white"
-                          : "bg-amber-500 text-white"
-                      }`}
+                            ? "bg-red-500 text-white"
+                            : "bg-amber-500 text-white"
+                        }`}
                     >
                       {payment.paymentStatus === "COMPLETED" && <CheckCircle className="w-4 h-4" />}
                       {payment.paymentStatus === "COMPLETED"
                         ? "결제완료"
                         : payment.paymentStatus === "FAILED"
-                        ? "결제실패"
-                        : "처리중"}
+                          ? "결제실패"
+                          : "처리중"}
                     </span>
                   </div>
                 </div>

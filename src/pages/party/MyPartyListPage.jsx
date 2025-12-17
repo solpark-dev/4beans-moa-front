@@ -24,12 +24,28 @@ import {
 
 // Party 페이지 테마 스타일
 const partyThemeStyles = {
-  default: {
-    accent: 'text-indigo-600',
-    accentBg: 'bg-indigo-600',
-    hoverAccentBg: 'hover:bg-indigo-700',
-    badge: 'bg-indigo-50 text-indigo-600',
-    buttonShadow: 'shadow-indigo-600/25',
+  pop: {
+    accent: 'text-pink-500',
+    accentBg: 'bg-pink-500',
+    hoverAccentBg: 'hover:bg-pink-600',
+    badge: 'bg-pink-50 text-pink-600',
+    buttonShadow: 'shadow-pink-500/25',
+    accentColor: '#ec4899',
+  },
+  classic: {
+    accent: 'text-[#635bff]',
+    accentBg: 'bg-[#635bff]',
+    hoverAccentBg: 'hover:bg-[#5851e8]',
+    badge: 'bg-indigo-50 text-[#635bff]',
+    buttonShadow: 'shadow-[#635bff]/25',
+    accentColor: '#635bff',
+  },
+  dark: {
+    accent: 'text-[#635bff]',
+    accentBg: 'bg-[#635bff]',
+    hoverAccentBg: 'hover:bg-[#5851e8]',
+    badge: 'bg-gray-800 text-[#635bff]',
+    buttonShadow: 'shadow-gray-900/25',
     accentColor: '#635bff',
   },
   christmas: {
@@ -44,14 +60,6 @@ const partyThemeStyles = {
     cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
     accentColor: '#c41e3a',
   },
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
-    accentColor: '#ec4899',
-  },
 };
 
 export default function MyPartyListPage() {
@@ -64,7 +72,7 @@ export default function MyPartyListPage() {
 
   // Theme
   const { theme, setTheme, currentTheme } = useTheme("appTheme");
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.default;
+  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
 
   useEffect(() => {
     loadUserAndParties();

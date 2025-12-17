@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Coffee, X, Calendar, CalendarPlus, Sparkles, LayoutGrid, Bell, Users, Lightbulb, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Search, Coffee, X, Calendar, CalendarPlus, Sparkles, LayoutGrid, Bell, Users, Lightbulb, AlertTriangle, ArrowRight, List } from 'lucide-react';
 import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 import AddSubscriptionModal from '../../components/subscription/AddSubscriptionModal';
@@ -9,6 +9,7 @@ import AddProductModal from '../../components/product/AddProductModal';
 import UpdateProductModal from '../../components/product/UpdateProductModal';
 import { useThemeStore } from '@/store/themeStore';
 import { ChristmasBackground } from '@/config/themeConfig';
+import { getProductIconUrl } from '@/utils/imageUtils';
 
 // Theme-based styles
 const getThemeStyles = (theme) => {
@@ -134,7 +135,7 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
           <div className="flex-shrink-0">
             {product.image ? (
               <img
-                src={product.image}
+                src={getProductIconUrl(product.image)}
                 alt={product.productName}
                 className={`w-20 h-20 rounded-3xl shadow-lg object-cover ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'}`}
               />
@@ -478,13 +479,15 @@ const GetProductList = () => {
                 </span>
               </motion.h1>
 
-              {/* Admin Button */}
-              {user?.role === 'ADMIN' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                >
+              {/* Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              >
+                {/* Admin: 상품 등록 버튼 */}
+                {user?.role === 'ADMIN' && (
                   <motion.button
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.98 }}
@@ -500,8 +503,27 @@ const GetProductList = () => {
                     상품 등록
                     <ArrowRight className="w-4 h-4" />
                   </motion.button>
-                </motion.div>
-              )}
+                )}
+
+                {/* User: 내 구독 목록 버튼 */}
+                {user && user?.role !== 'ADMIN' && (
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/subscription')}
+                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${
+                      theme === 'christmas' ? 'bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25' :
+                      theme === 'dark' ? 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25' :
+                      theme === 'pop' ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25' :
+                      'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'
+                    }`}
+                  >
+                    <List className="w-4 h-4" />
+                    내 구독 목록
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                )}
+              </motion.div>
             </div>
           </div>
         </section>
@@ -565,7 +587,7 @@ const GetProductList = () => {
             </p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.productId}
@@ -580,7 +602,7 @@ const GetProductList = () => {
                     <div className="relative w-[60px] h-[60px] flex-shrink-0">
                       {product.image ? (
                         <img
-                          src={product.image}
+                          src={getProductIconUrl(product.image)}
                           alt={product.productName}
                           className={`w-full h-full rounded-xl object-cover shadow-sm ${theme === 'dark' ? 'border border-gray-700' : 'border border-stone-200'}`}
                         />
@@ -621,6 +643,11 @@ const GetProductList = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!user) {
+                          alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
+                          navigate('/login');
+                          return;
+                        }
                         setViewingProduct(product);
                       }}
                       className={`rounded-lg py-2.5 text-sm font-medium transition-colors ${themeStyles.buttonSecondary}`}
@@ -641,6 +668,11 @@ const GetProductList = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (!user) {
+                            alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
+                            navigate('/login');
+                            return;
+                          }
                           const today = new Date().toISOString().split('T')[0];
                           setSubscribingData({ productId: product.productId, startDate: today, endDate: '' });
                         }}

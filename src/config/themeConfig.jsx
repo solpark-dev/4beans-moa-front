@@ -1,35 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Palette, TreePine, Circle } from "lucide-react";
+import { Sun, Moon, Palette, TreePine } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
 // ============================================
 // Page Theme Configuration
 // ============================================
 export const themeConfig = {
-  default: {
-    name: "Default",
-    icon: Circle,
-    bg: "bg-slate-50",
-    heroBg: "bg-slate-50",
-    text: "text-slate-900",
-    subtext: "text-gray-600",
-    card: "bg-white border-gray-200 hover:border-gray-300 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
-    cardText: "text-slate-900",
-    cardSubtext: "text-gray-500",
-    accent: "#334155",
-    accentBg: "bg-slate-700",
-    accentText: "text-slate-700",
-    filterBg: "bg-white/80",
-    filterBorder: "border-gray-200",
-    inputBg: "bg-white",
-    inputBorder: "border-gray-200",
-    inputText: "text-gray-900",
-    buttonActive: "bg-slate-900 text-white",
-    buttonInactive: "bg-gray-100 text-gray-600 hover:bg-gray-200",
-    sectionBg: "bg-gray-50",
-    gradientText: "text-slate-900",
-  },
   classic: {
     name: "Classic",
     icon: Sun,
@@ -52,6 +29,23 @@ export const themeConfig = {
     buttonInactive: "bg-gray-100 text-gray-600 hover:bg-gray-200",
     sectionBg: "bg-gray-50",
     gradientText: "bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent",
+    cssVars: {
+      "--theme-primary": "#635bff",
+      "--theme-primary-hover": "#5a52d5",
+      "--theme-primary-light": "#e0e7ff",
+      "--theme-secondary": "#00d4ff",
+      "--theme-bg": "#ffffff",
+      "--theme-bg-card": "#ffffff",
+      "--theme-text": "#111827",
+      "--theme-text-muted": "#4b5563",
+      "--theme-border": "#e5e7eb",
+      "--theme-border-light": "#f3f4f6",
+      "--theme-bg-input": "#ffffff",
+      "--theme-shadow": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+      "--theme-shadow-color": "rgba(99, 91, 255, 0.25)",
+      "--theme-primary-shadow": "0 10px 15px -3px rgba(99, 91, 255, 0.4)",
+      "--theme-focus-ring": "#635bff",
+    }
   },
   dark: {
     name: "Dark",
@@ -75,6 +69,23 @@ export const themeConfig = {
     buttonInactive: "bg-[#1E293B] text-gray-400 hover:bg-[#334155]",
     sectionBg: "bg-[#0F172A]",
     gradientText: "bg-gradient-to-r from-[#635bff] via-[#00d4ff] to-[#00d4ff] bg-clip-text text-transparent",
+    cssVars: {
+      "--theme-primary": "#635bff",
+      "--theme-primary-hover": "#5a52d5",
+      "--theme-primary-light": "rgba(99, 91, 255, 0.2)",
+      "--theme-secondary": "#00d4ff",
+      "--theme-bg": "#0B1120",
+      "--theme-bg-card": "#1E293B",
+      "--theme-text": "#ffffff",
+      "--theme-text-muted": "#9ca3af",
+      "--theme-border": "#334155",
+      "--theme-border-light": "#1e293b",
+      "--theme-bg-input": "#0F172A",
+      "--theme-shadow": "0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)",
+      "--theme-shadow-color": "rgba(99, 91, 255, 0.25)",
+      "--theme-primary-shadow": "0 10px 15px -3px rgba(99, 91, 255, 0.4)",
+      "--theme-focus-ring": "#635bff",
+    }
   },
   pop: {
     name: "Pop",
@@ -98,6 +109,23 @@ export const themeConfig = {
     buttonInactive: "bg-white text-black border border-gray-200 hover:bg-pink-100",
     sectionBg: "bg-white",
     gradientText: "text-pink-500",
+    cssVars: {
+      "--theme-primary": "#ec4899",
+      "--theme-primary-hover": "#db2777",
+      "--theme-primary-light": "#fce7f3",
+      "--theme-secondary": "#d946ef",
+      "--theme-bg": "#f8fafc",
+      "--theme-bg-card": "#ffffff",
+      "--theme-text": "#000000",
+      "--theme-text-muted": "#4b5563",
+      "--theme-border": "#e2e8f0",
+      "--theme-border-light": "#f1f5f9",
+      "--theme-bg-input": "#ffffff",
+      "--theme-shadow": "4px 4px 12px rgba(0,0,0,0.08)",
+      "--theme-shadow-color": "rgba(236, 72, 153, 0.25)",
+      "--theme-primary-shadow": "0 10px 15px -3px rgba(236, 72, 153, 0.4)",
+      "--theme-focus-ring": "#ec4899",
+    }
   },
   christmas: {
     name: "Christmas",
@@ -122,6 +150,23 @@ export const themeConfig = {
     buttonInactive: "bg-gray-100 text-gray-600 hover:bg-[#c41e3a]/10 hover:text-[#c41e3a]",
     sectionBg: "bg-gray-50",
     gradientText: "bg-gradient-to-r from-[#c41e3a] to-[#1a5f2a] bg-clip-text text-transparent",
+    cssVars: {
+      "--theme-primary": "#c41e3a",
+      "--theme-primary-hover": "#9b1c2e",
+      "--theme-primary-light": "#fee2e2",
+      "--theme-secondary": "#1a5f2a",
+      "--theme-bg": "transparent",
+      "--theme-bg-card": "#ffffff",
+      "--theme-text": "#111827",
+      "--theme-text-muted": "#4b5563",
+      "--theme-border": "#e5e7eb",
+      "--theme-border-light": "#f3f4f6",
+      "--theme-bg-input": "#ffffff",
+      "--theme-shadow": "0 4px 6px -1px rgba(196, 30, 58, 0.1), 0 2px 4px -2px rgba(196, 30, 58, 0.06)",
+      "--theme-shadow-color": "rgba(196, 30, 58, 0.25)",
+      "--theme-primary-shadow": "0 10px 15px -3px rgba(196, 30, 58, 0.4)",
+      "--theme-focus-ring": "#c41e3a",
+    }
   },
 };
 
@@ -129,48 +174,6 @@ export const themeConfig = {
 // Header Theme Configuration
 // ============================================
 export const headerThemes = {
-  default: {
-    // Header container - original slate style
-    bg: "bg-slate-50/95 backdrop-blur-xl",
-    border: "border-gray-200/80",
-    borderWidth: "border-b",
-    // Text colors
-    text: "text-slate-900",
-    subtext: "text-gray-600",
-    // Logo
-    logoBg: "bg-white",
-    logoBorder: "border border-gray-200",
-    logoShadow: "shadow-sm hover:shadow-md",
-    logoText: "text-slate-900",
-    // Sticker/Card components
-    stickerBg: "bg-white",
-    stickerBorder: "border border-gray-200",
-    stickerShadow: "shadow-sm hover:shadow-md",
-    stickerText: "text-slate-900",
-    // Menu button
-    menuBg: "bg-slate-900",
-    menuText: "text-white",
-    menuBorder: "",
-    // Dropdown
-    dropdownBg: "bg-white",
-    dropdownBorder: "border border-gray-200",
-    dropdownShadow: "shadow-xl",
-    dropdownItemBg: "bg-gray-50",
-    dropdownItemHover: "hover:bg-gray-100",
-    dropdownItemText: "text-slate-900",
-    dropdownItemSubtext: "text-gray-600",
-    // Accent
-    accent: "#334155",
-    accentBg: "bg-slate-700",
-    accentText: "text-white",
-    // Separator
-    separatorColor: "bg-gray-200",
-    // Switch
-    switchChecked: "data-[state=checked]:bg-slate-900 data-[state=unchecked]:bg-slate-300",
-    // Avatar
-    avatarBorder: "border-2 border-slate-300 bg-slate-50",
-    avatarFallback: "bg-slate-400 text-white",
-  },
   classic: {
     // Header container
     bg: "bg-white/95 backdrop-blur-xl",
@@ -620,7 +623,7 @@ export const ThemeSwitcher = ({ theme, onThemeChange }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed top-44 right-4 z-50">
+    <div className="fixed bottom-8 left-8 z-50">
       {/* Main Toggle Button */}
       <motion.button
         whileHover={{ scale: 1.05 }}

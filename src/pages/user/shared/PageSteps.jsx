@@ -1,24 +1,8 @@
-import { useThemeStore } from "@/store/themeStore";
-
-const authThemeStyles = {
-  default: {
-    activeBg: 'bg-indigo-600',
-    activeText: 'text-indigo-600',
-    inactiveBg: 'bg-gray-200',
-    inactiveText: 'text-gray-500',
-  },
-  christmas: {
-    activeBg: 'bg-[#c41e3a]',
-    activeText: 'text-[#c41e3a]',
-    inactiveBg: 'bg-gray-200',
-    inactiveText: 'text-gray-500',
-  },
-};
-
+/**
+ * 페이지 단계 표시 컴포넌트
+ * CSS 변수 기반 테마 적용
+ */
 export function PageSteps({ steps }) {
-  const { theme } = useThemeStore();
-  const themeStyle = authThemeStyles[theme] || authThemeStyles.default;
-
   if (!steps || steps.length === 0) return null;
 
   return (
@@ -30,15 +14,17 @@ export function PageSteps({ steps }) {
           <div key={step.label} className="flex items-center gap-2">
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                isActive ? `${themeStyle.activeBg} text-white` : `${themeStyle.inactiveBg} ${themeStyle.inactiveText}`
+                isActive
+                  ? 'bg-[var(--theme-primary)] text-white'
+                  : 'bg-[var(--theme-border-light)] text-[var(--theme-text-muted)]'
               }`}
             >
               {step.number}
             </span>
-            <span className={isActive ? themeStyle.activeText : "text-gray-400"}>
+            <span className={isActive ? 'text-[var(--theme-primary)]' : 'text-[var(--theme-text-muted)]'}>
               {step.label}
             </span>
-            {!isLast && <div className="w-8 h-px bg-gray-300 ml-4" />}
+            {!isLast && <div className="w-8 h-px bg-[var(--theme-border-light)] ml-4" />}
           </div>
         );
       })}

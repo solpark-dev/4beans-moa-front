@@ -14,32 +14,54 @@ const FaqItem = ({ faq, index, isAdmin, onUpdate, getCategoryFromTitle, isOpen, 
 
     // Theme-based colors
     const communityThemeStyles = {
-        default: {
+        pop: {
             // Neo/Pop 스타일 - 핑크, 시안 계열
             categoryBadge: 'bg-pink-500',
             focusRing: 'focus:ring-pink-500',
             saveButton: 'bg-cyan-500',
             editButton: 'bg-pink-500',
-            cardBg: theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white',
+            cardBg: 'bg-white',
             hoverBg: 'hover:bg-pink-50',
-            answerBg: theme === 'dark' ? 'bg-[#0F172A]' : 'bg-slate-50',
-            textColor: theme === 'dark' ? 'text-gray-200' : 'text-black',
-            iconColor: theme === 'dark' ? 'text-gray-400' : 'text-black',
+            answerBg: 'bg-slate-50',
+            textColor: 'text-black',
+            iconColor: 'text-black',
+        },
+        classic: {
+            categoryBadge: 'bg-[#635bff]',
+            focusRing: 'focus:ring-[#635bff]',
+            saveButton: 'bg-indigo-500',
+            editButton: 'bg-[#635bff]',
+            cardBg: 'bg-white',
+            hoverBg: 'hover:bg-indigo-50',
+            answerBg: 'bg-slate-50',
+            textColor: 'text-black',
+            iconColor: 'text-black',
+        },
+        dark: {
+            categoryBadge: 'bg-[#635bff]',
+            focusRing: 'focus:ring-[#635bff]',
+            saveButton: 'bg-indigo-500',
+            editButton: 'bg-[#635bff]',
+            cardBg: 'bg-[#1E293B]',
+            hoverBg: 'hover:bg-gray-700',
+            answerBg: 'bg-[#0F172A]',
+            textColor: 'text-gray-200',
+            iconColor: 'text-gray-400',
         },
         christmas: {
             categoryBadge: 'bg-[#c41e3a]',
             focusRing: 'focus:ring-[#c41e3a]',
             saveButton: 'bg-[#1a5f2a]',
             editButton: 'bg-[#1a5f2a]',
-            cardBg: theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white',
+            cardBg: 'bg-white',
             hoverBg: 'hover:bg-red-50',
-            answerBg: theme === 'dark' ? 'bg-[#0F172A]' : 'bg-slate-50',
-            textColor: theme === 'dark' ? 'text-gray-200' : 'text-black',
-            iconColor: theme === 'dark' ? 'text-gray-400' : 'text-black',
+            answerBg: 'bg-slate-50',
+            textColor: 'text-black',
+            iconColor: 'text-black',
         },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.default;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
 
     const categories = ['회원', '결제', '구독', '파티', '정산', '기타'];
     const category = getCategoryFromTitle ? getCategoryFromTitle(faq.title) : '기타';

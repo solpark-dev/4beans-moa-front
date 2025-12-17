@@ -119,7 +119,7 @@ export default function MyWalletPage() {
         ? "border-b border-gray-800"
         : ""
         }`}>
-        <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
           <button
             onClick={() => navigate(-1)}
             className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
@@ -151,8 +151,8 @@ export default function MyWalletPage() {
               <Sparkles className="w-4 h-4" />
               금융 관리
             </span>
-            <h1 className={`text-4xl font-bold mb-2 tracking-tight flex items-center gap-3 ${currentTheme.text}`}>
-              <Wallet className={`w-8 h-8`} style={{ color: currentTheme.accent }} />
+            <h1 className={`text-3xl sm:text-4xl font-bold mb-2 tracking-tight flex items-center gap-3 ${currentTheme.text}`}>
+              <Wallet className={`w-7 h-7 sm:w-8 sm:h-8`} style={{ color: currentTheme.accent }} />
               내 지갑
             </h1>
             <p className={currentTheme.subtext}>나의 금융 정보를 관리하세요</p>
@@ -160,7 +160,7 @@ export default function MyWalletPage() {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
         {/* Total Deposit Card - Theme-aware */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -181,9 +181,9 @@ export default function MyWalletPage() {
               <ShieldCheck className="w-4 h-4" />
               총 보증금
             </div>
-            <div className="text-4xl font-bold mb-4 tracking-tight">
+            <div className="text-3xl sm:text-4xl font-bold mb-4 tracking-tight">
               {totalDeposit.toLocaleString()}
-              <span className="text-xl font-semibold opacity-90 ml-1">원</span>
+              <span className="text-lg sm:text-xl font-semibold opacity-90 ml-1">원</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-white/80">
@@ -203,6 +203,8 @@ export default function MyWalletPage() {
             }`}></div>
         </motion.div>
 
+        {/* Account & Card Grid - Side by side on larger screens */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Settlement Account - Variant T Style */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -410,13 +412,14 @@ export default function MyWalletPage() {
             )}
           </div>
         </motion.div>
+        </div>
 
         {/* Info Cards - Theme-aware */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 gap-3 pt-4"
+          className="grid grid-cols-2 gap-3 sm:gap-4 pt-4"
         >
           <div className={`rounded-2xl p-4 ${theme === "dark"
             ? "bg-[#635bff]/10"

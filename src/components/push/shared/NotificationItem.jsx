@@ -5,20 +5,11 @@ import {
     AccordionContent
 } from '@/components/ui/accordion'
 import { getPushIcon } from '@/utils/pushUtils'
-import { useThemeStore } from '@/store/themeStore'
 
-// 테마별 스타일
-const notificationThemeStyles = {
-    default: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        unreadBg: 'bg-pink-50/50 border-pink-100',
-        unreadDot: 'bg-pink-500',
-    },
-    christmas: {
-        unreadBg: 'bg-red-50/50 border-red-100',
-        unreadDot: 'bg-[#c41e3a]',
-    },
-}
+/**
+ * 알림 아이템 컴포넌트
+ * CSS 변수 기반 테마 적용
+ */
 
 const formatRelativeDate = (dateString) => {
     if (!dateString) return ''
@@ -43,8 +34,6 @@ const NotificationItem = ({
     onDelete,
     onMarkAsRead
 }) => {
-    const { theme } = useThemeStore()
-    const themeStyle = notificationThemeStyles[theme] || notificationThemeStyles.default
     const isUnread = notification.isRead === 'N'
 
     const handleClick = () => {
@@ -66,14 +55,13 @@ const NotificationItem = ({
     return (
         <AccordionItem
             value={notification.pushId.toString()}
-            className={`border rounded-lg mb-2 overflow-hidden transition-colors ${
-                isUnread
-                    ? themeStyle.unreadBg
-                    : 'bg-white border-slate-100'
-            }`}
+            className={`border rounded-lg mb-2 overflow-hidden transition-colors ${isUnread
+                ? 'bg-[var(--theme-primary-light)] border-[var(--theme-border-light)]'
+                : 'bg-[var(--theme-bg-card)] border-[var(--theme-border-light)]'
+                }`}
         >
-            <div 
-                className="flex items-center w-full px-3 py-2.5 cursor-pointer group hover:bg-slate-50/50 transition-colors"
+            <div
+                className="flex items-center w-full px-3 py-2.5 cursor-pointer group hover:bg-[var(--theme-primary-light)] transition-colors"
                 onClick={handleClick}
             >
                 <div className="flex items-start gap-3 flex-1">
@@ -83,35 +71,33 @@ const NotificationItem = ({
                     <div className="text-left">
                         <div className="flex items-center gap-2">
                             <p
-                                className={`text-sm ${
-                                    isUnread
-                                        ? 'font-semibold text-slate-900'
-                                        : 'font-medium text-slate-700'
-                                }`}
+                                className={`text-sm ${isUnread
+                                    ? 'font-semibold text-[var(--theme-text)]'
+                                    : 'font-medium text-[var(--theme-text-muted)]'
+                                    }`}
                             >
                                 {notification.title}
                             </p>
                             {isUnread && (
-                                <span className={`w-2 h-2 ${themeStyle.unreadDot} rounded-full flex-shrink-0`} />
+                                <span className="w-2 h-2 bg-[var(--theme-primary)] rounded-full flex-shrink-0" />
                             )}
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-[var(--theme-text-muted)] mt-0.5">
                             {formatRelativeDate(notification.sentAt)}
                         </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-1 ml-auto flex-shrink-0">
-                    <ChevronDown 
-                        className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                            isExpanded ? 'rotate-180' : ''
-                        }`} 
+                    <ChevronDown
+                        className={`w-4 h-4 text-[var(--theme-text-muted)] transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''
+                            }`}
                     />
                     {onDelete && (
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={handleDelete}
-                            className="h-7 w-7 text-slate-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-7 w-7 text-[var(--theme-text-muted)] hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
                         </Button>
@@ -120,7 +106,7 @@ const NotificationItem = ({
             </div>
             <AccordionContent className="px-3 pb-3 pt-0">
                 <div className="pl-8 pr-2">
-                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+                    <p className="text-sm text-[var(--theme-text)] leading-relaxed whitespace-pre-wrap">
                         {notification.content}
                     </p>
                 </div>

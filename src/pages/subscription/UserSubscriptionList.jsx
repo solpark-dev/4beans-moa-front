@@ -185,7 +185,7 @@ export default function UserSubscriptionList() {
       {/* Hero Header - Variant T Style */}
       <div className={`relative overflow-hidden ${themeColors.headerBg} ${theme === 'dark' ? 'border-b border-gray-700' : 'border-b border-gray-100'}`}>
         <AnimatedGradient theme={theme} />
-        <div className="max-w-4xl mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -201,7 +201,7 @@ export default function UserSubscriptionList() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {subscriptions.length === 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -251,11 +251,10 @@ export default function UserSubscriptionList() {
                     </h3>
 
                     <span
-                      className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                        sub.status === "ACTIVE"
+                      className={`text-xs px-3 py-1 rounded-full font-semibold ${sub.status === "ACTIVE"
                           ? themeColors.statusActive
                           : "bg-red-50 text-red-600"
-                      }`}
+                        }`}
                     >
                       {sub.status === "ACTIVE" ? "이용중" : "해지됨"}
                     </span>

@@ -17,7 +17,7 @@ import {
 // 테마별 히어로 섹션 스타일
 // ============================================
 const heroThemeStyles = {
-  default: {
+  pop: {
     confettiColors: ["bg-pink-400", "bg-cyan-400", "bg-lime-400", "bg-yellow-400", "bg-pink-500", "bg-blue-400", "bg-purple-400", "bg-cyan-300", "bg-orange-400", "bg-lime-300"],
     badgeBg: "bg-white",
     badgeText: "text-pink-500",
@@ -101,7 +101,7 @@ export default function MainHeroSection({ parties, products = [] }) {
 
   // 테마 설정
   const { theme } = useThemeStore();
-  const themeStyle = heroThemeStyles[theme] || heroThemeStyles.default;
+  const themeStyle = heroThemeStyles[theme] || heroThemeStyles.pop;
   const isDark = theme === "dark";
 
   // 로그인 상태 확인
@@ -136,14 +136,14 @@ export default function MainHeroSection({ parties, products = [] }) {
   // 구독상품 검색 필터링
   const filteredProducts = searchQuery.trim()
     ? products.filter((p) => {
-        const name = (p?.productName || p?.name || "").toLowerCase();
-        const query = searchQuery.toLowerCase();
-        if (name.includes(query)) return true;
-        for (const [kor, eng] of Object.entries(koreanToEnglish)) {
-          if (query.includes(kor) && name.includes(eng)) return true;
-        }
-        return false;
-      }).slice(0, 5)
+      const name = (p?.productName || p?.name || "").toLowerCase();
+      const query = searchQuery.toLowerCase();
+      if (name.includes(query)) return true;
+      for (const [kor, eng] of Object.entries(koreanToEnglish)) {
+        if (query.includes(kor) && name.includes(eng)) return true;
+      }
+      return false;
+    }).slice(0, 5)
     : [];
 
   // 흩어진 위치 (초기)

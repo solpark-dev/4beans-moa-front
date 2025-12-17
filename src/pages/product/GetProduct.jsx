@@ -5,6 +5,7 @@ import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 import UpdateProductModal from '../../components/product/UpdateProductModal';
 import { useThemeStore } from '@/store/themeStore';
+import { getProductIconUrl } from '@/utils/imageUtils';
 
 // 테마별 스타일
 const getProductThemeStyles = {
@@ -43,6 +44,13 @@ const getProductThemeStyles = {
 const GetProduct = () => {
     const { theme } = useThemeStore();
     const themeStyle = getProductThemeStyles[theme] || getProductThemeStyles.default;
+
+    // 테마별 accent 색상
+    const accent = theme === 'christmas' ? '#c41e3a'
+        : theme === 'pop' ? '#ec4899'
+        : theme === 'dark' ? '#635bff'
+        : '#635bff';
+
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
@@ -50,20 +58,6 @@ const GetProduct = () => {
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-    const getAccentColor = () => {
-        switch (theme) {
-            case 'classic':
-            case 'dark':
-                return '#635bff';
-            case 'pop':
-                return '#ec4899';
-            case 'christmas':
-                return '#c41e3a';
-            default:
-                return '#635bff';
-        }
-    };
 
     const fetchProduct = async () => {
         try {
@@ -83,21 +77,30 @@ const GetProduct = () => {
         }
     };
 
+    // 비로그인 사용자 접근 차단
     useEffect(() => {
-        fetchProduct();
-    }, [id, navigate]);
+        if (!user) {
+            alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
+            navigate('/login');
+            return;
+        }
+    }, [user, navigate]);
+
+    useEffect(() => {
+        if (user) {
+            fetchProduct();
+        }
+    }, [id, navigate, user]);
 
     const handleSubscribe = () => {
         // 구독 등록 로직 (추후 구현)
         navigate(`/subscription/add/${id}?startDate=${startDate}`);
     };
 
-    const accent = getAccentColor();
-
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${themeStyle.spinnerBorder}`}></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
             </div>
         );
     }
@@ -106,27 +109,27 @@ const GetProduct = () => {
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-4xl">
-            <div className={`bg-white rounded-[2rem] ${themeStyle.cardShadow} overflow-hidden`}>
+            <div className="bg-theme-bg-card rounded-[2rem] shadow-theme overflow-hidden border border-theme-border">
                 {/* Header Section (Horizontal Layout with Gradient) */}
                 <div className={`${themeStyle.headerBg} p-8 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden`}>
                     {/* Blur Circles */}
                     <div className={`absolute top-0 left-0 w-32 h-32 ${themeStyle.blurCircle1} rounded-full filter blur-3xl opacity-50 -ml-10 -mt-10`}></div>
                     <div className={`absolute bottom-0 right-0 w-32 h-32 ${themeStyle.blurCircle2} rounded-full filter blur-3xl opacity-50 -mr-10 -mb-10`}></div>
 
-                        {/* Icon */}
-                        <div className="relative z-10 flex-shrink-0">
-                            {product.image ? (
-                                <img
-                                    src={product.image}
-                                    alt={product.productName}
-                                    className="w-20 h-20 md:w-24 md:h-24 rounded-3xl shadow-lg object-cover bg-white"
-                                />
-                            ) : (
-                                <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-white shadow-lg flex items-center justify-center text-gray-400">
-                                    No Img
-                                </div>
-                            )}
-                        </div>
+                    {/* Icon */}
+                    <div className="relative z-10 flex-shrink-0">
+                        {product.image ? (
+                            <img
+                                src={getProductIconUrl(product.image)}
+                                alt={product.productName}
+                                className="w-20 h-20 md:w-24 md:h-24 rounded-3xl shadow-lg object-cover bg-white"
+                            />
+                        ) : (
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-white shadow-lg flex items-center justify-center text-gray-400">
+                                No Img
+                            </div>
+                        )}
+                    </div>
 
                         {/* Title + Category + Price */}
                         <div className="relative z-10 text-center md:text-left flex-1">
@@ -169,14 +172,14 @@ const GetProduct = () => {
 
                     {/* MoA 구독 관리 혜택 */}
                     <div className="mb-8">
-                        <h3 className="font-bold text-stone-800 mb-6 flex items-center gap-2 text-base">
-                            <Sparkles className={`w-5 h-5 ${themeStyle.sparklesIcon}`} /> MoA 구독 관리 혜택
+                        <h3 className="font-bold text-theme-text mb-6 flex items-center gap-2 text-base">
+                            <Sparkles className="w-5 h-5 text-theme-primary" /> MoA 구독 관리 혜택
                         </h3>
                         <div className="space-y-5">
                             {[
                                 {
                                     icon: LayoutGrid,
-                                    color: themeStyle.benefitIcon1,
+                                    color: 'bg-theme-primary-light text-theme-primary',
                                     title: "1. 모든 구독을 한눈에 정리하세요",
                                     desc: "흩어진 구독을 한 곳에서 확인하고 더 쉽고 편하게 관리할 수 있어요."
                                 },
@@ -204,10 +207,10 @@ const GetProduct = () => {
                                         <item.icon className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1">
-                                        <h4 className="text-sm font-bold text-stone-800 leading-tight mb-1">
+                                        <h4 className="text-sm font-bold text-theme-text leading-tight mb-1">
                                             {item.title}
                                         </h4>
-                                        <p className="text-sm text-stone-500 leading-relaxed">
+                                        <p className="text-sm text-theme-text-muted leading-relaxed">
                                             {item.desc}
                                         </p>
                                     </div>
@@ -218,17 +221,17 @@ const GetProduct = () => {
 
                     {/* 구독 시작일 선택 (일반 사용자만) */}
                     {user?.role !== 'ADMIN' && (
-                        <div className="mb-8 pt-6 border-t border-stone-100">
-                            <label className="block text-sm font-bold text-stone-700 mb-3">
+                        <div className="mb-8 pt-6 border-t border-theme-border">
+                            <label className="block text-sm font-bold text-theme-text mb-3">
                                 구독 시작일 (결제일) 지정
                             </label>
                             <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className={`w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 ${themeStyle.focusRing} focus:border-transparent font-medium text-stone-900`}
+                                    className="w-full pl-12 pr-4 py-3 bg-theme-bg-input border border-theme-border rounded-xl focus:ring-2 focus:ring-theme-focus-ring focus:border-transparent font-medium text-theme-text"
                                 />
                             </div>
                         </div>

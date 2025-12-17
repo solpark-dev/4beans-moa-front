@@ -4,7 +4,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Stats Marquee 스타일
 const statsMarqueeThemeStyles = {
-  default: {
+  pop: {
     bg: "bg-pink-500",
     border: "border-pink-400",
   },
@@ -37,7 +37,7 @@ function Marquee({ children, direction = "left", speed = 20 }) {
 // ============================================
 export default function MainStatsMarquee() {
   const { theme } = useThemeStore();
-  const themeStyle = statsMarqueeThemeStyles[theme] || statsMarqueeThemeStyles.default;
+  const themeStyle = statsMarqueeThemeStyles[theme] || statsMarqueeThemeStyles.pop;
 
   return (
     <div className={`${themeStyle.bg} text-white py-4 border-y ${themeStyle.border}`}>

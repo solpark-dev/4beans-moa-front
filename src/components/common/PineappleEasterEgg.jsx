@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const PineappleEasterEgg = () => {
+const PineappleEasterEgg = ({ showToggle = true }) => {
     const containerRef = useRef(null);
     const [pineapples, setPineapples] = useState([]);
     const [clickCount, setClickCount] = useState(0);
@@ -152,28 +152,30 @@ const PineappleEasterEgg = () => {
 
     return (
         <>
-            {/* Toggle Button */}
-            <button
-                onClick={() => setIsEnabled(!isEnabled)}
-                style={{
-                    position: 'fixed',
-                    bottom: '20px',
-                    left: '20px',
-                    zIndex: 10000,
-                    background: isEnabled ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.5)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '40px',
-                    height: '40px',
-                    fontSize: '20px',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-                    transition: 'all 0.3s ease',
-                }}
-                title={isEnabled ? "파인애플 숨기기" : "파인애플 보이기"}
-            >
-                {isEnabled ? '🍍' : '🚫'}
-            </button>
+            {/* Toggle Button - Only show if showToggle is true */}
+            {showToggle && (
+                <button
+                    onClick={() => setIsEnabled(!isEnabled)}
+                    style={{
+                        position: 'fixed',
+                        bottom: '32px',
+                        left: '170px',
+                        zIndex: 10000,
+                        background: isEnabled ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.5)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        fontSize: '20px',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                        transition: 'all 0.3s ease',
+                    }}
+                    title={isEnabled ? "파인애플 숨기기" : "파인애플 보이기"}
+                >
+                    {isEnabled ? '🍍' : '🚫'}
+                </button>
+            )}
 
             {/* Pineapple Container */}
             {isEnabled && (

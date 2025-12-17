@@ -1,9 +1,9 @@
 import React from "react";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { NeoCard } from '@/components/common/neo';
 import InquiryStatusBadge from './InquiryStatusBadge';
@@ -12,24 +12,34 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    default: {
-        // Neo/Pop 스타일 - 핑크, 시안 계열
-        categoryBadge: 'bg-pink-500 text-white',
-        answerCard: 'bg-pink-50',
-        answerTextColor: 'text-pink-700',
-    },
-    christmas: {
-        categoryBadge: 'bg-[#c41e3a] text-white',
-        answerCard: 'bg-[#1a5f2a]',
-        answerTextColor: 'text-white',
-    },
+  pop: {
+    // Neo/Pop 스타일 - 핑크, 시안 계열
+    categoryBadge: 'bg-pink-500 text-white',
+    answerCard: 'bg-pink-50',
+    answerTextColor: 'text-pink-700',
+  },
+  classic: {
+    categoryBadge: 'bg-[#635bff] text-white',
+    answerCard: 'bg-indigo-50',
+    answerTextColor: 'text-indigo-700',
+  },
+  dark: {
+    categoryBadge: 'bg-[#635bff] text-white',
+    answerCard: 'bg-gray-700',
+    answerTextColor: 'text-gray-200',
+  },
+  christmas: {
+    categoryBadge: 'bg-[#c41e3a] text-white',
+    answerCard: 'bg-[#1a5f2a]',
+    answerTextColor: 'text-white',
+  },
 };
 
 const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
-    const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.default;
+  const { theme } = useThemeStore();
+  const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
 
-    if (!inquiry) return null;
+  if (!inquiry) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -40,17 +50,17 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
           </DialogTitle>
         </DialogHeader>
 
-                <div className="space-y-6">
-                    {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-3">
-                        <span className={`px-3 py-1 text-xs font-black rounded-lg ${themeStyle.categoryBadge} border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}>
-                            {getCategoryName(inquiry.communityCodeId)}
-                        </span>
-                        <InquiryStatusBadge status={inquiry.answerStatus} />
-                        <span className="text-sm font-bold text-gray-500">
-                            {formatDate(inquiry.createdAt)}
-                        </span>
-                    </div>
+        <div className="space-y-6">
+          {/* Meta Info */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={`px-3 py-1 text-xs font-black rounded-lg ${themeStyle.categoryBadge} border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}>
+              {getCategoryName(inquiry.communityCodeId)}
+            </span>
+            <InquiryStatusBadge status={inquiry.answerStatus} />
+            <span className="text-sm font-bold text-gray-500">
+              {formatDate(inquiry.createdAt)}
+            </span>
+          </div>
 
           {/* Title */}
           <div>
@@ -86,30 +96,30 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
             </div>
           )}
 
-                    {/* Answer */}
-                    {inquiry.answerContent && (
-                        <div className="border-t border-gray-200 pt-6">
-                            <NeoCard
-                                color={themeStyle.answerCard}
-                                hoverable={false}
-                                className="rounded-xl p-5"
-                            >
-                                <p className={`text-sm font-black ${themeStyle.answerTextColor} mb-2`}>답변</p>
-                                <p className={`${theme === 'christmas' ? 'text-white' : 'text-black'} font-medium whitespace-pre-wrap leading-relaxed`}>
-                                    {inquiry.answerContent}
-                                </p>
-                                {inquiry.answeredAt && (
-                                    <p className={`text-xs font-bold ${theme === 'christmas' ? 'text-green-200' : 'text-gray-500'} mt-4`}>
-                                        답변일: {formatDate(inquiry.answeredAt)}
-                                    </p>
-                                )}
-                            </NeoCard>
-                        </div>
-                    )}
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
+          {/* Answer */}
+          {inquiry.answerContent && (
+            <div className="border-t border-gray-200 pt-6">
+              <NeoCard
+                color={themeStyle.answerCard}
+                hoverable={false}
+                className="rounded-xl p-5"
+              >
+                <p className={`text-sm font-black ${themeStyle.answerTextColor} mb-2`}>답변</p>
+                <p className={`${theme === 'christmas' ? 'text-white' : 'text-black'} font-medium whitespace-pre-wrap leading-relaxed`}>
+                  {inquiry.answerContent}
+                </p>
+                {inquiry.answeredAt && (
+                  <p className={`text-xs font-bold ${theme === 'christmas' ? 'text-green-200' : 'text-gray-500'} mt-4`}>
+                    답변일: {formatDate(inquiry.answeredAt)}
+                  </p>
+                )}
+              </NeoCard>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 export default InquiryDetailModal;

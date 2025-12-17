@@ -3,7 +3,7 @@ import { Upload, X } from 'lucide-react';
 import { createProduct } from '../../api/productApi';
 import { useDragAndDrop } from '../../hooks/common/useDragAndDrop';
 import { useProductForm } from '../../hooks/product/useProductForm';
-import { useProductImage } from '../../hooks/product/useProductImage';
+import { useProductImages } from '../../hooks/product/useProductImage';
 import {
     Dialog,
     DialogContent,
@@ -17,7 +17,21 @@ import { useThemeStore } from '@/store/themeStore';
 
 // 테마별 스타일
 const productModalThemeStyles = {
-    default: {
+    pop: {
+        focusRing: 'focus:ring-pink-500',
+        dragOverlay: 'bg-pink-500/10',
+        dragBorder: 'border-pink-500',
+        dragBg: 'bg-pink-50',
+        iconBg: 'bg-pink-100',
+        iconColor: 'text-pink-600',
+        iconColorAlt: 'text-pink-500',
+        textAccent: 'text-pink-600',
+        textDark: 'text-pink-900',
+        hoverBorder: 'hover:border-pink-400',
+        buttonBg: 'bg-pink-500 hover:bg-pink-600',
+        buttonShadow: 'shadow-pink-200 hover:shadow-pink-300',
+    },
+    classic: {
         focusRing: 'focus:ring-indigo-500',
         dragOverlay: 'bg-indigo-500/10',
         dragBorder: 'border-indigo-500',
@@ -30,6 +44,20 @@ const productModalThemeStyles = {
         hoverBorder: 'hover:border-indigo-400',
         buttonBg: 'bg-indigo-600 hover:bg-indigo-700',
         buttonShadow: 'shadow-indigo-200 hover:shadow-indigo-300',
+    },
+    dark: {
+        focusRing: 'focus:ring-[#635bff]',
+        dragOverlay: 'bg-[#635bff]/10',
+        dragBorder: 'border-[#635bff]',
+        dragBg: 'bg-slate-800',
+        iconBg: 'bg-slate-700',
+        iconColor: 'text-[#635bff]',
+        iconColorAlt: 'text-[#635bff]',
+        textAccent: 'text-[#635bff]',
+        textDark: 'text-white',
+        hoverBorder: 'hover:border-[#635bff]',
+        buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
+        buttonShadow: 'shadow-[#635bff]/20 hover:shadow-[#635bff]/30',
     },
     christmas: {
         focusRing: 'focus:ring-[#c41e3a]',
@@ -45,25 +73,11 @@ const productModalThemeStyles = {
         buttonBg: 'bg-[#c41e3a] hover:bg-red-700',
         buttonShadow: 'shadow-red-200 hover:shadow-red-300',
     },
-    pop: {
-        focusRing: 'focus:ring-pink-500',
-        dragOverlay: 'bg-pink-500/10',
-        dragBorder: 'border-pink-500',
-        dragBg: 'bg-pink-50',
-        iconBg: 'bg-pink-100',
-        iconColor: 'text-pink-500',
-        iconColorAlt: 'text-pink-400',
-        textAccent: 'text-pink-500',
-        textDark: 'text-pink-900',
-        hoverBorder: 'hover:border-pink-400',
-        buttonBg: 'bg-pink-500 hover:bg-pink-600',
-        buttonShadow: 'shadow-pink-200 hover:shadow-pink-300',
-    },
 };
 
 const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
     const { theme } = useThemeStore();
-    const themeStyle = productModalThemeStyles[theme] || productModalThemeStyles.default;
+    const themeStyle = productModalThemeStyles[theme] || productModalThemeStyles.pop;
     const {
         formData,
         setFormData,
@@ -73,14 +87,23 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
     } = useProductForm();
 
     const {
-        selectedFile,
-        setSelectedFile,
-        previewUrl,
-        setPreviewUrl,
-        handleFileChange,
-        handleRemoveImage,
-        uploadImageIfSelected
-    } = useProductImage();
+        // 로고
+        logoFile,
+        setLogoFile,
+        logoPreviewUrl,
+        setLogoPreviewUrl,
+        handleLogoChange,
+        handleRemoveLogo,
+        // 아이콘
+        iconFile,
+        setIconFile,
+        iconPreviewUrl,
+        setIconPreviewUrl,
+        handleIconChange,
+        handleRemoveIcon,
+        // 업로드
+        uploadImagesIfSelected
+    } = useProductImages();
 
     const [loading, setLoading] = useState(false);
 
@@ -105,17 +128,27 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
     useEffect(() => {
         if (isOpen) {
             resetProductForm();
-            setSelectedFile(null);
-            setPreviewUrl(null);
+            setLogoFile(null);
+            setLogoPreviewUrl(null);
+            setIconFile(null);
+            setIconPreviewUrl(null);
             setLoading(false);
         }
     }, [isOpen]);
 
-    // input click handler wrapper
-    const onInputClick = (e) => {
-        if (selectedFile) {
+    // input click handler wrapper (로고용)
+    const onLogoInputClick = (e) => {
+        if (logoFile) {
             e.preventDefault();
-            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
+            showAlert("로고 이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
+        }
+    };
+
+    // input click handler wrapper (아이콘용)
+    const onIconInputClick = (e) => {
+        if (iconFile) {
+            e.preventDefault();
+            showAlert("아이콘 이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
         }
     };
 
@@ -126,8 +159,8 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
         setLoading(true);
 
         try {
-            // 1. 이미지 업로드
-            const imageUrl = await uploadImageIfSelected(formData.image);
+            // 1. 이미지 업로드 (로고 + 아이콘)
+            const imageUrl = await uploadImagesIfSelected(formData.image);
 
             // 2. 상품 등록
             const productPayload = {
@@ -154,19 +187,19 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
-    // 드래그 앤 드롭 (Hook 사용)
+    // 드래그 앤 드롭 (Hook 사용) - 로고용
     const onFileDrop = (file) => {
         if (!isOpen) return;
 
-        if (selectedFile || previewUrl) {
-            showAlert("이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
+        if (logoFile || logoPreviewUrl) {
+            showAlert("로고 이미지가 이미 지정되어 있습니다. 기존 이미지를 삭제 후 다시 시도해주세요.");
             return;
         }
 
-        setSelectedFile(file);
+        setLogoFile(file);
         const reader = new FileReader();
         reader.onloadend = () => {
-            setPreviewUrl(reader.result);
+            setLogoPreviewUrl(reader.result);
         };
         reader.readAsDataURL(file);
     };
@@ -191,7 +224,7 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
 
                     <div className="p-8 overflow-y-auto custom-scrollbar flex-1 relative">
                         {/* 전체 화면 드래그 오버레이 (Dialog Content 내부) */}
-                        {isDragging && !selectedFile && (
+                        {isDragging && !logoFile && (
                             <div className={`absolute inset-0 z-50 ${themeStyle.dragOverlay} backdrop-blur-sm border-4 ${themeStyle.dragBorder} rounded-xl flex items-center justify-center m-4 pointer-events-none`}>
                                 <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center animate-bounce">
                                     <Upload className={`w-16 h-16 ${themeStyle.iconColor} mb-4`} />
@@ -256,62 +289,106 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
                                 </div>
                             </div>
 
-                            {/* 이미지 업로드 */}
+                            {/* 이미지 업로드 (로고 + 아이콘) */}
                             <div>
                                 <label className="block text-sm font-bold text-stone-700 mb-2">상품 이미지</label>
-                                <div className="space-y-4">
-                                    {!previewUrl ? (
-                                        <div className="relative group">
-                                            <input
-                                                id="modal-image-upload"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handleFileChange(e, showAlert)}
-                                                onClick={onInputClick}
-                                                className="hidden"
-                                            />
-                                            <label
-                                                htmlFor="modal-image-upload"
-                                                className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-2xl cursor-pointer transition-all group-hover:scale-[0.99]
-                                                    ${isDragging
-                                                        ? `${themeStyle.dragBorder} ${themeStyle.dragBg}`
-                                                        : `border-stone-300 bg-stone-50 hover:bg-stone-100 ${themeStyle.hoverBorder}`
-                                                    }`}
-                                            >
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <div className={`w-12 h-12 rounded-full shadow-sm flex items-center justify-center mb-3 transition-colors ${isDragging ? themeStyle.iconBg : 'bg-white'}`}>
-                                                        <Upload className={`w-6 h-6 ${isDragging ? themeStyle.iconColor : themeStyle.iconColorAlt}`} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* 로고 이미지 */}
+                                    <div>
+                                        <p className="text-xs text-stone-500 mb-2 font-medium">로고 이미지 (필수)</p>
+                                        {!logoPreviewUrl ? (
+                                            <div className="relative group">
+                                                <input
+                                                    id="modal-logo-upload"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleLogoChange(e, showAlert)}
+                                                    onClick={onLogoInputClick}
+                                                    className="hidden"
+                                                />
+                                                <label
+                                                    htmlFor="modal-logo-upload"
+                                                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-all group-hover:scale-[0.99]
+                                                        ${isDragging
+                                                            ? `${themeStyle.dragBorder} ${themeStyle.dragBg}`
+                                                            : `border-stone-300 bg-stone-50 hover:bg-stone-100 ${themeStyle.hoverBorder}`
+                                                        }`}
+                                                >
+                                                    <div className="flex flex-col items-center justify-center py-4">
+                                                        <div className={`w-10 h-10 rounded-full shadow-sm flex items-center justify-center mb-2 transition-colors ${isDragging ? themeStyle.iconBg : 'bg-white'}`}>
+                                                            <Upload className={`w-5 h-5 ${isDragging ? themeStyle.iconColor : themeStyle.iconColorAlt}`} />
+                                                        </div>
+                                                        <p className="text-xs text-stone-600 font-bold"><span className={themeStyle.textAccent}>클릭</span> 또는 드롭</p>
+                                                        <p className="text-xs text-stone-400 mt-1">MAX. 10MB</p>
                                                     </div>
-                                                    <p className="mb-2 text-sm text-stone-600 font-bold"><span className={themeStyle.textAccent}>클릭하여 업로드</span> 또는 파일 놓기</p>
-                                                    <p className="text-xs text-stone-400">PNG, JPG, GIF (MAX. 10MB)</p>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    ) : (
-                                        <div className="relative w-full h-64 bg-stone-100 rounded-2xl overflow-hidden group border border-stone-200 shadow-sm">
-                                            <img
-                                                src={previewUrl}
-                                                alt="Preview"
-                                                className="w-full h-full object-contain bg-stone-50"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-6">
-                                                <div className="text-white">
-                                                    <p className="font-bold truncate text-lg mb-1">{selectedFile?.name}</p>
-                                                    <p className="text-stone-300 text-sm font-medium bg-white/20 inline-block px-2 py-1 rounded-lg backdrop-blur-sm">
-                                                        {selectedFile?.size && (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB'}
-                                                    </p>
-                                                </div>
+                                                </label>
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveImage('modal-image-upload')}
-                                                className="absolute top-4 right-4 p-2.5 bg-white/90 hover:bg-white text-stone-700 rounded-xl shadow-lg backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
-                                            >
-                                                <X className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className="relative w-full h-40 bg-stone-100 rounded-2xl overflow-hidden group border border-stone-200 shadow-sm">
+                                                <img
+                                                    src={logoPreviewUrl}
+                                                    alt="Logo Preview"
+                                                    className="w-full h-full object-contain bg-stone-50"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveLogo('modal-logo-upload')}
+                                                    className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-stone-700 rounded-lg shadow-lg backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* 아이콘 이미지 */}
+                                    <div>
+                                        <p className="text-xs text-stone-500 mb-2 font-medium">아이콘 이미지 (선택)</p>
+                                        {!iconPreviewUrl ? (
+                                            <div className="relative group">
+                                                <input
+                                                    id="modal-icon-upload"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleIconChange(e, showAlert)}
+                                                    onClick={onIconInputClick}
+                                                    className="hidden"
+                                                />
+                                                <label
+                                                    htmlFor="modal-icon-upload"
+                                                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-all group-hover:scale-[0.99]
+                                                        border-stone-300 bg-stone-50 hover:bg-stone-100 ${themeStyle.hoverBorder}`}
+                                                >
+                                                    <div className="flex flex-col items-center justify-center py-4">
+                                                        <div className="w-10 h-10 rounded-full shadow-sm flex items-center justify-center mb-2 bg-white">
+                                                            <Upload className={`w-5 h-5 ${themeStyle.iconColorAlt}`} />
+                                                        </div>
+                                                        <p className="text-xs text-stone-600 font-bold"><span className={themeStyle.textAccent}>클릭</span> 또는 드롭</p>
+                                                        <p className="text-xs text-stone-400 mt-1">MAX. 10MB</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        ) : (
+                                            <div className="relative w-full h-40 bg-stone-100 rounded-2xl overflow-hidden group border border-stone-200 shadow-sm">
+                                                <img
+                                                    src={iconPreviewUrl}
+                                                    alt="Icon Preview"
+                                                    className="w-full h-full object-contain bg-stone-50"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveIcon('modal-icon-upload')}
+                                                    className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-stone-700 rounded-lg shadow-lg backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
+                                <p className="text-xs text-stone-400 mt-2">
+                                    * 로고는 파티 상세에서, 아이콘은 파티 목록에서 표시됩니다.
+                                </p>
                             </div>
                         </form>
                     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useChatBot } from "@/hooks/common/useChatBot";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { MessageCircle, Send, X, Bot, User } from "lucide-react";
+import { MessageCircle, Send, X, Bot, User, ChevronUp } from "lucide-react";
 
 // Theme color configurations for chatbot
 const themeColors = {
@@ -81,8 +82,50 @@ const ChatBotWidget = () => {
     }
   }, [messages]);
 
+  // Scroll to top visibility state
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const toggleScrollTop = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", toggleScrollTop);
+    return () => window.removeEventListener("scroll", toggleScrollTop);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      {/* Scroll to Top Button - Above Chatbot */}
+      <AnimatePresence>
+        {showScrollTop && !isOpen && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={scrollToTop}
+            className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${
+              currentTheme === "dark"
+                ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
+                : currentTheme === "pop"
+                  ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
+                  : currentTheme === "christmas"
+                    ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
+                    : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
+            }`}
+            title="맨 위로 이동"
+          >
+            <ChevronUp className="w-6 h-6" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Chatbot Card */}
       {isOpen && (
         <Card className="w-[360px] h-[520px] flex flex-col rounded-3xl shadow-xl border border-slate-200/80 bg-white/95 backdrop-blur-sm absolute bottom-20 right-0">
           <CardHeader className={`flex flex-row items-center justify-between px-4 py-3 border-b border-slate-100 rounded-t-3xl ${colors.header} text-white`}>
