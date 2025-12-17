@@ -81,7 +81,8 @@ const GetSubscription = () => {
                     headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-600',
-                    cardBg: 'bg-white/90 backdrop-blur-sm',
+                    cardBg: 'bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
+                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(196,30,58,0.2)] hover:-translate-y-1',
                     cardBorder: 'border-gray-100',
                     iconColor1: 'text-[#c41e3a]',
                     iconColor2: 'text-[#1a5f2a]',
@@ -97,7 +98,8 @@ const GetSubscription = () => {
                     headerBg: 'bg-transparent',
                     text: 'text-white',
                     subtext: 'text-gray-400',
-                    cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm',
+                    cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
+                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(99,91,255,0.2)] hover:-translate-y-1',
                     cardBorder: 'border-gray-700',
                     iconColor1: 'text-[#635bff]',
                     iconColor2: 'text-[#00d4ff]',
@@ -113,7 +115,8 @@ const GetSubscription = () => {
                     headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-500',
-                    cardBg: 'bg-white',
+                    cardBg: 'bg-white rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(99,91,255,0.15)] hover:-translate-y-1',
                     cardBorder: 'border-gray-100',
                     iconColor1: 'text-[#635bff]',
                     iconColor2: 'text-[#00d4ff]',
@@ -129,7 +132,8 @@ const GetSubscription = () => {
                     headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-500',
-                    cardBg: 'bg-white',
+                    cardBg: 'bg-white rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] hover:-translate-y-1',
                     cardBorder: 'border-gray-100',
                     iconColor1: 'text-pink-500',
                     iconColor2: 'text-pink-400',
@@ -145,7 +149,8 @@ const GetSubscription = () => {
                     headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-500',
-                    cardBg: 'bg-white',
+                    cardBg: 'bg-white rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(99,91,255,0.15)] hover:-translate-y-1',
                     cardBorder: 'border-gray-100',
                     iconColor1: 'text-[#635bff]',
                     iconColor2: 'text-[#00d4ff]',
@@ -242,7 +247,7 @@ const GetSubscription = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className={`${themeColors.cardBg} rounded-2xl border ${themeColors.cardBorder} overflow-hidden`}
+                    className={`${themeColors.cardBg} ${themeColors.cardHover} border ${themeColors.cardBorder} overflow-hidden relative z-10 transition-all`}
                 >
                     <div className="p-8">
                         <div className="space-y-6">

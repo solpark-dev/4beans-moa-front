@@ -36,16 +36,16 @@ const getThemeStyles = (theme) => {
             };
         case 'pop':
             return {
-                bg: 'bg-slate-50',
+                bg: 'bg-transparent',
                 text: 'text-black',
                 subtext: 'text-gray-600',
                 title: 'text-black',
-                cardBg: 'bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)]',
-                cardHover: 'hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:-translate-x-1',
-                empty: 'bg-white border-2 border-dashed border-black rounded-2xl',
-                buttonPrimary: 'bg-pink-500 hover:bg-pink-600 text-white border-2 border-black',
-                statusActive: 'bg-lime-300 text-black border border-black',
-                statusInactive: 'bg-red-300 text-black border border-black',
+                cardBg: 'bg-white border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+                cardHover: 'hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] hover:-translate-y-1',
+                empty: 'bg-white border border-dashed border-gray-300 rounded-2xl',
+                buttonPrimary: 'bg-pink-500 hover:bg-pink-600 text-white',
+                statusActive: 'bg-pink-50 text-pink-600',
+                statusInactive: 'bg-red-50 text-red-600',
             };
         case 'classic':
             return {
@@ -154,7 +154,7 @@ const GetSubscriptionList = () => {
                             <div
                                 key={sub.subscriptionId}
                                 onClick={() => navigate(`/subscription/${sub.subscriptionId}`)}
-                                className={`p-5 flex items-center justify-between cursor-pointer transition-all ${themeStyles.cardBg} ${themeStyles.cardHover}`}
+                                className={`p-5 flex items-center justify-between cursor-pointer transition-all relative z-10 ${themeStyles.cardBg} ${themeStyles.cardHover}`}
                             >
                                 <div className="flex items-center gap-5">
                                     <img

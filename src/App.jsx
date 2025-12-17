@@ -1,4 +1,6 @@
-﻿import { Routes, Route } from "react-router-dom";
+﻿import { useState, useEffect, useRef } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
@@ -35,6 +37,7 @@ import AdminBlacklistDeletePage from "@/pages/admin/RemoveBlacklistPage";
 import AdminLoginHistoryPage from "@/pages/admin/AdminLoginHistoryPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 import ChartComparisonPage from "@/pages/admin/ChartComparisonPage";
+import AdminAuthGuard from "@/pages/admin/components/AdminAuthGuard";
 
 import LandingTestPage from "./pages/landing/LandingTestPage";
 import LandingPageA from "./pages/landing/LandingPageA";
@@ -119,9 +122,63 @@ import { NeoBackground } from "./components/common/neo";
 
 export default function App() {
   useGlobalLinkHandler();
+  const location = useLocation();
   const { user } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
   const currentTheme = themeConfig[theme] || themeConfig.default;
+
+  // Check if current route is admin page
+  const isAdminPage = location.pathname.startsWith('/admin');
+
+  // Header visibility state for admin pages
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const lastScrollYRef = useRef(0);
+  const idleTimerRef = useRef(null);
+
+  // Scroll up to show, auto-hide after 5s idle
+  useEffect(() => {
+    if (!isAdminPage) {
+      setIsHeaderHidden(false);
+      return;
+    }
+
+    // Start hidden on admin pages
+    setIsHeaderHidden(true);
+    lastScrollYRef.current = window.scrollY;
+
+    const startIdleTimer = () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+
+      idleTimerRef.current = setTimeout(() => {
+        setIsHeaderHidden(true);
+      }, 5000);
+    };
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const lastScrollY = lastScrollYRef.current;
+
+      // Scrolling UP - show header
+      if (currentScrollY < lastScrollY) {
+        setIsHeaderHidden(false);
+        startIdleTimer();
+      }
+      // Scrolling DOWN - hide header
+      else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsHeaderHidden(true);
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [isAdminPage, location.pathname]);
 
   // Easter egg for specific test accounts
   const showEasterEgg =
@@ -145,9 +202,31 @@ export default function App() {
       <ScrollToTop />
       {showEasterEgg && <PineappleEasterEgg />}
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
-      <Header />
 
-      <main className="flex-1 pt-20">
+      {/* Header with slide animation for admin pages */}
+      {isAdminPage ? (
+        <motion.div
+          initial={false}
+          animate={{
+            y: isHeaderHidden ? "-100%" : "0%",
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+          }}
+          className="fixed top-0 left-0 right-0 z-[200]"
+        >
+          <Header />
+        </motion.div>
+      ) : (
+        <Header />
+      )}
+
+      <main
+        className="flex-1 transition-all duration-500 ease-out"
+        style={{ paddingTop: isAdminPage && isHeaderHidden ? '1rem' : '5rem' }}
+      >
         <Routes>
           {/* Main/Party */}
           <Route path="/" element={<MainPage />} />
@@ -223,22 +302,22 @@ export default function App() {
           />
           <Route
             path="/admin/blacklist/add"
-            element={<ProtectedRoute element={<AddBlacklistPage />} />}
+            element={<AdminAuthGuard><AddBlacklistPage /></AdminAuthGuard>}
           />
-          <Route path="/admin/users" element={<AdminUserListPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/chart-comparison" element={<ChartComparisonPage />} />
+          <Route path="/admin/users" element={<AdminAuthGuard><AdminUserListPage /></AdminAuthGuard>} />
+          <Route path="/admin/dashboard" element={<AdminAuthGuard><AdminDashboardPage /></AdminAuthGuard>} />
+          <Route path="/admin/chart-comparison" element={<AdminAuthGuard><ChartComparisonPage /></AdminAuthGuard>} />
           <Route
             path="/admin/users/:userId"
-            element={<AdminUserDetailPage />}
+            element={<AdminAuthGuard><AdminUserDetailPage /></AdminAuthGuard>}
           />
           <Route
             path="/admin/blacklist/delete"
-            element={<AdminBlacklistDeletePage />}
+            element={<AdminAuthGuard><AdminBlacklistDeletePage /></AdminAuthGuard>}
           />
           <Route
             path="/admin/users/:userId/login-history"
-            element={<AdminLoginHistoryPage />}
+            element={<AdminAuthGuard><AdminLoginHistoryPage /></AdminAuthGuard>}
           />
           <Route path="/product" element={<GetProductList />} />
           <Route path="/product/:id" element={<GetProduct />} />
