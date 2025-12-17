@@ -78,7 +78,7 @@ const GetSubscription = () => {
             case 'christmas':
                 return {
                     bg: 'bg-transparent',
-                    headerBg: 'bg-white/80 backdrop-blur-sm',
+                    headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-600',
                     cardBg: 'bg-white/90 backdrop-blur-sm',
@@ -93,11 +93,11 @@ const GetSubscription = () => {
                 };
             case 'dark':
                 return {
-                    bg: 'bg-[#0B1120]',
-                    headerBg: 'bg-[#1E293B]',
+                    bg: 'bg-transparent',
+                    headerBg: 'bg-transparent',
                     text: 'text-white',
                     subtext: 'text-gray-400',
-                    cardBg: 'bg-[#1E293B]',
+                    cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm',
                     cardBorder: 'border-gray-700',
                     iconColor1: 'text-[#635bff]',
                     iconColor2: 'text-[#00d4ff]',
@@ -109,8 +109,8 @@ const GetSubscription = () => {
                 };
             case 'classic':
                 return {
-                    bg: 'bg-[#fafafa]',
-                    headerBg: 'bg-white',
+                    bg: 'bg-transparent',
+                    headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-500',
                     cardBg: 'bg-white',
@@ -124,10 +124,25 @@ const GetSubscription = () => {
                     loadingSpinner: 'border-[#635bff]',
                 };
             case 'pop':
+                return {
+                    bg: 'bg-transparent',
+                    headerBg: 'bg-transparent',
+                    text: 'text-gray-900',
+                    subtext: 'text-gray-500',
+                    cardBg: 'bg-white',
+                    cardBorder: 'border-gray-100',
+                    iconColor1: 'text-pink-500',
+                    iconColor2: 'text-pink-400',
+                    priceColor: 'text-pink-500',
+                    buttonPrimary: 'bg-pink-500 hover:bg-pink-600',
+                    buttonSecondary: 'border-gray-200 hover:border-pink-500 hover:text-pink-500',
+                    statusActive: 'bg-pink-50 text-pink-600',
+                    loadingSpinner: 'border-pink-500',
+                };
             default:
                 return {
-                    bg: 'bg-[#fafafa]',
-                    headerBg: 'bg-white',
+                    bg: 'bg-transparent',
+                    headerBg: 'bg-transparent',
                     text: 'text-gray-900',
                     subtext: 'text-gray-500',
                     cardBg: 'bg-white',
@@ -187,9 +202,8 @@ const GetSubscription = () => {
             {/* Christmas Background */}
             {theme === 'christmas' && <ChristmasBackground />}
 
-            {/* Hero Header - Variant T Style */}
-            <div className={`relative overflow-hidden ${themeColors.headerBg} ${theme === 'dark' ? 'border-b border-gray-700' : 'border-b border-gray-100'}`}>
-                <AnimatedGradient theme={theme} />
+            {/* Hero Header */}
+            <div className={`relative overflow-hidden ${themeColors.headerBg}`}>
                 <div className="max-w-2xl mx-auto px-4 py-12 relative z-10">
                     <button
                         onClick={() => navigate(-1)}
@@ -208,7 +222,7 @@ const GetSubscription = () => {
                         <img
                             src={subscription.productImage || '/placeholder.png'}
                             alt={subscription.productName}
-                            className={`w-24 h-24 rounded-2xl object-cover mx-auto mb-4 shadow-lg ${theme === 'dark' ? 'shadow-[#635bff]/10 border border-gray-700' : 'shadow-[#635bff]/10 border border-gray-100'}`}
+                            className={`w-24 h-24 rounded-2xl object-cover mx-auto mb-4 shadow-lg ${theme === 'dark' ? 'border border-gray-700' : 'border border-gray-100'}`}
                         />
                         <h1 className={`text-3xl font-bold ${themeColors.text} mb-3`}>{subscription.productName}</h1>
                         <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
