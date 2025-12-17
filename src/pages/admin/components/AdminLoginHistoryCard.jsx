@@ -2,42 +2,23 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { KeyRound } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 스타일
-const historyCardThemeStyles = {
-  default: {
-    iconBg: "bg-cyan-400",
-    activePage: "bg-pink-500 text-white",
-    hoverBg: "hover:bg-slate-100",
-    headerBorder: "border-b-4 border-black",
-    tableBorder: "border-b-4 border-black",
-    rowBorder: "border-b border-black/10",
-  },
-  christmas: {
-    iconBg: "bg-green-800",
-    activePage: "bg-red-800 text-red-100",
-    hoverBg: "hover:bg-red-50",
-    headerBorder: "border-b border-gray-200",
-    tableBorder: "border-b border-gray-200",
-    rowBorder: "border-b border-gray-200",
-  },
-};
-
+/**
+ * 관리자 로그인 이력 카드
+ * CSS 변수 기반 테마 적용
+ */
 export default function AdminLoginHistoryCard({ loginHistory }) {
-  const { theme } = useThemeStore();
-  const themeStyle = historyCardThemeStyles[theme] || historyCardThemeStyles.default;
   const {
     state: { items, page, pages, pageCount, loading, totalCount },
     actions: { goFirst, goPrev, goPage, goNextBlock, goLast },
   } = loginHistory;
 
   return (
-    <Card className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden">
-      <CardHeader className={`pb-6 ${themeStyle.headerBorder} bg-slate-50`}>
-        <CardTitle className="text-sm font-black uppercase tracking-[0.18em] flex items-center gap-3 text-black">
-          <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${themeStyle.iconBg} border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}>
-            <KeyRound className={`w-4 h-4 ${theme === 'christmas' ? 'text-green-100' : 'text-black'}`} />
+    <Card className="bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-3xl overflow-hidden">
+      <CardHeader className="pb-6 border-b border-[var(--theme-border-light)] bg-[var(--theme-primary-light)]">
+        <CardTitle className="text-sm font-black uppercase tracking-[0.18em] flex items-center gap-3 text-[var(--theme-text)]">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--theme-primary)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)]">
+            <KeyRound className="w-4 h-4 text-white" />
           </span>
           LOGIN HISTORY
         </CardTitle>
@@ -45,42 +26,42 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
 
       <CardContent className="p-6 space-y-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-black text-slate-700">
+          <span className="text-xs font-black text-[var(--theme-text-muted)]">
             로그인 이력 {totalCount}건
           </span>
         </div>
 
         {loading && (
-          <div className="py-10 text-center text-sm font-bold text-slate-600">
+          <div className="py-10 text-center text-sm font-bold text-[var(--theme-text-muted)]">
             불러오는 중...
           </div>
         )}
 
         {!loading && items.length === 0 && (
-          <div className="py-10 text-center text-sm font-bold text-slate-500">
+          <div className="py-10 text-center text-sm font-bold text-[var(--theme-text-muted)]">
             로그인 이력이 없습니다.
           </div>
         )}
 
         {!loading && items.length > 0 && (
           <>
-            <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-              <table className="w-full text-sm bg-white">
+            <div className="overflow-x-auto rounded-2xl border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)]">
+              <table className="w-full text-sm bg-[var(--theme-bg-card)]">
                 <thead>
-                  <tr className={`${themeStyle.tableBorder} bg-slate-100`}>
-                    <th className="py-3 px-3 text-left font-black text-black">
+                  <tr className="border-b border-[var(--theme-border-light)] bg-[var(--theme-primary-light)]">
+                    <th className="py-3 px-3 text-left font-black text-[var(--theme-text)]">
                       일시
                     </th>
-                    <th className="py-3 px-3 text-left font-black text-black">
+                    <th className="py-3 px-3 text-left font-black text-[var(--theme-text)]">
                       결과
                     </th>
-                    <th className="py-3 px-3 text-left font-black text-black">
+                    <th className="py-3 px-3 text-left font-black text-[var(--theme-text)]">
                       IP
                     </th>
-                    <th className="py-3 px-3 text-left font-black text-black">
+                    <th className="py-3 px-3 text-left font-black text-[var(--theme-text)]">
                       타입
                     </th>
-                    <th className="py-3 px-3 text-left font-black text-black">
+                    <th className="py-3 px-3 text-left font-black text-[var(--theme-text)]">
                       User-Agent
                     </th>
                   </tr>
@@ -89,25 +70,23 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
                   {items.map((item, idx) => (
                     <tr
                       key={`${item.loginAt}-${idx}`}
-                      className={`${themeStyle.rowBorder} ${themeStyle.hoverBg} transition-colors`}
+                      className="border-b border-[var(--theme-border-light)] hover:bg-[var(--theme-primary-light)] transition-colors"
                     >
-                      <td className="py-3 px-3 font-bold text-slate-900 whitespace-nowrap">
+                      <td className="py-3 px-3 font-bold text-[var(--theme-text)] whitespace-nowrap">
                         {item.loginAtFormatted}
                       </td>
                       <td
-                        className={`py-3 px-3 font-black whitespace-nowrap ${
-                          item.success ? "text-emerald-600" : "text-red-600"
-                        }`}
+                        className={`py-3 px-3 font-black whitespace-nowrap ${item.success ? "text-emerald-600" : "text-red-600"}`}
                       >
                         {item.successText}
                       </td>
-                      <td className="py-3 px-3 font-bold text-slate-800 whitespace-nowrap">
+                      <td className="py-3 px-3 font-bold text-[var(--theme-text)] whitespace-nowrap">
                         {item.loginIp || "-"}
                       </td>
-                      <td className="py-3 px-3 font-bold text-slate-800 whitespace-nowrap">
+                      <td className="py-3 px-3 font-bold text-[var(--theme-text)] whitespace-nowrap">
                         {item.loginType || "-"}
                       </td>
-                      <td className="py-3 px-3 font-bold text-slate-600 max-w-[220px] truncate">
+                      <td className="py-3 px-3 font-bold text-[var(--theme-text-muted)] max-w-[220px] truncate">
                         {item.userAgent || "-"}
                       </td>
                     </tr>
@@ -120,7 +99,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-10 w-10 text-xs font-black bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-xl hover:brightness-95"
+                className="h-10 w-10 text-xs font-black bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-xl hover:bg-[var(--theme-primary-light)]"
                 onClick={goFirst}
                 disabled={page <= 1}
               >
@@ -129,7 +108,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-10 w-10 text-xs font-black bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-xl hover:brightness-95"
+                className="h-10 w-10 text-xs font-black bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-xl hover:bg-[var(--theme-primary-light)]"
                 onClick={goPrev}
                 disabled={page <= 1}
               >
@@ -140,10 +119,10 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
                 <Button
                   key={p}
                   variant={p === page ? "default" : "outline"}
-                  className={`h-10 min-w-[2.5rem] text-xs font-black border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-xl hover:brightness-95 ${
+                  className={`h-10 min-w-[2.5rem] text-xs font-black border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-xl ${
                     p === page
-                      ? themeStyle.activePage
-                      : "bg-white text-black"
+                      ? 'bg-[var(--theme-primary)] text-white hover:bg-[var(--theme-primary-hover)]'
+                      : 'bg-[var(--theme-bg-card)] text-[var(--theme-text)] hover:bg-[var(--theme-primary-light)]'
                   }`}
                   onClick={() => goPage(p)}
                 >
@@ -154,7 +133,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-10 w-10 text-xs font-black bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-xl hover:brightness-95"
+                className="h-10 w-10 text-xs font-black bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-xl hover:bg-[var(--theme-primary-light)]"
                 onClick={goNextBlock}
                 disabled={page >= pageCount}
               >
@@ -163,7 +142,7 @@ export default function AdminLoginHistoryCard({ loginHistory }) {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-10 w-10 text-xs font-black bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-xl hover:brightness-95"
+                className="h-10 w-10 text-xs font-black bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-xl hover:bg-[var(--theme-primary-light)]"
                 onClick={goLast}
                 disabled={page >= pageCount}
               >

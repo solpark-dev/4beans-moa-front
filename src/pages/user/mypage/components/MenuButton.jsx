@@ -3,7 +3,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const menuButtonThemeStyles = {
-  default: {
+  pop: {
     activeBg: "bg-indigo-600",
     activeBorder: "border-black",
     activeShadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
@@ -31,7 +31,7 @@ export function MenuButton({
   active = false,
 }) {
   const { theme } = useThemeStore();
-  const themeStyle = menuButtonThemeStyles[theme] || menuButtonThemeStyles.default;
+  const themeStyle = menuButtonThemeStyles[theme] || menuButtonThemeStyles.pop;
   const isDestructive = variant === "destructive";
 
   return (
@@ -41,15 +41,13 @@ export function MenuButton({
       className={`
         w-full justify-start h-12 px-4 text-sm font-bold rounded-xl
         border-2 transition-all duration-200
-        ${
-          active
-            ? `${themeStyle.activeBg} text-white ${themeStyle.activeBorder} ${themeStyle.activeShadow}`
-            : `bg-white text-slate-800 ${themeStyle.inactiveBorder} hover:bg-gray-50 ${themeStyle.inactiveShadow}`
+        ${active
+          ? `${themeStyle.activeBg} text-white ${themeStyle.activeBorder} ${themeStyle.activeShadow}`
+          : `bg-white text-slate-800 ${themeStyle.inactiveBorder} hover:bg-gray-50 ${themeStyle.inactiveShadow}`
         }
-        ${
-          isDestructive
-            ? `text-red-600 hover:bg-red-50 ${themeStyle.destructiveBorder}`
-            : ""
+        ${isDestructive
+          ? `text-red-600 hover:bg-red-50 ${themeStyle.destructiveBorder}`
+          : ""
         }
       `}
     >

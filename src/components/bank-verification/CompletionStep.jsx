@@ -8,62 +8,6 @@ import useBankVerificationStore from '@/store/bankVerificationStore';
 import { BANKS } from './BankSelector';
 import { useThemeStore } from '@/store/themeStore';
 
-// 테마별 스타일
-const completionThemeStyles = {
-    default: {
-        cardBorder: 'border-0 shadow-lg',
-        iconBg: 'bg-gradient-to-br from-green-400 to-green-600',
-        iconShadow: 'shadow-lg shadow-green-200',
-        circleBg: 'bg-green-100',
-        infoBg: 'bg-gradient-to-br from-slate-50 to-slate-100',
-        buttonBg: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
-        buttonShadow: 'shadow-lg shadow-orange-200',
-        checkBg: 'bg-green-500',
-        titleText: 'text-slate-800',
-        subtitleText: 'text-slate-500',
-        checkText: 'text-slate-600',
-    },
-    christmas: {
-        cardBorder: 'border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        iconBg: 'bg-gradient-to-br from-green-600 to-green-800',
-        iconShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        circleBg: 'bg-green-100',
-        infoBg: 'bg-gradient-to-br from-red-50 to-green-50',
-        buttonBg: 'bg-gradient-to-r from-red-800 to-green-800 hover:from-red-900 hover:to-green-900',
-        buttonShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        checkBg: 'bg-green-700',
-        titleText: 'text-slate-800',
-        subtitleText: 'text-slate-500',
-        checkText: 'text-slate-600',
-    },
-    dark: {
-        cardBorder: 'border border-gray-700 bg-[#1E293B] shadow-lg',
-        iconBg: 'bg-gradient-to-br from-[#635bff] to-[#00d4ff]',
-        iconShadow: 'shadow-lg shadow-[#635bff]/25',
-        circleBg: 'bg-[#635bff]/20',
-        infoBg: 'bg-gradient-to-br from-gray-800 to-gray-700',
-        buttonBg: 'bg-gradient-to-r from-[#635bff] to-[#00d4ff] hover:from-[#5851e8] hover:to-[#00c0e8]',
-        buttonShadow: 'shadow-lg shadow-[#635bff]/25',
-        checkBg: 'bg-green-500',
-        titleText: 'text-white',
-        subtitleText: 'text-gray-400',
-        checkText: 'text-gray-300',
-    },
-    pop: {
-        cardBorder: 'border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
-        iconBg: 'bg-gradient-to-br from-pink-400 to-pink-600',
-        iconShadow: 'shadow-lg',
-        circleBg: 'bg-pink-100',
-        infoBg: 'bg-gradient-to-br from-pink-50 to-yellow-50',
-        buttonBg: 'bg-pink-500 hover:bg-pink-600',
-        buttonShadow: 'shadow-lg',
-        checkBg: 'bg-green-500',
-        titleText: 'text-slate-800',
-        subtitleText: 'text-slate-500',
-        checkText: 'text-slate-600',
-    },
-};
-
 // canvas-confetti는 선택적 의존성 (없으면 애니메이션 생략)
 let confetti = null;
 try {
@@ -74,11 +18,11 @@ try {
 
 /**
  * Step 4: 완료 화면
+ * CSS 변수 기반 테마 적용
  */
 export default function CompletionStep() {
     const navigate = useNavigate();
     const { theme } = useThemeStore();
-    const themeStyle = completionThemeStyles[theme] || completionThemeStyles.default;
     const { formData, verification, reset } = useBankVerificationStore();
 
     // 은행 정보 가져오기
@@ -135,7 +79,7 @@ export default function CompletionStep() {
     };
 
     return (
-        <Card className={`${themeStyle.cardBorder} overflow-hidden`}>
+        <Card className="border-[var(--theme-border-width)] border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] bg-[var(--theme-bg-card)] overflow-hidden">
             <CardContent className="py-12 px-6">
                 <div className="text-center">
                     {/* 성공 아이콘 */}
@@ -152,13 +96,13 @@ export default function CompletionStep() {
                     >
                         {/* 배경 원 */}
                         <motion.div
-                            className={`absolute inset-0 ${themeStyle.circleBg} rounded-full`}
+                            className="absolute inset-0 bg-[var(--theme-primary-light)] rounded-full"
                             initial={{ scale: 0 }}
                             animate={{ scale: [0, 1.2, 1] }}
                             transition={{ duration: 0.5 }}
                         />
                         {/* 아이콘 */}
-                        <div className={`absolute inset-0 ${themeStyle.iconBg} rounded-full flex items-center justify-center ${themeStyle.iconShadow}`}>
+                        <div className="absolute inset-0 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
@@ -174,7 +118,7 @@ export default function CompletionStep() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className={`text-2xl font-bold ${themeStyle.titleText} mb-2`}
+                        className="text-2xl font-bold text-[var(--theme-text)] mb-2"
                     >
                         계좌 등록 완료!
                     </motion.h2>
@@ -183,7 +127,7 @@ export default function CompletionStep() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className={`${themeStyle.subtitleText} mb-8`}
+                        className="text-[var(--theme-text-muted)] mb-8"
                     >
                         이제 파티 정산금을 받을 수 있어요
                     </motion.p>
@@ -193,7 +137,7 @@ export default function CompletionStep() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className={`${themeStyle.infoBg} rounded-2xl p-6 mb-8`}
+                        className="bg-[var(--theme-primary-light)] rounded-2xl p-6 mb-8"
                     >
                         <div className="flex items-center justify-center gap-3 mb-4">
                             {bank && (
@@ -208,10 +152,10 @@ export default function CompletionStep() {
                                 </div>
                             )}
                             <div className="text-left">
-                                <p className={`font-semibold ${themeStyle.titleText} text-lg`}>
+                                <p className="font-semibold text-[var(--theme-text)] text-lg">
                                     {formData.bankName}
                                 </p>
-                                <p className={themeStyle.subtitleText}>
+                                <p className="text-[var(--theme-text-muted)]">
                                     {verification.maskedAccount || formData.accountNum}
                                 </p>
                             </div>
@@ -228,9 +172,9 @@ export default function CompletionStep() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.6 + index * 0.1 }}
-                                    className={`flex items-center gap-2 text-sm ${themeStyle.checkText}`}
+                                    className="flex items-center gap-2 text-sm text-[var(--theme-text-muted)]"
                                 >
-                                    <div className={`w-5 h-5 ${themeStyle.checkBg} rounded-full flex items-center justify-center`}>
+                                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                                         <Check className="w-3 h-3 text-white" />
                                     </div>
                                     {text}
@@ -248,7 +192,7 @@ export default function CompletionStep() {
                     >
                         <Button
                             onClick={handleGoToWallet}
-                            className={`w-full h-14 text-lg font-semibold rounded-xl ${themeStyle.buttonBg} ${themeStyle.buttonShadow}`}
+                            className="w-full h-14 text-lg font-semibold rounded-xl bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-hover)] shadow-[var(--theme-shadow)]"
                         >
                             <Wallet className="w-5 h-5 mr-2" />
                             내 지갑으로 이동
@@ -258,7 +202,7 @@ export default function CompletionStep() {
                         <Button
                             variant="ghost"
                             onClick={handleGoHome}
-                            className={`w-full h-12 ${themeStyle.subtitleText} hover:${themeStyle.titleText}`}
+                            className="w-full h-12 text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]"
                         >
                             홈으로 가기
                         </Button>

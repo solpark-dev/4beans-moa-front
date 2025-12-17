@@ -3,30 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import OutlineCard from "./OutlineCard";
 import { resolveProfileImageUrl } from "@/utils/profileImage";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 스타일
-const profileCardThemeStyles = {
-  default: {
-    avatarBorder: "border-2 border-slate-900",
-    statusDotBorder: "border-2 border-slate-900",
-    badgeBorder: "border-2 border-slate-900",
-    buttonBorder: "border-2 border-slate-900",
-    buttonHover: "hover:bg-slate-50",
-    blacklistActive: "bg-slate-900 text-white hover:bg-slate-900",
-    blacklistButton: "bg-red-500 text-white hover:bg-red-600",
-  },
-  christmas: {
-    avatarBorder: "border border-gray-200",
-    statusDotBorder: "border border-gray-200",
-    badgeBorder: "border border-gray-200",
-    buttonBorder: "border border-gray-200",
-    buttonHover: "hover:bg-red-50",
-    blacklistActive: "bg-[#1a5f2a] text-white hover:bg-green-900",
-    blacklistButton: "bg-[#c41e3a] text-white hover:bg-red-700",
-  },
-};
-
+/**
+ * 관리자 회원 상세 프로필 카드
+ * CSS 변수 기반 테마 적용
+ */
 export default function AdminUserDetailProfileCard({
   user,
   statusDotClass,
@@ -36,48 +17,45 @@ export default function AdminUserDetailProfileCard({
   goLoginHistory,
   goBlacklistAdd,
 }) {
-  const { theme } = useThemeStore();
-  const themeStyle = profileCardThemeStyles[theme] || profileCardThemeStyles.default;
-
   return (
     <OutlineCard>
       <div className="p-6 flex flex-col md:flex-row gap-6 md:items-center">
         <div className="flex items-center gap-5">
           <div className="relative">
-            <Avatar className={`w-20 h-20 ${themeStyle.avatarBorder} bg-slate-100`}>
+            <Avatar className="w-20 h-20 border-[var(--theme-border-width)] border-[var(--theme-border)] bg-[var(--theme-primary-light)]">
               <AvatarImage
                 src={resolveProfileImageUrl(user.profileImage)}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-slate-200 text-2xl font-black text-slate-900">
+              <AvatarFallback className="bg-[var(--theme-primary-light)] text-2xl font-black text-[var(--theme-text)]">
                 {user.nickname?.substring(0, 1)}
               </AvatarFallback>
             </Avatar>
-            <div className={`absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full ${themeStyle.statusDotBorder}`}>
+            <div className="absolute -bottom-2 -right-2 bg-[var(--theme-bg-card)] p-1.5 rounded-full border-[var(--theme-border-width)] border-[var(--theme-border)]">
               <div className={`w-3 h-3 rounded-full ${statusDotClass}`} />
             </div>
           </div>
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xl font-black text-slate-900">
+              <p className="text-xl font-black text-[var(--theme-text)]">
                 {user.nickname}
               </p>
               {isAdmin && (
-                <Badge className={`bg-white text-slate-900 ${themeStyle.badgeBorder} text-[10px] font-black`}>
+                <Badge className="bg-[var(--theme-bg-card)] text-[var(--theme-text)] border-[var(--theme-border-width)] border-[var(--theme-border)] text-[10px] font-black">
                   ADMINISTRATOR
                 </Badge>
               )}
-              <Badge className={`bg-white text-slate-900 ${themeStyle.badgeBorder} text-[10px] font-black`}>
+              <Badge className="bg-[var(--theme-bg-card)] text-[var(--theme-text)] border-[var(--theme-border-width)] border-[var(--theme-border)] text-[10px] font-black">
                 MEMBER
               </Badge>
               {isBlacklisted && (
-                <Badge className={`bg-red-500 text-white ${themeStyle.badgeBorder} text-[10px] font-black`}>
+                <Badge className="bg-red-500 text-white border-[var(--theme-border-width)] border-[var(--theme-border)] text-[10px] font-black">
                   BLACKLIST
                 </Badge>
               )}
             </div>
-            <p className="mt-1 text-xs text-slate-600 font-semibold">
+            <p className="mt-1 text-xs text-[var(--theme-text-muted)] font-semibold">
               {user.userId}
             </p>
           </div>
@@ -87,7 +65,7 @@ export default function AdminUserDetailProfileCard({
           <Button
             type="button"
             onClick={goBackList}
-            className={`h-10 px-4 rounded-2xl ${themeStyle.buttonBorder} bg-white text-slate-900 font-black ${themeStyle.buttonHover}`}
+            className="h-10 px-4 rounded-2xl border-[var(--theme-border-width)] border-[var(--theme-border)] bg-[var(--theme-bg-card)] text-[var(--theme-text)] font-black hover:bg-[var(--theme-primary-light)]"
           >
             회원 목록
           </Button>
@@ -95,7 +73,7 @@ export default function AdminUserDetailProfileCard({
           <Button
             type="button"
             onClick={goLoginHistory}
-            className={`h-10 px-4 rounded-2xl ${themeStyle.buttonBorder} bg-white text-slate-900 font-black ${themeStyle.buttonHover}`}
+            className="h-10 px-4 rounded-2xl border-[var(--theme-border-width)] border-[var(--theme-border)] bg-[var(--theme-bg-card)] text-[var(--theme-text)] font-black hover:bg-[var(--theme-primary-light)]"
           >
             로그인 이력
           </Button>
@@ -103,10 +81,10 @@ export default function AdminUserDetailProfileCard({
           <Button
             type="button"
             onClick={goBlacklistAdd}
-            className={`h-10 px-4 rounded-2xl ${themeStyle.buttonBorder} font-black ${
+            className={`h-10 px-4 rounded-2xl border-[var(--theme-border-width)] border-[var(--theme-border)] font-black ${
               isBlacklisted
-                ? themeStyle.blacklistActive
-                : themeStyle.blacklistButton
+                ? 'bg-[var(--theme-primary)] text-white hover:bg-[var(--theme-primary-hover)]'
+                : 'bg-red-500 text-white hover:bg-red-600'
             }`}
           >
             {isBlacklisted ? "블랙리스트 해제" : "블랙리스트 등록"}

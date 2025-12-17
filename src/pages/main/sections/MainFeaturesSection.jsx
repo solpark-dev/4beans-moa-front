@@ -5,7 +5,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 Features 섹션 스타일
 const featuresThemeStyles = {
-  default: {
+  pop: {
     stickerBg: "bg-lime-400",
     accentText: "text-pink-500",
     cardColors: ["bg-cyan-400", "bg-lime-400", "bg-pink-400"],
@@ -62,7 +62,7 @@ function BouncyCard({ children, className = "", delay = 0, isDark = false }) {
 
 export default function MainFeaturesSection() {
   const { theme } = useThemeStore();
-  const themeStyle = featuresThemeStyles[theme] || featuresThemeStyles.default;
+  const themeStyle = featuresThemeStyles[theme] || featuresThemeStyles.pop;
   const isDark = theme === "dark";
 
   const features = [

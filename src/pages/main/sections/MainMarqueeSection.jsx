@@ -5,7 +5,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 마키 스타일
 const marqueeThemeStyles = {
-  default: {
+  pop: {
     starColors: ["text-pink-400 fill-pink-400", "text-cyan-400 fill-cyan-400", "text-lime-400 fill-lime-400", "text-yellow-400 fill-yellow-400"],
   },
   christmas: {
@@ -36,7 +36,7 @@ function Marquee({ children, direction = "left", speed = 20 }) {
 // ============================================
 export default function MainMarqueeSection() {
   const { theme } = useThemeStore();
-  const themeStyle = marqueeThemeStyles[theme] || marqueeThemeStyles.default;
+  const themeStyle = marqueeThemeStyles[theme] || marqueeThemeStyles.pop;
 
   return (
     <div className="bg-black text-white py-4 border-y border-gray-800">

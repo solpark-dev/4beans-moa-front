@@ -4,6 +4,7 @@ import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '@/store/themeStore';
 import { ChristmasBackground } from '@/config/themeConfig';
+import { getProductIconUrl } from '@/utils/imageUtils';
 
 const UpdateSubscription = () => {
     const { id } = useParams();
@@ -99,36 +100,31 @@ const UpdateSubscription = () => {
         <div className="container mx-auto px-4 py-12 max-w-xl relative">
             {theme === 'christmas' && <ChristmasBackground />}
 
-            <h1 className={`text-2xl font-bold mb-8 text-center ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>구독 상품 변경</h1>
+            <h1 className={`text-2xl font-bold mb-8 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>구독 상품 변경</h1>
 
-            <div className={`rounded-2xl shadow-sm border p-6 mb-6 relative z-10 ${
-                theme === 'dark'
+            <div className={`rounded-2xl shadow-sm border p-6 mb-6 relative z-10 ${theme === 'dark'
                     ? 'bg-[#1E293B] border-slate-700'
                     : theme === 'christmas'
-                    ? 'bg-white/95 backdrop-blur-sm border-red-200'
-                    : 'bg-white border-gray-200'
-            }`}>
-                <h2 className={`font-bold mb-4 ${
-                    theme === 'dark' ? 'text-white' : 'text-gray-700'
-                }`}>현재 이용 중인 상품</h2>
-                <div className={`flex items-center gap-4 p-4 rounded-xl ${
-                    theme === 'dark'
+                        ? 'bg-white/95 backdrop-blur-sm border-red-200'
+                        : 'bg-white border-gray-200'
+                }`}>
+                <h2 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-700'
+                    }`}>현재 이용 중인 상품</h2>
+                <div className={`flex items-center gap-4 p-4 rounded-xl ${theme === 'dark'
                         ? 'bg-[#0B1120]'
                         : theme === 'christmas'
-                        ? 'bg-red-50/50'
-                        : 'bg-gray-50'
-                }`}>
+                            ? 'bg-red-50/50'
+                            : 'bg-gray-50'
+                    }`}>
                     <img
-                        src={subscription.productImage || '/placeholder.png'}
+                        src={getProductIconUrl(subscription.productImage) || '/placeholder.png'}
                         alt={subscription.productName}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-16 h-16 rounded-lg object-contain p-1 bg-white"
                     />
                     <div>
-                        <p className={`font-bold ${
-                            theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}>{subscription.productName}</p>
+                        <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                            }`}>{subscription.productName}</p>
                         <p className="text-sm" style={{ color: accentColor }}>
                             {subscription.price?.toLocaleString()}원/월
                         </p>
@@ -136,16 +132,14 @@ const UpdateSubscription = () => {
                 </div>
             </div>
 
-            <div className={`rounded-2xl shadow-sm border p-6 mb-8 relative z-10 ${
-                theme === 'dark'
+            <div className={`rounded-2xl shadow-sm border p-6 mb-8 relative z-10 ${theme === 'dark'
                     ? 'bg-[#1E293B] border-slate-700'
                     : theme === 'christmas'
-                    ? 'bg-white/95 backdrop-blur-sm border-red-200'
-                    : 'bg-white border-gray-200'
-            }`}>
-                <h2 className={`font-bold mb-4 ${
-                    theme === 'dark' ? 'text-white' : 'text-gray-700'
-                }`}>변경할 상품 선택</h2>
+                        ? 'bg-white/95 backdrop-blur-sm border-red-200'
+                        : 'bg-white border-gray-200'
+                }`}>
+                <h2 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-700'
+                    }`}>변경할 상품 선택</h2>
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                     {products.map(product => {
                         const isSelected = selectedProductId === product.productId;
@@ -153,15 +147,14 @@ const UpdateSubscription = () => {
                             <div
                                 key={product.productId}
                                 onClick={() => setSelectedProductId(product.productId)}
-                                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                                    isSelected
+                                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${isSelected
                                         ? theme === 'dark'
                                             ? 'border-[#635bff] bg-[#635bff]/10 shadow-sm ring-1 ring-[#635bff]'
                                             : 'shadow-sm ring-1'
                                         : theme === 'dark'
-                                        ? 'border-slate-700 hover:border-slate-600 hover:bg-[#0B1120]'
-                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                }`}
+                                            ? 'border-slate-700 hover:border-slate-600 hover:bg-[#0B1120]'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
                                 style={isSelected ? {
                                     borderColor: accentColor,
                                     backgroundColor: theme === 'dark' ? `${accentColor}20` : `${accentColor}10`,
@@ -170,14 +163,13 @@ const UpdateSubscription = () => {
                             >
                                 <div className="flex items-center gap-3">
                                     <img
-                                        src={product.image || '/placeholder.png'}
+                                        src={getProductIconUrl(product.image) || '/placeholder.png'}
                                         alt={product.productName}
-                                        className="w-12 h-12 rounded-lg object-cover bg-white"
+                                        className="w-12 h-12 rounded-lg object-contain p-1 bg-white"
                                     />
                                     <div>
-                                        <p className={`font-bold text-sm ${
-                                            theme === 'dark' ? 'text-white' : 'text-gray-900'
-                                        }`}>{product.productName}</p>
+                                        <p className={`font-bold text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                                            }`}>{product.productName}</p>
                                         <p className="text-xs" style={{ color: accentColor }}>
                                             {product.price?.toLocaleString()}원
                                         </p>
@@ -185,7 +177,7 @@ const UpdateSubscription = () => {
                                 </div>
                                 {isSelected && (
                                     <div className="w-5 h-5 rounded-full flex items-center justify-center"
-                                         style={{ backgroundColor: accentColor }}>
+                                        style={{ backgroundColor: accentColor }}>
                                         <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                         </svg>
@@ -200,24 +192,22 @@ const UpdateSubscription = () => {
             <div className="flex gap-3 relative z-10">
                 <button
                     onClick={() => navigate(`/subscription/${id}`)}
-                    className={`flex-1 py-3 rounded-xl font-bold transition-colors ${
-                        theme === 'dark'
+                    className={`flex-1 py-3 rounded-xl font-bold transition-colors ${theme === 'dark'
                             ? 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                        }`}
                 >
                     취소
                 </button>
                 <button
                     onClick={handleUpdate}
                     disabled={!selectedProductId || selectedProductId === subscription.productId}
-                    className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors ${
-                        !selectedProductId || selectedProductId === subscription.productId
+                    className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors ${!selectedProductId || selectedProductId === subscription.productId
                             ? theme === 'dark'
                                 ? 'bg-slate-600 cursor-not-allowed'
                                 : 'bg-gray-300 cursor-not-allowed'
                             : 'shadow-md hover:shadow-lg'
-                    }`}
+                        }`}
                     style={!selectedProductId || selectedProductId === subscription.productId ? {} : {
                         backgroundColor: accentColor
                     }}

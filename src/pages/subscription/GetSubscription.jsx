@@ -5,64 +5,65 @@ import { Sparkles, ArrowLeft, Calendar, CreditCard, Settings, XCircle } from 'lu
 import httpClient from '../../api/httpClient';
 import { useThemeStore } from '@/store/themeStore';
 import { ThemeSwitcher, ChristmasBackground } from '@/config/themeConfig';
+import { getProductIconUrl } from '@/utils/imageUtils';
 
 // Animated gradient background component - theme-aware
 function AnimatedGradient({ theme }) {
-  const gradients = {
-    christmas: {
-      color1: "rgba(196, 30, 58, 0.15)",
-      color2: "rgba(26, 95, 42, 0.15)",
-    },
-    dark: {
-      color1: "rgba(99, 91, 255, 0.15)",
-      color2: "rgba(0, 212, 255, 0.15)",
-    },
-    classic: {
-      color1: "rgba(99, 91, 255, 0.15)",
-      color2: "rgba(0, 212, 255, 0.15)",
-    },
-    pop: {
-      color1: "rgba(236, 72, 153, 0.15)",
-      color2: "rgba(34, 211, 238, 0.15)",
-    },
-  };
+    const gradients = {
+        christmas: {
+            color1: "rgba(196, 30, 58, 0.15)",
+            color2: "rgba(26, 95, 42, 0.15)",
+        },
+        dark: {
+            color1: "rgba(99, 91, 255, 0.15)",
+            color2: "rgba(0, 212, 255, 0.15)",
+        },
+        classic: {
+            color1: "rgba(99, 91, 255, 0.15)",
+            color2: "rgba(0, 212, 255, 0.15)",
+        },
+        pop: {
+            color1: "rgba(236, 72, 153, 0.15)",
+            color2: "rgba(34, 211, 238, 0.15)",
+        },
+    };
 
-  const colors = gradients[theme] || gradients.classic;
+    const colors = gradients[theme] || gradients.classic;
 
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
-        style={{
-          background: `radial-gradient(circle, ${colors.color1} 0%, transparent 70%)`,
-        }}
-        animate={{
-          x: [0, 100, 0],
-          y: [0, 50, 0],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      <motion.div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
-        style={{
-          background: `radial-gradient(circle, ${colors.color2} 0%, transparent 70%)`,
-        }}
-        animate={{
-          x: [0, -100, 0],
-          y: [0, -50, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-    </div>
-  );
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+                className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
+                style={{
+                    background: `radial-gradient(circle, ${colors.color1} 0%, transparent 70%)`,
+                }}
+                animate={{
+                    x: [0, 100, 0],
+                    y: [0, 50, 0],
+                }}
+                transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+            <motion.div
+                className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
+                style={{
+                    background: `radial-gradient(circle, ${colors.color2} 0%, transparent 70%)`,
+                }}
+                animate={{
+                    x: [0, -100, 0],
+                    y: [0, -50, 0],
+                }}
+                transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+        </div>
+    );
 }
 
 const GetSubscription = () => {
@@ -225,16 +226,15 @@ const GetSubscription = () => {
                         className="text-center"
                     >
                         <img
-                            src={subscription.productImage || '/placeholder.png'}
+                            src={getProductIconUrl(subscription.productImage) || '/placeholder.png'}
                             alt={subscription.productName}
                             className={`w-24 h-24 rounded-2xl object-cover mx-auto mb-4 shadow-lg ${theme === 'dark' ? 'border border-gray-700' : 'border border-gray-100'}`}
                         />
                         <h1 className={`text-3xl font-bold ${themeColors.text} mb-3`}>{subscription.productName}</h1>
-                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
-                            subscription.subscriptionStatus === 'ACTIVE'
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${subscription.subscriptionStatus === 'ACTIVE'
                                 ? themeColors.statusActive
                                 : 'bg-red-50 text-red-600'
-                        }`}>
+                            }`}>
                             <Sparkles className="w-4 h-4" />
                             {subscription.subscriptionStatus === 'ACTIVE' ? '이용중' : '해지됨'}
                         </span>

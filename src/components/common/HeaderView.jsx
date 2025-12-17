@@ -234,22 +234,6 @@ export default function HeaderView({
             className="cursor-pointer focus:bg-transparent"
           >
             <Link
-              to="/subscription"
-              className="py-2.5 flex items-center justify-between gap-3 font-black text-black rounded-2xl hover:bg-black hover:text-white border border-gray-200 bg-white px-3 transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Home className="w-5 h-5" />
-                구독목록
-              </span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            asChild
-            className="cursor-pointer focus:bg-transparent"
-          >
-            <Link
               to="/party"
               className="py-2.5 flex items-center justify-between gap-3 font-black text-black rounded-2xl hover:bg-black hover:text-white border border-gray-200 bg-white px-3 transition-colors"
             >
@@ -336,14 +320,6 @@ export default function HeaderView({
                   active={isActive("/product")}
                 >
                   구독상품
-                </NavPill>
-                <NavPill
-                  theme={currentTheme}
-                  to="/subscription"
-                  icon={Home}
-                  active={isActive("/subscription")}
-                >
-                  구독목록
                 </NavPill>
                 <NavPill
                   theme={currentTheme}

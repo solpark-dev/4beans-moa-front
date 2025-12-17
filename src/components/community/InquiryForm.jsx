@@ -11,28 +11,46 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
 
     // Theme-based colors
     const communityThemeStyles = {
-        default: {
+        pop: {
             // Neo/Pop 스타일 - 핑크, 시안 계열
             focusRing: 'focus:ring-pink-500',
             fileButton: 'file:bg-pink-500',
             removeButton: 'bg-pink-500 hover:bg-pink-600',
             submitButton: 'bg-pink-500',
-            cardBg: theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white',
-            textColor: theme === 'dark' ? 'text-gray-200' : 'text-black',
-            inputBg: theme === 'dark' ? 'bg-[#0F172A] border-gray-700' : 'bg-white border-gray-200',
+            cardBg: 'bg-white',
+            textColor: 'text-black',
+            inputBg: 'bg-white border-gray-200',
+        },
+        classic: {
+            focusRing: 'focus:ring-[#635bff]',
+            fileButton: 'file:bg-[#635bff]',
+            removeButton: 'bg-[#635bff] hover:bg-indigo-600',
+            submitButton: 'bg-[#635bff]',
+            cardBg: 'bg-white',
+            textColor: 'text-black',
+            inputBg: 'bg-white border-gray-200',
+        },
+        dark: {
+            focusRing: 'focus:ring-[#635bff]',
+            fileButton: 'file:bg-[#635bff]',
+            removeButton: 'bg-[#635bff] hover:bg-indigo-600',
+            submitButton: 'bg-[#635bff]',
+            cardBg: 'bg-[#1E293B]',
+            textColor: 'text-gray-200',
+            inputBg: 'bg-[#0F172A] border-gray-700',
         },
         christmas: {
             focusRing: 'focus:ring-[#c41e3a]',
             fileButton: 'file:bg-[#1a5f2a]',
             removeButton: 'bg-[#c41e3a] hover:bg-red-700',
             submitButton: 'bg-[#c41e3a]',
-            cardBg: theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white',
-            textColor: theme === 'dark' ? 'text-gray-200' : 'text-black',
-            inputBg: theme === 'dark' ? 'bg-[#0F172A] border-gray-700' : 'bg-white border-gray-200',
+            cardBg: 'bg-white',
+            textColor: 'text-black',
+            inputBg: 'bg-white border-gray-200',
         },
     };
 
-    const themeColors = communityThemeStyles[theme] || communityThemeStyles.default;
+    const themeColors = communityThemeStyles[theme] || communityThemeStyles.pop;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -167,7 +185,7 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                     )}
                 </div>
 
-                </div>
+            </div>
 
             {/* Submit Button - 항상 하단 고정 */}
             <div className="pt-4 mt-auto">

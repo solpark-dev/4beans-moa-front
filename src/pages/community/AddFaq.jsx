@@ -7,10 +7,18 @@ import { NeoCard, NeoButton } from '@/components/common/neo';
 
 // 테마별 스타일
 const communityThemeStyles = {
-    default: {
+    pop: {
         // Neo/Pop 스타일 - 핑크 계열
         button: 'bg-pink-500 hover:bg-pink-600 text-white',
         focusRing: 'focus:ring-pink-500',
+    },
+    classic: {
+        button: 'bg-[#635bff] hover:bg-indigo-600 text-white',
+        focusRing: 'focus:ring-[#635bff]',
+    },
+    dark: {
+        button: 'bg-[#635bff] hover:bg-indigo-600 text-white',
+        focusRing: 'focus:ring-[#635bff]',
     },
     christmas: {
         button: 'bg-[#c41e3a] hover:bg-red-700 text-white',
@@ -22,7 +30,7 @@ const AddFaq = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const { theme } = useThemeStore();
-    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.default;
+    const themeStyle = communityThemeStyles[theme] || communityThemeStyles.pop;
     const [category, setCategory] = useState('회원');
     const [formData, setFormData] = useState({
         communityCodeId: 4,

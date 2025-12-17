@@ -9,7 +9,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const backupCodeThemeStyles = {
-  default: {
+  pop: {
     primaryButton: "bg-indigo-600 hover:bg-indigo-700",
   },
   christmas: {
@@ -19,7 +19,7 @@ const backupCodeThemeStyles = {
 
 export function BackupCodeDialog({ backup }) {
   const { theme } = useThemeStore();
-  const themeStyle = backupCodeThemeStyles[theme] || backupCodeThemeStyles.default;
+  const themeStyle = backupCodeThemeStyles[theme] || backupCodeThemeStyles.pop;
   return (
     <Dialog
       open={backup.open}

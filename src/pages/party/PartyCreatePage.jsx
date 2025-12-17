@@ -7,9 +7,9 @@ import { requestPayment } from "../../utils/paymentHandler";
 import { calculateEndDate, getTodayString } from "../../utils/dateUtils";
 import { updateOttAccount, fetchPartyDetail } from "../../hooks/party/partyService";
 import RippleButton from "../../components/party/RippleButton";
+import { getProductIconUrl } from "../../utils/imageUtils";
 import {
   useTheme,
-  ThemeMarquee,
   themeConfig
 } from "../../config/themeConfig";
 import {
@@ -27,12 +27,28 @@ import {
 
 // Party 페이지 테마 스타일
 const partyThemeStyles = {
-  default: {
-    accent: 'text-indigo-600',
-    accentBg: 'bg-indigo-600',
-    hoverAccentBg: 'hover:bg-indigo-700',
-    badge: 'bg-indigo-50 text-indigo-600',
-    buttonShadow: 'shadow-indigo-600/25',
+  pop: {
+    accent: 'text-pink-500',
+    accentBg: 'bg-pink-500',
+    hoverAccentBg: 'hover:bg-pink-600',
+    badge: 'bg-pink-50 text-pink-600',
+    buttonShadow: 'shadow-pink-500/25',
+    accentColor: '#ec4899',
+  },
+  classic: {
+    accent: 'text-[#635bff]',
+    accentBg: 'bg-[#635bff]',
+    hoverAccentBg: 'hover:bg-[#5851e8]',
+    badge: 'bg-indigo-50 text-[#635bff]',
+    buttonShadow: 'shadow-[#635bff]/25',
+    accentColor: '#635bff',
+  },
+  dark: {
+    accent: 'text-[#635bff]',
+    accentBg: 'bg-[#635bff]',
+    hoverAccentBg: 'hover:bg-[#5851e8]',
+    badge: 'bg-gray-800 text-[#635bff]',
+    buttonShadow: 'shadow-gray-900/25',
     accentColor: '#635bff',
   },
   christmas: {
@@ -47,14 +63,6 @@ const partyThemeStyles = {
     cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
     accentColor: '#c41e3a',
   },
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
-    accentColor: '#ec4899',
-  },
 };
 
 export default function PartyCreatePage() {
@@ -64,7 +72,7 @@ export default function PartyCreatePage() {
 
   // Theme
   const { theme, setTheme, currentTheme } = useTheme("appTheme");
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.default;
+  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
 
   // Zustand Store
   const {
@@ -262,14 +270,13 @@ export default function PartyCreatePage() {
 
   return (
     <div className="min-h-screen bg-transparent pb-20 transition-colors duration-300 relative z-10">
-      {/* Pop Theme Marquee */}
-      <ThemeMarquee theme={theme} />
+
 
       {/* Hero Header */}
       <div className={`relative overflow-hidden border-b ${theme === "dark" ? "bg-transparent border-gray-800"
-          : theme === "pop" ? "bg-transparent border-gray-200"
-            : theme === "christmas" ? "bg-transparent border-gray-100"
-              : "bg-transparent border-gray-100"
+        : theme === "pop" ? "bg-transparent border-gray-200"
+          : theme === "christmas" ? "bg-transparent border-gray-100"
+            : "bg-transparent border-gray-100"
         }`}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center relative z-10">
           <motion.div
@@ -363,8 +370,8 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">서비스 선택</h2>
-                <p className="text-gray-500">공유하고 싶은 구독 서비스를 선택해주세요</p>
+                <h2 className={`text-3xl font-bold mb-2 ${currentTheme.text}`}>서비스 선택</h2>
+                <p className={currentTheme.subtext}>공유하고 싶은 구독 서비스를 선택해주세요</p>
               </div>
 
               {products.length === 0 ? (
@@ -389,7 +396,7 @@ export default function PartyCreatePage() {
                         >
                           {product.image ? (
                             <img
-                              src={product.image}
+                              src={getProductIconUrl(product.image)}
                               alt={product.productName}
                               className="w-full h-full object-cover"
                             />
@@ -426,8 +433,8 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">파티 설정</h2>
-                <p className="text-gray-500">인원과 기간을 설정해주세요</p>
+                <h2 className={`text-3xl font-bold mb-2 ${currentTheme.text}`}>파티 설정</h2>
+                <p className={currentTheme.subtext}>인원과 기간을 설정해주세요</p>
               </div>
 
               {/* Selected Product Display */}
@@ -449,12 +456,11 @@ export default function PartyCreatePage() {
                 </div>
               </div>
 
-              <div className={`space-y-8 bg-white rounded-2xl p-6 border ${
-                theme === "christmas" ? "border-gray-200" : "border-gray-100"
-              }`}>
+              <div className={`space-y-8 rounded-2xl p-6 border ${theme === "dark" ? "bg-[#1E293B] border-gray-700" : theme === "christmas" ? "bg-white border-gray-200" : "bg-white border-gray-100"
+                }`}>
                 {/* Max Members - 2, 3, 4 Button Selection */}
                 <div id="maxMembers">
-                  <label className="block text-sm font-bold text-gray-900 mb-4">
+                  <label className={`block text-sm font-bold mb-4 ${currentTheme.text}`}>
                     <span className="flex items-center gap-2">
                       <Users className={`w-5 h-5 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                       파티 인원
@@ -535,9 +541,8 @@ export default function PartyCreatePage() {
                   )}
                 </div>
 
-                {/* Start Date */}
                 <div id="startDate">
-                  <label className="block text-sm font-bold text-gray-900 mb-3">
+                  <label className={`block text-sm font-bold mb-3 ${currentTheme.text}`}>
                     <span className="flex items-center gap-2">
                       <Calendar className={`w-5 h-5 ${theme === "pop" ? "text-pink-400" : theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
                       시작일
@@ -584,9 +589,8 @@ export default function PartyCreatePage() {
                   )}
                 </div>
 
-                {/* Duration - Slider + Quick Select */}
                 <div id="months">
-                  <label className="block text-sm font-bold text-gray-900 mb-4">
+                  <label className={`block text-sm font-bold mb-4 ${currentTheme.text}`}>
                     <span className="flex items-center gap-2">
                       <Calendar className={`w-5 h-5 ${theme === "pop" ? "text-pink-400" : theme === "christmas" ? "text-green-800" : "text-[#00d4ff]"}`} />
                       이용 기간
@@ -639,7 +643,7 @@ export default function PartyCreatePage() {
 
                   {/* Quick Select Buttons */}
                   <div className="flex gap-2 justify-center">
-                    {[3, 6, 12].map((month) => (
+                    {[3, 6, 9, 12].map((month) => (
                       <button
                         key={month}
                         type="button"
@@ -664,6 +668,7 @@ export default function PartyCreatePage() {
                       >
                         {month === 3 && "3개월"}
                         {month === 6 && "6개월"}
+                        {month === 9 && "9개월"}
                         {month === 12 && "1년"}
                       </button>
                     ))}
@@ -692,7 +697,7 @@ export default function PartyCreatePage() {
                         key={`${maxMembers}-${dates.months}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100"
+                        className={`mt-4 p-4 rounded-xl border ${theme === "dark" ? "bg-gradient-to-r from-emerald-900/30 to-teal-900/30 border-emerald-800" : "bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-100"}`}
                       >
                         <div className="flex items-center gap-2 text-emerald-700 font-bold mb-3">
                           <Sparkles className="w-5 h-5" />
@@ -700,18 +705,18 @@ export default function PartyCreatePage() {
                         </div>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-gray-600">원래 구독료</span>
-                            <span className="text-gray-900">월 {monthlyPrice.toLocaleString()}원</span>
+                            <span className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>원래 구독료</span>
+                            <span className={currentTheme.text}>월 {monthlyPrice.toLocaleString()}원</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">파티 공유 후</span>
-                            <span className="text-gray-900">월 {perPersonFee.toLocaleString()}원</span>
+                            <span className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>파티 공유 후</span>
+                            <span className={currentTheme.text}>월 {perPersonFee.toLocaleString()}원</span>
                           </div>
                           <div className="flex justify-between text-emerald-600 font-semibold">
                             <span>매월 절약</span>
                             <span>-{monthlySavings.toLocaleString()}원</span>
                           </div>
-                          <div className="pt-2 mt-2 border-t border-emerald-200">
+                          <div className={`pt-2 mt-2 border-t ${theme === "dark" ? "border-emerald-700" : "border-emerald-200"}`}>
                             <div className="flex justify-between items-center">
                               <span className="text-gray-700 font-semibold">{dates.months}개월 총 절약</span>
                               <motion.span

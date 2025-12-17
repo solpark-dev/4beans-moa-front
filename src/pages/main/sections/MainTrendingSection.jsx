@@ -19,7 +19,7 @@ import {
 
 // 테마별 Trending 섹션 스타일
 const trendingThemeStyles = {
-  default: {
+  pop: {
     stickerBg: "bg-pink-500",
     recruitingBg: "bg-cyan-400",
     priceColor: "text-pink-500",
@@ -90,13 +90,13 @@ export default function MainTrendingSection() {
   const partiesLoading = useMainStore((s) => s.partiesLoading);
   const partiesError = useMainStore((s) => s.partiesError);
   const { theme } = useThemeStore();
-  const themeStyle = trendingThemeStyles[theme] || trendingThemeStyles.default;
+  const themeStyle = trendingThemeStyles[theme] || trendingThemeStyles.pop;
   const isDark = theme === "dark";
 
   // 마감 임박 파티 6개 선택 (모집률 높은 순) - 실제 마감임박 파티만 표시
   const visible = useMemo(() => {
     const list = Array.isArray(parties) ? [...parties] : [];
-    console.log("MainTrendingSection parties:", list); // 디버깅용
+
     const sorted = list
       .map((party) => {
         const members = party.currentMembers || 0;

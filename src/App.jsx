@@ -125,7 +125,7 @@ export default function App() {
   const location = useLocation();
   const { user } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
-  const currentTheme = themeConfig[theme] || themeConfig.default;
+  const currentTheme = themeConfig[theme] || themeConfig.pop;
 
   // Check if current route is admin page
   const isAdminPage = location.pathname.startsWith('/admin');
@@ -180,24 +180,26 @@ export default function App() {
     };
   }, [isAdminPage, location.pathname]);
 
+  // CSS Variables Injection
+  useEffect(() => {
+    const currentThemeConfig = themeConfig[theme] || themeConfig.pop;
+    const cssVars = currentThemeConfig.cssVars;
+    if (cssVars) {
+      Object.entries(cssVars).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value);
+      });
+    }
+  }, [theme]);
+
   // Easter egg for specific test accounts
   const showEasterEgg =
     user && (user.userId === "usertest1" || user.userId === "admintest");
 
-  // 테마별 배경색 설정
-  const getBgClass = () => {
-    switch (theme) {
-      case 'dark':
-        return 'bg-[#0B1120] text-white';
-      case 'christmas':
-        return 'bg-transparent text-black';
-      default:
-        return 'bg-slate-50 text-black';
-    }
-  };
-
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${getBgClass()}`}>
+    <div
+      data-theme={theme}
+      className={`min-h-screen flex flex-col transition-colors duration-300 bg-theme-bg text-theme-text`}
+    >
       <NeoBackground />
       <ScrollToTop />
       {showEasterEgg && <PineappleEasterEgg />}

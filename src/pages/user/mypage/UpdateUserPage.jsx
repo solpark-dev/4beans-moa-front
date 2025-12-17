@@ -19,7 +19,7 @@ import { useThemeStore } from "@/store/themeStore";
 
 // 테마별 스타일
 const updateUserThemeStyles = {
-  default: {
+  pop: {
     sticker: {
       border: "border border-gray-200",
       shadow: "shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
@@ -87,7 +87,7 @@ function Sticker({
   withShadow = true,
   theme,
 }) {
-  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.default;
+  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
   return (
     <motion.div
       whileHover={withShadow ? { scale: 1.01 } : undefined}
@@ -114,12 +114,12 @@ function PopButton({
   variant = "primary",
   ...props
 }) {
-  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.default;
+  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
   const colorClass = variant === "primary"
     ? `${themeStyle.button.primaryBg} ${themeStyle.button.primaryText}`
     : variant === "secondary"
-    ? `${themeStyle.button.secondaryBg} ${themeStyle.button.secondaryText}`
-    : color;
+      ? `${themeStyle.button.secondaryBg} ${themeStyle.button.secondaryText}`
+      : color;
 
   return (
     <motion.button
@@ -143,7 +143,7 @@ function PopButton({
 
 export default function UpdateUserPage() {
   const { theme } = useThemeStore();
-  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.default;
+  const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
 
   const {
     fileRef,
@@ -394,9 +394,8 @@ export default function UpdateUserPage() {
                       theme={theme}
                     >
                       <p
-                        className={`text-sm font-black ${
-                          nickMsg.isError ? "text-red-600" : "text-black"
-                        }`}
+                        className={`text-sm font-black ${nickMsg.isError ? "text-red-600" : "text-black"
+                          }`}
                       >
                         {nickMsg.text}
                       </p>

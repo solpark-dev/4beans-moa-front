@@ -174,7 +174,15 @@ export const SnowPlowButton = ({ className = "" }) => {
           }`}
         title={isSnowCleared ? "눈이 치워졌어요!" : isPlowing ? "제설 중..." : "눈 치우기"}
       >
-        <span className="text-xl">{isPlowing ? "🚜" : isSnowCleared ? "✨" : "🚜"}</span>
+        {isSnowCleared ? (
+          <span className="text-xl">✨</span>
+        ) : (
+          <img
+            src="/snowplow.png"
+            alt="Snow Plow"
+            className="w-8 h-8 object-contain"
+          />
+        )}
       </motion.button>
     </div>
   );
@@ -264,7 +272,11 @@ const SantaSleigh = () => {
       }}
     >
       <div className="relative">
-        <span className="text-[150px] filter drop-shadow-2xl">🎅🛷🦌💨</span>
+        <img
+          src="/santa.png"
+          alt="Santa Sleigh"
+          className="w-[300px] h-auto filter drop-shadow-2xl"
+        />
         <motion.div
           className="absolute top-1/2 left-0 w-full h-4 bg-white opacity-20 blur-xl"
           style={{ transform: "translateY(-50%) scaleX(2)" }}
@@ -485,7 +497,11 @@ export const ClearableSnowPile = () => {
                 ease: "easeInOut",
               }}
             >
-              <span className="text-6xl drop-shadow-xl filter saturate-150">🚜</span>
+              <img
+                src="/snowplow.png"
+                alt="Snow Plow"
+                className="w-16 h-16 object-contain drop-shadow-xl"
+              />
             </motion.div>
           </motion.div>
         )}

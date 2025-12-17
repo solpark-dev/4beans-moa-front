@@ -96,16 +96,16 @@ export default function LoginPage() {
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
-      <section className="min-h-screen flex items-center justify-center px-4 py-12">
+      <section className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-md">
           <Card className={themeStyles.cardStyle}>
-            <CardHeader className={`px-10 pt-10 pb-4 ${themeStyles.headerBorder}`}>
-              <CardTitle className={`text-2xl font-black tracking-tight ${themeStyles.titleColor} text-center`}>
+            <CardHeader className={`px-6 sm:px-10 pt-8 sm:pt-10 pb-4 ${themeStyles.headerBorder}`}>
+              <CardTitle className={`text-xl sm:text-2xl font-black tracking-tight ${themeStyles.titleColor} text-center`}>
                 {theme === 'christmas' ? '🎄 Login' : 'Login'}
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="px-10 pt-6 pb-6 space-y-6">
+            <CardContent className="px-6 sm:px-10 pt-5 sm:pt-6 pb-5 sm:pb-6 space-y-5 sm:space-y-6">
               <LoginForm
                 email={email}
                 password={password}
@@ -122,7 +122,7 @@ export default function LoginPage() {
               />
             </CardContent>
 
-            <CardFooter className="flex flex-col gap-3 px-10 pb-10 pt-0">
+            <CardFooter className="flex flex-col gap-3 px-6 sm:px-10 pb-8 sm:pb-10 pt-0">
               <SocialLoginButtons
                 onKakao={handleKakaoLogin}
                 onGoogle={handleGoogleLogin}

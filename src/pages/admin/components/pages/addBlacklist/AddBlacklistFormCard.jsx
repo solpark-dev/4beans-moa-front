@@ -10,22 +10,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
-import { useThemeStore } from "@/store/themeStore";
 
-// 테마별 스타일
-const blacklistFormThemeStyles = {
-  default: {
-    headerBorder: "border-b-4 border-black",
-    footerBorder: "border-t-4 border-black",
-    buttonBg: "bg-red-500 hover:bg-red-500",
-  },
-  christmas: {
-    headerBorder: "border-b border-gray-200",
-    footerBorder: "border-t border-gray-200",
-    buttonBg: "bg-[#c41e3a] hover:bg-red-700",
-  },
-};
-
+/**
+ * 블랙리스트 등록 폼 카드
+ * CSS 변수 기반 테마 적용
+ */
 export default function AddBlacklistFormCard({
   userId,
   reasonType,
@@ -38,41 +27,38 @@ export default function AddBlacklistFormCard({
   onSubmit,
   onCancel,
 }) {
-  const { theme } = useThemeStore();
-  const themeStyle = blacklistFormThemeStyles[theme] || blacklistFormThemeStyles.default;
-
   return (
     <section className="relative px-6 md:px-12 pb-24">
       <div className="max-w-3xl mx-auto">
-        <Card className="bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden">
-          <CardHeader className={`${themeStyle.headerBorder} bg-slate-100`}>
-            <CardTitle className="text-xl font-black">
+        <Card className="bg-[var(--theme-bg-card)] border border-[var(--theme-border-light)] shadow-[var(--theme-shadow)] rounded-3xl overflow-hidden">
+          <CardHeader className="border-b border-[var(--theme-border-light)] bg-[var(--theme-primary-light)]">
+            <CardTitle className="text-xl font-black text-[var(--theme-text)]">
               블랙리스트 대상 및 사유 입력
             </CardTitle>
           </CardHeader>
 
           <CardContent className="p-8 space-y-6">
             {error && (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-100 border border-gray-200 text-sm font-bold">
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-100 border border-red-200 text-sm font-bold text-red-700">
                 <AlertTriangle className="w-4 h-4" />
                 <span>{error}</span>
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-black">회원 아이디(이메일)</label>
+              <label className="text-sm font-black text-[var(--theme-text)]">회원 아이디(이메일)</label>
               <Input
                 value={userId}
                 onChange={(e) => onChangeUserId(e.target.value)}
                 placeholder="user001@example.com"
-                className="h-11 border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] font-medium"
+                className="h-11 border border-[var(--theme-border-light)] rounded-xl shadow-[var(--theme-shadow)] font-medium bg-[var(--theme-bg-card)] text-[var(--theme-text)]"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black">사유 구분</label>
+              <label className="text-sm font-black text-[var(--theme-text)]">사유 구분</label>
               <Select value={reasonType} onValueChange={onChangeReasonType}>
-                <SelectTrigger className="h-11 border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
+                <SelectTrigger className="h-11 border border-[var(--theme-border-light)] rounded-xl shadow-[var(--theme-shadow)] bg-[var(--theme-bg-card)] text-[var(--theme-text)]">
                   <SelectValue placeholder="사유를 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
@@ -89,9 +75,9 @@ export default function AddBlacklistFormCard({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black">
+              <label className="text-sm font-black text-[var(--theme-text)]">
                 상세 사유
-                <span className="ml-1 text-xs font-medium text-slate-500">
+                <span className="ml-1 text-xs font-medium text-[var(--theme-text-muted)]">
                   (선택 입력)
                 </span>
               </label>
@@ -99,16 +85,16 @@ export default function AddBlacklistFormCard({
                 value={reasonDetail}
                 onChange={(e) => onChangeReasonDetail(e.target.value)}
                 rows={4}
-                className="resize-none border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                className="resize-none border border-[var(--theme-border-light)] rounded-xl shadow-[var(--theme-shadow)] bg-[var(--theme-bg-card)] text-[var(--theme-text)]"
                 placeholder="상세 사유를 입력하세요."
               />
             </div>
 
-            <div className={`flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 ${themeStyle.footerBorder}`}>
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 border-t border-[var(--theme-border-light)]">
               <Button
                 type="button"
                 variant="outline"
-                className="h-11 px-6 border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] font-black bg-white"
+                className="h-11 px-6 border border-[var(--theme-border-light)] rounded-xl shadow-[var(--theme-shadow)] font-black bg-[var(--theme-bg-card)] text-[var(--theme-text)]"
                 onClick={onCancel}
                 disabled={submitting}
               >
@@ -116,7 +102,7 @@ export default function AddBlacklistFormCard({
               </Button>
               <Button
                 type="button"
-                className={`h-11 px-7 ${themeStyle.buttonBg} border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] font-black text-white`}
+                className="h-11 px-7 bg-red-500 hover:bg-red-600 border border-red-500 rounded-xl shadow-[var(--theme-shadow)] font-black text-white"
                 onClick={onSubmit}
                 disabled={submitting}
               >

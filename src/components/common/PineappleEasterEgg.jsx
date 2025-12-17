@@ -157,8 +157,8 @@ const PineappleEasterEgg = () => {
                 onClick={() => setIsEnabled(!isEnabled)}
                 style={{
                     position: 'fixed',
-                    bottom: '20px',
-                    left: '20px',
+                    bottom: '32px',
+                    left: '170px',
                     zIndex: 10000,
                     background: isEnabled ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.5)',
                     border: 'none',
