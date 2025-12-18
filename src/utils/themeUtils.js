@@ -125,6 +125,40 @@ export const themeClasses = {
     `.replace(/\s+/g, ' ').trim(),
   },
 
+  // Accent colors (replaces theme === "pop" ? "text-pink-500" : ... patterns)
+  accent: {
+    text: 'text-[var(--theme-primary)]',
+    textHover: 'hover:text-[var(--theme-primary)]',
+    bg: 'bg-[var(--theme-primary)]',
+    bgHover: 'hover:bg-[var(--theme-primary-hover)]',
+    bgLight: 'bg-[var(--theme-primary-light)]',
+    border: 'border-[var(--theme-primary)]',
+  },
+
+  // Icon styling
+  icon: {
+    accent: 'text-[var(--theme-primary)]',
+    muted: 'text-[var(--theme-text-muted)]',
+  },
+
+  // Interactive elements
+  interactive: {
+    // Back button, navigation links
+    link: 'text-[var(--theme-text-muted)] hover:text-[var(--theme-primary)] transition-colors',
+    // Clickable cards
+    card: 'hover:border-[var(--theme-primary)] transition-colors cursor-pointer',
+  },
+
+  // CSS variable references for inline styles (charts, gradients, shadows)
+  cssVar: {
+    primary: 'var(--theme-primary)',
+    primaryHover: 'var(--theme-primary-hover)',
+    primaryLight: 'var(--theme-primary-light)',
+    secondary: 'var(--theme-secondary)',
+    shadow: 'var(--theme-primary-shadow)',
+    shadowColor: 'var(--theme-shadow-color)',
+  },
+
   // Modal
   modal: {
     overlay: 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center',

@@ -12,7 +12,6 @@ import RippleButton from "../../components/party/RippleButton";
 import { fetchPartyMembers, leaveParty } from "../../hooks/party/partyService";
 import {
   useTheme,
-  ThemeMarquee,
   Sticker,
   themeConfig
 } from "../../config/themeConfig";
@@ -276,8 +275,7 @@ export default function PartyDetailPage() {
 
   return (
     <div className={`min-h-screen pb-20 transition-colors duration-300 relative z-10 ${currentTheme.bg}`}>
-      {/* Pop Theme Marquee */}
-      <ThemeMarquee theme={theme} />
+
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-transparent">
@@ -310,7 +308,7 @@ export default function PartyDetailPage() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4 }}
-                  className={`flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border ${theme === "dark"
+                  className={`flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border ${theme === "dark"
                     ? "bg-[#1E293B] border-gray-700 shadow-lg"
                     : theme === "christmas"
                       ? "bg-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
@@ -321,7 +319,7 @@ export default function PartyDetailPage() {
                     <img
                       src={getProductIconUrl(party.productImage)}
                       alt={party.productName}
-                      className="w-full h-full object-contain p-2"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#635bff]/10 to-[#00d4ff]/10">
@@ -363,18 +361,20 @@ export default function PartyDetailPage() {
                     {party.productName}
                   </h1>
 
-                  {/* Leader Info */}
-                  <div className={`flex items-center gap-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-[#635bff] to-[#00d4ff] flex items-center justify-center ring-2 shadow-sm ${theme === "dark" ? "ring-gray-700" : "ring-white"}`}>
-                      <span className="text-xs font-bold text-white">
-                        {party.leaderNickname?.[0]?.toUpperCase()}
-                      </span>
+                  {/* Leader Info - Only visible to members */}
+                  {(isMember || isLeader) && (
+                    <div className={`flex items-center gap-3 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-[#635bff] to-[#00d4ff] flex items-center justify-center ring-2 shadow-sm ${theme === "dark" ? "ring-gray-700" : "ring-white"}`}>
+                        <span className="text-xs font-bold text-white">
+                          {party.leaderNickname?.[0]?.toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>파티장</p>
+                        <p className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{party.leaderNickname}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>파티장</p>
-                      <p className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{party.leaderNickname}</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
