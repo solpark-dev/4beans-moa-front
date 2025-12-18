@@ -4,67 +4,9 @@ import { motion } from 'framer-motion';
 import { Sparkles, ArrowLeft, Calendar, CreditCard, Settings, XCircle } from 'lucide-react';
 import httpClient from '../../api/httpClient';
 import { useThemeStore } from '@/store/themeStore';
-import { ThemeSwitcher, ChristmasBackground } from '@/config/themeConfig';
+import { ThemeSwitcher } from '@/config/themeConfig';
 import { getProductIconUrl } from '@/utils/imageUtils';
-
-// Animated gradient background component - theme-aware
-function AnimatedGradient({ theme }) {
-    const gradients = {
-        christmas: {
-            color1: "rgba(196, 30, 58, 0.15)",
-            color2: "rgba(26, 95, 42, 0.15)",
-        },
-        dark: {
-            color1: "rgba(99, 91, 255, 0.15)",
-            color2: "rgba(0, 212, 255, 0.15)",
-        },
-        classic: {
-            color1: "rgba(99, 91, 255, 0.15)",
-            color2: "rgba(0, 212, 255, 0.15)",
-        },
-        pop: {
-            color1: "rgba(236, 72, 153, 0.15)",
-            color2: "rgba(34, 211, 238, 0.15)",
-        },
-    };
-
-    const colors = gradients[theme] || gradients.classic;
-
-    return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <motion.div
-                className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full opacity-30"
-                style={{
-                    background: `radial-gradient(circle, ${colors.color1} 0%, transparent 70%)`,
-                }}
-                animate={{
-                    x: [0, 100, 0],
-                    y: [0, 50, 0],
-                }}
-                transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                }}
-            />
-            <motion.div
-                className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full opacity-30"
-                style={{
-                    background: `radial-gradient(circle, ${colors.color2} 0%, transparent 70%)`,
-                }}
-                animate={{
-                    x: [0, -100, 0],
-                    y: [0, -50, 0],
-                }}
-                transition={{
-                    duration: 25,
-                    repeat: Infinity,
-                    ease: "linear",
-                }}
-            />
-        </div>
-    );
-}
+import { themeClasses } from '@/utils/themeUtils';
 
 const GetSubscription = () => {
     const { id } = useParams();
@@ -72,99 +14,6 @@ const GetSubscription = () => {
     const { theme, setTheme } = useThemeStore();
     const [subscription, setSubscription] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    // Theme-based colors
-    const getThemeColors = () => {
-        switch (theme) {
-            case 'christmas':
-                return {
-                    bg: 'bg-transparent',
-                    headerBg: 'bg-transparent',
-                    text: 'text-gray-900',
-                    subtext: 'text-gray-600',
-                    cardBg: 'bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
-                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(196,30,58,0.2)] hover:-translate-y-1',
-                    cardBorder: 'border-gray-100',
-                    iconColor1: 'text-[#c41e3a]',
-                    iconColor2: 'text-[#1a5f2a]',
-                    priceColor: 'text-[#c41e3a]',
-                    buttonPrimary: 'bg-[#c41e3a] hover:bg-[#a51830]',
-                    buttonSecondary: 'border-gray-200 hover:border-[#c41e3a] hover:text-[#c41e3a]',
-                    statusActive: 'bg-emerald-50 text-emerald-600',
-                    loadingSpinner: 'border-[#c41e3a]',
-                };
-            case 'dark':
-                return {
-                    bg: 'bg-transparent',
-                    headerBg: 'bg-transparent',
-                    text: 'text-white',
-                    subtext: 'text-gray-400',
-                    cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
-                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(99,91,255,0.2)] hover:-translate-y-1',
-                    cardBorder: 'border-gray-700',
-                    iconColor1: 'text-[#635bff]',
-                    iconColor2: 'text-[#00d4ff]',
-                    priceColor: 'text-[#635bff]',
-                    buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8]',
-                    buttonSecondary: 'border-gray-700 hover:border-[#635bff] hover:text-[#635bff]',
-                    statusActive: 'bg-emerald-500/20 text-emerald-400',
-                    loadingSpinner: 'border-[#635bff]',
-                };
-            case 'classic':
-                return {
-                    bg: 'bg-transparent',
-                    headerBg: 'bg-transparent',
-                    text: 'text-gray-900',
-                    subtext: 'text-gray-500',
-                    cardBg: 'bg-white rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(99,91,255,0.15)] hover:-translate-y-1',
-                    cardBorder: 'border-gray-100',
-                    iconColor1: 'text-[#635bff]',
-                    iconColor2: 'text-[#00d4ff]',
-                    priceColor: 'text-[#635bff]',
-                    buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8]',
-                    buttonSecondary: 'border-gray-200 hover:border-[#635bff] hover:text-[#635bff]',
-                    statusActive: 'bg-emerald-50 text-emerald-600',
-                    loadingSpinner: 'border-[#635bff]',
-                };
-            case 'pop':
-                return {
-                    bg: 'bg-transparent',
-                    headerBg: 'bg-transparent',
-                    text: 'text-gray-900',
-                    subtext: 'text-gray-500',
-                    cardBg: 'bg-white rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] hover:-translate-y-1',
-                    cardBorder: 'border-gray-100',
-                    iconColor1: 'text-pink-500',
-                    iconColor2: 'text-pink-400',
-                    priceColor: 'text-pink-500',
-                    buttonPrimary: 'bg-pink-500 hover:bg-pink-600',
-                    buttonSecondary: 'border-gray-200 hover:border-pink-500 hover:text-pink-500',
-                    statusActive: 'bg-pink-50 text-pink-600',
-                    loadingSpinner: 'border-pink-500',
-                };
-            default:
-                return {
-                    bg: 'bg-transparent',
-                    headerBg: 'bg-transparent',
-                    text: 'text-gray-900',
-                    subtext: 'text-gray-500',
-                    cardBg: 'bg-white rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-                    cardHover: 'hover:shadow-[6px_6px_16px_rgba(99,91,255,0.15)] hover:-translate-y-1',
-                    cardBorder: 'border-gray-100',
-                    iconColor1: 'text-[#635bff]',
-                    iconColor2: 'text-[#00d4ff]',
-                    priceColor: 'text-[#635bff]',
-                    buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8]',
-                    buttonSecondary: 'border-gray-200 hover:border-[#635bff] hover:text-[#635bff]',
-                    statusActive: 'bg-emerald-50 text-emerald-600',
-                    loadingSpinner: 'border-[#635bff]',
-                };
-        }
-    };
-
-    const themeColors = getThemeColors();
 
     useEffect(() => {
         const fetchSubscription = async () => {
@@ -192,8 +41,8 @@ const GetSubscription = () => {
 
     if (loading) {
         return (
-            <div className={`min-h-screen flex items-center justify-center ${themeColors.bg}`}>
-                <div className={`animate-spin rounded-full h-12 w-12 border-2 ${themeColors.loadingSpinner} border-t-transparent`}></div>
+            <div className={`min-h-screen flex items-center justify-center bg-transparent`}>
+                <div className="animate-spin rounded-full h-12 w-12 border-2 border-[var(--theme-primary)] border-t-transparent"></div>
             </div>
         );
     }
@@ -201,19 +50,16 @@ const GetSubscription = () => {
     if (!subscription) return null;
 
     return (
-        <div className={`min-h-screen ${themeColors.bg} pb-20`}>
+        <div className="min-h-screen bg-transparent pb-20">
             {/* Theme Switcher */}
             <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
-            {/* Christmas Background */}
-            {theme === 'christmas' && <ChristmasBackground />}
-
             {/* Hero Header */}
-            <div className={`relative overflow-hidden ${themeColors.headerBg}`}>
+            <div className="relative overflow-hidden bg-transparent">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
                     <button
                         onClick={() => navigate(-1)}
-                        className={`flex items-center gap-2 ${themeColors.subtext} hover:${themeColors.iconColor1} mb-6 transition-colors group`}
+                        className={`flex items-center gap-2 ${themeClasses.text.muted} hover:text-[var(--theme-primary)] mb-6 transition-colors group`}
                     >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         <span className="font-semibold">뒤로가기</span>
@@ -228,12 +74,12 @@ const GetSubscription = () => {
                         <img
                             src={getProductIconUrl(subscription.productImage) || '/placeholder.png'}
                             alt={subscription.productName}
-                            className={`w-24 h-24 rounded-2xl object-cover mx-auto mb-4 shadow-lg ${theme === 'dark' ? 'border border-gray-700' : 'border border-gray-100'}`}
+                            className={`w-24 h-24 rounded-2xl object-cover mx-auto mb-4 shadow-lg border border-[var(--theme-border-light)]`}
                         />
-                        <h1 className={`text-3xl font-bold ${themeColors.text} mb-3`}>{subscription.productName}</h1>
+                        <h1 className={`text-3xl font-bold ${themeClasses.text.primary} mb-3`}>{subscription.productName}</h1>
                         <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${subscription.subscriptionStatus === 'ACTIVE'
-                                ? themeColors.statusActive
-                                : 'bg-red-50 text-red-600'
+                            ? themeClasses.badge.secondary
+                            : 'bg-red-50 text-red-600'
                             }`}>
                             <Sparkles className="w-4 h-4" />
                             {subscription.subscriptionStatus === 'ACTIVE' ? '이용중' : '해지됨'}
@@ -247,30 +93,30 @@ const GetSubscription = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className={`${themeColors.cardBg} ${themeColors.cardHover} border ${themeColors.cardBorder} overflow-hidden relative z-10 transition-all`}
+                    className={`${themeClasses.card.elevated} overflow-hidden relative z-10 transition-all`}
                 >
                     <div className="p-8">
                         <div className="space-y-6">
-                            <div className={`flex justify-between items-center py-4 border-b ${themeColors.cardBorder}`}>
-                                <div className={`flex items-center gap-3 ${themeColors.subtext}`}>
-                                    <Calendar className={`w-5 h-5 ${themeColors.iconColor1}`} />
+                            <div className={`flex justify-between items-center py-4 border-b border-[var(--theme-border-light)]`}>
+                                <div className={`flex items-center gap-3 ${themeClasses.text.muted}`}>
+                                    <Calendar className="w-5 h-5 text-[var(--theme-primary)]" />
                                     시작일
                                 </div>
-                                <span className={`font-semibold ${themeColors.text}`}>{subscription.startDate}</span>
+                                <span className={`font-semibold ${themeClasses.text.primary}`}>{subscription.startDate}</span>
                             </div>
-                            <div className={`flex justify-between items-center py-4 border-b ${themeColors.cardBorder}`}>
-                                <div className={`flex items-center gap-3 ${themeColors.subtext}`}>
-                                    <Calendar className={`w-5 h-5 ${themeColors.iconColor2}`} />
+                            <div className={`flex justify-between items-center py-4 border-b border-[var(--theme-border-light)]`}>
+                                <div className={`flex items-center gap-3 ${themeClasses.text.muted}`}>
+                                    <Calendar className="w-5 h-5 text-[var(--theme-secondary)]" />
                                     다음 결제일 (종료일)
                                 </div>
-                                <span className={`font-semibold ${themeColors.text}`}>{subscription.endDate}</span>
+                                <span className={`font-semibold ${themeClasses.text.primary}`}>{subscription.endDate}</span>
                             </div>
                             <div className="flex justify-between items-center py-4">
-                                <div className={`flex items-center gap-3 ${themeColors.subtext}`}>
-                                    <CreditCard className={`w-5 h-5 ${themeColors.iconColor1}`} />
+                                <div className={`flex items-center gap-3 ${themeClasses.text.muted}`}>
+                                    <CreditCard className="w-5 h-5 text-[var(--theme-primary)]" />
                                     결제 금액
                                 </div>
-                                <span className={`font-bold text-2xl ${themeColors.priceColor}`}>{subscription.price?.toLocaleString()}원</span>
+                                <span className={`font-bold text-2xl text-[var(--theme-primary)]`}>{subscription.price?.toLocaleString()}원</span>
                             </div>
                         </div>
 
@@ -280,7 +126,7 @@ const GetSubscription = () => {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => navigate(`/subscription/${id}/edit`)}
-                                    className={`flex-1 flex items-center justify-center gap-2 ${themeColors.cardBg} border-2 ${themeColors.buttonSecondary} ${themeColors.text} py-3.5 rounded-full font-bold transition-colors`}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-bold transition-colors ${themeClasses.button.secondary}`}
                                 >
                                     <Settings className="w-5 h-5" />
                                     옵션 변경

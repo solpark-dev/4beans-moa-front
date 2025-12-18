@@ -11,49 +11,7 @@ import { LoginForm } from "./components/LoginForm";
 import { SocialLoginButtons } from "./components/SocialLoginButtons";
 import { LoginOtpDialog } from "./components/LoginOtpDialog";
 import { useThemeStore } from "@/store/themeStore";
-import { ChristmasBackground } from "@/config/themeConfig";
-
-// Theme-based styles
-const getThemeStyles = (theme) => {
-  switch (theme) {
-    case 'christmas':
-      return {
-        bg: 'bg-transparent',
-        cardStyle: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(196,30,58,0.15)] rounded-[32px] overflow-hidden',
-        titleColor: 'text-[#c41e3a]',
-        headerBorder: 'border-b border-[#c41e3a]/30',
-      };
-    case 'dark':
-      return {
-        bg: 'bg-[#0B1120]',
-        cardStyle: 'bg-[#1E293B] border border-gray-700 shadow-[4px_4px_12px_rgba(0,0,0,0.3)] rounded-[32px] overflow-hidden',
-        titleColor: 'text-white',
-        headerBorder: 'border-b border-gray-700',
-      };
-    case 'pop':
-      return {
-        bg: 'bg-slate-50',
-        cardStyle: 'bg-white border-2 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] rounded-[32px] overflow-hidden',
-        titleColor: 'text-pink-500',
-        headerBorder: 'border-b-2 border-black',
-      };
-    case 'classic':
-      return {
-        bg: 'bg-white',
-        cardStyle: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)] rounded-[32px] overflow-hidden',
-        titleColor: 'text-[#635bff]',
-        headerBorder: 'border-b border-gray-200',
-      };
-    case 'default':
-    default:
-      return {
-        bg: 'bg-slate-50',
-        cardStyle: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-[32px] overflow-hidden',
-        titleColor: 'text-slate-900',
-        headerBorder: 'border-b border-black/30',
-      };
-  }
-};
+import { themeClasses } from "@/utils/themeUtils";
 
 export default function LoginPage() {
   const {
@@ -81,8 +39,7 @@ export default function LoginPage() {
   } = useLoginPageLogic();
 
   // Theme
-  const { theme, setTheme } = useThemeStore();
-  const themeStyles = getThemeStyles(theme);
+  const { theme } = useThemeStore();
 
   const isBackupMode = otpMode === "backup";
   const isLoginDisabled = loginLoading || !email.trim() || !password.trim();
@@ -92,15 +49,12 @@ export default function LoginPage() {
   }, [setField]);
 
   return (
-    <div className={`min-h-screen bg-transparent ${theme === 'dark' ? 'text-white' : 'text-slate-900'} pb-20 relative z-10`}>
-      {/* Christmas Background */}
-      {theme === 'christmas' && <ChristmasBackground />}
-
+    <div className={`min-h-screen ${themeClasses.bg.base} pb-20 relative z-10`}>
       <section className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-md">
-          <Card className={themeStyles.cardStyle}>
-            <CardHeader className={`px-6 sm:px-10 pt-8 sm:pt-10 pb-4 ${themeStyles.headerBorder}`}>
-              <CardTitle className={`text-xl sm:text-2xl font-black tracking-tight ${themeStyles.titleColor} text-center`}>
+          <Card className={`${themeClasses.card.elevated} overflow-hidden`}>
+            <CardHeader className={`px-6 sm:px-10 pt-8 sm:pt-10 pb-4 border-b border-[var(--theme-border-light)]`}>
+              <CardTitle className={`text-xl sm:text-2xl font-black tracking-tight text-[var(--theme-primary)] text-center`}>
                 {theme === 'christmas' ? '🎄 Login' : 'Login'}
               </CardTitle>
             </CardHeader>

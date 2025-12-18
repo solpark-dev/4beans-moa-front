@@ -3,79 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import httpClient from '../../api/httpClient';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '@/store/themeStore';
-import { ThemeSwitcher, ChristmasBackground } from '@/config/themeConfig';
+import { ThemeSwitcher } from '@/config/themeConfig';
 import { getProductIconUrl } from '@/utils/imageUtils';
-
-// Theme-based styles
-const getThemeStyles = (theme) => {
-    switch (theme) {
-        case 'christmas':
-            return {
-                bg: 'bg-transparent',
-                text: 'text-gray-900',
-                subtext: 'text-gray-500',
-                title: 'text-gray-900',
-                cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
-                cardHover: 'hover:shadow-[0_10px_25px_-5px_rgba(196,30,58,0.2)]',
-                empty: 'bg-white/80 backdrop-blur-sm border border-dashed border-gray-300 rounded-2xl',
-                buttonPrimary: 'bg-[#c41e3a] hover:bg-[#a51830] text-white',
-                statusActive: 'bg-green-100 text-green-700',
-                statusInactive: 'bg-red-100 text-red-700',
-            };
-        case 'dark':
-            return {
-                bg: 'bg-[#0B1120]',
-                text: 'text-white',
-                subtext: 'text-gray-400',
-                title: 'text-white',
-                cardBg: 'bg-[#1E293B] border border-gray-700 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
-                cardHover: 'hover:shadow-[0_10px_25px_-5px_rgba(99,91,255,0.2)]',
-                empty: 'bg-[#1E293B] border border-dashed border-gray-700 rounded-2xl',
-                buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
-                statusActive: 'bg-green-900/50 text-green-400',
-                statusInactive: 'bg-red-900/50 text-red-400',
-            };
-        case 'pop':
-            return {
-                bg: 'bg-transparent',
-                text: 'text-black',
-                subtext: 'text-gray-600',
-                title: 'text-black',
-                cardBg: 'bg-white border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-                cardHover: 'hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] hover:-translate-y-1',
-                empty: 'bg-white border border-dashed border-gray-300 rounded-2xl',
-                buttonPrimary: 'bg-pink-500 hover:bg-pink-600 text-white',
-                statusActive: 'bg-pink-50 text-pink-600',
-                statusInactive: 'bg-red-50 text-red-600',
-            };
-        case 'classic':
-            return {
-                bg: 'bg-white',
-                text: 'text-gray-900',
-                subtext: 'text-gray-500',
-                title: 'text-gray-900',
-                cardBg: 'bg-white border border-gray-200 rounded-xl shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-                cardHover: 'hover:shadow-[0_10px_25px_-5px_rgba(99,91,255,0.15)]',
-                empty: 'bg-gray-50 border border-dashed border-gray-300 rounded-2xl',
-                buttonPrimary: 'bg-[#635bff] hover:bg-[#5851e8] text-white',
-                statusActive: 'bg-green-100 text-green-700',
-                statusInactive: 'bg-red-100 text-red-700',
-            };
-        default:
-            return {
-                bg: 'bg-white',
-                text: 'text-gray-900',
-                subtext: 'text-gray-500',
-                title: 'text-gray-900',
-                cardBg: 'bg-white border border-gray-200 rounded-xl',
-                cardHover: 'hover:shadow-md hover:-translate-x-1',
-                empty: 'bg-gray-50 border border-dashed border-gray-300 rounded-2xl',
-                buttonPrimary: 'bg-brand-600 hover:bg-brand-700 text-white',
-                statusActive: 'bg-green-100 text-green-700',
-                statusInactive: 'bg-red-100 text-red-700',
-            };
-    }
-};
+import { themeClasses } from '@/utils/themeUtils';
 
 const GetSubscriptionList = () => {
     const navigate = useNavigate();
@@ -83,11 +13,8 @@ const GetSubscriptionList = () => {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const { theme, setTheme } = useThemeStore();
-    const themeStyles = getThemeStyles(theme);
 
     useEffect(() => {
-
-
         if (!user?.userId) {
             console.warn("User ID missing in authStore, skipping fetch");
             setLoading(false);
@@ -96,12 +23,10 @@ const GetSubscriptionList = () => {
 
         const fetchSubscriptions = async () => {
             try {
-
                 setLoading(true);
                 const response = await httpClient.get('/subscription', {
                     params: { userId: user.userId }
                 });
-
 
                 if (Array.isArray(response)) {
                     setSubscriptions(response);
@@ -121,29 +46,27 @@ const GetSubscriptionList = () => {
     }, [user]);
 
     if (loading) return (
-        <div className={`min-h-screen ${themeStyles.bg} flex justify-center items-center`}>
-            <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${theme === 'dark' ? 'border-[#635bff]' : 'border-indigo-600'}`}></div>
+        <div className={`min-h-screen ${themeClasses.bg.base} flex justify-center items-center`}>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--theme-primary)]"></div>
         </div>
     );
 
     return (
-        <div className={`min-h-screen ${themeStyles.bg}`}>
+        <div className={`min-h-screen ${themeClasses.bg.base}`}>
             {/* Theme Switcher */}
             <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
-            {/* Christmas Background is handled globally by NeoBackground */}
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <h1 className={`text-2xl font-bold mb-8 ${themeStyles.title}`}>
+                <h1 className={`text-2xl font-bold mb-8 ${themeClasses.text.primary}`}>
                     {theme === 'christmas' ? '🎄 나의 구독 내역' : '나의 구독 내역'}
                 </h1>
 
                 {subscriptions.length === 0 ? (
-                    <div className={`text-center py-20 ${themeStyles.empty}`}>
-                        <p className={`mb-4 ${themeStyles.subtext}`}>구독 중인 상품이 없습니다.</p>
+                    <div className={`text-center py-20 ${themeClasses.bg.card} bg-opacity-50 border border-dashed border-[var(--theme-border-light)] rounded-2xl`}>
+                        <p className={`mb-4 ${themeClasses.text.muted}`}>구독 중인 상품이 없습니다.</p>
                         <button
                             onClick={() => navigate('/product')}
-                            className={`px-6 py-2 rounded-lg font-bold transition-colors ${themeStyles.buttonPrimary}`}
+                            className={`px-6 py-2 ${themeClasses.button.primary}`}
                         >
                             구독 상품 보러가기
                         </button>
@@ -154,29 +77,29 @@ const GetSubscriptionList = () => {
                             <div
                                 key={sub.subscriptionId}
                                 onClick={() => navigate(`/subscription/${sub.subscriptionId}`)}
-                                className={`p-5 flex items-center justify-between cursor-pointer transition-all relative z-10 ${themeStyles.cardBg} ${themeStyles.cardHover}`}
+                                className={`p-5 flex items-center justify-between cursor-pointer relative z-10 ${themeClasses.card.elevated}`}
                             >
                                 <div className="flex items-center gap-5">
                                     <img
                                         src={getProductIconUrl(sub.productImage) || '/placeholder.png'}
                                         alt={sub.productName}
-                                        className={`w-16 h-16 rounded-lg object-contain p-1 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'}`}
+                                        className="w-16 h-16 rounded-lg object-contain p-1 bg-[var(--theme-border-light)]"
                                     />
                                     <div>
-                                        <h3 className={`font-bold text-lg ${themeStyles.text}`}>{sub.productName}</h3>
-                                        <p className={`text-sm ${themeStyles.subtext}`}>
-                                            시작일: <span className={`font-medium ${themeStyles.text}`}>{sub.startDate}</span>
+                                        <h3 className={`font-bold text-lg ${themeClasses.text.primary}`}>{sub.productName}</h3>
+                                        <p className={`text-sm ${themeClasses.text.muted}`}>
+                                            시작일: <span className={`font-medium ${themeClasses.text.primary}`}>{sub.startDate}</span>
                                         </p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${sub.subscriptionStatus === 'ACTIVE'
-                                        ? themeStyles.statusActive
-                                        : themeStyles.statusInactive
+                                    <span className={`inline-block mb-2 ${sub.subscriptionStatus === 'ACTIVE'
+                                        ? themeClasses.badge.secondary
+                                        : 'bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold'
                                         }`}>
                                         {sub.subscriptionStatus === 'ACTIVE' ? '이용중' : '해지됨'}
                                     </span>
-                                    <p className={`font-bold ${themeStyles.text}`}>{sub.price?.toLocaleString()}원</p>
+                                    <p className={`font-bold ${themeClasses.text.primary}`}>{sub.price?.toLocaleString()}원</p>
                                 </div>
                             </div>
                         ))}

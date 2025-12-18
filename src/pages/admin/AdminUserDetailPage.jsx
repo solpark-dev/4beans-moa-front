@@ -2,8 +2,6 @@ import { useParams } from "react-router-dom";
 import { useAdminUserDetailLogic } from "@/hooks/admin/useAdminUserDetail";
 import { useAdminLoginHistory } from "@/hooks/admin/useAdminLoginHistory";
 import { useMyPageStore } from "@/store/user/myPageStore";
-import { useThemeStore } from "@/store/themeStore";
-import { ChristmasBackground } from "@/config/themeConfig";
 import AdminAuthGuard from "./components/AdminAuthGuard";
 
 import AdminUserDetailHeader from "./components/userDetail/AdminUserDetailHeader";
@@ -44,16 +42,11 @@ export default function AdminUserDetailPage() {
   } = loginHistory;
 
   const { isAdmin } = useMyPageStore();
-  const { theme } = useThemeStore();
-
-  const mainBgClass = theme === 'dark' ? 'bg-[#0B1120]' : theme === 'christmas' ? 'bg-transparent' : 'bg-white';
-  const loadingTextClass = theme === 'dark' ? 'text-gray-300' : 'text-slate-600';
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-transparent relative z-10">
-        {theme === 'christmas' && <ChristmasBackground />}
-        <p className={`text-sm font-bold ${loadingTextClass}`}>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 relative z-10">
+        <p className="text-sm font-bold text-slate-600">
           회원 정보를 불러오는 중입니다...
         </p>
       </div>
@@ -62,8 +55,7 @@ export default function AdminUserDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-transparent relative z-10">
-        {theme === 'christmas' && <ChristmasBackground />}
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 relative z-10">
         <p className="text-sm font-bold text-red-500">{error}</p>
       </div>
     );
@@ -88,18 +80,14 @@ export default function AdminUserDetailPage() {
     return "bg-emerald-500";
   })();
 
-  const emailValueClass = isBlacklisted ? "text-red-500" : (theme === 'dark' ? "text-white" : "text-slate-900");
-
-  const textClass = theme === 'dark' ? 'text-white' : 'text-slate-900';
-  const sectionBgClass = theme === 'dark' ? 'bg-[#1E293B]' : 'bg-slate-50';
+  const emailValueClass = isBlacklisted ? "text-red-500" : "text-slate-900";
 
   return (
     <AdminAuthGuard>
-      <div className={`min-h-screen bg-transparent ${textClass} relative z-10`}>
-        {theme === 'christmas' && <ChristmasBackground />}
+      <div className="min-h-screen bg-slate-50 text-slate-900 relative z-10">
         <AdminUserDetailHeader shortId={shortId} />
 
-        <div className={sectionBgClass}>
+        <div className="bg-slate-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <div className="grid lg:grid-cols-[minmax(0,280px)_1fr] gap-8">
               <aside className="w-full">

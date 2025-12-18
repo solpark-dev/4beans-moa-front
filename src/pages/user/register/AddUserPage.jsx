@@ -12,89 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useThemeStore } from "@/store/themeStore";
-import { ThemeSwitcher, ChristmasBackground } from "@/config/themeConfig";
-
-// Theme-based styles
-const getThemeStyles = (theme) => {
-  switch (theme) {
-    case 'christmas':
-      return {
-        bg: 'bg-transparent',
-        text: 'text-gray-900',
-        subtext: 'text-gray-600',
-        highlight: 'text-[#c41e3a]',
-        stickerBg: 'bg-white/90 backdrop-blur-sm',
-        stickerBorder: 'border border-[#c41e3a]/30',
-        stickerShadow: 'shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
-        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(196,30,58,0.15)]',
-        inputBorder: 'border border-gray-200',
-        buttonBg: 'bg-[#c41e3a] hover:bg-[#a51830]',
-      };
-    case 'dark':
-      return {
-        bg: 'bg-[#0B1120]',
-        text: 'text-white',
-        subtext: 'text-gray-400',
-        highlight: 'text-[#635bff]',
-        stickerBg: 'bg-[#1E293B]',
-        stickerBorder: 'border border-gray-700',
-        stickerShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
-        cardBg: 'bg-[#1E293B] border border-gray-700 shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
-        inputBorder: 'border border-gray-700 bg-[#0F172A] text-white',
-        buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
-      };
-    case 'pop':
-      return {
-        bg: 'bg-slate-50',
-        text: 'text-black',
-        subtext: 'text-gray-600',
-        highlight: 'text-pink-500',
-        stickerBg: 'bg-white',
-        stickerBorder: 'border-2 border-black',
-        stickerShadow: 'shadow-[4px_4px_0px_rgba(0,0,0,1)]',
-        cardBg: 'bg-white border-2 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)]',
-        inputBorder: 'border-2 border-black',
-        buttonBg: 'bg-pink-500 hover:bg-pink-600 border-2 border-black',
-      };
-    case 'classic':
-      return {
-        bg: 'bg-white',
-        text: 'text-gray-900',
-        subtext: 'text-gray-600',
-        highlight: 'text-[#635bff]',
-        stickerBg: 'bg-white',
-        stickerBorder: 'border border-gray-200',
-        stickerShadow: 'shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-        cardBg: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-        inputBorder: 'border border-gray-200',
-        buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
-      };
-    case 'default':
-    default:
-      return {
-        bg: 'bg-slate-50',
-        text: 'text-black',
-        subtext: 'text-gray-600',
-        highlight: 'text-pink-500',
-        stickerBg: 'bg-white',
-        stickerBorder: 'border border-gray-200',
-        stickerShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        cardBg: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        inputBorder: 'border border-gray-200',
-        buttonBg: 'bg-slate-900 hover:bg-slate-800',
-      };
-  }
-};
+import { ThemeSwitcher } from "@/config/themeConfig";
+import { themeClasses } from "@/utils/themeUtils";
 
 /* LandingPageO3 스타일 컴포넌트 재사용 - 테마 적용 */
-function Sticker({ children, rotate = 0, className = "", themeStyles }) {
+function Sticker({ children, rotate = 0, className = "" }) {
   return (
     <motion.div
       whileHover={{ scale: 1.05, rotate: rotate + 3 }}
       className={`
-        ${themeStyles?.stickerBg || 'bg-white'}
-        ${themeStyles?.stickerBorder || 'border border-gray-200'}
-        ${themeStyles?.stickerShadow || 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]'}
+        bg-[var(--theme-bg-card)]
+        border border-[var(--theme-border-light)]
+        shadow-[var(--theme-shadow)]
         rounded-2xl
         ${className}
       `}
@@ -113,7 +42,6 @@ export default function AddUserPage({ socialInfo }) {
 
   // Theme
   const { theme, setTheme } = useThemeStore();
-  const themeStyles = getThemeStyles(theme);
 
   const {
     form,
@@ -129,35 +57,32 @@ export default function AddUserPage({ socialInfo }) {
   });
 
   return (
-    <div className={`min-h-screen ${themeStyles.bg} ${themeStyles.text} px-6 py-16`}>
+    <div className={`min-h-screen ${themeClasses.bg.base} ${themeClasses.text.primary} px-6 py-16 transition-colors duration-300`}>
       {/* Theme Switcher */}
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
-
-      {/* Christmas Background */}
-      {theme === 'christmas' && <ChristmasBackground />}
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
         {/* 좌측 설명 영역 */}
         <div>
-          <Sticker rotate={-2} className="inline-block px-5 py-2 mb-6" themeStyles={themeStyles}>
+          <Sticker rotate={-2} className="inline-block px-5 py-2 mb-6">
             <span className="font-black text-lg">
               {theme === 'christmas' ? '🎄 MoA 회원가입 ❄️' : 'MoA 회원가입 ✨'}
             </span>
           </Sticker>
 
-          <h1 className={`text-5xl font-black leading-tight mb-6 ${themeStyles.text}`}>
+          <h1 className={`text-5xl font-black leading-tight mb-6 ${themeClasses.text.primary}`}>
             구독을<br />
-            <span className={themeStyles.highlight}>함께</span> 시작해요
+            <span className="text-[var(--theme-primary)]">함께</span> 시작해요
           </h1>
 
-          <p className={`text-lg ${themeStyles.subtext} font-medium mb-10`}>
+          <p className={`text-lg ${themeClasses.text.muted} font-medium mb-10`}>
             혼자 쓰기 비싼 OTT 구독,<br />
             이제 MoA에서 친구들과 나눠보세요.
           </p>
 
           {isSocialSignup && (
-            <Sticker rotate={1} className="px-4 py-3 bg-amber-100" themeStyles={themeStyles}>
-              <span className="font-bold">
+            <Sticker rotate={1} className="px-4 py-3 bg-amber-100 border-amber-200">
+              <span className="font-bold text-amber-900">
                 카카오 계정으로 간편가입 진행 중입니다
               </span>
             </Sticker>
@@ -170,12 +95,12 @@ export default function AddUserPage({ socialInfo }) {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Card className={`${themeStyles.cardBg} rounded-3xl`}>
+          <Card className={`${themeClasses.card.elevated} rounded-3xl`}>
             <CardHeader>
-              <CardTitle className={`text-2xl font-black ${themeStyles.text}`}>
+              <CardTitle className={`text-2xl font-black ${themeClasses.text.primary}`}>
                 {theme === 'christmas' ? '🎁 기본 정보 입력' : '기본 정보 입력'}
               </CardTitle>
-              <CardDescription className={themeStyles.subtext}>
+              <CardDescription className={themeClasses.text.muted}>
                 필수 정보만 입력하면 바로 시작할 수 있어요
               </CardDescription>
             </CardHeader>
@@ -184,25 +109,25 @@ export default function AddUserPage({ socialInfo }) {
               {/* 이메일 */}
               {isSocialSignup && socialEmail && (
                 <div>
-                  <Label className={themeStyles.text}>이메일 아이디</Label>
+                  <Label className={themeClasses.text.primary}>이메일 아이디</Label>
                   <Input
                     value={socialEmail}
                     readOnly
-                    className={`${theme === 'dark' ? 'bg-[#0F172A] border-gray-700' : 'bg-gray-100'} ${themeStyles.inputBorder}`}
+                    className={`bg-[var(--theme-bg-secondary)] border-[var(--theme-border-light)] ${themeClasses.text.muted}`}
                   />
                 </div>
               )}
 
               {shouldShowEmailInput && (
                 <div>
-                  <Label className={themeStyles.text}>이메일 아이디</Label>
+                  <Label className={themeClasses.text.primary}>이메일 아이디</Label>
                   <Input
                     name="email"
                     placeholder="예: moa@email.com"
                     value={form.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    className={themeStyles.inputBorder}
+                    className={`border-[var(--theme-border-light)] bg-[var(--theme-bg)] focus:border-[var(--theme-primary)]`}
                   />
                   <p className={`text-xs mt-1 ${errors.email.isError ? "text-red-500" : "text-green-600"}`}>
                     {errors.email.message}
@@ -214,13 +139,13 @@ export default function AddUserPage({ socialInfo }) {
               {shouldShowPasswordInputs && (
                 <>
                   <div>
-                    <Label className={themeStyles.text}>비밀번호</Label>
+                    <Label className={themeClasses.text.primary}>비밀번호</Label>
                     <Input
                       type="password"
                       name="password"
                       value={form.password}
                       onChange={handleChange}
-                      className={themeStyles.inputBorder}
+                      className={`border-[var(--theme-border-light)] bg-[var(--theme-bg)] focus:border-[var(--theme-primary)]`}
                     />
                     <p className={`text-xs mt-1 ${errors.password.isError ? "text-red-500" : "text-green-600"}`}>
                       {errors.password.message}
@@ -228,13 +153,13 @@ export default function AddUserPage({ socialInfo }) {
                   </div>
 
                   <div>
-                    <Label className={themeStyles.text}>비밀번호 확인</Label>
+                    <Label className={themeClasses.text.primary}>비밀번호 확인</Label>
                     <Input
                       type="password"
                       name="passwordCheck"
                       value={form.passwordCheck}
                       onChange={handleChange}
-                      className={themeStyles.inputBorder}
+                      className={`border-[var(--theme-border-light)] bg-[var(--theme-bg)] focus:border-[var(--theme-primary)]`}
                     />
                     <p className={`text-xs mt-1 ${errors.passwordCheck.isError ? "text-red-500" : "text-green-600"}`}>
                       {errors.passwordCheck.message}
@@ -245,14 +170,14 @@ export default function AddUserPage({ socialInfo }) {
 
               {/* 닉네임 */}
               <div>
-                <Label className={themeStyles.text}>닉네임</Label>
+                <Label className={themeClasses.text.primary}>닉네임</Label>
                 <Input
                   name="nickname"
                   placeholder="2~10자 영문/숫자/한글"
                   value={form.nickname}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={themeStyles.inputBorder}
+                  className={`border-[var(--theme-border-light)] bg-[var(--theme-bg)] focus:border-[var(--theme-primary)]`}
                 />
                 <p className={`text-xs mt-1 ${errors.nickname.isError ? "text-red-500" : "text-green-600"}`}>
                   {errors.nickname.message}
@@ -261,15 +186,15 @@ export default function AddUserPage({ socialInfo }) {
 
               {/* 휴대폰 */}
               <div>
-                <Label className={themeStyles.text}>휴대폰번호</Label>
+                <Label className={themeClasses.text.primary}>휴대폰번호</Label>
                 <div className="flex gap-2">
                   <Input
                     readOnly
                     value={form.phone}
                     placeholder="본인인증 후 자동 입력"
-                    className={`flex-1 ${theme === 'dark' ? 'bg-[#0F172A] border-gray-700' : 'bg-gray-100'} ${themeStyles.inputBorder}`}
+                    className={`flex-1 bg-[var(--theme-bg-secondary)] border-[var(--theme-border-light)] ${themeClasses.text.muted}`}
                   />
-                  <Button type="button" onClick={handlePassAuth} className={`${themeStyles.buttonBg} text-white`}>
+                  <Button type="button" onClick={handlePassAuth} className={`${themeClasses.button.primary}`}>
                     본인인증
                   </Button>
                 </div>
@@ -280,8 +205,8 @@ export default function AddUserPage({ socialInfo }) {
 
               {/* 프로필 이미지 */}
               <div>
-                <Label className={themeStyles.text}>프로필 이미지</Label>
-                <Input type="file" accept="image/*" onChange={handleImageChange} className={themeStyles.inputBorder} />
+                <Label className={themeClasses.text.primary}>프로필 이미지</Label>
+                <Input type="file" accept="image/*" onChange={handleImageChange} className={`border-[var(--theme-border-light)] bg-[var(--theme-bg)]`} />
               </div>
 
               {/* 마케팅 */}
@@ -291,15 +216,16 @@ export default function AddUserPage({ socialInfo }) {
                   name="agreeMarketing"
                   checked={form.agreeMarketing}
                   onChange={handleChange}
+                  className="mt-1"
                 />
-                <span className={`text-sm ${themeStyles.subtext}`}>
+                <span className={`text-sm ${themeClasses.text.muted}`}>
                   마케팅 정보 수신 동의 (선택)
                 </span>
               </div>
             </CardContent>
 
             <CardFooter>
-              <Button type="submit" className={`w-full text-lg font-black ${themeStyles.buttonBg} text-white`}>
+              <Button type="submit" className={`w-full text-lg font-black ${themeClasses.button.primary}`}>
                 {isSocialSignup ? "간편가입 완료하기" : theme === 'christmas' ? "🎄 회원가입 완료하기" : "회원가입 완료하기"}
               </Button>
             </CardFooter>

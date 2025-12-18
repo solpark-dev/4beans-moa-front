@@ -1,6 +1,4 @@
 import { useAdminUserListLogic } from "@/hooks/admin/useAdminUserList";
-import { useThemeStore } from "@/store/themeStore";
-import { ChristmasBackground } from "@/config/themeConfig";
 import UserListBackground from "./components/pages/userList/UserListBackground";
 import UserListHero from "./components/pages/userList/UserListHero";
 import UserListTableCard from "./components/pages/userList/UserListTableCard";
@@ -23,18 +21,9 @@ export default function AdminUserListPage() {
     utils: { formatDate },
   } = useAdminUserListLogic();
 
-  const { theme } = useThemeStore();
-
-  const bgClass = theme === 'dark'
-    ? 'bg-[#0B1120] text-white'
-    : theme === 'christmas'
-    ? 'bg-transparent text-black'
-    : 'bg-slate-50 text-black';
-
   return (
-    <div className="min-h-screen bg-transparent overflow-hidden relative z-10">
-      {theme === 'christmas' && <ChristmasBackground />}
-      {theme !== 'dark' && theme !== 'christmas' && <UserListBackground />}
+    <div className="min-h-screen bg-slate-50 text-gray-900 overflow-hidden relative z-10">
+      <UserListBackground />
       <UserListHero totalCount={totalCount} />
       <UserListTableCard
         users={users}
