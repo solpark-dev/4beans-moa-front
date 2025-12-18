@@ -461,39 +461,79 @@ export default function HeaderView({
                     usePortal={false}
                     className="w-72 sm:w-80 max-w-[calc(100vw-24px)] p-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] z-[150]"
                   >
-                  <DropdownMenuLabel className="font-normal p-0 mb-3">
-                    <div
-                      className={`rounded-2xl p-3 ${themeStyle.dropdownItemBg}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-11 w-11 border border-gray-200 bg-white">
-                          <AvatarImage
-                            src={profileImageUrl}
-                            alt={displayNickname}
-                          />
-                          <AvatarFallback
-                            className={`text-lg font-black ${themeStyle.avatarFallback}`}
-                          >
-                            {userInitial}
-                          </AvatarFallback>
-                        </Avatar>
+                  {!isAdmin && (
+                    <DropdownMenuItem asChild className="cursor-pointer focus:bg-transparent p-0 mb-3">
+                      <Link to="/mypage">
+                        <div
+                          className={`rounded-2xl p-3 w-full ${themeStyle.dropdownItemBg} hover:opacity-80 transition-opacity`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-11 w-11 border border-gray-200 bg-white">
+                              <AvatarImage
+                                src={profileImageUrl}
+                                alt={displayNickname}
+                              />
+                              <AvatarFallback
+                                className={`text-lg font-black ${themeStyle.avatarFallback}`}
+                              >
+                                {userInitial}
+                              </AvatarFallback>
+                            </Avatar>
 
-                        <div className="min-w-0 flex-1">
-                          <p
-                            className={`text-sm font-black truncate ${themeStyle.dropdownItemText}`}
-                          >
-                            {displayNickname}님
-                          </p>
-                          <p
-                            className={`text-xs font-bold truncate ${themeStyle.dropdownItemSubtext}`}
-                          >
-                            {displayEmail}
-                          </p>
-                          <div className="mt-1">{renderProviderBadge()}</div>
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className={`text-sm font-black truncate ${themeStyle.dropdownItemText}`}
+                              >
+                                {displayNickname}님
+                              </p>
+                              <p
+                                className={`text-xs font-bold truncate ${themeStyle.dropdownItemSubtext}`}
+                              >
+                                {displayEmail}
+                              </p>
+                              <div className="mt-1">{renderProviderBadge()}</div>
+                            </div>
+                            <ChevronRight className={`w-5 h-5 ${themeStyle.dropdownItemSubtext}`} />
+                          </div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {isAdmin && (
+                    <DropdownMenuLabel className="font-normal p-0 mb-3">
+                      <div
+                        className={`rounded-2xl p-3 ${themeStyle.dropdownItemBg}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-11 w-11 border border-gray-200 bg-white">
+                            <AvatarImage
+                              src={profileImageUrl}
+                              alt={displayNickname}
+                            />
+                            <AvatarFallback
+                              className={`text-lg font-black ${themeStyle.avatarFallback}`}
+                            >
+                              {userInitial}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className={`text-sm font-black truncate ${themeStyle.dropdownItemText}`}
+                            >
+                              {displayNickname}님
+                            </p>
+                            <p
+                              className={`text-xs font-bold truncate ${themeStyle.dropdownItemSubtext}`}
+                            >
+                              {displayEmail}
+                            </p>
+                            <div className="mt-1">{renderProviderBadge()}</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </DropdownMenuLabel>
+                    </DropdownMenuLabel>
+                  )}
                   {user?.role === "ADMIN" && (
                     <div className="lg:hidden mb-3">
                       <Sticker className="rounded-2xl px-3 py-3">

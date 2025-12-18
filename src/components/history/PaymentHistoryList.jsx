@@ -3,11 +3,52 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, Calendar, AlertCircle, Receipt } from "lucide-react";
 import { getMyPayments } from "../../api/paymentApi";
 import PaymentDetailModal from "./PaymentDetailModal";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function PaymentHistoryList() {
+  const { theme } = useThemeStore();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState(null);
+
+  const getThemeColors = () => {
+    switch (theme) {
+      case 'pop':
+        return {
+          accent: 'text-pink-600',
+          accentHover: 'group-hover:text-pink-600',
+          borderHover: 'hover:border-pink-300',
+          iconBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
+          spinnerBorder: 'border-pink-500',
+        };
+      case 'christmas':
+        return {
+          accent: 'text-[#c41e3a]',
+          accentHover: 'group-hover:text-[#c41e3a]',
+          borderHover: 'hover:border-[#c41e3a]/30',
+          iconBg: 'bg-gradient-to-br from-red-50 to-green-50',
+          spinnerBorder: 'border-[#c41e3a]',
+        };
+      case 'dark':
+        return {
+          accent: 'text-[#635bff]',
+          accentHover: 'group-hover:text-[#635bff]',
+          borderHover: 'hover:border-[#635bff]/30',
+          iconBg: 'bg-gradient-to-br from-slate-700 to-slate-800',
+          spinnerBorder: 'border-[#635bff]',
+        };
+      default:
+        return {
+          accent: 'text-[#635bff]',
+          accentHover: 'group-hover:text-[#635bff]',
+          borderHover: 'hover:border-[#635bff]/30',
+          iconBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
+          spinnerBorder: 'border-[#635bff]',
+        };
+    }
+  };
+
+  const themeColors = getThemeColors();
 
   useEffect(() => {
     loadPayments();
@@ -49,7 +90,7 @@ export default function PaymentHistoryList() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent"></div>
+        <div className={`animate-spin rounded-full h-8 w-8 border-2 ${themeColors.spinnerBorder} border-t-transparent`}></div>
       </div>
     );
   }
@@ -77,15 +118,15 @@ export default function PaymentHistoryList() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               onClick={() => setSelectedPayment(payment)}
-              className="group bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer"
+              className={`group bg-white border border-slate-200 rounded-xl p-4 ${themeColors.borderHover} hover:shadow-lg transition-all cursor-pointer`}
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
+                  <div className={`w-10 h-10 rounded-lg ${themeColors.iconBg} flex items-center justify-center`}>
+                    <CreditCard className={`w-5 h-5 ${themeColors.accent}`} />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    <h3 className={`text-base font-bold text-slate-900 ${themeColors.accentHover} transition-colors`}>
                       {payment.productName}
                     </h3>
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">

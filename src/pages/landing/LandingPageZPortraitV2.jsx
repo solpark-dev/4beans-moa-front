@@ -1,7 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
-import { Plus, Sparkles, Shield, CreditCard, Users, Heart, Star } from "lucide-react";
+import { Plus, Sparkles, Shield, CreditCard, Heart, Star } from "lucide-react";
+import httpClient from "../../api/httpClient";
+import { getProductIconUrl } from "@/utils/imageUtils";
 
 /**
  * Portrait.so Style Landing Page v2 - Glassmorphism Edition
@@ -129,63 +131,50 @@ const ParallaxHero = () => {
   const isDesktopCardsInView = useInView(desktopCardsRef, { once: false, amount: 0.6 });
   const isMobileCardsInView = useInView(mobileCardsRef, { once: false, amount: 0.6 });
 
-  // 서비스 카드 데이터 (파스텔 색상)
-  const cards = [
-    {
-      id: 1,
-      name: "넷플릭스",
-      category: "영상",
-      price: "4,250원",
-      members: "3/4",
-      bgColor: "from-[#FFD4DC]/80 to-[#FFBDC9]/80",
-      iconBg: "bg-[#FF9AAD]"
-    },
-    {
-      id: 2,
-      name: "디즈니+",
-      category: "영상",
-      price: "2,475원",
-      members: "2/4",
-      bgColor: "from-[#D4E4FF]/80 to-[#B5D4FF]/80",
-      iconBg: "bg-[#8BB8FF]"
-    },
-    {
-      id: 3,
-      name: "유튜브 프리미엄",
-      category: "영상",
-      price: "2,980원",
-      members: "4/5",
-      bgColor: "from-[#FFE4D4]/80 to-[#FFD4BD]/80",
-      iconBg: "bg-[#FFB899]"
-    },
-    {
-      id: 4,
-      name: "스포티파이",
-      category: "음악",
-      price: "2,725원",
-      members: "3/6",
-      bgColor: "from-[#D4FFE4]/80 to-[#B5FFCD]/80",
-      iconBg: "bg-[#7DDFAA]"
-    },
-    {
-      id: 5,
-      name: "웨이브",
-      category: "영상",
-      price: "3,475원",
-      members: "2/4",
-      bgColor: "from-[#E4D4FF]/80 to-[#D4BDFF]/80",
-      iconBg: "bg-[#B899FF]"
-    },
-    {
-      id: 6,
-      name: "왓챠",
-      category: "영상",
-      price: "3,225원",
-      members: "3/4",
-      bgColor: "from-[#FFF4D4]/80 to-[#FFE9B5]/80",
-      iconBg: "bg-[#FFD666]"
-    },
+  // 파스텔 색상 배열
+  const pastelColors = [
+    { bgColor: "from-[#FFD4DC]/80 to-[#FFBDC9]/80", iconBg: "bg-[#FF9AAD]" },
+    { bgColor: "from-[#D4E4FF]/80 to-[#B5D4FF]/80", iconBg: "bg-[#8BB8FF]" },
+    { bgColor: "from-[#FFE4D4]/80 to-[#FFD4BD]/80", iconBg: "bg-[#FFB899]" },
+    { bgColor: "from-[#D4FFE4]/80 to-[#B5FFCD]/80", iconBg: "bg-[#7DDFAA]" },
+    { bgColor: "from-[#E4D4FF]/80 to-[#D4BDFF]/80", iconBg: "bg-[#B899FF]" },
+    { bgColor: "from-[#FFF4D4]/80 to-[#FFE9B5]/80", iconBg: "bg-[#FFD666]" },
+    { bgColor: "from-[#D4FFF4]/80 to-[#B5FFE9]/80", iconBg: "bg-[#66D6AA]" },
+    { bgColor: "from-[#FFD4F4]/80 to-[#FFBDE9]/80", iconBg: "bg-[#FF99DD]" },
   ];
+
+  // API에서 상품 데이터 가져오기
+  const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await httpClient.get('/product');
+        if (response.success && response.data) {
+          // ACTIVE 상품만 필터링 후 랜덤으로 6개 선택
+          const activeProducts = response.data.filter(p => p.productStatus === 'ACTIVE');
+          const shuffled = [...activeProducts].sort(() => Math.random() - 0.5);
+          const selected = shuffled.slice(0, 6);
+
+          // 카드 데이터로 변환
+          const cardData = selected.map((product, index) => ({
+            id: product.productId,
+            name: product.productName,
+            category: product.categoryName || '구독',
+            price: `${product.price?.toLocaleString()}원`,
+            image: product.image,
+            ...pastelColors[index % pastelColors.length]
+          }));
+
+          setCards(cardData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // 흩어진 위치 (초기)
   const scatterPositions = [
@@ -331,27 +320,43 @@ const ParallaxHero = () => {
                 }}
                 className="absolute"
               >
-                <div className={`w-[180px] rounded-2xl bg-gradient-to-br ${card.bgColor} backdrop-blur-lg p-4 shadow-xl border border-white/60 hover:border-white/80 transition-all duration-300 hover:shadow-2xl`}>
-                  {/* 아이콘 */}
-                  <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center mb-3 shadow-lg`}>
-                    <span className="text-white text-lg">
-                      {card.category === "영상" ? "📺" : "🎵"}
-                    </span>
+                <div className={`w-[180px] rounded-2xl bg-gradient-to-br ${card.bgColor} backdrop-blur-lg shadow-xl border border-white/60 hover:border-white/80 transition-all duration-300 hover:shadow-2xl overflow-hidden`}>
+                  {/* 상단 로고 이미지 */}
+                  <div className="w-full h-20 bg-white/40 flex items-center justify-center">
+                    {card.image ? (
+                      <img
+                        src={getProductIconUrl(card.image)}
+                        alt={card.name}
+                        className="max-w-[70%] max-h-[70%] object-contain"
+                      />
+                    ) : (
+                      <span className="text-3xl">
+                        {card.category === "영상" ? "📺" : card.category === "음악" ? "🎵" : "📦"}
+                      </span>
+                    )}
                   </div>
 
-                  {/* 서비스명 */}
-                  <h3 className="font-semibold text-[#4a4a4a] text-sm mb-1">{card.name}</h3>
-                  <p className="text-xs text-[#888] mb-3">{card.category} 스트리밍</p>
+                  <div className="p-4">
+                    {/* 아이콘 + 서비스명 */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-8 h-8 ${card.iconBg} rounded-lg flex items-center justify-center shadow-md overflow-hidden flex-shrink-0`}>
+                        {card.image ? (
+                          <img
+                            src={getProductIconUrl(card.image)}
+                            alt={card.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white text-sm">📦</span>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-[#4a4a4a] text-sm truncate">{card.name}</h3>
+                    </div>
 
-                  {/* 가격 & 인원 */}
-                  <div className="flex items-center justify-between">
+                    {/* 요금제 */}
                     <div>
                       <p className="text-lg font-bold text-[#4a4a4a]">{card.price}</p>
-                      <p className="text-[10px] text-[#aaa]">월 예상 비용</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-[#888] bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full border border-white/40">
-                      <Users size={12} />
-                      <span>{card.members}</span>
+                      <p className="text-[10px] text-[#aaa]">요금제</p>
                     </div>
                   </div>
                 </div>
@@ -373,27 +378,43 @@ const ParallaxHero = () => {
                 ease: [0.4, 0.0, 0.2, 1]
               }}
             >
-              <div className={`w-full rounded-2xl bg-gradient-to-br ${card.bgColor} backdrop-blur-lg p-4 shadow-xl border border-white/60 hover:border-white/80 transition-all duration-300 hover:shadow-2xl`}>
-                {/* 아이콘 */}
-                <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center mb-3 shadow-lg`}>
-                  <span className="text-white text-lg">
-                    {card.category === "영상" ? "📺" : "🎵"}
-                  </span>
+              <div className={`w-full rounded-2xl bg-gradient-to-br ${card.bgColor} backdrop-blur-lg shadow-xl border border-white/60 hover:border-white/80 transition-all duration-300 hover:shadow-2xl overflow-hidden`}>
+                {/* 상단 로고 이미지 */}
+                <div className="w-full h-20 bg-white/40 flex items-center justify-center">
+                  {card.image ? (
+                    <img
+                      src={getProductIconUrl(card.image)}
+                      alt={card.name}
+                      className="max-w-[70%] max-h-[70%] object-contain"
+                    />
+                  ) : (
+                    <span className="text-3xl">
+                      {card.category === "영상" ? "📺" : card.category === "음악" ? "🎵" : "📦"}
+                    </span>
+                  )}
                 </div>
 
-                {/* 서비스명 */}
-                <h3 className="font-semibold text-[#4a4a4a] text-sm mb-1">{card.name}</h3>
-                <p className="text-xs text-[#888] mb-3">{card.category} 스트리밍</p>
+                <div className="p-4">
+                  {/* 아이콘 + 서비스명 */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className={`w-8 h-8 ${card.iconBg} rounded-lg flex items-center justify-center shadow-md overflow-hidden flex-shrink-0`}>
+                      {card.image ? (
+                        <img
+                          src={getProductIconUrl(card.image)}
+                          alt={card.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white text-sm">📦</span>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-[#4a4a4a] text-sm truncate">{card.name}</h3>
+                  </div>
 
-                {/* 가격 & 인원 */}
-                <div className="flex items-center justify-between">
+                  {/* 요금제 */}
                   <div>
                     <p className="text-lg font-bold text-[#4a4a4a]">{card.price}</p>
-                    <p className="text-[10px] text-[#aaa]">월 예상 비용</p>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-[#888] bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full border border-white/40">
-                    <Users size={12} />
-                    <span>{card.members}</span>
+                    <p className="text-[10px] text-[#aaa]">요금제</p>
                   </div>
                 </div>
               </div>

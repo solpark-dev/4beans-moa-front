@@ -1,9 +1,8 @@
 import React from "react";
-import { KeyRound, Home, Clock, CreditCard, Users, Wallet } from "lucide-react";
+import { KeyRound, Clock, CreditCard, Users, Wallet, UserMinus, UserPen } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
 const WRAP = "p-6";
-const TITLE = "flex items-center gap-2 font-black";
 const ITEM =
   "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]";
 const ACTIVE =
@@ -57,26 +56,39 @@ export function AccountMenu({
       return actions.navigate("/mypage/wallet");
   };
 
+  const goDelete = () => {
+    if (typeof actions?.goDeleteUser === "function")
+      return actions.goDeleteUser();
+    if (typeof actions?.navigateDeleteUser === "function")
+      return actions.navigateDeleteUser();
+    if (typeof actions?.navigate === "function")
+      return actions.navigate("/mypage/delete");
+  };
+
+  const goUpdate = () => {
+    if (typeof actions?.goEditUser === "function") return actions.goEditUser();
+    if (typeof actions?.goUpdateUser === "function")
+      return actions.goUpdateUser();
+    if (typeof actions?.navigateUpdateUser === "function")
+      return actions.navigateUpdateUser();
+    if (typeof actions?.navigate === "function")
+      return actions.navigate("/mypage/edit");
+  };
+
   return (
     <div className={WRAP}>
-      <div className="flex items-center justify-between mb-4">
-        <p className={TITLE}>
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl border border-gray-200 bg-white">
-            ▦
-          </span>
-          계정 정보
-        </p>
-      </div>
-
       <div className="space-y-3">
-        <button
-          type="button"
-          className={activeView === "main" ? ACTIVE : `${ITEM} ${themeStyle.itemHover}`}
-          onClick={onShowMain}
-        >
+        <button type="button" className={`${ITEM} ${themeStyle.itemHover}`} onClick={goUpdate}>
           <span className="inline-flex items-center gap-2">
-            <Home className="w-4 h-4" />
-            마이페이지
+            <UserPen className="w-4 h-4" />
+            회원정보 수정
+          </span>
+        </button>
+
+        <button type="button" className={`${ITEM} ${themeStyle.itemHover}`} onClick={goPassword}>
+          <span className="inline-flex items-center gap-2">
+            <KeyRound className="w-4 h-4" />
+            비밀번호 변경
           </span>
         </button>
 
@@ -90,13 +102,6 @@ export function AccountMenu({
         <button type="button" className={`${ITEM} ${themeStyle.itemHover}`} onClick={goMyParties}>
           <span className="inline-flex items-center gap-2">
             <Users className="w-4 h-4" />내 파티 목록
-          </span>
-        </button>
-
-        <button type="button" className={`${ITEM} ${themeStyle.itemHover}`} onClick={goPassword}>
-          <span className="inline-flex items-center gap-2">
-            <KeyRound className="w-4 h-4" />
-            비밀번호 변경
           </span>
         </button>
 
@@ -114,6 +119,13 @@ export function AccountMenu({
           <span className="inline-flex items-center gap-2">
             <Clock className="w-4 h-4" />
             로그인 기록
+          </span>
+        </button>
+
+        <button type="button" className={`${ITEM} ${themeStyle.itemHover}`} onClick={goDelete}>
+          <span className="inline-flex items-center gap-2">
+            <UserMinus className="w-4 h-4" />
+            회원 탈퇴
           </span>
         </button>
       </div>

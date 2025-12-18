@@ -60,10 +60,11 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
     }
   };
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = (status, currentTheme) => {
+    const themeAccent = currentTheme === 'pop' ? 'bg-pink-500' : currentTheme === 'christmas' ? 'bg-[#c41e3a]' : 'bg-[#635bff]';
     switch (status) {
       case "PAID":
-        return "bg-blue-500 text-white";
+        return `${themeAccent} text-white`;
       case "REFUNDED":
         return "bg-slate-500 text-white";
       case "FORFEITED":
@@ -148,7 +149,7 @@ export default function DepositDetailModal({ isOpen, onClose, deposit }) {
                     <span className="text-slate-600 font-medium">상태</span>
                     <span
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-sm ${getStatusStyle(
-                        deposit.depositStatus || deposit.status
+                        deposit.depositStatus || deposit.status, theme
                       )}`}
                     >
                       {(deposit.depositStatus || deposit.status) === "PAID" && (

@@ -8,8 +8,6 @@ import SettlementHistoryList from "../../components/history/SettlementHistoryLis
 import {
   useTheme,
   ThemeSwitcher,
-  ThemeBackground,
-  ThemeMarquee,
 } from "../../config/themeConfig";
 
 export default function FinancialHistoryPage() {
@@ -34,25 +32,15 @@ export default function FinancialHistoryPage() {
   ];
 
   return (
-    <div className={`min-h-screen ${currentTheme.bg} pb-20 transition-colors duration-300`}>
+    <div className="min-h-screen bg-transparent pb-20 transition-colors duration-300 relative z-10">
       {/* Theme Switcher */}
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
-      {/* Pop Theme Marquee */}
-      <ThemeMarquee theme={theme} />
-
       {/* Hero Header */}
-      <div className={`relative overflow-hidden border-b ${
-        theme === "dark"
-          ? "bg-[#0B1120] border-gray-800"
-          : theme === "pop"
-            ? "bg-white/90 backdrop-blur-sm border-gray-200"
-            : theme === "christmas"
-              ? "bg-white border-gray-100"
-              : "bg-white border-gray-100"
+      <div className={`relative overflow-hidden bg-transparent ${
+        theme === "dark" ? "border-b border-gray-800" : ""
       }`}>
-        <ThemeBackground theme={theme} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
           <button
             onClick={() => navigate(-1)}
             className={`flex items-center gap-2 mb-6 transition-colors group ${
@@ -83,7 +71,7 @@ export default function FinancialHistoryPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

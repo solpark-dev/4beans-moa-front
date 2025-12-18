@@ -7,11 +7,40 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { updateOttAccount } from "../../api/partyApi";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function UpdateOttModal({ isOpen, onClose, partyId, currentOttId }) {
+    const { theme } = useThemeStore();
     const [ottId, setOttId] = useState(currentOttId || "");
     const [ottPassword, setOttPassword] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const getThemeColors = () => {
+        switch (theme) {
+            case 'pop':
+                return {
+                    focusRing: 'focus:ring-pink-500',
+                    buttonBg: 'bg-pink-500 hover:bg-pink-600',
+                };
+            case 'christmas':
+                return {
+                    focusRing: 'focus:ring-[#c41e3a]',
+                    buttonBg: 'bg-[#c41e3a] hover:bg-[#a51830]',
+                };
+            case 'dark':
+                return {
+                    focusRing: 'focus:ring-[#635bff]',
+                    buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
+                };
+            default:
+                return {
+                    focusRing: 'focus:ring-[#635bff]',
+                    buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
+                };
+        }
+    };
+
+    const themeColors = getThemeColors();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -47,7 +76,7 @@ export default function UpdateOttModal({ isOpen, onClose, partyId, currentOttId 
                             type="text"
                             value={ottId}
                             onChange={(e) => setOttId(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${themeColors.focusRing}`}
                             placeholder="example@email.com"
                         />
                     </div>
@@ -57,7 +86,7 @@ export default function UpdateOttModal({ isOpen, onClose, partyId, currentOttId 
                             type="text"
                             value={ottPassword}
                             onChange={(e) => setOttPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 ${themeColors.focusRing}`}
                             placeholder="새로운 비밀번호"
                         />
                     </div>
@@ -73,7 +102,7 @@ export default function UpdateOttModal({ isOpen, onClose, partyId, currentOttId 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                            className={`px-4 py-2 ${themeColors.buttonBg} text-white rounded-lg font-medium transition-colors disabled:opacity-50`}
                         >
                             {loading ? "저장 중..." : "저장하기"}
                         </button>

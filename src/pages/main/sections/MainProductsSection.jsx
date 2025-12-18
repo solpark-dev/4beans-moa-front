@@ -13,8 +13,9 @@ import {
   getProductMaxProfiles,
   getProductDescription,
   getProductStatus,
-  getProductIconUrl,
+  getProductIconUrl as getProductImagePath,
 } from "@/utils/format";
+import { getProductIconUrl, getProductLogoUrl } from "@/utils/imageUtils";
 
 // 테마별 Products 섹션 스타일
 const productsThemeStyles = {
@@ -169,7 +170,9 @@ export default function MainProductsSection() {
                 const price = getProductPrice(p);
                 const maxProfiles = getProductMaxProfiles(p);
                 const desc = getProductDescription(p);
-                const icon = getProductIconUrl(p);
+                const imagePath = getProductImagePath(p);
+                const logoUrl = getProductLogoUrl(imagePath);  // 상단 로고 이미지
+                const iconUrl = getProductIconUrl(imagePath);  // 작은 아이콘 이미지
 
                 const badge =
                   status === "ACTIVE"
@@ -185,62 +188,59 @@ export default function MainProductsSection() {
                     onClick={() => goDetail(p)}
                     isDark={isDark}
                   >
-                    <div className={`p-6 ${isDark ? 'border-gray-600 bg-[#2D3B4F]' : 'border-gray-200 bg-slate-50'} border-b`}>
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="min-w-0">
-                          <div className={`font-black text-xl truncate ${isDark ? 'text-white' : 'text-black'}`}>
-                            {name || "-"}
-                          </div>
-                          <div className="mt-2 inline-flex">
-                            <span
-                              className={`${badge.cls} ${isDark ? 'border-gray-600' : 'border-gray-200'} px-3 py-1 rounded-full font-black text-sm`}
-                            >
-                              {badge.label}
-                            </span>
-                          </div>
-                        </div>
-                        <div className={`w-14 h-14 rounded-2xl ${isDark ? 'bg-[#1E293B] border-gray-600' : 'bg-white border-gray-200'} overflow-hidden flex items-center justify-center`}>
-                          {icon ? (
+                    {/* 상단 로고 이미지 영역 */}
+                    <div className={`h-28 ${isDark ? 'bg-[#2D3B4F]' : 'bg-slate-100'} flex items-center justify-center`}>
+                      {logoUrl ? (
+                        <img
+                          src={logoUrl}
+                          alt={name || "logo"}
+                          className="max-w-[60%] max-h-[60%] object-contain"
+                        />
+                      ) : (
+                        <span className={`text-4xl`}>📦</span>
+                      )}
+                    </div>
+
+                    <div className={`p-6 ${isDark ? 'border-gray-600' : 'border-gray-200'} border-t`}>
+                      {/* 아이콘 + 서비스명 */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-10 h-10 rounded-xl ${isDark ? 'bg-[#1E293B] border-gray-600' : 'bg-white border-gray-200'} border overflow-hidden flex items-center justify-center flex-shrink-0`}>
+                          {iconUrl ? (
                             <img
-                              src={icon}
+                              src={iconUrl}
                               alt={name || "icon"}
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className={`font-black text-lg ${isDark ? 'text-white' : 'text-black'}`}>MoA</span>
+                            <span className="text-lg">📦</span>
                           )}
                         </div>
+                        <div className="min-w-0 flex-1">
+                          <div className={`font-black text-lg truncate ${isDark ? 'text-white' : 'text-black'}`}>
+                            {name || "-"}
+                          </div>
+                          <span
+                            className={`${badge.cls} ${isDark ? 'border-gray-600' : 'border-gray-200'} px-2 py-0.5 rounded-full font-bold text-xs`}
+                          >
+                            {badge.label}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="p-6 space-y-3 text-sm font-bold">
-                      <div className={`flex justify-between pb-2 ${isDark ? 'border-gray-600' : 'border-gray-100'} border-b`}>
-                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>요금제</span>
-                        <span className={isDark ? 'text-white' : 'text-black'}>{tier || "-"}</span>
-                      </div>
-                      <div className={`flex justify-between pb-2 ${isDark ? 'border-gray-600' : 'border-gray-100'} border-b`}>
-                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>가격</span>
-                        <span className={`${themeStyle.priceColor} font-black`}>
+                      {/* 요금제 */}
+                      <div className={`flex justify-between items-center py-3 ${isDark ? 'border-gray-600' : 'border-gray-100'} border-t`}>
+                        <span className={`font-bold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>요금제</span>
+                        <span className={`${themeStyle.priceColor} font-black text-lg`}>
                           {formatCurrency(price, { fallback: "-" })}
                         </span>
                       </div>
-                      <div className={`flex justify-between pb-2 ${isDark ? 'border-gray-600' : 'border-gray-100'} border-b`}>
-                        <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>동시 접속</span>
-                        <span className={isDark ? 'text-white' : 'text-black'}>
-                          {maxProfiles ? `최대 ${maxProfiles}명` : "-"}
-                        </span>
-                      </div>
-
-                      <p className={`font-medium leading-6 line-clamp-2 min-h-[48px] ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {desc || "설명 정보가 없습니다."}
-                      </p>
 
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           goDetail(p);
                         }}
-                        className={`w-full mt-2 ${isDark ? 'bg-[#1E293B] border-gray-600 hover:bg-[#2D3B4F]' : 'bg-white border-gray-200 hover:bg-slate-100'} rounded-2xl py-3 font-black transition flex items-center justify-center gap-2 ${isDark ? 'text-white' : 'text-black'}`}
+                        className={`w-full mt-3 ${isDark ? 'bg-[#1E293B] border-gray-600 hover:bg-[#2D3B4F]' : 'bg-white border-gray-200 hover:bg-slate-100'} border rounded-2xl py-3 font-black transition flex items-center justify-center gap-2 ${isDark ? 'text-white' : 'text-black'}`}
                       >
                         자세히 보기 <ChevronRight className="w-4 h-4" />
                       </button>

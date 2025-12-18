@@ -3,11 +3,56 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Calendar } from "lucide-react";
 import { getMySettlements } from "../../api/settlementApi";
 import SettlementDetailModal from "./SettlementDetailModal";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function SettlementHistoryList() {
+  const { theme } = useThemeStore();
   const [settlements, setSettlements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSettlement, setSelectedSettlement] = useState(null);
+
+  const getThemeColors = () => {
+    switch (theme) {
+      case 'pop':
+        return {
+          accent: 'text-pink-600',
+          accentHover: 'group-hover:text-pink-600',
+          borderHover: 'hover:border-pink-300',
+          iconBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
+          spinnerBorder: 'border-pink-500',
+          statusAccent: 'bg-pink-500',
+        };
+      case 'christmas':
+        return {
+          accent: 'text-[#c41e3a]',
+          accentHover: 'group-hover:text-[#c41e3a]',
+          borderHover: 'hover:border-[#c41e3a]/30',
+          iconBg: 'bg-gradient-to-br from-red-50 to-green-50',
+          spinnerBorder: 'border-[#c41e3a]',
+          statusAccent: 'bg-[#c41e3a]',
+        };
+      case 'dark':
+        return {
+          accent: 'text-[#635bff]',
+          accentHover: 'group-hover:text-[#635bff]',
+          borderHover: 'hover:border-[#635bff]/30',
+          iconBg: 'bg-gradient-to-br from-slate-700 to-slate-800',
+          spinnerBorder: 'border-[#635bff]',
+          statusAccent: 'bg-[#635bff]',
+        };
+      default:
+        return {
+          accent: 'text-[#635bff]',
+          accentHover: 'group-hover:text-[#635bff]',
+          borderHover: 'hover:border-[#635bff]/30',
+          iconBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
+          spinnerBorder: 'border-[#635bff]',
+          statusAccent: 'bg-[#635bff]',
+        };
+    }
+  };
+
+  const themeColors = getThemeColors();
 
   useEffect(() => {
     loadSettlements();
@@ -31,7 +76,7 @@ export default function SettlementHistoryList() {
       case "PENDING":
         return "bg-amber-500 text-white";
       case "IN_PROGRESS":
-        return "bg-blue-500 text-white";
+        return `${themeColors.statusAccent} text-white`;
       case "FAILED":
         return "bg-red-500 text-white";
       default:
@@ -57,7 +102,7 @@ export default function SettlementHistoryList() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent"></div>
+        <div className={`animate-spin rounded-full h-8 w-8 border-2 ${themeColors.spinnerBorder} border-t-transparent`}></div>
       </div>
     );
   }
@@ -85,15 +130,15 @@ export default function SettlementHistoryList() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               onClick={() => setSelectedSettlement(settlement)}
-              className="group bg-white border border-slate-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer"
+              className={`group bg-white border border-slate-200 rounded-xl p-4 ${themeColors.borderHover} hover:shadow-lg transition-all cursor-pointer`}
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <div className={`w-10 h-10 rounded-lg ${themeColors.iconBg} flex items-center justify-center`}>
+                    <TrendingUp className={`w-5 h-5 ${themeColors.accent}`} />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-purple-600 transition-colors">
+                    <h3 className={`text-base font-bold text-slate-900 ${themeColors.accentHover} transition-colors`}>
                       {settlement.productName || `파티 #${settlement.partyId}`}
                     </h3>
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">

@@ -16,6 +16,7 @@ import {
   getPartyMembers,
   getPartyMaxMembers,
 } from "@/utils/format";
+import { getProductIconUrl } from "@/utils/imageUtils";
 
 // 테마별 Trending 섹션 스타일
 const trendingThemeStyles = {
@@ -238,24 +239,34 @@ export default function MainTrendingSection() {
                     onClick={() => goParty(party)}
                     className="cursor-pointer"
                   >
-                    <div className={`h-28 ${bg} border-b border-gray-200 flex items-end justify-between p-4 rounded-t-2xl`}>
-                      <div className="text-white font-black">
-                        <div className="text-sm opacity-90">{service || "Party"}</div>
-                        <div className="text-xs opacity-80">{host ? `파티장: ${host}` : ""}</div>
+                    <div className={`h-28 ${bg} border-b border-gray-200 flex items-center justify-center p-4 rounded-t-2xl relative`}>
+                      {/* 상품 아이콘 이미지 */}
+                      {party.productImage ? (
+                        <img
+                          src={getProductIconUrl(party.productImage)}
+                          alt={party.productName}
+                          className="max-w-[50%] max-h-[70%] object-contain"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
+                          <span className="text-white text-2xl font-black">
+                            {party.productName?.[0] || "P"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 모집중 뱃지 */}
+                      <div className="absolute top-3 right-3">
+                        <Sticker
+                          color={isRecruiting ? themeStyle.recruitingBg : "bg-slate-200"}
+                          rotate={-2}
+                          className="px-2 py-1 rounded-lg"
+                        >
+                          <span className={`text-xs font-black ${isRecruiting && themeStyle.recruitingText ? themeStyle.recruitingText : ""}`}>
+                            {isRecruiting ? (theme === "christmas" ? "🎄 모집중" : "모집중 🙋") : "마감"}
+                          </span>
+                        </Sticker>
                       </div>
-
-                      <Sticker
-                        color={isRecruiting ? themeStyle.recruitingBg : "bg-slate-200"}
-                        rotate={-2}
-                        className="px-2 py-1 rounded-lg"
-                      >
-                        <span className={`text-xs font-black ${isRecruiting && themeStyle.recruitingText ? themeStyle.recruitingText : ""}`}>
-                          {isRecruiting ? (theme === "christmas" ? "🎄 모집중" : "모집중 🙋") : "마감"}
-                        </span>
-                      </Sticker>
-
-                      {/* Hover Overlay */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#635bff]/5" />
                     </div>
 
                     {/* Content */}

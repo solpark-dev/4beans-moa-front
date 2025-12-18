@@ -5,7 +5,6 @@ import { useThemeStore } from "@/store/themeStore";
 import MainHeroSection from "./sections/MainHeroSection";
 import MainFeaturesSection from "./sections/MainFeaturesSection";
 import MainProductsSection from "./sections/MainProductsSection";
-import MainTrendingSection from "./sections/MainTrendingSection";
 import MainHowItWorksSection from "./sections/MainHowItWorksSection";
 import MainMarqueeSection from "./sections/MainMarqueeSection";
 import MainStatementSection from "./sections/MainStatementSection";
@@ -71,9 +70,8 @@ export default function MainPage() {
       <MainComparisonSection />
       <MainStatsMarquee />
       <MainFeaturesSection stats={stats} />
-      <MainSearchSection />
+      <MainSearchSection products={products} />
       <MainProductsSection />
-      <MainTrendingSection parties={parties} />
       <MainHowItWorksSection />
 
       <div

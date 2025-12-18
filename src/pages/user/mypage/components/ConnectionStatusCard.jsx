@@ -2,7 +2,7 @@ import React from "react";
 import { Link2, Shield, Smartphone } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
-const SECTION_TITLE = "text-xs font-black tracking-widest";
+const SECTION_TITLE = "text-sm font-bold";
 const ROW = "flex items-center justify-between py-3";
 const BTN =
   "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]";
@@ -58,7 +58,7 @@ export function ConnectionStatusCard({
     <div className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <Smartphone className="w-4 h-4" />
-        <p className="font-black">연결 정보</p>
+        <p className="text-sm font-bold">로그인 정보</p>
       </div>
 
       <div className={themeStyle.sectionBorder}>
@@ -80,7 +80,7 @@ export function ConnectionStatusCard({
       <div className={`mt-6 ${themeStyle.sectionBorder} pt-5`}>
         <div className="flex items-center gap-2 mb-3">
           <Link2 className="w-4 h-4" />
-          <p className={SECTION_TITLE}>연동 계정</p>
+          <p className={SECTION_TITLE}>소셜 연결</p>
         </div>
 
         <div className="flex flex-wrap gap-3">
