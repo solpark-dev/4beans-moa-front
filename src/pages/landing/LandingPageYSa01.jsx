@@ -265,9 +265,9 @@ const ParallaxHero = () => {
             >
               <span className="block transform -rotate-1">SHARE</span>
               <span className="block transform rotate-1">
-                <span className="text-cyan-400 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">YOUR</span>
+                <span className="text-cyan-400">YOUR</span>
               </span>
-              <span className="block transform -rotate-1 text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+              <span className="block transform -rotate-1 text-pink-500">
                 OTT!
               </span>
             </motion.h1>

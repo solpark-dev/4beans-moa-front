@@ -43,7 +43,7 @@ export default function VirtualBankModal() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={handleBackdropClick}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                    className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
                 >
                     {/* 모달 컨텐츠 - 스마트폰 모양 */}
                     <motion.div

@@ -28,18 +28,18 @@ const getThemeStyles = (theme) => {
         filterInactive: 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200',
         buttonPrimary: 'bg-[#c41e3a] hover:bg-[#a51830] text-white',
         buttonSecondary: 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50',
-        modalBg: 'bg-white/95 backdrop-blur-sm',
+        modalBg: 'bg-stone-200 backdrop-blur-sm',
         highlight: 'text-[#c41e3a]',
         priceBox: 'bg-gray-50/80 border-gray-100',
       };
     case 'dark':
       return {
-        bg: 'bg-[#0B1120]',
+        bg: 'bg-transparent',
         text: 'text-white',
         subtext: 'text-gray-400',
-        cardBg: 'bg-[#1E293B] border border-gray-700 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
+        cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
         cardHover: 'hover:border-[#635bff]/30 hover:shadow-[0_25px_50px_-12px_rgba(99,91,255,0.2)]',
-        searchBg: 'bg-[#1E293B] border border-gray-700',
+        searchBg: 'bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700',
         inputBg: 'bg-[#0F172A]',
         inputFocus: 'focus:ring-[#635bff]/20 focus:bg-[#0F172A]',
         filterActive: 'bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30',
@@ -52,12 +52,12 @@ const getThemeStyles = (theme) => {
       };
     case 'pop':
       return {
-        bg: 'bg-slate-50',
+        bg: 'bg-transparent',
         text: 'text-black',
         subtext: 'text-gray-600',
-        cardBg: 'bg-white border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
         cardHover: 'hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]',
-        searchBg: 'bg-white border border-gray-200',
+        searchBg: 'bg-white/90 backdrop-blur-sm border border-gray-200',
         inputBg: 'bg-gray-50',
         inputFocus: 'focus:ring-pink-500/20 focus:bg-white',
         filterActive: 'bg-pink-500 text-white border border-gray-200',
@@ -70,12 +70,12 @@ const getThemeStyles = (theme) => {
       };
     case 'classic':
       return {
-        bg: 'bg-white',
+        bg: 'bg-transparent',
         text: 'text-gray-900',
         subtext: 'text-gray-500',
-        cardBg: 'bg-white border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 rounded-[2rem] shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
         cardHover: 'hover:border-[#635bff]/30 hover:shadow-[0_25px_50px_-12px_rgba(99,91,255,0.15)]',
-        searchBg: 'bg-white border border-gray-200',
+        searchBg: 'bg-white/90 backdrop-blur-sm border border-gray-200',
         inputBg: 'bg-gray-50',
         inputFocus: 'focus:ring-[#635bff]/20 focus:bg-white',
         filterActive: 'bg-[#635bff]/10 text-[#635bff] ring-1 ring-[#635bff]/30',
@@ -88,12 +88,12 @@ const getThemeStyles = (theme) => {
       };
     default:
       return {
-        bg: 'bg-white',
+        bg: 'bg-transparent',
         text: 'text-gray-900',
         subtext: 'text-gray-500',
-        cardBg: 'bg-white border border-stone-200 rounded-[2rem]',
+        cardBg: 'bg-white/90 backdrop-blur-sm border border-stone-200 rounded-[2rem]',
         cardHover: 'hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/10',
-        searchBg: 'bg-white border border-gray-200',
+        searchBg: 'bg-white/90 backdrop-blur-sm border border-gray-200',
         inputBg: 'bg-gray-50',
         inputFocus: 'focus:ring-indigo-500/20 focus:bg-white',
         filterActive: 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200',
@@ -120,62 +120,63 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className={`${themeStyles.modalBg} w-full max-w-xl rounded-[2rem] overflow-hidden animate-in zoom-in-95 duration-200 relative flex flex-col max-h-[90vh] ${theme === 'pop' ? 'border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]' : 'shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]'}`}>
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className={`absolute top-4 right-4 p-2 rounded-full z-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-stone-100 hover:bg-stone-200'} transition-colors`}
-        >
-          <X className={`w-5 h-5 ${theme === 'dark' ? 'text-gray-300' : 'text-stone-500'}`} />
-        </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] overflow-y-auto animate-in fade-in duration-200">
+      <div className="min-h-full flex items-start justify-center p-4 pt-24 pb-8">
+        <div className={`${themeStyles.modalBg} w-full max-w-xl rounded-2xl relative flex flex-col animate-in zoom-in-95 duration-200 ${theme === 'pop' ? 'border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]' : 'shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]'}`}>
 
-        {/* Header Section */}
-        <div className={`py-9 px-6 flex flex-row items-center gap-6 flex-shrink-0 ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white'}`}>
-          <div className="flex-shrink-0">
-            {product.image ? (
-              <img
-                src={getProductIconUrl(product.image)}
-                alt={product.productName}
-                className={`w-20 h-20 rounded-3xl shadow-lg object-cover ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'}`}
-              />
-            ) : (
-              <div className={`w-20 h-20 rounded-3xl shadow-lg flex items-center justify-center ${theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-white text-gray-400'}`}>
-                No Img
-              </div>
-            )}
-          </div>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className={`absolute top-4 right-4 p-2 rounded-full z-[50] ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-stone-100 hover:bg-stone-200'} transition-colors`}
+          >
+            <X className={`w-5 h-5 ${theme === 'dark' ? 'text-gray-300' : 'text-stone-500'}`} />
+          </button>
 
-          <div>
-            <h2 className={`text-2xl font-extrabold leading-tight ${themeStyles.text}`}>
-              {product.productName}
-            </h2>
-            <div className="flex items-center gap-2 mt-2">
-              <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
-                theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a]' :
-                theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' :
-                theme === 'pop' ? 'bg-pink-100 text-pink-500' :
-                theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff]' :
-                'bg-indigo-100 text-indigo-600'
-              }`}>
-                {product.categoryName || '구독'}
-              </span>
-              {product.productStatus === 'INACTIVE' && (
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
-                  판매중지
-                </span>
+          {/* Header Section */}
+          <div className={`py-9 px-6 flex flex-row items-center gap-6 ${theme === 'dark' ? 'bg-[#1E293B]' : theme === 'christmas' ? 'bg-transparent' : 'bg-white'}`}>
+            <div className="flex-shrink-0">
+              {product.image ? (
+                <img
+                  src={getProductIconUrl(product.image)}
+                  alt={product.productName}
+                  className={`w-20 h-20 rounded-3xl shadow-lg object-cover ${theme === 'dark' ? 'bg-gray-700' : theme === 'christmas' ? 'bg-stone-100' : 'bg-white'}`}
+                />
+              ) : (
+                <div className={`w-20 h-20 rounded-3xl shadow-lg flex items-center justify-center ${theme === 'dark' ? 'bg-gray-700 text-gray-400' : theme === 'christmas' ? 'bg-stone-100 text-gray-400' : 'bg-white text-gray-400'}`}>
+                  No Img
+                </div>
               )}
-              <span className={`font-extrabold text-lg ${themeStyles.text}`}>
-                ₩{product.price?.toLocaleString()}
-                <span className={`text-xs font-normal ml-0.5 ${themeStyles.subtext}`}>/월</span>
-              </span>
+            </div>
+
+            <div>
+              <h2 className={`text-2xl font-extrabold leading-tight ${themeStyles.text}`}>
+                {product.productName}
+              </h2>
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                  theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a]' :
+                  theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' :
+                  theme === 'pop' ? 'bg-pink-100 text-pink-500' :
+                  theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff]' :
+                  'bg-indigo-100 text-indigo-600'
+                }`}>
+                  {product.categoryName || '구독'}
+                </span>
+                {product.productStatus === 'INACTIVE' && (
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
+                    판매중지
+                  </span>
+                )}
+                <span className={`font-extrabold text-lg ${themeStyles.text}`}>
+                  ₩{product.price?.toLocaleString()}
+                  <span className={`text-xs font-normal ml-0.5 ${themeStyles.subtext}`}>/월</span>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Scrollable Content */}
-        <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
-          <div className="space-y-8">
+          {/* Content */}
+          <div className="p-8 space-y-8">
             {/* Description */}
             {product.description && (
               <div>
@@ -245,7 +246,7 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${
-                        theme === 'christmas' ? 'bg-gray-50 text-gray-900 focus:ring-[#c41e3a]/30' :
+                        theme === 'christmas' ? 'bg-stone-100 text-gray-900 focus:ring-[#c41e3a]/30' :
                         theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' :
                         theme === 'pop' ? 'bg-gray-50 text-gray-900 focus:ring-pink-300' :
                         theme === 'classic' ? 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30' :
@@ -269,7 +270,7 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                       min={startDate}
                       placeholder="종료일 미지정 시 계속 유지"
                       className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${
-                        theme === 'christmas' ? 'bg-gray-50 text-gray-900 focus:ring-[#c41e3a]/30' :
+                        theme === 'christmas' ? 'bg-stone-100 text-gray-900 focus:ring-[#c41e3a]/30' :
                         theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' :
                         theme === 'pop' ? 'bg-gray-50 text-gray-900 focus:ring-pink-300' :
                         theme === 'classic' ? 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30' :
@@ -282,69 +283,69 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
               </div>
             )}
           </div>
-        </div>
 
-        {/* Fixed Footer Actions */}
-        <div className={`p-4 flex gap-3 flex-shrink-0 ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-white'}`}>
-          {user?.role === 'ADMIN' ? (
-            <>
-              <button
-                onClick={() => {
-                  onClose();
-                  onEdit(product);
-                }}
-                className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
-                  theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
-                  theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                  theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
-                  theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                  'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                }`}
-              >
-                수정하기
-              </button>
-              <button
-                onClick={() => {
-                  onClose();
-                  navigate(`/product/${product.productId}/delete`);
-                }}
-                className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
-                  theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' :
-                  'bg-red-50 text-red-500 hover:bg-red-100'
-                }`}
-              >
-                삭제하기
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={onClose}
-                className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
-                  theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
-                  theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                  theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
-                  theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                  'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                }`}
-              >
-                취소
-              </button>
-              <button
-                onClick={handleSubscribe}
-                className={`flex-[2] py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
-                  theme === 'christmas' ? 'bg-[#c41e3a] text-white hover:bg-[#a51830]' :
-                  theme === 'dark' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
-                  theme === 'pop' ? 'bg-pink-500 text-white hover:bg-pink-600' :
-                  theme === 'classic' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
-                  'bg-indigo-600 text-white hover:bg-indigo-700'
-                }`}
-              >
-                <CalendarPlus className="w-5 h-5" />
-                구독 일정에 등록
-              </button>
-            </>
-          )}
+          {/* Footer Actions */}
+          <div className={`p-4 flex gap-3 ${theme === 'dark' ? 'bg-[#1E293B]' : theme === 'christmas' ? 'bg-transparent' : 'bg-white'}`}>
+            {user?.role === 'ADMIN' ? (
+              <>
+                <button
+                  onClick={() => {
+                    onClose();
+                    onEdit(product);
+                  }}
+                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
+                    theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
+                    theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                    theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
+                    theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                    'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                  }`}
+                >
+                  수정하기
+                </button>
+                <button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/product/${product.productId}/delete`);
+                  }}
+                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
+                    theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' :
+                    'bg-red-50 text-red-500 hover:bg-red-100'
+                  }`}
+                >
+                  삭제하기
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={onClose}
+                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
+                    theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
+                    theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                    theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
+                    theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                    'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                  }`}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSubscribe}
+                  className={`flex-[2] py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
+                    theme === 'christmas' ? 'bg-[#c41e3a] text-white hover:bg-[#a51830]' :
+                    theme === 'dark' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
+                    theme === 'pop' ? 'bg-pink-500 text-white hover:bg-pink-600' :
+                    theme === 'classic' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
+                    'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
+                >
+                  <CalendarPlus className="w-5 h-5" />
+                  구독 일정에 등록
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

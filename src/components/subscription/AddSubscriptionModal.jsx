@@ -77,8 +77,8 @@ const AddSubscriptionModal = ({ productId, startDate, endDate, onClose, onSucces
     if (!productId) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-[var(--theme-bg-card)] w-full max-w-xl rounded-[2rem] shadow-[var(--theme-shadow)] overflow-hidden animate-in zoom-in-95 duration-200 relative">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-[var(--theme-bg-card)] w-full max-w-xl rounded-2xl shadow-[var(--theme-shadow)] overflow-hidden animate-in zoom-in-95 duration-200 relative">
                 {/* Close Button */}
                 <button
                     onClick={onClose}

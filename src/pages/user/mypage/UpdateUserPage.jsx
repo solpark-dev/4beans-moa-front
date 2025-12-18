@@ -44,8 +44,8 @@ const updateUserThemeStyles = {
       lime: "bg-lime-400",
     },
     titleAccent: {
-      cyan: "text-cyan-400 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]",
-      pink: "text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]",
+      cyan: "text-cyan-400",
+      pink: "text-pink-500",
     },
   },
   christmas: {

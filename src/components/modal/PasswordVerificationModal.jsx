@@ -6,7 +6,7 @@ export default function PasswordVerificationModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-[var(--theme-bg-card)] rounded-[var(--theme-radius)] shadow-[var(--theme-shadow-hover)] w-full max-w-sm p-6 relative">
         <h3 className="text-xl font-bold mb-4 text-[var(--theme-text)]">현재 비밀번호 확인</h3>
 

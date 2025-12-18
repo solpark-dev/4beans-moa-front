@@ -104,7 +104,7 @@ export default function MainProductsSection() {
   };
 
   return (
-    <section className={`relative px-6 md:px-12 py-20 ${isDark ? 'bg-[#0F172A] border-gray-700' : 'bg-slate-100 border-gray-200'} border-b`}>
+    <section className={`relative px-6 md:px-12 py-20 ${isDark ? 'bg-[#0F172A] border-gray-700' : 'bg-transparent border-gray-200'} border-b`}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 26 }}

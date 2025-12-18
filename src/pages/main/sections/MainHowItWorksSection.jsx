@@ -46,7 +46,7 @@ export default function MainHowItWorksSection() {
   ];
 
   return (
-    <section className={`relative px-6 md:px-12 py-20 ${isDark ? "bg-[#0B1120]" : "bg-white"} ${isDark ? "border-gray-700" : "border-gray-200"} border-b`}>
+    <section className={`relative px-6 md:px-12 py-20 ${isDark ? "bg-[#0B1120]" : "bg-transparent"} ${isDark ? "border-gray-700" : "border-gray-200"} border-b`}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 26 }}

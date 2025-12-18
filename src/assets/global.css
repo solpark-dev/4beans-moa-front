@@ -111,7 +111,7 @@ button {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* Theme-specific: Pop (Neo-brutalism) */
+  /* Theme-specific: Pop */
   --theme-primary: #ec4899;
   --theme-primary-hover: #db2777;
   --theme-primary-light: #fdf2f8;
@@ -120,14 +120,14 @@ button {
   --theme-bg-card: #ffffff;
   --theme-text: #0f172a;
   --theme-text-muted: #64748b;
-  --theme-border: #000000;
-  --theme-border-light: #e2e8f0;
-  --theme-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
-  --theme-shadow-hover: 6px 6px 0px 0px rgba(0,0,0,1);
-  --theme-shadow-soft: 0 4px 6px -1px rgba(0,0,0,0.1);
+  --theme-border: #e2e8f0;
+  --theme-border-light: #f1f5f9;
+  --theme-shadow: 0 4px 12px rgba(236,72,153,0.1);
+  --theme-shadow-hover: 0 8px 24px rgba(236,72,153,0.15);
+  --theme-shadow-soft: 0 1px 3px rgba(0,0,0,0.08);
   --theme-focus-ring: rgba(236,72,153,0.5);
-  --theme-border-width: 2px;
-  --theme-radius: 0.75rem;
+  --theme-border-width: 1px;
+  --theme-radius: 1rem;
 }
 
 [data-theme="classic"] {

@@ -122,6 +122,40 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
         });
     };
 
+    // body 스크롤 강제 허용 (!important로 Radix 스크롤 잠금 오버라이드)
+    useEffect(() => {
+        if (isOpen) {
+            const style = document.createElement('style');
+            style.id = 'modal-scroll-override-update';
+            style.innerHTML = `
+                html, body, [data-scroll-locked] {
+                    overflow: auto !important;
+                    overflow-y: auto !important;
+                    padding-right: 0 !important;
+                    margin-right: 0 !important;
+                    position: static !important;
+                    touch-action: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+                [data-radix-scroll-area-viewport] {
+                    overflow: auto !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 추가로 직접 스타일 설정
+            document.body.setAttribute('data-scroll-locked', '0');
+            document.documentElement.style.setProperty('overflow', 'auto', 'important');
+            document.body.style.setProperty('overflow', 'auto', 'important');
+        }
+        return () => {
+            const style = document.getElementById('modal-scroll-override-update');
+            if (style) style.remove();
+            document.documentElement.style.removeProperty('overflow');
+            document.body.style.removeProperty('overflow');
+        };
+    }, [isOpen]);
+
     // Reset and Fetch Data on Open
     useEffect(() => {
         if (isOpen && productId) {
@@ -273,8 +307,8 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
 
     return (
         <>
-            <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-2xl bg-white rounded-[2rem] p-0 overflow-hidden max-h-[90vh] flex flex-col">
+            <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+                <DialogContent allowScroll className="max-w-2xl bg-white rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
                     <DialogHeader className="p-8 pb-0 shrink-0">
                         <DialogTitle className="text-3xl font-bold text-stone-900">상품 정보 수정</DialogTitle>
                         <DialogDescription className="text-stone-500">

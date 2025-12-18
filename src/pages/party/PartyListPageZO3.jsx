@@ -347,7 +347,7 @@ export default function PartyListPageZO3() {
               className="text-5xl md:text-7xl font-black leading-[0.9] tracking-tighter mb-6"
             >
               <span className="block text-black">함께 보면</span>
-              <span className="block text-cyan-400 drop-shadow-[3px_3px_0px_rgba(0,0,0,1)]">
+              <span className="block text-cyan-400">
                 더 저렴해!
               </span>
             </motion.h1>

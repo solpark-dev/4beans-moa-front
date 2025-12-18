@@ -25,30 +25,30 @@ const getThemeStyles = (theme) => {
       };
     case 'dark':
       return {
-        bg: 'bg-[#0B1120]',
-        cardStyle: 'bg-[#1E293B] border border-gray-700 shadow-[4px_4px_12px_rgba(0,0,0,0.3)] rounded-[32px] overflow-hidden',
+        bg: 'bg-transparent',
+        cardStyle: 'bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 shadow-[4px_4px_12px_rgba(0,0,0,0.3)] rounded-[32px] overflow-hidden',
         titleColor: 'text-white',
         headerBorder: 'border-b border-gray-700',
       };
     case 'pop':
       return {
-        bg: 'bg-slate-50',
-        cardStyle: 'bg-white border-2 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] rounded-[32px] overflow-hidden',
+        bg: 'bg-transparent',
+        cardStyle: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)] rounded-[32px] overflow-hidden',
         titleColor: 'text-pink-500',
-        headerBorder: 'border-b-2 border-black',
+        headerBorder: 'border-b border-gray-200',
       };
     case 'classic':
       return {
-        bg: 'bg-white',
-        cardStyle: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)] rounded-[32px] overflow-hidden',
+        bg: 'bg-transparent',
+        cardStyle: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)] rounded-[32px] overflow-hidden',
         titleColor: 'text-[#635bff]',
         headerBorder: 'border-b border-gray-200',
       };
     case 'default':
     default:
       return {
-        bg: 'bg-slate-50',
-        cardStyle: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-[32px] overflow-hidden',
+        bg: 'bg-transparent',
+        cardStyle: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-[32px] overflow-hidden',
         titleColor: 'text-slate-900',
         headerBorder: 'border-b border-black/30',
       };

@@ -53,26 +53,26 @@ export default function GetProductList() {
         };
       case 'dark':
         return {
-          bg: 'bg-[#0B1120]',
+          bg: 'bg-transparent',
           text: 'text-white',
           subtext: 'text-gray-400',
-          searchBg: 'bg-[#1E293B]',
+          searchBg: 'bg-[#1E293B]/90 backdrop-blur-sm',
           buttonActive: 'bg-[#635bff] text-white border-[#635bff]',
           buttonInactive: 'bg-[#1E293B] text-gray-400 border-gray-600',
-          cardBg: 'bg-[#1E293B]',
+          cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm',
           cardHover: 'hover:shadow-lg hover:shadow-[#635bff]/20',
           categoryBg: 'bg-[#0F172A]',
           detailText: 'text-[#635bff]',
         };
       case 'classic':
         return {
-          bg: 'bg-white',
+          bg: 'bg-transparent',
           text: 'text-gray-900',
           subtext: 'text-gray-500',
-          searchBg: 'bg-gray-50',
+          searchBg: 'bg-white/90 backdrop-blur-sm',
           buttonActive: 'bg-[#635bff] text-white border-[#635bff]',
           buttonInactive: 'bg-white text-gray-600 border-gray-300',
-          cardBg: 'bg-white',
+          cardBg: 'bg-white/90 backdrop-blur-sm',
           cardHover: 'hover:shadow-lg',
           categoryBg: 'bg-gray-100',
           detailText: 'text-[#635bff]',
@@ -80,13 +80,13 @@ export default function GetProductList() {
       case 'pop':
       default:
         return {
-          bg: 'bg-slate-50',
+          bg: 'bg-transparent',
           text: 'text-black',
           subtext: 'text-gray-600',
-          searchBg: 'bg-gray-50',
+          searchBg: 'bg-white/80 backdrop-blur-sm',
           buttonActive: 'bg-pink-500 text-white border-pink-500',
           buttonInactive: 'bg-white text-gray-600 border-gray-300',
-          cardBg: 'bg-white',
+          cardBg: 'bg-white/90 backdrop-blur-sm',
           cardHover: 'hover:shadow-lg',
           categoryBg: 'bg-gray-100',
           detailText: 'text-blue-600',

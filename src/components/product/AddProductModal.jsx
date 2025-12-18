@@ -136,6 +136,40 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
         }
     }, [isOpen]);
 
+    // body 스크롤 강제 허용 (!important로 Radix 스크롤 잠금 오버라이드)
+    useEffect(() => {
+        if (isOpen) {
+            const style = document.createElement('style');
+            style.id = 'modal-scroll-override';
+            style.innerHTML = `
+                html, body, [data-scroll-locked] {
+                    overflow: auto !important;
+                    overflow-y: auto !important;
+                    padding-right: 0 !important;
+                    margin-right: 0 !important;
+                    position: static !important;
+                    touch-action: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+                [data-radix-scroll-area-viewport] {
+                    overflow: auto !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 추가로 직접 스타일 설정
+            document.body.setAttribute('data-scroll-locked', '0');
+            document.documentElement.style.setProperty('overflow', 'auto', 'important');
+            document.body.style.setProperty('overflow', 'auto', 'important');
+        }
+        return () => {
+            const style = document.getElementById('modal-scroll-override');
+            if (style) style.remove();
+            document.documentElement.style.removeProperty('overflow');
+            document.body.style.removeProperty('overflow');
+        };
+    }, [isOpen]);
+
     // input click handler wrapper (로고용)
     const onLogoInputClick = (e) => {
         if (logoFile) {
@@ -213,8 +247,8 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
 
     return (
         <>
-            <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-2xl bg-white rounded-[2rem] p-0 overflow-hidden max-h-[90vh] flex flex-col">
+            <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+                <DialogContent allowScroll className="max-w-2xl bg-white rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
                     <DialogHeader className="p-8 pb-0 shrink-0">
                         <DialogTitle className="text-3xl font-bold text-stone-900">새로운 구독 상품 등록</DialogTitle>
                         <DialogDescription className="text-stone-500">
@@ -429,7 +463,7 @@ const AddProductModal = ({ isOpen, onClose, onSuccess }) => {
 
             {/* 커스텀 알림 모달 (중첩 Dialog) */}
             <Dialog open={alertInfo.isOpen} onOpenChange={(open) => !open && setAlertInfo(prev => ({ ...prev, isOpen: false }))}>
-                <DialogContent className="sm:max-w-md bg-white rounded-2xl z-[60]">
+                <DialogContent className="sm:max-w-md bg-white rounded-2xl z-[999]">
                     {/* z-index 높여서 위로 뜨게, 기본 Dialog z-index는 50 */}
                     <DialogHeader>
                         <DialogTitle>{alertInfo.title}</DialogTitle>

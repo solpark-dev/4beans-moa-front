@@ -51,14 +51,14 @@ const getThemeStyles = (theme) => {
         highlight: 'text-pink-500',
         highlightBg: 'bg-pink-500',
         stickerBg: 'bg-white',
-        stickerBorder: 'border-2 border-black',
-        stickerShadow: 'shadow-[4px_4px_0px_rgba(0,0,0,1)]',
+        stickerBorder: 'border border-gray-200',
+        stickerShadow: 'shadow-[0_4px_12px_rgba(236,72,153,0.1)]',
         cardBg: 'bg-white',
-        cardBorder: 'border-2 border-black',
-        inputBorder: 'border-2 border-black',
-        buttonPrimary: 'bg-red-600 text-white border-2 border-black hover:bg-red-700',
-        buttonSecondary: 'bg-white text-black border-2 border-black hover:bg-gray-50',
-        radioChecked: 'outline-black',
+        cardBorder: 'border border-gray-200',
+        inputBorder: 'border border-gray-200',
+        buttonPrimary: 'bg-red-600 text-white border border-gray-200 hover:bg-red-700',
+        buttonSecondary: 'bg-white text-black border border-gray-200 hover:bg-gray-50',
+        radioChecked: 'outline-pink-500',
         radioAccent: 'accent-pink-500',
       };
     case 'classic':
@@ -256,11 +256,11 @@ export default function DeleteUserPage() {
             >
               <span className="block">DELETE</span>
               <span className="block">
-                <span className={`${themeStyles.highlight} ${theme === 'pop' ? 'drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]' : ''}`}>
+                <span className={themeStyles.highlight}>
                   YOUR
                 </span>
               </span>
-              <span className={`block ${themeStyles.highlight} ${theme === 'pop' ? 'drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]' : ''}`}>
+              <span className={`block ${themeStyles.highlight}`}>
                 ACCOUNT!
               </span>
             </motion.h1>

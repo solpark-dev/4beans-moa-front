@@ -90,7 +90,7 @@ export default function MainFeaturesSection() {
   ];
 
   return (
-    <section className={`relative px-6 md:px-12 py-20 ${isDark ? 'bg-[#0B1120]' : 'bg-white'} ${isDark ? 'border-gray-700' : 'border-gray-200'} border-b`}>
+    <section className={`relative px-6 md:px-12 py-20 ${isDark ? 'bg-[#0B1120]' : 'bg-transparent'} ${isDark ? 'border-gray-700' : 'border-gray-200'} border-b`}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -115,14 +115,14 @@ export default function MainFeaturesSection() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((f, i) => (
-            <BouncyCard key={f.title} className="p-8 h-full" delay={i * 0.08} isDark={isDark}>
+            <BouncyCard key={f.title} className="p-6 sm:p-8 h-full text-center" delay={i * 0.08} isDark={isDark}>
               <div
-                className={`w-20 h-20 ${f.color} rounded-2xl ${isDark ? 'border-gray-600' : 'border-gray-200'} border flex items-center justify-center mb-6 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}
+                className={`w-16 h-16 sm:w-20 sm:h-20 ${f.color} rounded-xl sm:rounded-2xl ${isDark ? 'border-gray-600' : 'border-gray-200'} border flex items-center justify-center mb-4 sm:mb-6 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] mx-auto`}
               >
-                <span className="text-4xl">{f.emoji}</span>
+                <span className="text-3xl sm:text-4xl">{f.emoji}</span>
               </div>
-              <h3 className={`text-2xl font-black mb-3 ${isDark ? 'text-white' : ''}`}>{f.title}</h3>
-              <p className={`text-lg font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{f.desc}</p>
+              <h3 className={`text-xl sm:text-2xl font-black mb-2 sm:mb-3 ${isDark ? 'text-white' : ''}`}>{f.title}</h3>
+              <p className={`text-base sm:text-lg font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{f.desc}</p>
             </BouncyCard>
           ))}
         </div>

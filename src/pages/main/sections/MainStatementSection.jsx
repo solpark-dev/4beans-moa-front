@@ -28,7 +28,7 @@ export default function MainStatementSection() {
   const isDark = theme === "dark";
 
   return (
-    <section ref={ref} className={`py-32 px-6 border-b ${isDark ? 'bg-[#0B1120] border-gray-600' : 'bg-white border-gray-200'}`}>
+    <section ref={ref} className={`py-32 px-6 border-b ${isDark ? 'bg-[#0B1120] border-gray-600' : 'bg-transparent border-gray-200'}`}>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}

@@ -54,12 +54,12 @@ export default function BillingRegisterPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className={`rounded-2xl shadow-lg p-10 ${theme === "pop"
-              ? "bg-white border-4 border-black"
+              ? "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
               : theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
                 : theme === "christmas"
-                  ? "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "bg-white shadow-[#635bff]/10 border border-gray-100"
+                  ? "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
+                  : "bg-white/90 backdrop-blur-sm shadow-[#635bff]/10 border border-gray-100"
             }`}
         >
           <div className="text-center">

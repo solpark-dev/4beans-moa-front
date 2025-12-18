@@ -8,7 +8,7 @@ const getButtonStyles = (theme) => {
     case 'dark':
       return "border border-gray-700 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.3)]";
     case 'pop':
-      return "border-2 border-black rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)]";
+      return "border border-gray-200 rounded-2xl shadow-[0_4px_12px_rgba(236,72,153,0.1)]";
     case 'classic':
       return "border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(99,91,255,0.1)]";
     default:

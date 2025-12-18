@@ -32,54 +32,54 @@ const getThemeStyles = (theme) => {
       };
     case 'dark':
       return {
-        bg: 'bg-[#0B1120]',
+        bg: 'bg-transparent',
         text: 'text-white',
         subtext: 'text-gray-400',
         highlight: 'text-[#635bff]',
-        stickerBg: 'bg-[#1E293B]',
+        stickerBg: 'bg-[#1E293B]/90 backdrop-blur-sm',
         stickerBorder: 'border border-gray-700',
         stickerShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
-        cardBg: 'bg-[#1E293B] border border-gray-700 shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
+        cardBg: 'bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 shadow-[4px_4px_12px_rgba(0,0,0,0.3)]',
         inputBorder: 'border border-gray-700 bg-[#0F172A] text-white',
         buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
       };
     case 'pop':
       return {
-        bg: 'bg-slate-50',
+        bg: 'bg-transparent',
         text: 'text-black',
         subtext: 'text-gray-600',
         highlight: 'text-pink-500',
-        stickerBg: 'bg-white',
-        stickerBorder: 'border-2 border-black',
-        stickerShadow: 'shadow-[4px_4px_0px_rgba(0,0,0,1)]',
-        cardBg: 'bg-white border-2 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)]',
-        inputBorder: 'border-2 border-black',
-        buttonBg: 'bg-pink-500 hover:bg-pink-600 border-2 border-black',
+        stickerBg: 'bg-white/90 backdrop-blur-sm',
+        stickerBorder: 'border border-gray-200',
+        stickerShadow: 'shadow-[0_4px_12px_rgba(236,72,153,0.1)]',
+        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]',
+        inputBorder: 'border border-gray-200',
+        buttonBg: 'bg-pink-500 hover:bg-pink-600 border border-gray-200',
       };
     case 'classic':
       return {
-        bg: 'bg-white',
+        bg: 'bg-transparent',
         text: 'text-gray-900',
         subtext: 'text-gray-600',
         highlight: 'text-[#635bff]',
-        stickerBg: 'bg-white',
+        stickerBg: 'bg-white/90 backdrop-blur-sm',
         stickerBorder: 'border border-gray-200',
         stickerShadow: 'shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
-        cardBg: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
+        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(99,91,255,0.1)]',
         inputBorder: 'border border-gray-200',
         buttonBg: 'bg-[#635bff] hover:bg-[#5851e8]',
       };
     case 'default':
     default:
       return {
-        bg: 'bg-slate-50',
+        bg: 'bg-transparent',
         text: 'text-black',
         subtext: 'text-gray-600',
         highlight: 'text-pink-500',
-        stickerBg: 'bg-white',
+        stickerBg: 'bg-white/90 backdrop-blur-sm',
         stickerBorder: 'border border-gray-200',
         stickerShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-        cardBg: 'bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
+        cardBg: 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
         inputBorder: 'border border-gray-200',
         buttonBg: 'bg-slate-900 hover:bg-slate-800',
       };

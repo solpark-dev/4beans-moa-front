@@ -67,7 +67,7 @@ export default function MainSearchSection({ products = [] }) {
   const showResults = isFocused && searchQuery.trim().length > 0;
 
   return (
-    <section className={`py-12 px-6 border-b ${isDark ? 'bg-[#0B1120] border-gray-600' : 'bg-white border-gray-200'}`}>
+    <section className={`py-12 px-6 border-b ${isDark ? 'bg-[#0B1120] border-gray-600' : 'bg-transparent border-gray-200'}`}>
       <div className="max-w-2xl mx-auto">
         {/* 검색 타이틀 */}
         <motion.div

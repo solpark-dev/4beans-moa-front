@@ -25,11 +25,11 @@ const getFieldStyles = (theme) => {
       };
     case 'pop':
       return {
-        field: "bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)] text-sm text-black",
-        focus: "focus-visible:ring-pink-500 focus-visible:border-black",
+        field: "bg-white border border-gray-200 rounded-2xl shadow-[0_4px_12px_rgba(236,72,153,0.08)] text-sm text-black",
+        focus: "focus-visible:ring-pink-500 focus-visible:border-pink-300",
         label: "text-gray-600",
-        button: "bg-pink-500 hover:bg-pink-600 border-2 border-black",
-        link: "text-black border-black/40",
+        button: "bg-pink-500 hover:bg-pink-600 border border-gray-200",
+        link: "text-pink-500 border-pink-300/40",
         checkbox: "text-pink-500",
       };
     case 'classic':

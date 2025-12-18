@@ -54,8 +54,8 @@ const TemplateForm = ({ isOpen, onClose, template, onSave, isLoading }) => {
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-lg bg-[var(--theme-bg-card)]">
+        <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+            <DialogContent allowScroll className="max-w-lg bg-[var(--theme-bg-card)]">
                 <DialogHeader>
                     <DialogTitle className="text-[var(--theme-primary)]">
                         {template?.pushCodeId ? '템플릿 수정' : '새 템플릿 추가'}

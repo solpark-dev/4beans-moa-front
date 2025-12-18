@@ -134,8 +134,8 @@ const AddSubscription = () => {
 
             {/* Confirmation Modal */}
             {showConfirmModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
-                    <div className="bg-[var(--theme-bg-card)] w-full max-w-sm rounded-[2rem] shadow-[var(--theme-shadow-hover)] p-6 animate-in zoom-in-95 duration-200 text-center">
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200">
+                    <div className="bg-[var(--theme-bg-card)] w-full max-w-sm rounded-2xl shadow-[var(--theme-shadow-hover)] p-6 animate-in zoom-in-95 duration-200 text-center">
                         <div className="w-16 h-16 bg-[var(--theme-primary-light)] text-[var(--theme-primary)] rounded-full flex items-center justify-center mx-auto mb-4">
                             <AlertTriangle className="w-8 h-8" />
                         </div>

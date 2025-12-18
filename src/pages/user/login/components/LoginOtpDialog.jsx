@@ -33,13 +33,13 @@ const getDialogStyles = (theme) => {
       };
     case 'pop':
       return {
-        container: "bg-white border-2 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)]",
+        container: "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]",
         title: "text-black",
         desc: "text-gray-600",
-        tabActive: "bg-pink-500 text-white border-black",
-        tabInactive: "text-black border-black",
-        input: "border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]",
-        button: "bg-pink-500 hover:bg-pink-600 border-2 border-black",
+        tabActive: "bg-pink-500 text-white border-pink-500",
+        tabInactive: "text-gray-500 border-gray-200",
+        input: "border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.08)]",
+        button: "bg-pink-500 hover:bg-pink-600 border border-gray-200",
       };
     case 'classic':
       return {

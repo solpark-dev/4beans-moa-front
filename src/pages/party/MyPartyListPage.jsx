@@ -258,14 +258,14 @@ export default function MyPartyListPage() {
               ? theme === "dark"
                 ? "bg-[#635bff] text-white"
                 : theme === "pop"
-                  ? "bg-pink-500 text-white border-2 border-black"
+                  ? "bg-pink-500 text-white border border-gray-200"
                   : theme === "christmas"
                     ? "bg-[#c41e3a] text-white"
                     : "bg-[#635bff] text-white"
               : theme === "dark"
                 ? "bg-[#1E293B] text-gray-400 hover:bg-[#334155]"
                 : theme === "pop"
-                  ? "bg-white text-black border-2 border-black hover:bg-gray-100"
+                  ? "bg-white text-black border border-gray-200 hover:bg-gray-100"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -277,14 +277,14 @@ export default function MyPartyListPage() {
               ? theme === "dark"
                 ? "bg-[#635bff] text-white"
                 : theme === "pop"
-                  ? "bg-pink-500 text-white border-2 border-black"
+                  ? "bg-pink-500 text-white border border-gray-200"
                   : theme === "christmas"
                     ? "bg-[#c41e3a] text-white"
                     : "bg-[#635bff] text-white"
               : theme === "dark"
                 ? "bg-[#1E293B] text-gray-400 hover:bg-[#334155]"
                 : theme === "pop"
-                  ? "bg-white text-black border-2 border-black hover:bg-gray-100"
+                  ? "bg-white text-black border border-gray-200 hover:bg-gray-100"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -328,7 +328,7 @@ export default function MyPartyListPage() {
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
               ? "bg-[#1E293B] border border-gray-700"
               : theme === "pop"
-                ? "bg-white border-2 border-black"
+                ? "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]"
                 : theme === "christmas"
                   ? "bg-white border border-gray-200"
                   : "bg-white border border-gray-200"
@@ -349,7 +349,7 @@ export default function MyPartyListPage() {
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
               ? "bg-[#1E293B] border border-gray-700"
               : theme === "pop"
-                ? "bg-white border-2 border-black"
+                ? "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]"
                 : theme === "christmas"
                   ? "bg-white border border-gray-200"
                   : "bg-white border border-gray-200"
@@ -370,7 +370,7 @@ export default function MyPartyListPage() {
             <div className={`rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1 ${theme === "dark"
               ? "bg-[#1E293B] border border-gray-700"
               : theme === "pop"
-                ? "bg-white border-2 border-black"
+                ? "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]"
                 : theme === "christmas"
                   ? "bg-white border border-gray-200"
                   : "bg-white border border-gray-200"
@@ -480,7 +480,7 @@ export default function MyPartyListPage() {
                             <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${theme === "dark"
                               ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
                               : theme === "pop"
-                                ? "bg-white border-2 border-black"
+                                ? "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]"
                                 : "bg-white border border-gray-200 hover:border-gray-300"
                               }`}>
                               <div className="p-5">
@@ -586,7 +586,7 @@ export default function MyPartyListPage() {
                             <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${theme === "dark"
                               ? "bg-[#1E293B] border border-gray-700 hover:border-gray-600"
                               : theme === "pop"
-                                ? "bg-white border-2 border-black"
+                                ? "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]"
                                 : "bg-white border border-gray-200 hover:border-gray-300"
                               }`}>
                               <div className="p-5">

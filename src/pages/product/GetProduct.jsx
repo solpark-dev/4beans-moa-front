@@ -108,8 +108,9 @@ const GetProduct = () => {
     if (!product) return null;
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
-            <div className="bg-theme-bg-card rounded-[2rem] shadow-theme overflow-hidden border border-theme-border">
+        <div className="min-h-screen bg-transparent relative z-10">
+          <div className="container mx-auto px-4 py-12 max-w-4xl">
+            <div className="bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-theme overflow-hidden border border-theme-border">
                 {/* Header Section (Horizontal Layout with Gradient) */}
                 <div className={`${themeStyle.headerBg} p-8 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden`}>
                     {/* Blur Circles */}
@@ -300,6 +301,7 @@ const GetProduct = () => {
                     navigate('/product');
                 }}
             />
+          </div>
         </div>
     );
 };

@@ -45,7 +45,7 @@ export default function MainComparisonSection() {
   const isDark = theme === "dark";
 
   return (
-    <section ref={ref} className={`py-24 px-6 ${isDark ? 'bg-[#0F172A]' : 'bg-slate-100'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+    <section ref={ref} className={`py-24 px-6 ${isDark ? 'bg-[#0F172A]' : 'bg-transparent'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

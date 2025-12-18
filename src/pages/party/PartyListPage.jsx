@@ -180,7 +180,7 @@ export default function PartyListPage() {
 
     const badges = {
       RECRUITING: {
-        bg: theme === "christmas" ? "bg-[#1a5f2a]" : "bg-[#635bff]",
+        bg: theme === "pop" ? "bg-pink-500" : theme === "christmas" ? "bg-[#1a5f2a]" : "bg-[#635bff]",
         text: "모집중",
       },
       ACTIVE: {
@@ -272,34 +272,24 @@ export default function PartyListPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 md:pt-4 md:pb-12">
           <div className="text-center max-w-3xl mx-auto">
             {/* Badge */}
-            {theme === "pop" ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20, rotate: -3 }}
-                animate={{ opacity: 1, y: 0, rotate: -3 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Sticker color="bg-cyan-400" rotate={-3} className="inline-block px-5 py-2 rounded-xl mb-6">
-                  <span className="text-sm font-black">OTT 구독 비용, 최대 75% 절약 🔥</span>
-                </Sticker>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 ${theme === "dark"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 ${theme === "pop"
+                ? "bg-pink-100 border border-pink-200"
+                : theme === "dark"
                   ? "bg-[#635bff]/20 border border-[#635bff]/30"
                   : theme === "christmas"
                     ? "bg-[#c41e3a]/10 border border-[#c41e3a]/20"
                     : "bg-[#635bff]/10"
-                  }`}
-              >
-                <Sparkles className="w-4 h-4" style={{ color: currentTheme.accent }} />
-                <span className="text-sm font-semibold" style={{ color: currentTheme.accent }}>
-                  {theme === "christmas" ? "🎄 크리스마스 특별 할인! 최대 75% 절약" : "OTT 구독 비용, 최대 75% 절약"}
-                </span>
-              </motion.div>
-            )}
+                }`}
+            >
+              <Sparkles className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : ""}`} style={theme !== "pop" ? { color: currentTheme.accent } : undefined} />
+              <span className={`text-sm font-semibold ${theme === "pop" ? "text-pink-500" : ""}`} style={theme !== "pop" ? { color: currentTheme.accent } : undefined}>
+                {theme === "christmas" ? "🎄 크리스마스 특별 할인! 최대 75% 절약" : "OTT 구독 비용, 최대 75% 절약"}
+              </span>
+            </motion.div>
 
             {/* Main Title */}
             <motion.h1
@@ -329,68 +319,43 @@ export default function PartyListPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              {theme === "pop" ? (
-                <>
-                  <Sticker
-                    color="bg-pink-500"
-                    rotate={2}
-                    className="px-8 py-4 rounded-2xl cursor-pointer shadow-lg shadow-pink-500/25"
-                    onClick={() => navigate("/party/create")}
-                  >
-                    <span className="flex items-center gap-2 text-white font-black text-xl">
-                      파티 만들기
-                      <ArrowRight className="w-5 h-5" />
-                    </span>
-                  </Sticker>
-                  {user && (
-                    <Sticker
-                      color="bg-white"
-                      rotate={-2}
-                      className="px-8 py-4 rounded-2xl cursor-pointer shadow-lg border-2 border-pink-500"
-                      onClick={() => navigate("/my-parties")}
-                    >
-                      <span className="flex items-center gap-2 text-pink-500 font-black text-xl">
-                        <Home className="w-5 h-5" />
-                        내 파티
-                      </span>
-                    </Sticker>
-                  )}
-                </>
-              ) : (
-                <>
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate("/party/create")}
-                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${theme === "christmas"
+              <>
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate("/party/create")}
+                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${theme === "pop"
+                    ? "bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25"
+                    : theme === "christmas"
                       ? "bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25"
                       : theme === "dark"
                         ? "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
                         : "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
-                      }`}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    파티 만들기
-                    <ArrowRight className="w-4 h-4" />
-                  </motion.button>
-                  {user && (
-                    <motion.button
-                      whileHover={{ scale: 1.02, y: -1 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate("/my-parties")}
-                      className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-colors duration-200 ${theme === "christmas"
+                    }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  파티 만들기
+                  <ArrowRight className="w-4 h-4" />
+                </motion.button>
+                {user && (
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate("/my-parties")}
+                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-colors duration-200 ${theme === "pop"
+                      ? "bg-white hover:bg-gray-50 text-pink-500 border-2 border-pink-500"
+                      : theme === "christmas"
                         ? "bg-white hover:bg-gray-50 text-[#c41e3a] border-2 border-[#c41e3a]"
                         : theme === "dark"
                           ? "bg-transparent hover:bg-[#635bff]/10 text-[#635bff] border-2 border-[#635bff]"
                           : "bg-white hover:bg-gray-50 text-[#635bff] border-2 border-[#635bff]"
-                        }`}
-                    >
-                      <Home className="w-4 h-4" />
-                      내 파티
-                    </motion.button>
-                  )}
-                </>
-              )}
+                      }`}
+                  >
+                    <Home className="w-4 h-4" />
+                    내 파티
+                  </motion.button>
+                )}
+              </>
             </motion.div>
           </div>
         </div>

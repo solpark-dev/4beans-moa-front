@@ -17,8 +17,8 @@ const myPageThemeStyles = {
     buttonBg: "bg-pink-500 hover:bg-pink-600",
     accentText: "text-pink-500",
     cyanText: "text-cyan-500",
-    bg: "bg-slate-50",
-    cardBg: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    bg: "bg-transparent",
+    cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     text: "text-slate-900",
   },
   christmas: {
@@ -28,7 +28,7 @@ const myPageThemeStyles = {
     accentText: "text-[#c41e3a]",
     cyanText: "text-[#1a5f2a]",
     bg: "bg-transparent",
-    cardBg: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     text: "text-slate-900",
   },
   dark: {
@@ -37,8 +37,8 @@ const myPageThemeStyles = {
     buttonBg: "bg-[#635bff] hover:bg-[#5851e8]",
     accentText: "text-[#635bff]",
     cyanText: "text-[#00d4ff]",
-    bg: "bg-[#0B1120]",
-    cardBg: "bg-[#1E293B] border border-gray-700 shadow-lg",
+    bg: "bg-transparent",
+    cardBg: "bg-[#1E293B]/90 backdrop-blur-sm border border-gray-700 shadow-lg",
     text: "text-white",
   },
   classic: {
@@ -47,8 +47,8 @@ const myPageThemeStyles = {
     buttonBg: "bg-[#635bff] hover:bg-[#5851e8]",
     accentText: "text-[#635bff]",
     cyanText: "text-[#00d4ff]",
-    bg: "bg-white",
-    cardBg: "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
+    bg: "bg-transparent",
+    cardBg: "bg-white/90 backdrop-blur-sm border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]",
     text: "text-slate-900",
   },
 };

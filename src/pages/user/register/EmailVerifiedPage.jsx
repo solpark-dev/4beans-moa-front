@@ -29,10 +29,10 @@ const getThemeStyles = (theme) => {
       return {
         bg: "bg-slate-50",
         cardBg:
-          "bg-white border-2 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)]",
+          "bg-white border border-gray-200 shadow-[0_4px_12px_rgba(236,72,153,0.1)]",
         title: "text-black",
         text: "text-gray-600",
-        button: "bg-pink-500 hover:bg-pink-600 border-2 border-black",
+        button: "bg-pink-500 hover:bg-pink-600 border border-gray-200",
       };
     case "classic":
       return {

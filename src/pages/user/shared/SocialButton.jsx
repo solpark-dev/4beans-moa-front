@@ -26,7 +26,7 @@ const getButtonStyles = (theme) => {
       };
     case 'pop':
       return {
-        base: "h-9 px-4 text-xs font-black border-2 border-black rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all",
+        base: "h-9 px-4 text-xs font-black border border-gray-200 rounded-xl shadow-[0_4px_12px_rgba(236,72,153,0.1)] hover:shadow-[0_8px_24px_rgba(236,72,153,0.15)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all",
         google: "bg-white text-black hover:bg-slate-50",
         kakao: "bg-[#FEE500] text-black hover:bg-[#FDE68A]",
         disconnect: "bg-white text-red-600 hover:bg-red-50",

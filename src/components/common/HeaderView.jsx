@@ -251,7 +251,7 @@ export default function HeaderView({
     );
   };
   return (
-    <header className="sticky top-0 z-[200] isolate w-full bg-transparent border-b border-transparent">
+    <header className="sticky top-0 z-[100] isolate w-full bg-transparent border-b border-transparent">
       {/* 스크롤시 슈웅~ 나타나는 반투명 배경 */}
       <div
         className={`
@@ -371,89 +371,96 @@ export default function HeaderView({
               />
 
               {/* 데스크탑용 아바타 드롭다운 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="hidden md:flex items-center gap-3 cursor-pointer">
-                    <Sticker className="rounded-2xl p-2">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 border border-gray-200 bg-slate-50">
-                          <AvatarImage
-                            src={profileImageUrl}
-                            alt={displayNickname}
-                          />
-                          <AvatarFallback
-                            className={`text-lg font-black ${themeStyle.avatarFallback}`}
-                          >
-                            {userInitial}
-                          </AvatarFallback>
-                        </Avatar>
+              <div className="relative hidden md:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-3 cursor-pointer">
+                      <Sticker className="rounded-2xl p-2">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border border-gray-200 bg-slate-50">
+                            <AvatarImage
+                              src={profileImageUrl}
+                              alt={displayNickname}
+                            />
+                            <AvatarFallback
+                              className={`text-lg font-black ${themeStyle.avatarFallback}`}
+                            >
+                              {userInitial}
+                            </AvatarFallback>
+                          </Avatar>
 
-                        <div className="hidden xl:flex flex-col items-start gap-0.5 w-32 overflow-hidden">
-                          <span
-                            className={`text-[15px] font-black leading-tight truncate text-left ${themeStyle.stickerText}`}
-                          >
-                            {displayNickname}
-                          </span>
-                          {renderProviderBadge()}
+                          <div className="hidden xl:flex flex-col items-start gap-0.5 w-32 overflow-hidden">
+                            <span
+                              className={`text-[15px] font-black leading-tight truncate text-left ${themeStyle.stickerText}`}
+                            >
+                              {displayNickname}
+                            </span>
+                            {renderProviderBadge()}
+                          </div>
                         </div>
-                      </div>
-                    </Sticker>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-48 p-2 mt-2 bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                >
-                  {!isAdmin && (
-                    <DropdownMenuItem
-                      asChild
-                      className="cursor-pointer focus:bg-transparent p-0 mb-1"
-                    >
-                      <Link
-                        to="/mypage"
-                        className="w-full px-3 py-2.5 flex items-center gap-2 font-bold text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+                      </Sticker>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    usePortal={false}
+                    className="w-48 p-2 bg-white border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] z-[150]"
+                  >
+                    {!isAdmin && (
+                      <DropdownMenuItem
+                        asChild
+                        className="cursor-pointer focus:bg-transparent p-0 mb-1"
                       >
-                        <Home className="w-4 h-4" />
-                        마이페이지
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
+                        <Link
+                          to="/mypage"
+                          className="w-full px-3 py-2.5 flex items-center gap-2 font-bold text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+                        >
+                          <Home className="w-4 h-4" />
+                          마이페이지
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
 
-                  <DropdownMenuItem
-                    onClick={logout}
-                    className="cursor-pointer focus:bg-transparent p-0"
-                  >
-                    <div className="w-full px-3 py-2.5 flex items-center gap-2 font-bold text-red-500 rounded-xl hover:bg-red-50 transition-colors">
-                      <LogOut className="w-4 h-4" />
-                      로그아웃
-                    </div>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="p-0 border-0 bg-transparent hover:bg-transparent md:hidden"
-                  >
-                    <div
-                      className={`${themeStyle.menuBg} ${
-                        themeStyle.menuBorder
-                      } ${
-                        currentTheme === "pop" ? "" : "shadow-lg"
-                      } w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200`}
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="cursor-pointer focus:bg-transparent p-0"
                     >
-                      <Menu className={`w-6 h-6 ${themeStyle.menuText}`} />
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
+                      <div className="w-full px-3 py-2.5 flex items-center gap-2 font-bold text-red-500 rounded-xl hover:bg-red-50 transition-colors">
+                        <LogOut className="w-4 h-4" />
+                        로그아웃
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-                <DropdownMenuContent
-                  align="end"
-                  className="w-[520px] max-w-[calc(100vw-24px)] p-3 mt-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                >
+              <div className="relative md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="p-0 border-0 bg-transparent hover:bg-transparent"
+                    >
+                      <div
+                        className={`${themeStyle.menuBg} ${
+                          themeStyle.menuBorder
+                        } ${
+                          currentTheme === "pop" ? "" : "shadow-lg"
+                        } w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200`}
+                      >
+                        <Menu className={`w-6 h-6 ${themeStyle.menuText}`} />
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    usePortal={false}
+                    className="w-72 sm:w-80 max-w-[calc(100vw-24px)] p-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] z-[150]"
+                  >
                   <DropdownMenuLabel className="font-normal p-0 mb-3">
                     <div
                       className={`rounded-2xl p-3 ${themeStyle.dropdownItemBg}`}
@@ -531,11 +538,7 @@ export default function HeaderView({
                         <div
                           className={`w-full rounded-2xl px-4 py-3 transition-all duration-200 ${
                             themeStyle.accentBg
-                          } ${
-                            currentTheme === "pop"
-                              ? "border-2 border-black"
-                              : ""
-                          }`}
+                          } border border-gray-200`}
                         >
                           <div
                             className={`flex items-center justify-between gap-2 font-black ${themeStyle.accentText}`}
@@ -549,31 +552,36 @@ export default function HeaderView({
                         </div>
                       </div>
                     </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </>
           ) : (
             <div className="flex items-center gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="p-0 border-0 bg-transparent hover:bg-transparent md:hidden"
+              <div className="relative md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="p-0 border-0 bg-transparent hover:bg-transparent"
+                    >
+                      <Sticker className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                        <Menu className={`w-6 h-6 ${themeStyle.stickerText}`} />
+                      </Sticker>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={8}
+                    usePortal={false}
+                    className="w-72 sm:w-80 max-w-[calc(100vw-24px)] p-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] z-[150]"
                   >
-                    <Sticker className="w-12 h-12 rounded-2xl flex items-center justify-center">
-                      <Menu className={`w-6 h-6 ${themeStyle.stickerText}`} />
-                    </Sticker>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-[520px] max-w-[calc(100vw-24px)] p-3 mt-3 bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                >
-                  {renderMobileNavItems(false)}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    {renderMobileNavItems(false)}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
               <Link to="/signup" className="hidden sm:block">
                 <Sticker className="px-4 py-2 rounded-2xl">

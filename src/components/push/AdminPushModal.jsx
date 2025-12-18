@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -18,6 +19,35 @@ import TemplateForm from "./forms/TemplateForm";
  */
 
 const AdminPushModal = ({ isOpen, onClose }) => {
+    // body 스크롤 강제 허용
+    useEffect(() => {
+        if (isOpen) {
+            const style = document.createElement('style');
+            style.id = 'admin-push-modal-scroll-override';
+            style.innerHTML = `
+                html, body, [data-scroll-locked] {
+                    overflow: auto !important;
+                    overflow-y: auto !important;
+                    padding-right: 0 !important;
+                    margin-right: 0 !important;
+                    position: static !important;
+                    touch-action: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.setAttribute('data-scroll-locked', '0');
+            document.documentElement.style.setProperty('overflow', 'auto', 'important');
+            document.body.style.setProperty('overflow', 'auto', 'important');
+        }
+        return () => {
+            const style = document.getElementById('admin-push-modal-scroll-override');
+            if (style) style.remove();
+            document.documentElement.style.removeProperty('overflow');
+            document.body.style.removeProperty('overflow');
+        };
+    }, [isOpen]);
+
     const {
         activeTab,
         setActiveTab,
@@ -60,8 +90,8 @@ const AdminPushModal = ({ isOpen, onClose }) => {
 
     return (
         <>
-            <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-4xl h-[700px] p-0 flex flex-col bg-[var(--theme-bg-card)]">
+            <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+                <DialogContent allowScroll className="max-w-4xl h-[700px] p-0 flex flex-col bg-[var(--theme-bg-card)]">
                     <DialogHeader className="px-6 py-4 border-b border-[var(--theme-border-light)] bg-[var(--theme-bg-card)] flex-shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-[var(--theme-primary-light)] flex items-center justify-center">

@@ -382,7 +382,7 @@ export default function PartyListPageO() {
                             className="text-5xl md:text-7xl font-black tracking-tighter mb-6"
                         >
                             <span className="block text-black">함께 나누면</span>
-                            <span className="block text-pink-500 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                            <span className="block text-pink-500">
                                 더 저렴해!
                             </span>
                         </motion.h1>

@@ -161,7 +161,7 @@ export default function MainTrendingSection() {
   };
 
   return (
-    <section className={`relative px-6 md:px-12 py-20 ${isDark ? "bg-slate-800" : "bg-slate-50"} border-b ${isDark ? "border-gray-600" : "border-gray-200"}`}>
+    <section className={`relative px-6 md:px-12 py-20 ${isDark ? "bg-slate-800" : "bg-transparent"} border-b ${isDark ? "border-gray-600" : "border-gray-200"}`}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 26 }}

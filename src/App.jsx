@@ -152,15 +152,17 @@ function AppContent() {
   const showEasterEgg =
     user && (user.userId === "usertest1" || user.userId === "admintest");
 
-  // 테마별 배경색 설정
+  // 테마별 배경색 설정 (NeoBackground가 보이도록 투명)
   const getBgClass = () => {
     switch (theme) {
       case "dark":
         return "bg-[#0B1120] text-white";
       case "christmas":
         return "bg-transparent text-black";
+      case "pop":
+        return "bg-transparent text-black";
       default:
-        return "bg-slate-50 text-black";
+        return "bg-transparent text-black";
     }
   };
 
