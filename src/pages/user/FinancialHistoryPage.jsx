@@ -46,7 +46,7 @@ export default function FinancialHistoryPage() {
         theme === "dark"
           ? "bg-[#0B1120] border-gray-800"
           : theme === "pop"
-            ? "bg-slate-50 border-4 border-black"
+            ? "bg-white/90 backdrop-blur-sm border-gray-200"
             : theme === "christmas"
               ? "bg-white border-gray-100"
               : "bg-white border-gray-100"
@@ -91,7 +91,7 @@ export default function FinancialHistoryPage() {
           transition={{ delay: 0.1 }}
           className={`rounded-xl shadow-sm overflow-hidden ${
             theme === "pop"
-              ? "bg-white border-4 border-black"
+              ? "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
               : theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
                 : theme === "christmas"
@@ -103,7 +103,7 @@ export default function FinancialHistoryPage() {
             theme === "dark"
               ? "border-b border-gray-700"
               : theme === "pop"
-                ? "border-b-4 border-black"
+                ? "border-b border-gray-200"
                 : theme === "christmas"
                   ? "border-b border-gray-100"
                   : "border-b border-slate-200"
@@ -117,8 +117,8 @@ export default function FinancialHistoryPage() {
                   className={`flex-1 py-4 px-4 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                     theme === "pop"
                       ? isActive
-                        ? "text-pink-600 border-b-4 border-black bg-pink-50"
-                        : "text-black hover:bg-pink-50"
+                        ? "text-pink-600 border-b-2 border-pink-500 bg-pink-50"
+                        : "text-gray-600 hover:bg-pink-50"
                       : theme === "dark"
                         ? isActive
                           ? "text-[#635bff] border-b-2 border-[#635bff] bg-[#635bff]/10"
@@ -165,7 +165,7 @@ export default function FinancialHistoryPage() {
         >
           <div className={`rounded-xl p-4 ${
             theme === "pop"
-              ? "bg-cyan-100 border-4 border-black"
+              ? "bg-cyan-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
               : theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
                 : theme === "christmas"
@@ -178,7 +178,7 @@ export default function FinancialHistoryPage() {
           </div>
           <div className={`rounded-xl p-4 ${
             theme === "pop"
-              ? "bg-pink-100 border-4 border-black"
+              ? "bg-pink-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
               : theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
                 : theme === "christmas"
@@ -191,7 +191,7 @@ export default function FinancialHistoryPage() {
           </div>
           <div className={`rounded-xl p-4 ${
             theme === "pop"
-              ? "bg-lime-100 border-4 border-black"
+              ? "bg-lime-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
               : theme === "dark"
                 ? "bg-[#1E293B] border border-gray-700"
                 : theme === "christmas"

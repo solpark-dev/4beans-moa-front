@@ -141,7 +141,7 @@ export default function MyWalletPage() {
             transition={{ duration: 0.5 }}
           >
             <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${theme === "pop"
-              ? "bg-pink-400 text-black border-2 border-black"
+              ? "bg-pink-100 text-pink-600 border border-pink-200"
               : theme === "dark"
                 ? "bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30"
                 : theme === "christmas"
