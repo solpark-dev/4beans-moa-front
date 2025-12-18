@@ -3,8 +3,10 @@ import { useMyPage } from "@/hooks/user/useMyPage";
 import { useLoginHistory } from "@/hooks/user/useLoginHistory";
 import { useBackupCodeModal } from "@/hooks/user/useBackupCodeModal";
 import { useOtpStore } from "@/store/user/otpStore";
-import { resolveProfileImageUrl } from "@/utils/profileImage";
 import { useThemeStore } from "@/store/themeStore";
+import { getMyParties } from "@/api/partyApi";
+import httpClient from "@/api/httpClient";
+import { Users, CreditCard } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
 
@@ -53,7 +55,6 @@ const myPageThemeStyles = {
   },
 };
 
-import { ProfileCard } from "./components/ProfileCard";
 import { AccountMenu } from "./components/AccountMenu";
 import { AdminMenu } from "./components/AdminMenu";
 import { AccountInfoCard } from "./components/AccountInfoCard";
@@ -74,7 +75,6 @@ export default function MyPage() {
   const {
     user,
     isAdmin,
-    shortId,
     marketingAgreed,
     googleConn,
     kakaoConn,
@@ -93,11 +93,44 @@ export default function MyPage() {
   const backup = useBackupCodeModal();
   const showUserUI = !isAdmin;
   const [activeView, setActiveView] = useState("main");
+  const [subscriptionCount, setSubscriptionCount] = useState(0);
+  const [partyCount, setPartyCount] = useState(0);
   const loginHistory = useLoginHistory({
     size: 10,
     enabled: activeView === "history" && !!user,
   });
   const loginHistoryState = loginHistory?.state;
+
+  // 구독 및 파티 개수 불러오기
+  useEffect(() => {
+    const fetchCounts = async () => {
+      if (!user?.userId) return;
+
+      try {
+        // 구독 개수
+        const subResponse = await httpClient.get('/subscription', {
+          params: { userId: user.userId }
+        });
+        if (Array.isArray(subResponse)) {
+          setSubscriptionCount(subResponse.filter(s => s.subscriptionStatus === 'ACTIVE').length);
+        } else if (subResponse?.data) {
+          setSubscriptionCount(subResponse.data.filter(s => s.subscriptionStatus === 'ACTIVE').length);
+        }
+
+        // 파티 개수
+        const partyResponse = await getMyParties();
+        if (partyResponse?.data) {
+          setPartyCount(partyResponse.data.length);
+        } else if (Array.isArray(partyResponse)) {
+          setPartyCount(partyResponse.length);
+        }
+      } catch (error) {
+        console.error("Failed to fetch counts:", error);
+      }
+    };
+
+    fetchCounts();
+  }, [user?.userId]);
 
   useEffect(() => {
     if (otp.enabled) {
@@ -131,9 +164,9 @@ export default function MyPage() {
     <div className={`min-h-screen font-sans pb-20 relative z-10 ${themeStyle.bg} ${themeStyle.text}`}>
       <section className={HERO_WRAPPER}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-          <div className={`${themeStyle.cardBg} rounded-2xl sm:rounded-[32px] min-h-[280px] sm:min-h-[320px] flex items-center`}>
-            <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-10 px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
-              <div className="text-center lg:text-left max-w-2xl">
+          <div className={`${themeStyle.cardBg} rounded-2xl sm:rounded-[32px] min-h-[200px] sm:min-h-[240px] flex items-center`}>
+            <div className="w-full flex flex-col lg:flex-row items-center gap-6 sm:gap-10 px-4 sm:px-6 lg:px-10 py-6 sm:py-10">
+              <div className="text-center lg:text-left lg:flex-shrink-0">
                 <h2 className={`text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-3 ${themeStyle.text}`}>
                   나의 구독과 계정
                   <br />
@@ -141,19 +174,26 @@ export default function MyPage() {
                 </h2>
               </div>
 
-              <div className="w-full max-w-xl">
-                <ProfileCard
-                  user={user}
-                  isAdmin={isAdmin}
-                  shortId={shortId}
-                  actions={actions}
-                  profileImageUrl={
-                    user?.profileImage
-                      ? `${resolveProfileImageUrl(user.profileImage)}${user.updatedAt ? `?v=${user.updatedAt}` : ""
-                      }`
-                      : ""
-                  }
-                />
+              <div className="flex-1 flex items-center justify-center gap-16 sm:gap-24 lg:gap-32">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-full ${themeStyle.accentBg} flex items-center justify-center`}>
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-3xl sm:text-4xl font-black ${themeStyle.accentText}`}>{subscriptionCount}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 font-bold">구독 상품</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-full ${themeStyle.accentBg} flex items-center justify-center`}>
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-3xl sm:text-4xl font-black ${themeStyle.cyanText}`}>{partyCount}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 font-bold">가입 파티</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

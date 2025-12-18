@@ -12,6 +12,7 @@ import {
   getPartyMembers,
   getProductMaxProfiles,
 } from "@/utils/format";
+import { getProductIconUrl } from "@/utils/imageUtils";
 
 // ============================================
 // 테마별 히어로 섹션 스타일
@@ -241,6 +242,7 @@ export default function MainHeroSection({ parties, products = [] }) {
         members: membersText,
         bgColor: colorInfo?.bg || defaultColors[i % defaultColors.length],
         emoji: colorInfo?.emoji || serviceName.charAt(0).toUpperCase(),
+        productImage: party?.productImage || null,
       };
     });
 
@@ -540,6 +542,9 @@ function ServiceCard({ card, theme, themeStyle, user, navigate }) {
     }
   };
 
+  // 아이콘 URL 생성
+  const iconUrl = card.productImage ? getProductIconUrl(card.productImage) : null;
+
   // 파티가 없는 빈 카드 - 실제 파티 카드와 동일한 높이
   if (card.isEmpty) {
     return (
@@ -564,14 +569,31 @@ function ServiceCard({ card, theme, themeStyle, user, navigate }) {
     );
   }
 
+  // 파티 카드 클릭 핸들러
+  const handlePartyCardClick = () => {
+    if (card.id) {
+      navigate(`/party/${card.id}`);
+    }
+  };
+
   // 파티가 있는 일반 카드
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -4 }}
-      className={`w-[130px] sm:w-[150px] md:w-[170px] h-[160px] sm:h-[180px] md:h-[190px] ${cardBg} border rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-shadow flex flex-col`}
+      whileTap={{ scale: 0.98 }}
+      onClick={handlePartyCardClick}
+      className={`w-[130px] sm:w-[150px] md:w-[170px] h-[160px] sm:h-[180px] md:h-[190px] ${cardBg} border rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] cursor-pointer hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-shadow flex flex-col`}
     >
-      <div className={`w-8 h-8 sm:w-10 sm:h-10 ${card.bgColor} rounded-lg sm:rounded-xl ${isDark ? 'border-gray-600' : 'border-gray-200'} border flex items-center justify-center mb-2 sm:mb-3`}>
-        <span className="text-white font-black text-sm sm:text-lg">{card.emoji}</span>
+      <div className={`w-8 h-8 sm:w-10 sm:h-10 ${card.bgColor} rounded-lg sm:rounded-xl ${isDark ? 'border-gray-600' : 'border-gray-200'} border flex items-center justify-center mb-2 sm:mb-3 overflow-hidden`}>
+        {iconUrl ? (
+          <img
+            src={iconUrl}
+            alt={card.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-white font-black text-sm sm:text-lg">{card.emoji}</span>
+        )}
       </div>
       <h3 className={`font-black ${textColor} text-xs sm:text-sm mb-1 truncate`}>{card.name}</h3>
       <p className={`text-[10px] sm:text-xs ${subTextColor} font-bold mb-2 sm:mb-3 truncate`}>{card.category}</p>

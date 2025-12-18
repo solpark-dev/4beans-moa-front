@@ -437,10 +437,9 @@ const GetProductList = () => {
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
-      <div className="container mx-auto px-4">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-transparent">
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 md:pt-4 md:pb-12">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-transparent">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 md:pt-4 md:pb-12">
             <div className="text-center max-w-3xl mx-auto">
               {/* Badge with Subtitle */}
               <motion.div
@@ -529,6 +528,7 @@ const GetProductList = () => {
           </div>
         </section>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search & Filter Section */}
         <div className={`p-2 rounded-2xl shadow-sm mb-10 flex flex-col md:flex-row gap-4 items-center justify-between ${themeStyles.searchBg}`}>
           <div className="relative w-full flex-1">
@@ -688,56 +688,56 @@ const GetProductList = () => {
             ))}
           </div>
         )}
-
-        {/* Product Detail Modal */}
-        {viewingProduct && (
-          <ProductDetailModal
-            product={viewingProduct}
-            onClose={() => setViewingProduct(null)}
-            user={user}
-            navigate={navigate}
-            onSubscribe={(data) => setSubscribingData(data)}
-            onEdit={(product) => setEditingProduct(product)}
-            themeStyles={themeStyles}
-            theme={theme}
-          />
-        )}
-
-        {/* Add Subscription Modal */}
-        {subscribingData && (
-          <AddSubscriptionModal
-            productId={subscribingData.productId}
-            startDate={subscribingData.startDate}
-            endDate={subscribingData.endDate}
-            onClose={() => setSubscribingData(null)}
-            user={user}
-            onSuccess={() => {
-              // 구독 목록으로 이동할 수도 있음
-              // navigate('/subscriptions');
-            }}
-          />
-        )}
-
-        {/* Add Product Modal */}
-        <AddProductModal
-          isOpen={isAddProductModalOpen}
-          onClose={() => setIsAddProductModalOpen(false)}
-          onSuccess={() => {
-            fetchData(); // 목록 갱신
-          }}
-        />
-
-        {/* Update Product Modal */}
-        <UpdateProductModal
-          isOpen={!!editingProduct}
-          onClose={() => setEditingProduct(null)}
-          productId={editingProduct?.productId}
-          initialData={editingProduct}
-          onSuccess={() => {
-            fetchData(); // 목록 갱신
-          }}
-        />
       </div>
+
+      {/* Product Detail Modal */}
+      {viewingProduct && (
+        <ProductDetailModal
+          product={viewingProduct}
+          onClose={() => setViewingProduct(null)}
+          user={user}
+          navigate={navigate}
+          onSubscribe={(data) => setSubscribingData(data)}
+          onEdit={(product) => setEditingProduct(product)}
+          themeStyles={themeStyles}
+          theme={theme}
+        />
+      )}
+
+      {/* Add Subscription Modal */}
+      {subscribingData && (
+        <AddSubscriptionModal
+          productId={subscribingData.productId}
+          startDate={subscribingData.startDate}
+          endDate={subscribingData.endDate}
+          onClose={() => setSubscribingData(null)}
+          user={user}
+          onSuccess={() => {
+            // 구독 목록으로 이동할 수도 있음
+            // navigate('/subscriptions');
+          }}
+        />
+      )}
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={isAddProductModalOpen}
+        onClose={() => setIsAddProductModalOpen(false)}
+        onSuccess={() => {
+          fetchData(); // 목록 갱신
+        }}
+      />
+
+      {/* Update Product Modal */}
+      <UpdateProductModal
+        isOpen={!!editingProduct}
+        onClose={() => setEditingProduct(null)}
+        productId={editingProduct?.productId}
+        initialData={editingProduct}
+        onSuccess={() => {
+          fetchData(); // 목록 갱신
+        }}
+      />
     </div>
   );
 };

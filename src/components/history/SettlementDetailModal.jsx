@@ -66,14 +66,15 @@ export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
     }
   };
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = (status, currentTheme) => {
+    const themeAccent = currentTheme === 'pop' ? 'bg-pink-500' : currentTheme === 'christmas' ? 'bg-[#c41e3a]' : 'bg-[#635bff]';
     switch (status) {
       case "COMPLETED":
         return "bg-emerald-500 text-white";
       case "PENDING":
         return "bg-amber-500 text-white";
       case "IN_PROGRESS":
-        return "bg-blue-500 text-white";
+        return `${themeAccent} text-white`;
       case "FAILED":
         return "bg-red-500 text-white";
       default:
@@ -168,7 +169,7 @@ export default function SettlementDetailModal({ isOpen, onClose, settlement }) {
                     <span className="text-slate-600 font-medium">상태</span>
                     <span
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-sm ${getStatusStyle(
-                        settlement.settlementStatus || settlement.status
+                        settlement.settlementStatus || settlement.status, theme
                       )}`}
                     >
                       {(settlement.settlementStatus || settlement.status) === "COMPLETED" && (

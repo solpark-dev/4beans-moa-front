@@ -5,8 +5,6 @@ const CARD =
   "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] rounded-3xl";
 const BTN =
   "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]";
-const BTN_DANGER =
-  "px-4 py-2 rounded-2xl border border-gray-200 bg-white text-red-600 font-black text-sm active:translate-y-[1px]";
 
 // 테마별 스타일
 const profileCardThemeStyles = {
@@ -32,16 +30,6 @@ export function ProfileCard({
   const idText = shortId || user?.userId || "";
   const displayImageUrl = profileImageUrl || "";
 
-  const goUpdate = () => {
-    if (typeof actions?.goEditUser === "function") return actions.goEditUser();
-    if (typeof actions?.goUpdateUser === "function")
-      return actions.goUpdateUser();
-    if (typeof actions?.navigateUpdateUser === "function")
-      return actions.navigateUpdateUser();
-    if (typeof actions?.navigate === "function")
-      return actions.navigate("/mypage/edit");
-  };
-
   const goPassword = () => {
     if (typeof actions?.goChangePwd === "function") return actions.goChangePwd();
     if (typeof actions?.goUpdatePassword === "function")
@@ -50,15 +38,6 @@ export function ProfileCard({
       return actions.navigateUpdatePassword();
     if (typeof actions?.navigate === "function")
       return actions.navigate("/mypage/password");
-  };
-
-  const goDelete = () => {
-    if (typeof actions?.goDeleteUser === "function")
-      return actions.goDeleteUser();
-    if (typeof actions?.navigateDeleteUser === "function")
-      return actions.navigateDeleteUser();
-    if (typeof actions?.navigate === "function")
-      return actions.navigate("/mypage/delete");
   };
 
   return (
@@ -91,17 +70,9 @@ export function ProfileCard({
 
       <div className="mt-3 flex flex-wrap gap-2">
         {!isAdmin && (
-          <>
-            <button type="button" className={`${BTN} ${themeStyle.buttonHover}`} onClick={goUpdate}>
-              회원정보 수정
-            </button>
-            <button type="button" className={`${BTN} ${themeStyle.buttonHover}`} onClick={goPassword}>
-              비밀번호 변경
-            </button>
-            <button type="button" className={`${BTN_DANGER} ${themeStyle.buttonHover}`} onClick={goDelete}>
-              회원 탈퇴
-            </button>
-          </>
+          <button type="button" className={`${BTN} ${themeStyle.buttonHover}`} onClick={goPassword}>
+            비밀번호 변경
+          </button>
         )}
       </div>
     </div>

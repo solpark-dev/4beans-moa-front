@@ -118,4 +118,4 @@ export const getProductMaxProfiles = (p) =>
 export const getProductDescription = (p) => p?.description ?? p?.summary ?? "";
 export const getProductStatus = (p) => p?.status ?? p?.state ?? "";
 export const getProductIconUrl = (p) =>
-  p?.iconUrl ?? p?.imageUrl ?? p?.thumbnailUrl ?? "";
+  p?.iconUrl ?? p?.image ?? p?.imageUrl ?? p?.thumbnailUrl ?? "";
