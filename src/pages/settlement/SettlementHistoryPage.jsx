@@ -101,7 +101,7 @@ export default function SettlementHistoryPage() {
     }
     
     return (
-        <div className="container max-w-2xl mx-auto py-8 px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Card>
                 <CardHeader>
                     <CardTitle>정산 내역</CardTitle>

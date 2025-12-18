@@ -131,10 +131,9 @@ const GetSubscriptionList = () => {
             {/* Theme Switcher */}
             <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
-            {/* Christmas Background */}
-            {theme === 'christmas' && <ChristmasBackground />}
+            {/* Christmas Background is handled globally by NeoBackground */}
 
-            <div className="container mx-auto px-4 py-8 max-w-3xl">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <h1 className={`text-2xl font-bold mb-8 ${themeStyles.title}`}>
                     {theme === 'christmas' ? '🎄 나의 구독 내역' : '나의 구독 내역'}
                 </h1>

@@ -163,7 +163,7 @@ export const SnowPlowButton = ({ className = "" }) => {
           }
         }}
         disabled={isPlowing || isSnowCleared}
-        className={`p-3 rounded-full shadow-xl transition-all duration-300 ${isPlowing
+        className={`p-2 rounded-full shadow-xl transition-all duration-300 ${isPlowing
           ? "bg-orange-500 text-white animate-pulse"
           : isSnowCleared
             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -177,7 +177,7 @@ export const SnowPlowButton = ({ className = "" }) => {
           <img
             src="/snowplow.png"
             alt="Snow Plow"
-            className="w-8 h-8 object-contain"
+            className="w-7 h-7 object-contain"
           />
         )}
       </motion.button>
@@ -376,30 +376,30 @@ const ChristmasDecorations = () => {
       <div
         className="absolute z-30 flex items-end"
         style={{
-          right: "-30px",
+          right: "-10px",
           bottom: "-5px",
         }}
       >
         <motion.img
           src="/snowman.png"
           alt="Snowman"
-          className={`w-36 h-auto drop-shadow-lg select-none relative z-30 -mr-16 hover:scale-105 transition-transform pointer-events-auto ${activeCursor === 'santa' ? 'cursor-pointer' : 'cursor-default'}`}
+          className={`w-13 h-auto drop-shadow-lg select-none relative z-40 mr-2 transition-transform pointer-events-auto ${activeCursor === 'santa' ? 'cursor-pointer hover:scale-110' : 'cursor-default'}`}
           initial={{ scale: 0.9 }}
           animate={snowmanShake ? {
             scale: [0.9, 0.95, 0.9],
             rotate: [-10, 10, -10, 10, 0]
           } : {
-            scale: [0.9, 0.95, 0.9],
-            rotate: [0, -2, 0, 2, 0]
+            scale: 0.9,
+            rotate: 0
           }}
-          transition={{ duration: snowmanShake ? 0.4 : 4, repeat: snowmanShake ? 0 : Infinity, ease: "easeInOut" }}
+          transition={{ duration: snowmanShake ? 0.4 : 0 }}
           onClick={handleSnowmanClick}
         />
 
         <motion.img
           src="/christmas-tree.png"
           alt="Christmas Tree"
-          className={`w-36 h-auto drop-shadow-lg select-none relative z-40 -ml-10 hover:sepia-[.3] transition-all pointer-events-auto ${activeCursor === 'santa' ? 'cursor-pointer' : 'cursor-default'}`}
+          className={`w-12 h-auto drop-shadow-lg select-none relative z-30 transition-all pointer-events-auto ${activeCursor === 'santa' ? 'cursor-pointer hover:scale-110 hover:sepia-[.3]' : 'cursor-default'}`}
           animate={treeShake ? { x: [-2, 2, -2, 2, 0], rotate: [-5, 5, -5, 5, 0] } : { scale: [1, 1.02, 1] }}
           transition={{ duration: treeShake ? 0.4 : 3, repeat: treeShake ? 1 : Infinity }}
           onClick={handleTreeClick}

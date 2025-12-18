@@ -52,7 +52,7 @@ export default function FinancialHistoryPage() {
               : "bg-white border-gray-100"
       }`}>
         <ThemeBackground theme={theme} />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
           <button
             onClick={() => navigate(-1)}
             className={`flex items-center gap-2 mb-6 transition-colors group ${
@@ -83,7 +83,7 @@ export default function FinancialHistoryPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

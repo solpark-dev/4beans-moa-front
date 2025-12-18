@@ -210,7 +210,7 @@ const GetSubscription = () => {
 
             {/* Hero Header */}
             <div className={`relative overflow-hidden ${themeColors.headerBg}`}>
-                <div className="max-w-2xl mx-auto px-4 py-12 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
                     <button
                         onClick={() => navigate(-1)}
                         className={`flex items-center gap-2 ${themeColors.subtext} hover:${themeColors.iconColor1} mb-6 transition-colors group`}
@@ -242,7 +242,7 @@ const GetSubscription = () => {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto px-4 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
