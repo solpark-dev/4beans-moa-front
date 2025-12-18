@@ -68,43 +68,80 @@ export default function BillingSuccessPage() {
                 throw new Error("빌링키 정보가 없습니다.");
             }
 
-            // 백엔드를 통해 안전하게 빌링키 발급
-            const billingResponse = await httpClient.post("/users/me/billing-key/issue", {
+            // 백엔드를 통해 안전하게 빌링키 발급 (카드 저장까지 백엔드에서 처리)
+            await httpClient.post("/users/me/billing-key/issue", {
                 authKey
             });
 
-            // billingResponse.data에는 Toss Payments API 응답이 들어있음
-            const billingData = billingResponse.data;
-
-            // 백엔드에 빌링키 저장
-            await httpClient.post("/users/me/card", {
-                billingKey: billingData.billingKey,
-                cardCompany: billingData.card?.company || "",
-                cardNumber: billingData.card?.number || "",
-            });
-
             clearTimeout(timeoutId);
-            setStatus("success");
 
-            // 파티 가입 후 빌링키 등록인지 확인
+            // 파티 가입 플로우인지 확인
             const reason = localStorage.getItem("billingRegistrationReason");
             const redirectPath = localStorage.getItem("afterBillingRedirect");
+            const pendingPartyJoin = localStorage.getItem("pendingPartyJoin");
 
-            if (reason === "party_join") {
+            if (reason === "party_join_new_flow" && pendingPartyJoin) {
+                // 파티 가입 자동 처리
+                setMessage("결제 진행 중...");
+                try {
+                    const { partyId, amount } = JSON.parse(pendingPartyJoin);
+                    await httpClient.post(`/parties/${partyId}/join`, {
+                        useExistingCard: true,
+                        amount
+                    });
+
+                    setStatus("success");
+                    setMessage("파티 가입이 완료되었습니다! 🎉");
+                    toast.success("파티 가입 완료! 파티 페이지로 이동합니다.");
+
+                    // localStorage 정리
+                    localStorage.removeItem("billingRegistrationReason");
+                    localStorage.removeItem("afterBillingRedirect");
+                    localStorage.removeItem("pendingPartyJoin");
+
+                    setTimeout(() => {
+                        navigate(`/party/${partyId}`);
+                    }, 1500);
+                } catch (joinError) {
+                    console.error("Party join failed:", joinError);
+                    setStatus("error");
+                    setMessage(joinError.response?.data?.error?.message || "파티 가입에 실패했습니다.");
+                    toast.error("카드는 등록되었지만 파티 가입에 실패했습니다. 다시 시도해주세요.");
+
+                    // localStorage 정리
+                    localStorage.removeItem("billingRegistrationReason");
+                    localStorage.removeItem("afterBillingRedirect");
+                    localStorage.removeItem("pendingPartyJoin");
+
+                    setTimeout(() => {
+                        navigate(redirectPath || "/party");
+                    }, 2000);
+                }
+            } else if (reason === "party_join") {
+                // 기존 플로우 (OTT 정보 확인 후 빌링키 등록)
+                setStatus("success");
                 setMessage("월 구독료 자동 결제가 설정되었습니다!");
                 toast.success("자동 결제 설정 완료! 파티에 참여했습니다.");
+
+                localStorage.removeItem("billingRegistrationReason");
+                localStorage.removeItem("afterBillingRedirect");
+
+                setTimeout(() => {
+                    navigate(redirectPath || "/user/wallet");
+                }, 2000);
             } else {
+                // 일반 카드 등록
+                setStatus("success");
                 setMessage("카드가 성공적으로 등록되었습니다!");
                 toast.success("카드가 성공적으로 등록되었습니다!");
+
+                localStorage.removeItem("billingRegistrationReason");
+                localStorage.removeItem("afterBillingRedirect");
+
+                setTimeout(() => {
+                    navigate(redirectPath || "/user/wallet");
+                }, 2000);
             }
-
-            // 저장된 리다이렉트 경로로 이동 (없으면 지갑 페이지)
-            localStorage.removeItem("billingRegistrationReason");
-            localStorage.removeItem("afterBillingRedirect");
-
-            setTimeout(() => {
-                navigate(redirectPath || "/user/wallet");
-            }, 2000);
         } catch (error) {
             clearTimeout(timeoutId);
             console.error("Billing key registration failed:", error);

@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePartyStore } from "../../store/party/partyStore";
 import { useAuthStore } from "../../store/authStore";
-import { requestPayment } from "../../utils/paymentHandler";
+import { requestBillingAuth } from "../../utils/paymentHandler";
+import { getMyCard, issueBillingKey } from "../../api/userApi";
+import { joinParty } from "../../api/partyApi";
 import LeavePartyWarningModal from "../../components/party/LeavePartyWarningModal";
 import UpdateOttModal from "../../components/party/UpdateOttModal";
 import RippleButton from "../../components/party/RippleButton";
@@ -104,12 +106,31 @@ export default function PartyDetailPage() {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [showOttInfo, setShowOttInfo] = useState(false);
 
+  // 카드 상태 관리
+  const [savedCard, setSavedCard] = useState(null);
+  const [cardLoading, setCardLoading] = useState(true);
+  const [joinLoading, setJoinLoading] = useState(false);
+
   useEffect(() => {
     loadPartyDetail(id);
     loadMembers();
     // 사용자 정보 갱신 (빌링키 등록 여부 최신 상태 반영)
     if (user) {
       fetchSession();
+      // 사용자 카드 정보 조회
+      setCardLoading(true);
+      getMyCard()
+        .then(res => {
+          if (res?.success && res.data) {
+            setSavedCard(res.data);
+          } else {
+            setSavedCard(null);
+          }
+        })
+        .catch(() => setSavedCard(null))
+        .finally(() => setCardLoading(false));
+    } else {
+      setCardLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -123,21 +144,57 @@ export default function PartyDetailPage() {
     }
   };
 
-  const handleJoin = async () => {
+  // 새 카드 등록 후 가입 플로우
+  const handleJoinWithNewCard = async () => {
     if (!user) {
       alert("로그인이 필요합니다.");
       return;
     }
     try {
-      const perPersonFee = party.monthlyFee;
-      const totalAmount = perPersonFee * 2;
-
-      localStorage.setItem("pendingPayment", JSON.stringify({ type: "JOIN_PARTY", partyId: id }));
-      await requestPayment(`${party.productName} 파티 가입`, totalAmount, user.nickname);
+      // 빌링키 등록 성공 후 리다이렉트될 때 파티 가입을 위한 정보 저장
+      localStorage.setItem("afterBillingRedirect", `/party/${id}`);
+      localStorage.setItem("billingRegistrationReason", "party_join_new_flow");
+      localStorage.setItem("pendingPartyJoin", JSON.stringify({
+        partyId: id,
+        amount: party.monthlyFee * 2
+      }));
+      // 토스페이먼츠 빌링 인증 창 호출 (customerKey = userId)
+      await requestBillingAuth(user.userId);
     } catch (error) {
       console.error(error);
-      localStorage.removeItem("pendingPayment");
-      alert(error.message || "가입에 실패했습니다.");
+      localStorage.removeItem("afterBillingRedirect");
+      localStorage.removeItem("billingRegistrationReason");
+      localStorage.removeItem("pendingPartyJoin");
+      const errorMessage = error?.message || "";
+      if (!errorMessage.includes("취소") && !errorMessage.includes("cancel")) {
+        alert(error.message || "카드 등록에 실패했습니다.");
+      }
+    }
+  };
+
+  // 저장된 카드로 바로 가입 플로우
+  const handleJoinWithSavedCard = async () => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    setJoinLoading(true);
+    try {
+      const totalAmount = party.monthlyFee * 2;
+      await joinParty(id, {
+        useExistingCard: true,
+        amount: totalAmount
+      });
+      alert("파티 가입이 완료되었습니다! 🎉");
+      // 파티 상세 및 멤버 목록 새로고침
+      await loadPartyDetail(id);
+      await loadMembers();
+      setIsJoinModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.error?.message || error.message || "가입에 실패했습니다.");
+    } finally {
+      setJoinLoading(false);
     }
   };
 
@@ -231,12 +288,12 @@ export default function PartyDetailPage() {
             animate={{ opacity: 1, x: 0 }}
             onClick={() => navigate("/party")}
             className={`flex items-center gap-2 mb-8 transition-colors group ${theme === "dark"
-                ? "text-gray-400 hover:text-[#635bff]"
-                : theme === "pop"
-                  ? "text-gray-500 hover:text-pink-500"
-                  : theme === "christmas"
-                    ? "text-gray-500 hover:text-red-800"
-                    : "text-gray-500 hover:text-[#635bff]"
+              ? "text-gray-400 hover:text-[#635bff]"
+              : theme === "pop"
+                ? "text-gray-500 hover:text-pink-500"
+                : theme === "christmas"
+                  ? "text-gray-500 hover:text-red-800"
+                  : "text-gray-500 hover:text-[#635bff]"
               }`}
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -288,12 +345,11 @@ export default function PartyDetailPage() {
                       </span>
                     )}
                     {isMember && !isLeader && (
-                      <span className={`bg-white px-3 py-1.5 rounded-full text-xs font-bold border ${
-                        theme === "pop"
-                          ? "text-pink-500 shadow-lg border-pink-200"
-                          : theme === "christmas"
-                            ? "text-green-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
-                            : "text-[#635bff] shadow-lg border-[#635bff]/20"
+                      <span className={`bg-white px-3 py-1.5 rounded-full text-xs font-bold border ${theme === "pop"
+                        ? "text-pink-500 shadow-lg border-pink-200"
+                        : theme === "christmas"
+                          ? "text-green-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
+                          : "text-[#635bff] shadow-lg border-[#635bff]/20"
                         }`}>
                         <Check className="w-3 h-3 inline mr-1" />
                         참여중
@@ -632,24 +688,21 @@ export default function PartyDetailPage() {
               </h3>
               <ul className={`space-y-3 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
                     <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
                   <span>보증금은 파티 종료 시 전액 환불됩니다</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
                     <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
                   <span>매월 자동 결제로 편리하게 이용하세요</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
                     }`}>
                     <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
                   </div>
@@ -745,91 +798,130 @@ export default function PartyDetailPage() {
               exit={{ scale: 0.95, opacity: 0 }}
               className={`rounded-2xl p-6 max-w-md w-full shadow-2xl ${theme === "dark" ? "bg-[#1E293B]" : "bg-white"}`}
             >
-              {/* Step Indicator */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                    style={{ backgroundColor: accentColor }}
-                  >
-                    1
-                  </div>
-                  <span className="text-sm font-semibold" style={{ color: accentColor }}>결제</span>
+              {/* 카드 상태에 따른 표시 */}
+              {cardLoading ? (
+                <div className="text-center py-8">
+                  <div className={`w-8 h-8 border-2 rounded-full animate-spin mx-auto mb-4 ${theme === "dark" ? "border-gray-700 border-t-[#635bff]" : "border-gray-200 border-t-[#635bff]"}`}></div>
+                  <p className={currentTheme.subtext}>카드 정보 확인 중...</p>
                 </div>
-                <div className={`w-8 h-0.5 ${theme === "dark" ? "bg-gray-600" : "bg-gray-200"}`} />
-                <div className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${theme === "dark" ? "bg-gray-700 text-gray-400" : "bg-gray-200 text-gray-500"}`}>
-                    2
-                  </div>
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>카드 등록</span>
-                </div>
-              </div>
-
-              <h3 className={`text-xl font-bold mb-1 text-center ${currentTheme.text}`}>
-                파티 가입
-              </h3>
-              <p className={`text-sm text-center mb-5 ${currentTheme.subtext}`}>
-                결제 후 자동결제를 위한 카드 등록이 진행됩니다
-              </p>
-
-              {/* Payment Breakdown */}
-              <div className={`rounded-xl p-4 mb-4 ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"}`}>
-                <p className={`text-xs font-semibold mb-3 ${currentTheme.subtext}`}>💳 첫 결제 금액</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm ${currentTheme.text}`}>보증금</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${theme === "dark" ? "bg-emerald-900/50 text-emerald-400" : "bg-emerald-100 text-emerald-600"}`}>
-                        환불가능
-                      </span>
+              ) : (
+                <>
+                  {/* 저장된 카드 정보 표시 */}
+                  {savedCard ? (
+                    <div className={`flex items-center gap-3 p-4 rounded-xl mb-4 ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"}`}>
+                      <CreditCard className={`w-8 h-8 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                      <div>
+                        <p className={`text-xs ${currentTheme.subtext}`}>저장된 카드</p>
+                        <p className={`font-semibold ${currentTheme.text}`}>
+                          {savedCard.cardCompany} {savedCard.cardNumber}
+                        </p>
+                      </div>
                     </div>
-                    <span className={`font-semibold ${currentTheme.text}`}>{perPersonFee.toLocaleString()}원</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-sm ${currentTheme.text}`}>첫달 구독료</span>
-                    <span className={`font-semibold ${currentTheme.text}`}>{perPersonFee.toLocaleString()}원</span>
-                  </div>
-                  <div className={`border-t pt-2 mt-2 ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-sm font-bold ${currentTheme.text}`}>합계</span>
-                      <span className="text-lg font-bold" style={{ color: accentColor }}>
-                        {(perPersonFee * 2).toLocaleString()}원
-                      </span>
+                  ) : (
+                    <div className="text-center mb-4">
+                      <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-3 ${theme === "dark" ? "bg-[#635bff]/20" : "bg-gray-100"}`}>
+                        <CreditCard className={`w-7 h-7 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                      </div>
+                      <p className={`text-sm ${currentTheme.subtext}`}>
+                        카드를 등록하면 파티에 가입됩니다
+                      </p>
+                    </div>
+                  )}
+
+                  <h3 className={`text-xl font-bold mb-1 text-center ${currentTheme.text}`}>
+                    파티 가입
+                  </h3>
+                  <p className={`text-sm text-center mb-5 ${currentTheme.subtext}`}>
+                    {savedCard ? "저장된 카드로 바로 결제됩니다" : "카드 등록 후 첫 결제가 진행됩니다"}
+                  </p>
+
+                  {/* Payment Breakdown */}
+                  <div className={`rounded-xl p-4 mb-4 ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"}`}>
+                    <p className={`text-xs font-semibold mb-3 ${currentTheme.subtext}`}>💳 첫 결제 금액</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm ${currentTheme.text}`}>보증금</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${theme === "dark" ? "bg-emerald-900/50 text-emerald-400" : "bg-emerald-100 text-emerald-600"}`}>
+                            환불가능
+                          </span>
+                        </div>
+                        <span className={`font-semibold ${currentTheme.text}`}>{perPersonFee.toLocaleString()}원</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className={`text-sm ${currentTheme.text}`}>첫달 구독료</span>
+                        <span className={`font-semibold ${currentTheme.text}`}>{perPersonFee.toLocaleString()}원</span>
+                      </div>
+                      <div className={`border-t pt-2 mt-2 ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
+                        <div className="flex justify-between items-center">
+                          <span className={`text-sm font-bold ${currentTheme.text}`}>합계</span>
+                          <span className="text-lg font-bold" style={{ color: accentColor }}>
+                            {(perPersonFee * 2).toLocaleString()}원
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Recurring Payment Info */}
-              <div className={`rounded-xl p-4 mb-5 border ${theme === "dark" ? "bg-[#635bff]/10 border-[#635bff]/20" : "bg-blue-50 border-blue-100"}`}>
-                <p className={`text-xs font-semibold mb-2 ${theme === "dark" ? "text-[#635bff]" : "text-blue-600"}`}>📅 정기결제 안내</p>
-                <ul className={`text-xs space-y-1 ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
-                  <li>• 매월 자동결제: <span className="font-semibold">{perPersonFee.toLocaleString()}원</span></li>
-                  <li>• 파티 탈퇴 시 보증금은 전액 환불됩니다</li>
-                  <li>• 카드는 마이페이지에서 변경 가능합니다</li>
-                </ul>
-              </div>
+                  {/* Recurring Payment Info */}
+                  <div className={`rounded-xl p-4 mb-5 border ${theme === "dark" ? "bg-[#635bff]/10 border-[#635bff]/20" : "bg-blue-50 border-blue-100"}`}>
+                    <p className={`text-xs font-semibold mb-2 ${theme === "dark" ? "text-[#635bff]" : "text-blue-600"}`}>📅 정기결제 안내</p>
+                    <ul className={`text-xs space-y-1 ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                      <li>• 매월 자동결제: <span className="font-semibold">{perPersonFee.toLocaleString()}원</span></li>
+                      <li>• 파티 탈퇴 시 보증금은 전액 환불됩니다</li>
+                      <li>• 카드는 마이페이지에서 변경 가능합니다</li>
+                    </ul>
+                  </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsJoinModalOpen(false)}
-                  className={`flex-1 py-3 font-semibold rounded-full transition-all ${theme === "dark" ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-                >
-                  취소
-                </button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setIsJoinModalOpen(false);
-                    handleJoin();
-                  }}
-                  className={`flex-1 py-3 text-white rounded-full font-semibold transition-all ${currentTheme.accentBg}`}
-                  style={{ boxShadow: `0 8px 16px -4px ${accentColor}40` }}
-                >
-                  결제하기 →
-                </motion.button>
-              </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setIsJoinModalOpen(false)}
+                      disabled={joinLoading}
+                      className={`flex-1 py-3 font-semibold rounded-full transition-all ${theme === "dark" ? "bg-gray-700 text-gray-300 hover:bg-gray-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"} ${joinLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      취소
+                    </button>
+                    {savedCard ? (
+                      <motion.button
+                        whileHover={{ scale: joinLoading ? 1 : 1.02 }}
+                        whileTap={{ scale: joinLoading ? 1 : 0.98 }}
+                        onClick={handleJoinWithSavedCard}
+                        disabled={joinLoading}
+                        className={`flex-1 py-3 text-white rounded-full font-semibold transition-all ${currentTheme.accentBg} ${joinLoading ? "opacity-70" : ""}`}
+                        style={{ boxShadow: `0 8px 16px -4px ${accentColor}40` }}
+                      >
+                        {joinLoading ? "결제 중..." : "결제하기 →"}
+                      </motion.button>
+                    ) : (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setIsJoinModalOpen(false);
+                          handleJoinWithNewCard();
+                        }}
+                        className={`flex-1 py-3 text-white rounded-full font-semibold transition-all ${currentTheme.accentBg}`}
+                        style={{ boxShadow: `0 8px 16px -4px ${accentColor}40` }}
+                      >
+                        카드 등록하기 →
+                      </motion.button>
+                    )}
+                  </div>
+
+                  {/* 다른 카드로 결제 옵션 (저장된 카드 있을 때만 표시) */}
+                  {savedCard && !joinLoading && (
+                    <button
+                      onClick={() => {
+                        setIsJoinModalOpen(false);
+                        handleJoinWithNewCard();
+                      }}
+                      className={`w-full mt-3 py-2 text-sm font-medium underline transition-colors ${theme === "dark" ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                      다른 카드로 결제하기
+                    </button>
+                  )}
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}

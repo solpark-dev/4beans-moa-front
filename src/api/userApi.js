@@ -30,6 +30,10 @@ export const getMyAccount = () => httpClient.get("/users/me/account");
 
 export const getMyCard = () => httpClient.get("/users/me/card");
 
+// 빌링키 발급 및 카드 정보 저장 (사용자 카드 등록/업데이트)
+export const issueBillingKey = (authKey) =>
+  httpClient.post("/users/me/billing-key/issue", { authKey });
+
 export const deleteMyAccount = () => httpClient.delete("/users/me/account");
 
 export const deleteMyCard = () => httpClient.delete("/users/me/card");
