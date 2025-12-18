@@ -115,7 +115,7 @@ export default function GetProductList() {
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className={`text-3xl font-bold ${themeColors.text} mb-2`}>구독 상품</h1>
         <p className={`${themeColors.subtext} mb-8`}>다양한 구독 서비스를 확인하세요.</p>
 

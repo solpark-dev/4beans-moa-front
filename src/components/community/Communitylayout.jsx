@@ -76,7 +76,7 @@ const CommunityLayout = ({ children }) => {
         <div className="min-h-screen bg-transparent relative z-10">
             {/* Header Section */}
             <div className={`${theme === 'dark' ? 'border-b border-gray-700' : 'border-b border-gray-200'} bg-transparent`}>
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
                     <NeoCard
                         color={themeColors.primary}
                         rotate={-1}
@@ -90,7 +90,7 @@ const CommunityLayout = ({ children }) => {
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
                     <nav className="flex justify-center gap-4">
                         {tabs.map((tab) => {
                             const isActive = isActiveTab(tab.path);
@@ -117,7 +117,7 @@ const CommunityLayout = ({ children }) => {
             </div>
 
             {/* Content Section */}
-            <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {children}
             </div>
         </div>

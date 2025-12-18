@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { Palette, Sun, Moon, TreePine, MousePointer2, ChevronUp } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 import { themeConfig } from "@/config/themeConfig";
 import { useAuthStore } from "@/store/authStore";
-import { SnowPlowButton } from "@/components/christmas/SnowPlow";
+import { SnowPlowButton, useSnowPlow } from "@/components/christmas/SnowPlow";
 
 // ============================================
 // Helper: Encode SVG for cursor
@@ -52,15 +53,14 @@ export const ScrollToTopButton = () => {
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       onClick={scrollToTop}
-      className={`p-3 rounded-full shadow-xl transition-all duration-300 ${
-        theme === "dark"
-          ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
-          : theme === "pop"
-            ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
-            : theme === "christmas"
-              ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
-              : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
-      }`}
+      className={`p-3 rounded-full shadow-xl transition-all duration-300 ${theme === "dark"
+        ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
+        : theme === "pop"
+          ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
+          : theme === "christmas"
+            ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
+            : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
+        }`}
       title="맨 위로 이동"
     >
       <ChevronUp className="w-5 h-5" />
@@ -81,15 +81,14 @@ const ThemeSwitcherHorizontal = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-3 rounded-full shadow-xl transition-all duration-300 ${
-          theme === "dark"
-            ? "bg-gray-800 text-white border border-gray-600"
-            : theme === "pop"
-              ? "bg-pink-500 text-white border border-gray-200"
-              : theme === "christmas"
-                ? "bg-[#c41e3a] text-white"
-                : "bg-white text-gray-700 border border-gray-200"
-        }`}
+        className={`relative p-3 rounded-full shadow-xl transition-all duration-300 ${theme === "dark"
+          ? "bg-gray-800 text-white border border-gray-600"
+          : theme === "pop"
+            ? "bg-pink-500 text-white border border-gray-200"
+            : theme === "christmas"
+              ? "bg-[#c41e3a] text-white"
+              : "bg-white text-gray-700 border border-gray-200"
+          }`}
         title="테마 변경"
       >
         <motion.div
@@ -112,7 +111,8 @@ const ThemeSwitcherHorizontal = () => {
               onClick={() => setIsOpen(false)}
             />
 
-            {Object.entries(themeConfig).map(([key, config], index) => {
+            {['pop', 'classic', 'dark', 'christmas'].map((key, index) => {
+              const config = themeConfig[key];
               const IconComponent = config.icon;
               const isActive = theme === key;
 
@@ -139,21 +139,20 @@ const ThemeSwitcherHorizontal = () => {
                     setTheme(key);
                     setIsOpen(false);
                   }}
-                  className={`absolute top-0 left-0 p-2.5 rounded-full shadow-lg transition-colors duration-200 ${
-                    isActive
-                      ? key === "pop"
-                        ? "bg-pink-500 text-white border border-gray-200"
-                        : key === "dark"
-                          ? "bg-gray-800 text-white border border-gray-500"
-                          : key === "christmas"
-                            ? "bg-[#c41e3a] text-white"
-                            : "bg-[#635bff] text-white"
+                  className={`absolute top-0 left-0 p-2.5 rounded-full shadow-lg transition-colors duration-200 ${isActive
+                    ? key === "pop"
+                      ? "bg-pink-500 text-white border border-gray-200"
                       : key === "dark"
-                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-500"
+                        ? "bg-gray-800 text-white border border-gray-500"
                         : key === "christmas"
-                          ? "bg-white text-[#c41e3a] hover:bg-[#c41e3a]/10 border border-gray-200"
-                          : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-                  }`}
+                          ? "bg-[#c41e3a] text-white"
+                          : "bg-[#635bff] text-white"
+                    : key === "dark"
+                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-500"
+                      : key === "christmas"
+                        ? "bg-white text-[#c41e3a] hover:bg-[#c41e3a]/10 border border-gray-200"
+                        : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                    }`}
                   title={config.name}
                 >
                   <IconComponent className="w-4 h-4" />
@@ -243,7 +242,7 @@ const CursorSelectorHorizontal = ({ activeCursor, setActiveCursor }) => {
         className="p-3 bg-white text-gray-700 border border-gray-200 rounded-full shadow-xl hover:bg-gray-50 transition-colors"
         title="커서 변경"
       >
-        <span className="text-xl">
+        <span className="text-[20px] leading-none flex items-center justify-center w-5 h-5">
           {cursorOptions.find((o) => o.id === activeCursor)?.icon || (
             <MousePointer2 className="w-5 h-5" />
           )}
@@ -281,11 +280,10 @@ const CursorSelectorHorizontal = ({ activeCursor, setActiveCursor }) => {
                     setActiveCursor(option.id);
                     setIsOpen(false);
                   }}
-                  className={`absolute top-0 left-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md z-50 border-2 transition-colors ${
-                    isActive
-                      ? "bg-red-100 border-red-500"
-                      : "bg-white border-white hover:bg-gray-100"
-                  }`}
+                  className={`absolute top-0 left-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md z-50 border-2 transition-colors ${isActive
+                    ? "bg-red-100 border-red-500"
+                    : "bg-white border-white hover:bg-gray-100"
+                    }`}
                 >
                   <span className="text-lg">{option.icon}</span>
                 </motion.button>
@@ -307,11 +305,10 @@ const PineappleButton = ({ isEnabled, setIsEnabled }) => {
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => setIsEnabled(!isEnabled)}
-      className={`p-3 rounded-full shadow-xl transition-all duration-300 ${
-        isEnabled
-          ? "bg-white text-gray-700 border border-gray-200 hover:bg-yellow-50"
-          : "bg-gray-500/50 text-white border border-gray-400"
-      }`}
+      className={`p-3 rounded-full shadow-xl transition-all duration-300 ${isEnabled
+        ? "bg-white text-gray-700 border border-gray-200 hover:bg-yellow-50"
+        : "bg-gray-500/50 text-white border border-gray-400"
+        }`}
       title={isEnabled ? "파인애플 숨기기" : "파인애플 보이기"}
     >
       <span className="text-xl">{isEnabled ? "🍍" : "🚫"}</span>
@@ -328,7 +325,20 @@ const FloatingButtonsContainer = ({
   setPineappleEnabled,
 }) => {
   const { theme } = useThemeStore();
-  const [activeCursor, setActiveCursor] = useState("default");
+  const location = useLocation();
+  const { activeCursor, setActiveCursor } = useSnowPlow() || {};
+
+  // Reset cursor if theme changes from christmas
+  useEffect(() => {
+    if (theme !== "christmas" && setActiveCursor) {
+      setActiveCursor("default");
+      // Remove style tag if exists (safety)
+      const styleId = "custom-cursor-style";
+      const styleTag = document.getElementById(styleId);
+      if (styleTag) styleTag.innerHTML = ``;
+      document.body.style.cursor = "auto";
+    }
+  }, [theme, setActiveCursor]);
 
   return (
     <div className="fixed bottom-8 left-8 z-50 flex flex-col-reverse gap-3 items-start">
@@ -343,8 +353,8 @@ const FloatingButtonsContainer = ({
         />
       )}
 
-      {/* Row 3: Snow Plow Button (Christmas only, above cursor) */}
-      {theme === "christmas" && <SnowPlowButton />}
+      {/* Row 3: Snow Plow Button (Christmas only, above cursor, only on /party) */}
+      {theme === "christmas" && location.pathname === '/party' && <SnowPlowButton />}
 
       {/* Row 4: Pineapple Button (Easter egg users only) */}
       {showPineapple && (

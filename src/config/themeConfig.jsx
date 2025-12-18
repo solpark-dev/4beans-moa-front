@@ -660,7 +660,8 @@ export const ThemeSwitcher = ({ theme, onThemeChange }) => {
             />
 
             {/* Theme Options - Circular Layout */}
-            {Object.entries(themeConfig).map(([key, config], index) => {
+            {['pop', 'classic', 'dark', 'christmas'].map((key, index) => {
+              const config = themeConfig[key];
               const IconComponent = config.icon;
               const isActive = theme === key;
               const totalItems = Object.keys(themeConfig).length;
