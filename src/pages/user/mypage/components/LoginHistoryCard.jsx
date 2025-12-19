@@ -20,7 +20,8 @@ const loginHistoryThemeStyles = {
 
 export function LoginHistoryCard({ loginHistory, onBack }) {
   const { theme } = useThemeStore();
-  const themeStyle = loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.pop;
+  const themeStyle =
+    loginHistoryThemeStyles[theme] || loginHistoryThemeStyles.pop;
   const items =
     loginHistory?.items ||
     loginHistory?.data?.items ||
@@ -70,7 +71,7 @@ export function LoginHistoryCard({ loginHistory, onBack }) {
                       ? "실패"
                       : "성공"}
                   </td>
-                  <td className="p-3 font-bold">{row?.ip || "-"}</td>
+                  <td className="p-3 font-bold">{row?.loginIp ?? "-"}</td>
                   <td className="p-3 font-bold">
                     {row?.provider || row?.type || "-"}
                   </td>
