@@ -98,6 +98,29 @@ function AppContent() {
     }
   }, [theme]);
 
+  // Theme Keyboard Shortcuts: Ctrl+Shift+1~4
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.shiftKey) {
+        // e.code를 사용하여 Shift 키 조합에서도 정확히 감지
+        const themeMap = {
+          'Digit1': 'pop',
+          'Digit2': 'classic',
+          'Digit3': 'dark',
+          'Digit4': 'christmas',
+        };
+        const newTheme = themeMap[e.code];
+        if (newTheme) {
+          e.preventDefault();
+          setTheme(newTheme);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [setTheme]);
+
   // Easter egg for specific test accounts
   const showEasterEgg =
     user && (user.userId === "usertest1" || user.userId === "admintest");

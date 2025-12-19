@@ -659,16 +659,15 @@ export const ThemeSwitcher = ({ theme, onThemeChange }) => {
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Theme Options - Circular Layout */}
+            {/* Theme Options - Horizontal Right Layout */}
             {['pop', 'classic', 'dark', 'christmas'].map((key, index) => {
               const config = themeConfig[key];
               const IconComponent = config.icon;
               const isActive = theme === key;
-              const totalItems = Object.keys(themeConfig).length;
-              const angle = (Math.PI / 2) + (index / totalItems) * Math.PI;
-              const radius = 60;
-              const x = Math.cos(angle) * radius;
-              const y = Math.sin(angle) * radius;
+              // 수평 우측으로 버튼 배치
+              const spacing = 48; // 버튼 간 간격
+              const x = (index + 1) * spacing;
+              const y = 0; // 수평 유지
 
               return (
                 <motion.button

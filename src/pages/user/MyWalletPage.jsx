@@ -205,95 +205,91 @@ export default function MyWalletPage() {
 
         {/* Account & Card Grid - Side by side on larger screens */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Settlement Account - Variant T Style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-3"
-        >
-          <div className="flex justify-between items-center px-1">
-            <h3 className={`font-bold flex items-center gap-2 ${currentTheme.text}`}>
-              <Building2 className="w-5 h-5" style={{ color: currentTheme.accent }} />
-              정산 계좌
-            </h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goHistory("settlement");
-              }}
-              className="text-xs font-semibold uppercase tracking-wider transition-colors"
-              style={{ color: currentTheme.accent }}
-            >
-              내역 →
-            </button>
-          </div>
-
-          <div
-            onClick={handleAccountClick}
-            className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
-              ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
-              : theme === "dark"
-                ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
-                : theme === "christmas"
-                  ? "bg-white shadow-sm hover:shadow-md"
-                  : "bg-white shadow-sm hover:shadow-md"
-              }`}
+          {/* Settlement Account - Variant T Style */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-3"
           >
-            {account ? (
-              <div className="flex items-center gap-4">
-                {(() => {
-                  const logoPath = getBankLogo(account.bankName);
-                  const bankThemeStyle = getBankTheme(account.bankName);
-                  return (
-                    <div
-                      className={`w-14 h-14 rounded-xl ${bankThemeStyle.bg} flex items-center justify-center overflow-hidden shadow-sm`}
-                    >
-                      {logoPath ? (
-                        <img
-                          src={logoPath}
-                          alt={account.bankName}
-                          className="w-full h-full object-contain p-1.5"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                            e.target.nextSibling.style.display = "block";
-                          }}
+            <div className="flex justify-between items-center px-1">
+              <h3 className={`font-bold flex items-center gap-2 ${currentTheme.text}`}>
+                <Building2 className="w-5 h-5" style={{ color: currentTheme.accent }} />
+                정산 계좌
+              </h3>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goHistory("settlement");
+                }}
+                className="text-xs font-semibold uppercase tracking-wider transition-colors"
+                style={{ color: currentTheme.accent }}
+              >
+                내역 →
+              </button>
+            </div>
+
+            <div
+              onClick={handleAccountClick}
+              className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
+                ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
+                : theme === "dark"
+                  ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
+                  : theme === "christmas"
+                    ? "bg-white shadow-sm hover:shadow-md"
+                    : "bg-white shadow-sm hover:shadow-md"
+                }`}
+            >
+              {account ? (
+                <div className="flex items-center gap-4">
+                  {(() => {
+                    const logoPath = getBankLogo(account.bankName);
+                    const bankThemeStyle = getBankTheme(account.bankName);
+                    return (
+                      <div
+                        className={`w-14 h-14 rounded-xl ${bankThemeStyle.bg} flex items-center justify-center overflow-hidden shadow-sm`}
+                      >
+                        {logoPath ? (
+                          <img
+                            src={logoPath}
+                            alt={account.bankName}
+                            className="w-full h-full object-contain p-1.5"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                        ) : null}
+                        <Building2
+                          className={`w-6 h-6 ${bankThemeStyle.text} ${logoPath ? "hidden" : ""}`}
                         />
-                      ) : null}
-                      <Building2
-                        className={`w-6 h-6 ${bankThemeStyle.text} ${logoPath ? "hidden" : ""}`}
-                      />
+                      </div>
+                    );
+                  })()}
+                  <div className="flex-1">
+                    <div className={`font-bold text-lg ${currentTheme.text}`}>
+                      {account.bankName}
                     </div>
-                  );
-                })()}
-                <div className="flex-1">
-                  <div className={`font-bold text-lg ${currentTheme.text}`}>
-                    {account.bankName}
+                    <div className={`text-sm font-mono tracking-wide ${currentTheme.subtext}`}>
+                      {account.accountNumber?.replace(/(\d{4})(\d{2})(.*)/, "$1-$2-******")}
+                    </div>
                   </div>
-                  <div className={`text-sm font-mono tracking-wide ${currentTheme.subtext}`}>
-                    {account.accountNumber?.replace(/(\d{4})(\d{2})(.*)/, "$1-$2-******")}
-                  </div>
-                </div>
-                <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                  ? "text-gray-400 group-hover:text-[#635bff]"
-                  : theme === "pop"
-                    ? "text-gray-400 group-hover:text-pink-500"
-                    : theme === "christmas"
-                      ? "text-gray-400 group-hover:text-[#c41e3a]"
-                      : "text-gray-400 group-hover:text-[#635bff]"
-                  }`} />
-              </div>
-            ) : (
-              <div className={`flex flex-col items-center py-6 transition-colors ${currentTheme.subtext}`}>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-all ${theme === "dark"
-                  ? "bg-gray-700 group-hover:bg-[#635bff]/20"
-                  : theme === "pop"
-                    ? "bg-gray-100 group-hover:bg-pink-200"
-                    : theme === "christmas"
-                      ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
-                      : "bg-gray-100 group-hover:bg-[#635bff]/10"
-                  }`}>
-                  <Plus className={`w-6 h-6 transition-colors ${theme === "dark"
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm("정말 계좌를 삭제하시겠습니까?")) {
+                        deleteAccountAction();
+                      }
+                    }}
+                    className={`p-2 rounded-lg transition-colors ${theme === "dark"
+                      ? "hover:bg-red-500/20 text-gray-400 hover:text-red-400"
+                      : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                      }`}
+                    title="계좌 삭제"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
                     ? "text-gray-400 group-hover:text-[#635bff]"
                     : theme === "pop"
                       ? "text-gray-400 group-hover:text-pink-500"
@@ -302,102 +298,30 @@ export default function MyWalletPage() {
                         : "text-gray-400 group-hover:text-[#635bff]"
                     }`} />
                 </div>
-                <span className="text-sm font-semibold">등록된 계좌 없음</span>
-                <span className={`text-xs mt-1 ${currentTheme.subtext}`}>클릭하여 등록하기</span>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Payment Method - Variant T Style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-3"
-        >
-          <div className="flex justify-between items-center px-1">
-            <h3 className={`font-bold flex items-center gap-2 ${currentTheme.text}`}>
-              <CreditCard className="w-5 h-5" style={{ color: currentTheme.accent }} />
-              결제 수단
-            </h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goHistory("payment");
-              }}
-              className="text-xs font-semibold uppercase tracking-wider transition-colors"
-              style={{ color: currentTheme.accent }}
-            >
-              내역 →
-            </button>
-          </div>
-
-          <div
-            onClick={handleCardClick}
-            className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
-              ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
-              : theme === "dark"
-                ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
-                : theme === "christmas"
-                  ? "bg-white shadow-sm hover:shadow-md"
-                  : "bg-white shadow-sm hover:shadow-md"
-              }`}
-          >
-            {card ? (
-              <div className="flex items-center gap-4">
-                {(() => {
-                  const logoPath = getCardLogo(card.cardCompany);
-                  const cardThemeStyle = getCardTheme(card.cardCompany);
-                  return (
-                    <div
-                      className={`w-14 h-14 rounded-xl ${cardThemeStyle.bg} flex items-center justify-center overflow-hidden shadow-sm`}
-                    >
-                      {logoPath ? (
-                        <img
-                          src={logoPath}
-                          alt={card.cardCompany}
-                          className="w-full h-full object-contain p-1.5"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                            e.target.nextSibling.style.display = "block";
-                          }}
-                        />
-                      ) : null}
-                      <CreditCard
-                        className={`w-6 h-6 ${cardThemeStyle.text} ${logoPath ? "hidden" : ""}`}
-                      />
-                    </div>
-                  );
-                })()}
-                <div className="flex-1">
-                  <div className={`font-bold text-lg ${currentTheme.text}`}>
-                    {card.cardCompany}
+              ) : (
+                <div className={`flex items-center gap-4 transition-colors ${currentTheme.subtext}`}>
+                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${theme === "dark"
+                    ? "bg-gray-700 group-hover:bg-[#635bff]/20"
+                    : theme === "pop"
+                      ? "bg-gray-100 group-hover:bg-pink-100"
+                      : theme === "christmas"
+                        ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
+                        : "bg-gray-100 group-hover:bg-[#635bff]/10"
+                    }`}>
+                    <Plus className={`w-6 h-6 transition-colors ${theme === "dark"
+                      ? "text-gray-400 group-hover:text-[#635bff]"
+                      : theme === "pop"
+                        ? "text-gray-400 group-hover:text-pink-500"
+                        : theme === "christmas"
+                          ? "text-gray-400 group-hover:text-[#c41e3a]"
+                          : "text-gray-400 group-hover:text-[#635bff]"
+                      }`} />
                   </div>
-                  <div className={`text-sm font-mono tracking-wide ${currentTheme.subtext}`}>
-                    **** **** **** {card.cardNumber?.slice(-4) || "****"}
+                  <div className="flex-1">
+                    <div className={`font-bold text-lg ${currentTheme.text}`}>계좌 등록하기</div>
+                    <div className={`text-sm ${currentTheme.subtext}`}>클릭하여 등록</div>
                   </div>
-                </div>
-                <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
-                  ? "text-gray-400 group-hover:text-[#635bff]"
-                  : theme === "pop"
-                    ? "text-gray-400 group-hover:text-pink-500"
-                    : theme === "christmas"
-                      ? "text-gray-400 group-hover:text-[#c41e3a]"
-                      : "text-gray-400 group-hover:text-[#635bff]"
-                  }`} />
-              </div>
-            ) : (
-              <div className={`flex flex-col items-center py-6 transition-colors ${currentTheme.subtext}`}>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-all ${theme === "dark"
-                  ? "bg-gray-700 group-hover:bg-[#635bff]/20"
-                  : theme === "pop"
-                    ? "bg-gray-100 group-hover:bg-pink-200"
-                    : theme === "christmas"
-                      ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
-                      : "bg-gray-100 group-hover:bg-[#635bff]/10"
-                  }`}>
-                  <Plus className={`w-6 h-6 transition-colors ${theme === "dark"
+                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
                     ? "text-gray-400 group-hover:text-[#635bff]"
                     : theme === "pop"
                       ? "text-gray-400 group-hover:text-pink-500"
@@ -406,12 +330,138 @@ export default function MyWalletPage() {
                         : "text-gray-400 group-hover:text-[#635bff]"
                     }`} />
                 </div>
-                <span className="text-sm font-semibold">등록된 카드 없음</span>
-                <span className={`text-xs mt-1 ${currentTheme.subtext}`}>클릭하여 등록하기</span>
-              </div>
-            )}
-          </div>
-        </motion.div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Payment Method - Variant T Style */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-3"
+          >
+            <div className="flex justify-between items-center px-1">
+              <h3 className={`font-bold flex items-center gap-2 ${currentTheme.text}`}>
+                <CreditCard className="w-5 h-5" style={{ color: currentTheme.accent }} />
+                결제 수단
+              </h3>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goHistory("payment");
+                }}
+                className="text-xs font-semibold uppercase tracking-wider transition-colors"
+                style={{ color: currentTheme.accent }}
+              >
+                내역 →
+              </button>
+            </div>
+
+            <div
+              onClick={handleCardClick}
+              className={`group rounded-2xl p-5 cursor-pointer transition-all hover:shadow-lg ${theme === "pop"
+                ? "bg-white shadow-sm hover:shadow-md hover:bg-pink-50"
+                : theme === "dark"
+                  ? "bg-[#1E293B] hover:shadow-[#635bff]/10"
+                  : theme === "christmas"
+                    ? "bg-white shadow-sm hover:shadow-md"
+                    : "bg-white shadow-sm hover:shadow-md"
+                }`}
+            >
+              {card ? (
+                <div className="flex items-center gap-4">
+                  {(() => {
+                    const logoPath = getCardLogo(card.cardCompany);
+                    const cardThemeStyle = getCardTheme(card.cardCompany);
+                    return (
+                      <div
+                        className={`w-14 h-14 rounded-xl ${cardThemeStyle.bg} flex items-center justify-center overflow-hidden shadow-sm`}
+                      >
+                        {logoPath ? (
+                          <img
+                            src={logoPath}
+                            alt={card.cardCompany}
+                            className="w-full h-full object-contain p-1.5"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                        ) : null}
+                        <CreditCard
+                          className={`w-6 h-6 ${cardThemeStyle.text} ${logoPath ? "hidden" : ""}`}
+                        />
+                      </div>
+                    );
+                  })()}
+                  <div className="flex-1">
+                    <div className={`font-bold text-lg ${currentTheme.text}`}>
+                      {card.cardCompany}
+                    </div>
+                    <div className={`text-sm font-mono tracking-wide ${currentTheme.subtext}`}>
+                      **** **** **** {card.cardNumber?.slice(-4) || "****"}
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm("정말 카드를 삭제하시겠습니까?")) {
+                        deleteCardAction();
+                      }
+                    }}
+                    className={`p-2 rounded-lg transition-colors ${theme === "dark"
+                      ? "hover:bg-red-500/20 text-gray-400 hover:text-red-400"
+                      : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                      }`}
+                    title="카드 삭제"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
+                    ? "text-gray-400 group-hover:text-[#635bff]"
+                    : theme === "pop"
+                      ? "text-gray-400 group-hover:text-pink-500"
+                      : theme === "christmas"
+                        ? "text-gray-400 group-hover:text-[#c41e3a]"
+                        : "text-gray-400 group-hover:text-[#635bff]"
+                    }`} />
+                </div>
+              ) : (
+                <div className={`flex items-center gap-4 transition-colors ${currentTheme.subtext}`}>
+                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all ${theme === "dark"
+                    ? "bg-gray-700 group-hover:bg-[#635bff]/20"
+                    : theme === "pop"
+                      ? "bg-gray-100 group-hover:bg-pink-100"
+                      : theme === "christmas"
+                        ? "bg-gray-100 group-hover:bg-[#c41e3a]/10"
+                        : "bg-gray-100 group-hover:bg-[#635bff]/10"
+                    }`}>
+                    <Plus className={`w-6 h-6 transition-colors ${theme === "dark"
+                      ? "text-gray-400 group-hover:text-[#635bff]"
+                      : theme === "pop"
+                        ? "text-gray-400 group-hover:text-pink-500"
+                        : theme === "christmas"
+                          ? "text-gray-400 group-hover:text-[#c41e3a]"
+                          : "text-gray-400 group-hover:text-[#635bff]"
+                      }`} />
+                  </div>
+                  <div className="flex-1">
+                    <div className={`font-bold text-lg ${currentTheme.text}`}>카드 등록하기</div>
+                    <div className={`text-sm ${currentTheme.subtext}`}>클릭하여 등록</div>
+                  </div>
+                  <ChevronRight className={`w-5 h-5 transition-colors ${theme === "dark"
+                    ? "text-gray-400 group-hover:text-[#635bff]"
+                    : theme === "pop"
+                      ? "text-gray-400 group-hover:text-pink-500"
+                      : theme === "christmas"
+                        ? "text-gray-400 group-hover:text-[#c41e3a]"
+                        : "text-gray-400 group-hover:text-[#635bff]"
+                    }`} />
+                </div>
+              )}
+            </div>
+          </motion.div>
         </div>
 
         {/* Info Cards - Theme-aware */}

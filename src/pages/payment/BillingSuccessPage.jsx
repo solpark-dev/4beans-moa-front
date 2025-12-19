@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Loader2, Wallet, Sparkles } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Wallet } from "lucide-react";
 import httpClient from "../../api/httpClient";
 import { handlePaymentError, handleNetworkError } from "../../utils/errorHandler";
 import { toast } from "../../utils/toast";
-import { useTheme } from "../../config/themeConfig";
 
 // Animated gradient background component
 function AnimatedGradient() {
@@ -50,18 +49,6 @@ export default function BillingSuccessPage() {
     const navigate = useNavigate();
     const [status, setStatus] = useState("processing");
     const [message, setMessage] = useState("카드 등록 중...");
-    const { theme, currentTheme } = useTheme("appTheme");
-
-    // 테마별 악센트 색상
-    const getAccentColor = () => {
-        switch (theme) {
-            case "christmas": return "#c41e3a";
-            case "pop": return "#ec4899";
-            case "dark": return "#635bff";
-            default: return "#635bff";
-        }
-    };
-    const accentColor = getAccentColor();
 
     useEffect(() => {
         registerBillingKey();

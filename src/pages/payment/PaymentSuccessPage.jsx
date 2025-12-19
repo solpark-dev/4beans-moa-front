@@ -90,12 +90,19 @@ export default function PaymentSuccessPage() {
 
                     // 파티 상세로 이동
                     navigate(`/party/${partyId}`);
-                } else if (type === "RETRY_DEPOSIT") {
-                    await processLeaderDeposit(partyId, paymentData);
-                    localStorage.removeItem("pendingPayment");
-                    // 리더의 보증금 재결제이므로 파티 생성 완료 페이지(Step4) 또는 파티 상세로 이동
-                    // 보통 재결제는 상세 페이지에서 진입하므로 상세로 복귀
-                    navigate(`/party/${partyId}`);
+                } else if (type === "RETRY_DEPOSIT" || type === "LEADER_DEPOSIT_RETRY") {
+                    try {
+                        await processLeaderDeposit(partyId, paymentData);
+                        localStorage.removeItem("pendingPayment");
+                        // 보증금 재결제 성공 시 OTT 계정 입력 페이지로 이동 (파티 생성 완료)
+                        navigate(`/party/create?step=4&partyId=${partyId}`);
+                    } catch (retryError) {
+                        // 파티가 존재하지 않는 경우
+                        if (retryError.response?.status === 404) {
+                            throw new Error("파티를 찾을 수 없습니다. 파티가 삭제되었거나 존재하지 않습니다.");
+                        }
+                        throw retryError;
+                    }
                 } else {
                     throw new Error("알 수 없는 결제 유형입니다.");
                 }

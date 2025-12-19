@@ -82,11 +82,11 @@ export function LoginForm({
           htmlFor="loginEmail"
           className={`text-[13px] font-bold ${styles.label}`}
         >
-          Email
+          이메일
         </Label>
         <Input
           id="loginEmail"
-          placeholder="Enter your email"
+          placeholder="이메일 주소 입력"
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           className={`${styles.field} ${styles.focus}`}
@@ -101,13 +101,13 @@ export function LoginForm({
           htmlFor="loginPassword"
           className={`text-[13px] font-bold ${styles.label}`}
         >
-          Password
+          비밀번호
         </Label>
         <Input
           id="loginPassword"
           type="password"
           autoComplete="current-password"
-          placeholder="Enter your password"
+          placeholder="비밀번호 입력"
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           className={`${styles.field} ${styles.focus}`}
@@ -125,7 +125,7 @@ export function LoginForm({
             onChange={(e) => onRememberChange(e.target.checked)}
             className={`h-4 w-4 rounded border-gray-300 ${styles.checkbox} focus:ring-0`}
           />
-          Remember me
+          로그인 정보 저장
         </label>
 
         <div className="flex gap-3">
@@ -135,7 +135,7 @@ export function LoginForm({
             role="link"
             data-href="/signup"
           >
-            Sign up
+            회원가입
           </button>
           <button
             type="button"
@@ -143,7 +143,7 @@ export function LoginForm({
             role="link"
             data-href="/find-email"
           >
-            Find Email
+            이메일 찾기
           </button>
         </div>
       </div>
@@ -154,7 +154,7 @@ export function LoginForm({
         className={`w-full h-12 text-sm md:text-base font-black rounded-[18px] border text-white shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${styles.button}`}
         disabled={isLoginDisabled}
       >
-        {loginLoading ? "Logging in..." : "Log in"}
+        {loginLoading ? "로그인 중..." : "로그인"}
       </Button>
 
       <button
@@ -162,7 +162,7 @@ export function LoginForm({
         onClick={onUnlock}
         className={`w-full text-[11px] font-black ${styles.label} text-right border-b border-transparent`}
       >
-        Trouble logging in?
+        잠금 계정 풀기
       </button>
     </form>
   );

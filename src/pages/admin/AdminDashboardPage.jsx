@@ -30,6 +30,7 @@ import {
     Save,
 } from "lucide-react";
 import Chart from "react-apexcharts";
+import { useThemeStore } from "@/store/themeStore";
 
 // Removed theme imports to enforce classic theme
 
@@ -37,7 +38,7 @@ import Chart from "react-apexcharts";
 // Removed local AnimatedGradient and GridPattern in favor of global theme
 
 // Period Filter Component
-const PeriodFilter = ({ selected, onChange }) => {
+const PeriodFilter = ({ selected, onChange, theme }) => {
     const options = [
         { value: "today", label: "오늘" },
         { value: "7days", label: "7일" },
@@ -45,16 +46,20 @@ const PeriodFilter = ({ selected, onChange }) => {
         { value: "all", label: "전체" },
     ];
 
+    const isDark = theme === 'dark';
+    const primaryColor = theme === 'christmas' ? '#c41e3a' : theme === 'pop' ? '#ec4899' : '#635bff';
+
     return (
-        <div className="flex items-center gap-2 bg-white border border-gray-100 p-1 rounded-xl shadow-sm">
+        <div className={`flex items-center gap-2 ${isDark ? 'bg-[#1E293B] border-gray-700' : 'bg-white border-gray-100'} border p-1 rounded-xl shadow-sm`}>
             {options.map((opt) => (
                 <button
                     key={opt.value}
                     onClick={() => onChange(opt.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${selected === opt.value
-                        ? "bg-[#ec4899] text-white shadow-md shadow-[#ec4899]/20"
-                        : "text-gray-500 hover:bg-gray-50"
+                        ? `text-white shadow-md`
+                        : `${isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-50'}`
                         }`}
+                    style={selected === opt.value ? { backgroundColor: primaryColor, boxShadow: `0 4px 12px ${primaryColor}20` } : {}}
                 >
                     {opt.label}
                 </button>
@@ -64,14 +69,16 @@ const PeriodFilter = ({ selected, onChange }) => {
 };
 
 // Enhanced StatCard with Trend
-const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, delay = 0 }) => {
+const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, delay = 0, theme }) => {
+    const isDark = theme === 'dark';
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className="group relative bg-white rounded-2xl border border-gray-100 p-5 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+            className={`group relative ${isDark ? 'bg-[#1E293B] border-gray-700' : 'bg-white border-gray-100'} rounded-2xl border p-5 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300`}
         >
             <div
                 className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -translate-y-1/2 translate-x-1/2 transition-transform duration-300 group-hover:scale-150"
@@ -92,9 +99,9 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, delay = 0 
                         </div>
                     )}
                 </div>
-                <div className="text-sm font-medium text-gray-600 mb-1">{title}</div>
-                <div className="text-xl font-black text-gray-900">{value}</div>
-                {subtitle && <div className="text-xs text-gray-400 mt-1">{subtitle}</div>}
+                <div className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'} mb-1`}>{title}</div>
+                <div className={`text-xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}>{value}</div>
+                {subtitle && <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} mt-1`}>{subtitle}</div>}
             </div>
         </motion.div>
     );
@@ -127,7 +134,9 @@ const AlertItem = ({ type, title, message, time }) => {
 };
 
 // Quick Action Button
-const QuickActionButton = ({ icon: Icon, label, to, color, delay = 0 }) => {
+const QuickActionButton = ({ icon: Icon, label, to, color, delay = 0, theme }) => {
+    const isDark = theme === 'dark';
+
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -136,7 +145,7 @@ const QuickActionButton = ({ icon: Icon, label, to, color, delay = 0 }) => {
         >
             <Link
                 to={to}
-                className="group flex flex-col items-center gap-2 p-4 bg-white border border-gray-100 rounded-2xl hover:shadow-lg transition-all duration-300"
+                className={`group flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#1E293B] border-gray-700 hover:bg-[#334155]' : 'bg-white border-gray-100'} border rounded-2xl hover:shadow-lg transition-all duration-300`}
             >
                 <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
@@ -144,7 +153,7 @@ const QuickActionButton = ({ icon: Icon, label, to, color, delay = 0 }) => {
                 >
                     <Icon className="w-6 h-6" style={{ color }} />
                 </div>
-                <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">{label}</span>
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-400 group-hover:text-white' : 'text-gray-600 group-hover:text-gray-900'} transition-colors`}>{label}</span>
             </Link>
         </motion.div>
     );
@@ -360,6 +369,9 @@ const OttServiceStats = ({ stats }) => {
 
 export default function AdminDashboardPage() {
     const { stats, loading, error } = useAdminDashboard();
+    const { theme } = useThemeStore();
+    const isDark = theme === 'dark';
+    const primaryColor = theme === 'christmas' ? '#c41e3a' : theme === 'pop' ? '#ec4899' : '#635bff';
 
     const [period, setPeriod] = useState("7days");
     const [searchQuery, setSearchQuery] = useState("");
@@ -603,29 +615,32 @@ export default function AdminDashboardPage() {
                 <div className="mb-6">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#ec4899] flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
                                 <BarChart3 className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-black text-gray-900">관리자 대시보드</h1>
-                                <p className="text-gray-500 text-sm">서비스 현황을 한눈에 확인하세요</p>
+                                <h1 className={`text-2xl md:text-3xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    {theme === 'christmas' ? '🎄 관리자 대시보드' : '📊 관리자 대시보드'}
+                                </h1>
+                                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>서비스 현황을 한눈에 확인하세요</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             {/* Search */}
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                                 <input
                                     type="text"
                                     placeholder="사용자, 파티 검색..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-[#ec4899]/20 focus:border-[#ec4899] text-gray-900"
+                                    className={`pl-10 pr-4 py-2.5 ${isDark ? 'bg-[#1E293B] border-gray-700 text-white placeholder-gray-500' : 'bg-white border-gray-200 text-gray-900'} border rounded-xl text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:border-[${primaryColor}]`}
+                                    style={{ '--tw-ring-color': `${primaryColor}20` }}
                                 />
                             </div>
                             {/* Period Filter - Connected to Revenue Chart */}
-                            <PeriodFilter selected={period} onChange={setPeriod} />
+                            <PeriodFilter selected={period} onChange={setPeriod} theme={theme} />
                         </div>
                     </div>
                 </div>
@@ -635,14 +650,14 @@ export default function AdminDashboardPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="mb-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm"
+                    className={`mb-6 ${isDark ? 'bg-[#1E293B] border-gray-700' : 'bg-white border-gray-100'} rounded-2xl border p-4 shadow-sm`}
                 >
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                            <Bell className="w-5 h-5 text-[#ec4899]" />
-                            <h3 className="font-bold text-gray-900">실시간 알림</h3>
+                            <Bell className="w-5 h-5" style={{ color: primaryColor }} />
+                            <h3 className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>실시간 알림</h3>
                         </div>
-                        <span className="text-xs text-gray-500">최근 24시간</span>
+                        <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>최근 24시간</span>
                     </div>
                     <div className="space-y-2">
                         {alerts.map((alert, i) => (
@@ -658,14 +673,14 @@ export default function AdminDashboardPage() {
                     transition={{ delay: 0.15 }}
                     className="mb-6"
                 >
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">빠른 작업</h3>
+                    <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-3`}>빠른 작업</h3>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                        <QuickActionButton icon={Users} label="회원 관리" to="/admin/users" color="#ec4899" delay={0} />
-                        <QuickActionButton icon={PartyPopper} label="파티 목록" to="/party" color="#10b981" delay={0.05} />
-                        <QuickActionButton icon={AlertCircle} label="블랙리스트" to="/admin/blacklist/add" color="#ef4444" delay={0.1} />
-                        <QuickActionButton icon={Activity} label="공지사항" to="/community/notice" color="#f59e0b" delay={0.15} />
-                        <QuickActionButton icon={Calendar} label="FAQ 관리" to="/community/faq" color="#8b5cf6" delay={0.2} />
-                        <QuickActionButton icon={CreditCard} label="문의 관리" to="/community/inquiry/admin" color="#06b6d4" delay={0.25} />
+                        <QuickActionButton icon={Users} label="회원 관리" to="/admin/users" color={primaryColor} delay={0} theme={theme} />
+                        <QuickActionButton icon={PartyPopper} label="파티 목록" to="/party" color="#10b981" delay={0.05} theme={theme} />
+                        <QuickActionButton icon={AlertCircle} label="블랙리스트" to="/admin/blacklist/add" color="#ef4444" delay={0.1} theme={theme} />
+                        <QuickActionButton icon={Activity} label="공지사항" to="/community/notice" color="#f59e0b" delay={0.15} theme={theme} />
+                        <QuickActionButton icon={Calendar} label="FAQ 관리" to="/community/faq" color="#8b5cf6" delay={0.2} theme={theme} />
+                        <QuickActionButton icon={CreditCard} label="문의 관리" to="/community/inquiry/admin" color="#06b6d4" delay={0.25} theme={theme} />
                     </div>
                 </motion.div>
 
@@ -676,9 +691,10 @@ export default function AdminDashboardPage() {
                         title="총 매출"
                         value={`${(safeStats.totalRevenue || 0).toLocaleString()}원`}
                         subtitle="전체 누적"
-                        color="#ec4899"
+                        color={primaryColor}
                         trend={safeStats.revenueTrend}
                         delay={0}
+                        theme={theme}
                     />
                     <StatCard
                         icon={Wallet}
@@ -688,6 +704,7 @@ export default function AdminDashboardPage() {
                         color="#00d4ff"
                         trend={safeStats.revenueTrend}
                         delay={0.1}
+                        theme={theme}
                     />
                     <StatCard
                         icon={Users}
@@ -697,6 +714,7 @@ export default function AdminDashboardPage() {
                         color="#10b981"
                         trend={safeStats.userTrend}
                         delay={0.2}
+                        theme={theme}
                     />
                     <StatCard
                         icon={PartyPopper}
@@ -705,15 +723,16 @@ export default function AdminDashboardPage() {
                         subtitle={`전체 ${safeStats.totalPartyCount || 0}개`}
                         color="#f59e0b"
                         delay={0.3}
+                        theme={theme}
                     />
                 </div>
 
                 {/* Secondary Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <StatCard icon={Activity} title="모집중 파티" value={`${safeStats.recruitingPartyCount || 0}개`} color="#8b5cf6" delay={0.4} />
-                    <StatCard icon={Clock} title="결제 대기" value={`${safeStats.pendingPaymentCount || 0}건`} color="#f97316" delay={0.5} />
-                    <StatCard icon={CheckCircle2} title="완료된 결제" value={`${(safeStats.completedPaymentCount || 0).toLocaleString()}건`} color="#06b6d4" delay={0.6} />
-                    <StatCard icon={UserPlus} title="오늘 가입" value={`${safeStats.todayNewUsers || 0}명`} color="#ec4899" trend={safeStats.todayUserTrend} delay={0.7} />
+                    <StatCard icon={Activity} title="모집중 파티" value={`${safeStats.recruitingPartyCount || 0}개`} color="#8b5cf6" delay={0.4} theme={theme} />
+                    <StatCard icon={Clock} title="결제 대기" value={`${safeStats.pendingPaymentCount || 0}건`} color="#f97316" delay={0.5} theme={theme} />
+                    <StatCard icon={CheckCircle2} title="완료된 결제" value={`${(safeStats.completedPaymentCount || 0).toLocaleString()}건`} color="#06b6d4" delay={0.6} theme={theme} />
+                    <StatCard icon={UserPlus} title="오늘 가입" value={`${safeStats.todayNewUsers || 0}명`} color={primaryColor} trend={safeStats.todayUserTrend} delay={0.7} theme={theme} />
                 </div>
 
                 {/* Charts Row 1 */}

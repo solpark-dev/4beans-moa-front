@@ -57,7 +57,7 @@ export default function AddUserPage({ socialInfo }) {
   });
 
   return (
-    <div className={`min-h-screen ${themeClasses.bg.base} ${themeClasses.text.primary} px-6 py-16 transition-colors duration-300`}>
+    <div className={`min-h-screen bg-transparent ${themeClasses.text.primary} px-6 py-16 transition-colors duration-300`}>
       {/* Theme Switcher */}
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 

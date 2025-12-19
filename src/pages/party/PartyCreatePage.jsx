@@ -6,6 +6,8 @@ import { useAuthStore } from "../../store/authStore";
 import { requestPayment } from "../../utils/paymentHandler";
 import { calculateEndDate, getTodayString } from "../../utils/dateUtils";
 import { updateOttAccount, fetchPartyDetail } from "../../hooks/party/partyService";
+import { getMyCard } from "../../api/userApi";
+import { processLeaderDeposit } from "../../api/partyApi";
 import RippleButton from "../../components/party/RippleButton";
 import { getProductIconUrl } from "../../utils/imageUtils";
 import {
@@ -90,6 +92,8 @@ export default function PartyCreatePage() {
   const [localLoading, setLocalLoading] = useState(false);
   const [isRestoring, setIsRestoring] = useState(!!searchParams.get("step"));
   const [errors, setErrors] = useState({});
+  const [savedCard, setSavedCard] = useState(null);
+  const [cardLoading, setCardLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -102,6 +106,18 @@ export default function PartyCreatePage() {
     if (user) {
       loadProducts();
       checkRedirectReturn();
+      // 사용자 카드 정보 조회
+      setCardLoading(true);
+      getMyCard()
+        .then(res => {
+          if (res?.success && res.data) {
+            setSavedCard(res.data);
+          } else {
+            setSavedCard(null);
+          }
+        })
+        .catch(() => setSavedCard(null))
+        .finally(() => setCardLoading(false));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -197,25 +213,39 @@ export default function PartyCreatePage() {
         setCreatedPartyId(partyId);
       }
 
-      const amount = selectedProduct.price;
+      // 보증금 = 원래 구독료 (백엔드에서 monthlyFee * maxMembers로 계산)
+      const depositAmount = selectedProduct.price;
 
-      localStorage.setItem(
-        "pendingPayment",
-        JSON.stringify({
-          type: "CREATE_PARTY",
-          partyId: partyId,
-          partyData: partyData,
-        })
-      );
+      // 등록된 카드가 있으면 빌링키로 바로 결제
+      if (savedCard) {
+        await processLeaderDeposit(partyId, {
+          amount: depositAmount,
+          paymentMethod: "CARD",
+          useExistingCard: true
+        });
+        // 결제 성공 시 OTT 계정 입력 단계로 이동
+        setStep(4);
+        setLocalLoading(false);
+      } else {
+        // 등록된 카드가 없으면 토스페이먼츠 일반 결제창 호출
+        localStorage.setItem(
+          "pendingPayment",
+          JSON.stringify({
+            type: "CREATE_PARTY",
+            partyId: partyId,
+            partyData: partyData,
+          })
+        );
 
-      await requestPayment(
-        `${selectedProduct.productName} 보증금`,
-        amount,
-        "파티장"
-      );
+        await requestPayment(
+          `${selectedProduct.productName} 보증금`,
+          depositAmount,
+          "파티장"
+        );
+      }
     } catch (error) {
       console.error(error);
-      alert(error.message || "결제 초기화에 실패했습니다.");
+      alert(error.response?.data?.error?.message || error.message || "결제 처리에 실패했습니다.");
       setLocalLoading(false);
     }
   };
@@ -800,8 +830,8 @@ export default function PartyCreatePage() {
               className="space-y-8"
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">보증금 결제</h2>
-                <p className="text-gray-500">파티 생성을 위해 보증금을 결제해주세요</p>
+                <h2 className={`text-3xl font-bold mb-2 ${currentTheme.text}`}>보증금 결제</h2>
+                <p className={currentTheme.subtext}>파티 생성을 위해 보증금을 결제해주세요</p>
               </div>
 
               <div className={`rounded-2xl p-6 space-y-4 ${currentTheme.card}`}>
@@ -815,6 +845,12 @@ export default function PartyCreatePage() {
                     {dates.startDate} ~ {dates.endDate}
                   </span>
                 </div>
+                <div className={`flex justify-between items-center text-sm border-b pb-4 ${theme === "dark" ? "border-gray-700" : "border-gray-100"}`}>
+                  <span className={currentTheme.cardSubtext}>파티 인원</span>
+                  <span className={`font-bold ${currentTheme.cardText}`}>
+                    {maxMembers}명
+                  </span>
+                </div>
                 <div className="flex justify-between items-center pt-4">
                   <span className={`font-bold text-lg ${currentTheme.cardText}`}>총 보증금</span>
                   <div className="text-right">
@@ -822,9 +858,58 @@ export default function PartyCreatePage() {
                       {selectedProduct.price.toLocaleString()}
                       <span className={`text-lg ml-1 ${currentTheme.cardSubtext}`}>원</span>
                     </div>
+                    <p className={`text-xs mt-1 ${currentTheme.cardSubtext}`}>
+                      (월 구독료 기준)
+                    </p>
                   </div>
                 </div>
               </div>
+
+              {/* 등록된 카드 정보 표시 */}
+              {cardLoading ? (
+                <div className={`rounded-2xl p-6 ${currentTheme.card}`}>
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                    <span className={currentTheme.cardSubtext}>카드 정보 확인 중...</span>
+                  </div>
+                </div>
+              ) : savedCard ? (
+                <div className={`rounded-2xl p-6 ${currentTheme.card}`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                    }`}>
+                      <CreditCard className="w-5 h-5" style={{ color: accentColor }} />
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-bold ${currentTheme.cardText}`}>등록된 카드로 결제</p>
+                      <p className={`text-sm ${currentTheme.cardSubtext}`}>
+                        {savedCard.cardCompany} {savedCard.cardNumber}
+                      </p>
+                    </div>
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <p className={`text-xs ${currentTheme.cardSubtext}`}>
+                    등록된 카드로 바로 결제됩니다. 새 카드로 결제하려면 마이페이지에서 카드를 변경해주세요.
+                  </p>
+                </div>
+              ) : (
+                <div className={`rounded-2xl p-6 ${currentTheme.card}`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                    }`}>
+                      <CreditCard className="w-5 h-5" style={{ color: accentColor }} />
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-bold ${currentTheme.cardText}`}>새 카드로 결제</p>
+                      <p className={`text-sm ${currentTheme.cardSubtext}`}>
+                        토스페이먼츠 결제창에서 카드를 등록합니다
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm flex gap-3">
                 <Info className="w-5 h-5 flex-shrink-0" />
@@ -840,7 +925,7 @@ export default function PartyCreatePage() {
                 </button>
                 <RippleButton
                   onClick={handlePayment}
-                  disabled={localLoading}
+                  disabled={localLoading || cardLoading}
                   className={`px-8 py-3 text-white rounded-full font-semibold flex items-center gap-2 disabled:opacity-50 transition-all transform hover:scale-[1.02] active:scale-[0.98] ${currentTheme.accentBg}`}
                   style={{ boxShadow: `0 10px 15px -3px ${accentColor}40` }}
                 >
