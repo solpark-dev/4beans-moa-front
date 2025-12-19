@@ -9,6 +9,7 @@ import {
   themeConfig,
   GridPattern,
 } from "../../config/themeConfig";
+import { getStatusBadge, formatDate } from "../../utils/partyUtils";
 import { ClearableSnowPile } from "../../components/christmas/SnowPlow";
 import {
   Sparkles,
@@ -23,41 +24,6 @@ import {
   Filter,
   Home,
 } from "lucide-react";
-
-// O3 Sticker Component (Pop theme only)
-const Sticker = ({ children, color = "bg-white", rotate = 0, className = "", onClick }) => (
-  <motion.div
-    whileHover={{ scale: 1.05, rotate: rotate + 2 }}
-    whileTap={{ scale: 0.98 }}
-    onClick={onClick}
-    className={`${color} transition-all duration-200 ${className}`}
-    style={{ transform: `rotate(${rotate}deg)` }}
-  >
-    {children}
-  </motion.div>
-);
-
-// Party 페이지 테마 스타일
-const partyThemeStyles = {
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
-  },
-  christmas: {
-    accent: 'text-[#c41e3a]',
-    accentBg: 'bg-[#c41e3a]',
-    hoverAccentBg: 'hover:bg-red-700',
-    greenAccent: 'text-[#1a5f2a]',
-    greenBg: 'bg-[#1a5f2a]',
-    badge: 'bg-red-50 text-[#c41e3a]',
-    greenBadge: 'bg-green-50 text-[#1a5f2a]',
-    buttonShadow: 'shadow-[#c41e3a]/25',
-    cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-  },
-};
 
 export default function PartyListPage() {
   const navigate = useNavigate();
@@ -86,7 +52,6 @@ export default function PartyListPage() {
   // Theme State from Zustand Store
   const { theme, setTheme } = useThemeStore();
   const currentTheme = themeConfig[theme] || themeConfig.classic;
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
 
   const myPartyIds = Array.isArray(myParties) ? myParties.map(p => p.partyId) : [];
   const isInitialLoading = loadingParties && list.length === 0;
@@ -165,54 +130,6 @@ export default function PartyListPage() {
 
     return () => observer.disconnect();
   }, [handleObserver]);
-
-  const getStatusBadge = (party) => {
-    const { partyStatus, maxMembers, currentMembers } = party;
-    const remainingSlots = (maxMembers || 0) - (currentMembers || 0);
-
-    if (partyStatus === 'RECRUITING' && remainingSlots === 1) {
-      return {
-        bg: "bg-gradient-to-r from-orange-500 to-red-500",
-        text: "마감임박",
-        pulse: true,
-      };
-    }
-
-    const badges = {
-      RECRUITING: {
-        bg: theme === "pop" ? "bg-pink-500" : theme === "christmas" ? "bg-[#1a5f2a]" : "bg-[#635bff]",
-        text: "모집중",
-      },
-      ACTIVE: {
-        bg: "bg-emerald-500",
-        text: "파티중",
-      },
-      PENDING_PAYMENT: {
-        bg: "bg-amber-500",
-        text: "결제대기",
-      },
-      CLOSED: {
-        bg: "bg-gray-400",
-        text: "파티종료",
-      },
-    };
-    return badges[partyStatus] || badges.RECRUITING;
-  };
-
-  const formatDate = (dateData) => {
-    if (!dateData) return "-";
-
-    if (Array.isArray(dateData)) {
-      const [year, month, day] = dateData;
-      return `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
-    }
-
-    const date = new Date(dateData);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
-  };
 
   // Animation variants
   const containerVariants = {
@@ -324,14 +241,7 @@ export default function PartyListPage() {
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate("/party/create")}
-                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${theme === "pop"
-                    ? "bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25"
-                    : theme === "christmas"
-                      ? "bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25"
-                      : theme === "dark"
-                        ? "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
-                        : "bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25"
-                    }`}
+                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors duration-200 ${currentTheme.accentBg} ${currentTheme.hoverAccentBg} text-white ${currentTheme.buttonShadow}`}
                 >
                   <Sparkles className="w-4 h-4" />
                   파티 만들기
@@ -342,14 +252,8 @@ export default function PartyListPage() {
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => navigate("/my-parties")}
-                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-colors duration-200 ${theme === "pop"
-                      ? "bg-white hover:bg-gray-50 text-pink-500 border-2 border-pink-500"
-                      : theme === "christmas"
-                        ? "bg-white hover:bg-gray-50 text-[#c41e3a] border-2 border-[#c41e3a]"
-                        : theme === "dark"
-                          ? "bg-transparent hover:bg-[#635bff]/10 text-[#635bff] border-2 border-[#635bff]"
-                          : "bg-white hover:bg-gray-50 text-[#635bff] border-2 border-[#635bff]"
-                      }`}
+                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full transition-colors duration-200 bg-transparent border-2 ${currentTheme.accentText} border-[color:var(--theme-primary)] hover:bg-[color:var(--theme-primary)]/10`}
+                    style={{ borderColor: currentTheme.accent }}
                   >
                     <Home className="w-4 h-4" />
                     내 파티
@@ -529,8 +433,8 @@ export default function PartyListPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${theme === "christmas" ? "bg-[#c41e3a]/10" : "bg-[#635bff]/10"}`}>
-              <Search className={`w-10 h-10 ${theme === "christmas" ? "text-[#c41e3a]" : "text-[#635bff]"}`} />
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-opacity-10 ${currentTheme.accentBg}`}>
+              <Search className={`w-10 h-10 ${currentTheme.accentText}`} />
             </div>
             <h3 className={`text-xl font-bold mb-2 ${currentTheme.text}`}>
               조건에 맞는 파티가 없습니다
@@ -545,10 +449,7 @@ export default function PartyListPage() {
                 setSelectedProductId(null);
                 setStartDate("");
               }}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-full transition-colors ${theme === "christmas"
-                ? "bg-[#c41e3a] hover:bg-[#a51830]"
-                : "bg-[#635bff] hover:bg-[#5851e8]"
-                }`}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-full transition-colors ${currentTheme.accentBg} ${currentTheme.hoverAccentBg}`}
             >
               필터 초기화
             </button>
@@ -561,7 +462,7 @@ export default function PartyListPage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {list.map((party) => {
-              const badge = getStatusBadge(party);
+              const badge = getStatusBadge(party, theme);
               const isMyParty = myPartyIds.includes(party.partyId);
               const isLeader = user?.userId === party.partyLeaderId;
               const remainingSlots = (party.maxMembers || 4) - (party.currentMembers || 0);
@@ -580,12 +481,7 @@ export default function PartyListPage() {
                     }
                     navigate(`/party/${party.partyId}`);
                   }}
-                  className={`group relative overflow-hidden cursor-pointer transition-all duration-300 ${theme === "pop"
-                    ? "bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                    : theme === "dark"
-                      ? "bg-[#1E293B] border border-gray-700 rounded-2xl hover:shadow-2xl hover:border-gray-600"
-                      : "bg-white border border-gray-100 rounded-2xl hover:shadow-2xl hover:border-gray-200"
-                    }`}
+                  className={`group relative overflow-hidden cursor-pointer transition-all duration-300 ${currentTheme.card}`}
                 >
                   {/* Service Banner */}
                   <div className={`relative h-40 flex items-center justify-center p-4 sm:p-6 ${theme === "dark" ? "bg-gradient-to-br from-gray-700 to-gray-800" : "bg-gradient-to-br from-gray-50 to-gray-100"}`}>
@@ -596,7 +492,7 @@ export default function PartyListPage() {
                         className="max-w-[80%] max-h-[80%] object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg ${theme === "christmas" ? "bg-[#c41e3a]" : "bg-[#635bff]"}`}>
+                      <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg ${currentTheme.accentBg}`}>
                         {party.productName?.[0]}
                       </div>
                     )}
@@ -613,9 +509,7 @@ export default function PartyListPage() {
                       <div className="absolute top-3 left-3">
                         <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${isLeader
                           ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white"
-                          : theme === "christmas"
-                            ? "bg-white text-[#1a5f2a]"
-                            : "bg-white text-[#635bff]"
+                          : currentTheme.greenBadge ? currentTheme.greenBadge : `bg-white ${currentTheme.accentText}`
                           }`}>
                           {isLeader ? "파티장" : "참여중"}
                         </span>
@@ -623,34 +517,20 @@ export default function PartyListPage() {
                     )}
 
                     {/* Hover Overlay */}
-                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${theme === "christmas" ? "bg-[#c41e3a]/5" : "bg-[#635bff]/5"}`} />
+                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-opacity-5 ${currentTheme.accentBg}`} />
                   </div>
 
                   {/* Content */}
                   <div className="p-5">
                     {/* Service Badge */}
                     <div className="flex items-center gap-2 mb-3">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${theme === "pop"
-                        ? "text-pink-600 bg-pink-50 border border-gray-200"
-                        : theme === "dark"
-                          ? "text-[#635bff] bg-[#635bff]/20"
-                          : theme === "christmas"
-                            ? "text-green-800 bg-green-100"
-                            : "text-[#635bff] bg-[#635bff]/10"
-                        }`}>
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${currentTheme.badge} border border-gray-200`}>
                         {party.productName}
                       </span>
                     </div>
 
                     {/* Title */}
-                    <h3 className={`font-bold mb-3 line-clamp-1 transition-colors ${theme === "pop"
-                      ? "text-black group-hover:text-pink-500"
-                      : theme === "dark"
-                        ? "text-white group-hover:text-[#635bff]"
-                        : theme === "christmas"
-                          ? "text-gray-900 group-hover:text-red-800"
-                          : "text-gray-900 group-hover:text-[#635bff]"
-                      }`}>
+                    <h3 className={`font-bold mb-3 line-clamp-1 transition-colors ${currentTheme.cardText} group-hover:text-[color:var(--theme-primary)]`}>
                       {party.title || `${party.productName} 파티`}
                     </h3>
 

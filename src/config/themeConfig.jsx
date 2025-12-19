@@ -29,6 +29,9 @@ export const themeConfig = {
     buttonInactive: "bg-gray-100 text-gray-600 hover:bg-gray-200",
     sectionBg: "bg-gray-50",
     gradientText: "bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent",
+    hoverAccentBg: "hover:bg-[#5851e8]",
+    badge: "bg-indigo-50 text-[#635bff]",
+    buttonShadow: "shadow-[#635bff]/25",
     cssVars: {
       "--theme-primary": "#635bff",
       "--theme-primary-hover": "#5a52d5",
@@ -69,6 +72,9 @@ export const themeConfig = {
     buttonInactive: "bg-[#1E293B] text-gray-400 hover:bg-[#334155]",
     sectionBg: "bg-[#0F172A]",
     gradientText: "bg-gradient-to-r from-[#635bff] via-[#00d4ff] to-[#00d4ff] bg-clip-text text-transparent",
+    hoverAccentBg: "hover:bg-[#5851e8]",
+    badge: "bg-gray-800 text-[#635bff]",
+    buttonShadow: "shadow-gray-900/25",
     cssVars: {
       "--theme-primary": "#635bff",
       "--theme-primary-hover": "#5a52d5",
@@ -109,6 +115,9 @@ export const themeConfig = {
     buttonInactive: "bg-white text-black border border-gray-200 hover:bg-pink-100",
     sectionBg: "bg-white",
     gradientText: "text-pink-500",
+    hoverAccentBg: "hover:bg-pink-600",
+    badge: "bg-pink-50 text-pink-600",
+    buttonShadow: "shadow-pink-500/25",
     cssVars: {
       "--theme-primary": "#ec4899",
       "--theme-primary-hover": "#db2777",
@@ -150,6 +159,12 @@ export const themeConfig = {
     buttonInactive: "bg-gray-100 text-gray-600 hover:bg-[#c41e3a]/10 hover:text-[#c41e3a]",
     sectionBg: "bg-gray-50",
     gradientText: "bg-gradient-to-r from-[#c41e3a] to-[#1a5f2a] bg-clip-text text-transparent",
+    hoverAccentBg: "hover:bg-red-700",
+    greenAccent: "text-[#1a5f2a]",
+    greenBg: "bg-[#1a5f2a]",
+    badge: "bg-red-50 text-[#c41e3a]",
+    greenBadge: "bg-green-50 text-[#1a5f2a]",
+    buttonShadow: "shadow-[#c41e3a]/25",
     cssVars: {
       "--theme-primary": "#c41e3a",
       "--theme-primary-hover": "#9b1c2e",
