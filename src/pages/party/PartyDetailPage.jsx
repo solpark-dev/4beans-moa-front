@@ -15,6 +15,7 @@ import {
   Sticker,
   themeConfig
 } from "../../config/themeConfig";
+import { getStatusBadge, formatDate } from "../../utils/partyUtils";
 import { getProductIconUrl } from "../../utils/imageUtils";
 import {
   Eye,
@@ -32,46 +33,6 @@ import {
   CreditCard
 } from "lucide-react";
 
-// Party 페이지 테마 스타일
-const partyThemeStyles = {
-  pop: {
-    accent: 'text-pink-500',
-    accentBg: 'bg-pink-500',
-    hoverAccentBg: 'hover:bg-pink-600',
-    badge: 'bg-pink-50 text-pink-600',
-    buttonShadow: 'shadow-pink-500/25',
-    accentColor: '#ec4899',
-  },
-  classic: {
-    accent: 'text-[#635bff]',
-    accentBg: 'bg-[#635bff]',
-    hoverAccentBg: 'hover:bg-[#5851e8]',
-    badge: 'bg-indigo-50 text-[#635bff]',
-    buttonShadow: 'shadow-[#635bff]/25',
-    accentColor: '#635bff',
-  },
-  dark: {
-    accent: 'text-[#635bff]',
-    accentBg: 'bg-[#635bff]',
-    hoverAccentBg: 'hover:bg-[#5851e8]',
-    badge: 'bg-gray-800 text-[#635bff]',
-    buttonShadow: 'shadow-gray-900/25',
-    accentColor: '#635bff',
-  },
-  christmas: {
-    accent: 'text-[#c41e3a]',
-    accentBg: 'bg-[#c41e3a]',
-    hoverAccentBg: 'hover:bg-red-700',
-    greenAccent: 'text-[#1a5f2a]',
-    greenBg: 'bg-[#1a5f2a]',
-    badge: 'bg-red-50 text-[#c41e3a]',
-    greenBadge: 'bg-green-50 text-[#1a5f2a]',
-    buttonShadow: 'shadow-[#c41e3a]/25',
-    cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
-    accentColor: '#c41e3a',
-  },
-};
-
 export default function PartyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -79,18 +40,9 @@ export default function PartyDetailPage() {
 
   // Theme
   const { theme, setTheme, currentTheme } = useTheme("appTheme");
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
 
   // 테마별 악센트 색상
-  const getAccentColor = () => {
-    switch (theme) {
-      case "christmas": return "#c41e3a";
-      case "pop": return "#ec4899";
-      case "dark": return "#635bff";
-      default: return "#635bff";
-    }
-  };
-  const accentColor = getAccentColor();
+  const accentColor = currentTheme.accent;
 
   // Zustand Store
   const {
@@ -236,42 +188,7 @@ export default function PartyDetailPage() {
   const perPersonFee = party.monthlyFee ?? 0;
   const availableSlots = party.maxMembers - party.currentMembers;
 
-  const getStatusBadge = (status) => {
-    const badges = {
-      RECRUITING: {
-        bg: theme === "pop" ? "bg-pink-500" : theme === "christmas" ? "bg-green-800" : "bg-[#635bff]",
-        text: "모집중"
-      },
-      ACTIVE: {
-        bg: "bg-emerald-500",
-        text: "파티중"
-      },
-      PENDING_PAYMENT: {
-        bg: "bg-amber-500",
-        text: "결제대기"
-      },
-      CLOSED: {
-        bg: "bg-gray-400",
-        text: "파티종료"
-      },
-    };
-    return badges[status] || badges.RECRUITING;
-  };
-
-  const badge = getStatusBadge(party.partyStatus);
-
-  const formatDate = (dateData) => {
-    if (!dateData) return "-";
-    if (Array.isArray(dateData)) {
-      const [year, month, day] = dateData;
-      return `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
-    }
-    const date = new Date(dateData);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
-  };
+  const badge = getStatusBadge(party, theme);
 
   return (
     <div className={`min-h-screen pb-20 transition-colors duration-300 relative z-10 ${currentTheme.bg}`}>
@@ -344,12 +261,7 @@ export default function PartyDetailPage() {
                       </span>
                     )}
                     {isMember && !isLeader && (
-                      <span className={`bg-white px-3 py-1.5 rounded-full text-xs font-bold border ${theme === "pop"
-                        ? "text-pink-500 shadow-lg border-pink-200"
-                        : theme === "christmas"
-                          ? "text-green-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] border-gray-200"
-                          : "text-[#635bff] shadow-lg border-[#635bff]/20"
-                        }`}>
+                      <span className={`bg-white px-3 py-1.5 rounded-full text-xs font-bold border ${currentTheme.accentText} shadow-lg`} style={{ borderColor: `${accentColor}33` }}>
                         <Check className="w-3 h-3 inline mr-1" />
                         참여중
                       </span>
@@ -386,15 +298,10 @@ export default function PartyDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                   whileHover={{ y: -2 }}
-                  className={`rounded-2xl p-5 border transition-all ${theme === "dark"
-                    ? "bg-[#1E293B] border-gray-700 shadow-lg hover:shadow-xl"
-                    : theme === "christmas"
-                      ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                      : "bg-white border-gray-100 shadow-sm hover:shadow-lg"
-                    }`}
+                  className={`rounded-2xl p-5 border transition-all ${currentTheme.card}`}
                 >
                   <div className={`flex items-center gap-2 text-sm mb-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                    <Users className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Users className={`w-4 h-4 ${currentTheme.accentText}`} />
                     <span>파티 인원</span>
                   </div>
                   <p className={`text-2xl font-black ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
@@ -417,15 +324,10 @@ export default function PartyDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                   whileHover={{ y: -2 }}
-                  className={`rounded-2xl p-5 border transition-all ${theme === "dark"
-                    ? "bg-[#1E293B] border-gray-700 shadow-lg hover:shadow-xl"
-                    : theme === "christmas"
-                      ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                      : "bg-white border-gray-100 shadow-sm hover:shadow-lg"
-                    }`}
+                  className={`rounded-2xl p-5 border transition-all ${currentTheme.card}`}
                 >
                   <div className={`flex items-center gap-2 text-sm mb-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                    <Calendar className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                    <Calendar className={`w-4 h-4 ${currentTheme.accentText}`} />
                     <span>이용 기간</span>
                   </div>
                   <p className={`text-sm font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
@@ -443,14 +345,9 @@ export default function PartyDetailPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className={`w-full lg:w-80 rounded-2xl p-6 border sticky top-24 ${theme === "dark"
-                ? "bg-[#1E293B] border-gray-700 shadow-xl"
-                : theme === "christmas"
-                  ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "bg-white border-gray-100 shadow-xl"
-                }`}
+              className={`w-full lg:w-80 rounded-2xl p-6 border sticky top-24 ${currentTheme.card}`}
             >
-              <div className={`flex items-center gap-2 mb-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
+              <div className={`flex items-center gap-2 mb-4 ${currentTheme.accentText}`}>
                 <TrendingDown className="w-5 h-5" />
                 <span className="text-sm font-semibold">최대 75% 할인</span>
               </div>
@@ -474,7 +371,7 @@ export default function PartyDetailPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>첫 결제 총액</span>
-                  <span className={`font-bold ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`}>
+                  <span className={`font-bold ${currentTheme.accentText}`}>
                     {(perPersonFee * 2).toLocaleString()}원
                   </span>
                 </div>
@@ -569,14 +466,7 @@ export default function PartyDetailPage() {
                 {/* 빌링키 미등록 멤버(비방장)에게 카드 등록 안내 */}
                 {isMember && !isLeader && !user?.hasBillingKey ? (
                   <div className="text-center py-8">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${theme === "christmas"
-                      ? "bg-red-100"
-                      : theme === "pop"
-                        ? "bg-pink-100"
-                        : theme === "dark"
-                          ? "bg-gray-700"
-                          : "bg-[#635bff]/10"
-                      }`}>
+                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${currentTheme.accentBg} bg-opacity-10`}>
                       <CreditCard className="w-8 h-8" style={{ color: accentColor }} />
                     </div>
                     <h3 className={`text-lg font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"
@@ -676,36 +566,28 @@ export default function PartyDetailPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className={`rounded-2xl p-6 border ${theme === "dark"
-                ? "bg-[#1E293B] border-gray-700 shadow-lg"
-                : theme === "christmas"
-                  ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "bg-white border-gray-100 shadow-sm"
-                }`}
+              className={`rounded-2xl p-6 border ${currentTheme.card}`}
             >
               <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                <Shield className={`w-5 h-5 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                <Shield className={`w-5 h-5 ${currentTheme.accentText}`} />
                 안전한 파티 이용을 위한 안내
               </h3>
               <ul className={`space-y-3 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
-                    }`}>
-                    <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${currentTheme.accentBg} bg-opacity-10`}>
+                    <Check className={`w-3 h-3 ${currentTheme.accentText}`} />
                   </div>
                   <span>보증금은 파티 종료 시 전액 환불됩니다</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
-                    }`}>
-                    <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${currentTheme.accentBg} bg-opacity-10`}>
+                    <Check className={`w-3 h-3 ${currentTheme.accentText}`} />
                   </div>
                   <span>매월 자동 결제로 편리하게 이용하세요</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === "dark" ? "bg-[#635bff]/20" : theme === "pop" ? "bg-pink-50" : theme === "christmas" ? "bg-red-50" : "bg-[#635bff]/10"
-                    }`}>
-                    <Check className={`w-3 h-3 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${currentTheme.accentBg} bg-opacity-10`}>
+                    <Check className={`w-3 h-3 ${currentTheme.accentText}`} />
                   </div>
                   <span>탈퇴 시 다음 결제일 전까지 이용 가능합니다</span>
                 </li>
@@ -718,15 +600,10 @@ export default function PartyDetailPage() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`rounded-2xl p-6 border h-fit sticky top-24 ${theme === "dark"
-                ? "bg-[#1E293B] border-gray-700 shadow-lg"
-                : theme === "christmas"
-                  ? "bg-white border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-                  : "bg-white border-gray-100 shadow-sm"
-                }`}
+              className={`rounded-2xl p-6 border h-fit sticky top-24 ${currentTheme.card}`}
             >
               <h3 className={`text-sm font-bold mb-4 uppercase tracking-wide flex items-center gap-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                <Users className={`w-4 h-4 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                <Users className={`w-4 h-4 ${currentTheme.accentText}`} />
                 파티 멤버
               </h3>
 
@@ -810,7 +687,7 @@ export default function PartyDetailPage() {
                   {/* 저장된 카드 정보 표시 */}
                   {savedCard ? (
                     <div className={`flex items-center gap-3 p-4 rounded-xl mb-4 ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"}`}>
-                      <CreditCard className={`w-8 h-8 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                      <CreditCard className={`w-8 h-8 ${currentTheme.accentText}`} />
                       <div>
                         <p className={`text-xs ${currentTheme.subtext}`}>저장된 카드</p>
                         <p className={`font-semibold ${currentTheme.text}`}>
@@ -821,7 +698,7 @@ export default function PartyDetailPage() {
                   ) : (
                     <div className="text-center mb-4">
                       <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-3 ${theme === "dark" ? "bg-[#635bff]/20" : "bg-gray-100"}`}>
-                        <CreditCard className={`w-7 h-7 ${theme === "pop" ? "text-pink-500" : theme === "christmas" ? "text-red-800" : "text-[#635bff]"}`} />
+                        <CreditCard className={`w-7 h-7 ${currentTheme.accentText}`} />
                       </div>
                       <p className={`text-sm ${currentTheme.subtext}`}>
                         카드를 등록하면 파티에 가입됩니다
