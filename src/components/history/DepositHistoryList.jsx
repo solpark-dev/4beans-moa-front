@@ -21,6 +21,14 @@ export default function DepositHistoryList() {
           iconBg: 'bg-gradient-to-br from-pink-50 to-cyan-50',
           spinnerBorder: 'border-pink-500',
           statusAccent: 'bg-pink-500',
+          cardBg: 'bg-white',
+          cardBorder: 'border-slate-200',
+          textPrimary: 'text-slate-900',
+          textSecondary: 'text-slate-600',
+          textMuted: 'text-slate-500',
+          borderColor: 'border-slate-100',
+          emptyBg: 'bg-slate-100',
+          emptyIcon: 'text-slate-400',
         };
       case 'christmas':
         return {
@@ -30,6 +38,14 @@ export default function DepositHistoryList() {
           iconBg: 'bg-gradient-to-br from-red-50 to-green-50',
           spinnerBorder: 'border-[#c41e3a]',
           statusAccent: 'bg-[#c41e3a]',
+          cardBg: 'bg-white',
+          cardBorder: 'border-slate-200',
+          textPrimary: 'text-slate-900',
+          textSecondary: 'text-slate-600',
+          textMuted: 'text-slate-500',
+          borderColor: 'border-slate-100',
+          emptyBg: 'bg-slate-100',
+          emptyIcon: 'text-slate-400',
         };
       case 'dark':
         return {
@@ -39,6 +55,14 @@ export default function DepositHistoryList() {
           iconBg: 'bg-gradient-to-br from-slate-700 to-slate-800',
           spinnerBorder: 'border-[#635bff]',
           statusAccent: 'bg-[#635bff]',
+          cardBg: 'bg-[#1E293B]',
+          cardBorder: 'border-gray-700',
+          textPrimary: 'text-white',
+          textSecondary: 'text-gray-300',
+          textMuted: 'text-gray-400',
+          borderColor: 'border-gray-700',
+          emptyBg: 'bg-gray-800',
+          emptyIcon: 'text-gray-500',
         };
       default:
         return {
@@ -48,6 +72,14 @@ export default function DepositHistoryList() {
           iconBg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
           spinnerBorder: 'border-[#635bff]',
           statusAccent: 'bg-[#635bff]',
+          cardBg: 'bg-white',
+          cardBorder: 'border-slate-200',
+          textPrimary: 'text-slate-900',
+          textSecondary: 'text-slate-600',
+          textMuted: 'text-slate-500',
+          borderColor: 'border-slate-100',
+          emptyBg: 'bg-slate-100',
+          emptyIcon: 'text-slate-400',
         };
     }
   };
@@ -106,11 +138,11 @@ export default function DepositHistoryList() {
   if (deposits.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <ShieldCheck className="w-8 h-8 text-slate-400" />
+        <div className={`w-16 h-16 ${themeColors.emptyBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
+          <ShieldCheck className={`w-8 h-8 ${themeColors.emptyIcon}`} />
         </div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">보증금 내역이 없습니다</h3>
-        <p className="text-slate-500 text-sm">파티를 만들거나 가입하면 보증금이 생성됩니다</p>
+        <h3 className={`text-lg font-semibold ${themeColors.textPrimary} mb-2`}>보증금 내역이 없습니다</h3>
+        <p className={`${themeColors.textMuted} text-sm`}>파티를 만들거나 가입하면 보증금이 생성됩니다</p>
       </div>
     );
   }
@@ -126,7 +158,7 @@ export default function DepositHistoryList() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               onClick={() => setSelectedDeposit(deposit)}
-              className={`group bg-white border border-slate-200 rounded-xl p-4 ${themeColors.borderHover} hover:shadow-lg transition-all cursor-pointer`}
+              className={`group ${themeColors.cardBg} border ${themeColors.cardBorder} rounded-xl p-4 ${themeColors.borderHover} hover:shadow-lg transition-all cursor-pointer`}
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-3">
@@ -134,10 +166,10 @@ export default function DepositHistoryList() {
                     <ShieldCheck className={`w-5 h-5 ${themeColors.accent}`} />
                   </div>
                   <div>
-                    <h3 className={`text-base font-bold text-slate-900 ${themeColors.accentHover} transition-colors`}>
+                    <h3 className={`text-base font-bold ${themeColors.textPrimary} ${themeColors.accentHover} transition-colors`}>
                       {deposit.productName || "파티"}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                    <div className={`flex items-center gap-1.5 text-xs ${themeColors.textMuted} mt-0.5`}>
                       <Calendar className="w-3 h-3" />
                       <span>
                         {deposit.paymentDate
@@ -156,15 +188,15 @@ export default function DepositHistoryList() {
                 </span>
               </div>
 
-              <div className="flex justify-between items-end pt-3 border-t border-slate-100">
-                <div className="text-sm text-slate-600">
+              <div className={`flex justify-between items-end pt-3 border-t ${themeColors.borderColor}`}>
+                <div className={`text-sm ${themeColors.textSecondary}`}>
                   {deposit.depositStatus === "PAID" && "안전하게 보관중"}
                   {deposit.depositStatus === "REFUNDED" && "환불 완료됨"}
                   {deposit.depositStatus === "FORFEITED" && "몰수됨"}
                 </div>
-                <div className="text-xl font-bold text-slate-900">
+                <div className={`text-xl font-bold ${themeColors.textPrimary}`}>
                   {deposit.depositAmount?.toLocaleString() || 0}
-                  <span className="text-sm text-slate-500 ml-1">원</span>
+                  <span className={`text-sm ${themeColors.textMuted} ml-1`}>원</span>
                 </div>
               </div>
             </motion.div>

@@ -112,8 +112,6 @@ const Confetti = ({ themeStyle }) => {
 };
 
 export default function MainHeroSection({ parties, products = [] }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
   const navigate = useNavigate();
 
   // 테마 설정
@@ -138,30 +136,6 @@ export default function MainHeroSection({ parties, products = [] }) {
   const isDesktopCardsInView = useInView(desktopCardsRef, { once: false, amount: 0.4 });
   // 모바일 카드 감지
   const isMobileCardsInView = useInView(mobileCardsRef, { once: false, amount: 0.4 });
-
-  // 한글-영어 매핑
-  const koreanToEnglish = {
-    "넷플릭스": "netflix", "넷플": "netflix",
-    "디즈니": "disney", "디즈니플러스": "disney",
-    "유튜브": "youtube", "유튭": "youtube",
-    "스포티파이": "spotify", "스포티": "spotify",
-    "웨이브": "wavve", "왓챠": "watcha",
-    "티빙": "tving", "쿠팡": "coupang", "쿠팡플레이": "coupang",
-    "애플": "apple", "애플뮤직": "apple", "애플티비": "apple",
-  };
-
-  // 구독상품 검색 필터링
-  const filteredProducts = searchQuery.trim()
-    ? products.filter((p) => {
-      const name = (p?.productName || p?.name || "").toLowerCase();
-      const query = searchQuery.toLowerCase();
-      if (name.includes(query)) return true;
-      for (const [kor, eng] of Object.entries(koreanToEnglish)) {
-        if (query.includes(kor) && name.includes(eng)) return true;
-      }
-      return false;
-    }).slice(0, 5)
-    : [];
 
   // 흩어진 위치 (초기)
   const scatterPositions = [
@@ -354,60 +328,20 @@ export default function MainHeroSection({ parties, products = [] }) {
           >
             {/* 버튼 그룹 - 항상 나란히 */}
             <div className="flex flex-row gap-2 sm:gap-3">
-              <Link to="/signup">
-                <button className={`px-3 py-2 sm:px-4 sm:py-3 font-bold ${themeStyle.primaryBtn} border border-gray-200 rounded-lg sm:rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.primaryBtnHover} transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2`}>
-                  회원가입
-                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-              </Link>
+              {!user && (
+                <Link to="/signup">
+                  <button className={`px-3 py-2 sm:px-4 sm:py-3 font-bold ${themeStyle.primaryBtn} border border-gray-200 rounded-lg sm:rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.primaryBtnHover} transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2`}>
+                    회원가입
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </button>
+                </Link>
+              )}
               <Link to="/party/create">
                 <button className={`px-3 py-2 sm:px-4 sm:py-3 font-bold ${themeStyle.secondaryBtn} border border-gray-200 rounded-lg sm:rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] ${themeStyle.secondaryBtnHover} transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2`}>
                   <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                   파티 만들기
                 </button>
               </Link>
-            </div>
-
-            {/* 검색창 - 아래에 배치 */}
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setShowResults(true)}
-                onBlur={() => setTimeout(() => setShowResults(false), 200)}
-                placeholder="구독상품 검색"
-                className={`w-44 sm:w-52 px-3 py-2 sm:px-4 sm:py-3 pl-8 sm:pl-10 font-bold border rounded-lg sm:rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] focus:shadow-[6px_6px_16px_rgba(0,0,0,0.12)] transition-all outline-none text-xs sm:text-sm ${isDark ? 'bg-[#1E293B] border-gray-600 text-white placeholder:text-gray-400' : 'bg-white border-gray-200'}`}
-              />
-              <Search className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
-
-              {/* 검색 결과 드롭다운 */}
-              <AnimatePresence>
-                {showResults && searchQuery.trim() && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className={`absolute top-full left-0 right-0 mt-2 ${isDark ? 'bg-[#1E293B] border-gray-600' : 'bg-white border-gray-200'} border rounded-xl shadow-[6px_6px_16px_rgba(0,0,0,0.12)] overflow-hidden z-50 min-w-[200px]`}
-                  >
-                    {filteredProducts.length > 0 ? (
-                      filteredProducts.map((product) => (
-                        <Link
-                          key={product?.productId || product?.id}
-                          to={`/mypage/subscriptions/add?productId=${product?.productId || product?.id}`}
-                          className={`flex items-center gap-2 px-4 py-3 ${isDark ? 'hover:bg-[#2D3B4F] border-gray-600' : `${themeStyle.searchResultHover} border-gray-200`} transition-colors border-b last:border-0`}
-                        >
-                          <span className={`font-black text-sm ${isDark ? 'text-white' : ''}`}>{product?.productName || product?.name}</span>
-                        </Link>
-                      ))
-                    ) : (
-                      <div className={`px-4 py-3 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} font-bold`}>
-                        검색 결과 없음
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           </motion.div>
         </motion.div>

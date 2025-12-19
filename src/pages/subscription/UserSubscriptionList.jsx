@@ -32,12 +32,12 @@ export default function UserSubscriptionList() {
   );
 
   return (
-    <div className={`min-h-screen ${themeClasses.bg.base} pb-20`}>
+    <div className={`min-h-screen bg-transparent pb-20`}>
       {/* Theme Switcher */}
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
       {/* Hero Header */}
-      <div className={`relative overflow-hidden ${themeClasses.bg.base} border-b border-[var(--theme-border-light)]`}>
+      <div className={`relative overflow-hidden bg-transparent border-b border-[var(--theme-border-light)]`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

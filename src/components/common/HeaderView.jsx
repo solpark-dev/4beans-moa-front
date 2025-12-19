@@ -607,7 +607,7 @@ export default function HeaderView({
 
               <Link to="/signup" className="hidden sm:block">
                 <Sticker className="px-4 py-2 rounded-2xl">
-                  <span className="font-black text-black">회원가입</span>
+                  <span className={`font-black ${themeStyle.stickerText}`}>회원가입</span>
                 </Sticker>
               </Link>
 

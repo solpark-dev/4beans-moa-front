@@ -162,9 +162,9 @@ const InquiryAdmin = () => {
                             <div className="col-span-1 text-center">번호</div>
                             <div className="col-span-1 text-center" style={{ whiteSpace: 'nowrap' }}>카테고리</div>
                             <div className="col-span-8 pl-4">제목</div>
-                            <div className="col-span-4 text-center">작성자</div>
+                            <div className="col-span-3 text-center">작성자</div>
                             <div className="col-span-2 text-center">작성일</div>
-                            <div className="col-span-1 text-center">상태</div>
+                            <div className="col-span-2 text-center">상태</div>
                             <div className="col-span-2 text-center">관리</div>
                         </div>
                     </div>
@@ -195,13 +195,13 @@ const InquiryAdmin = () => {
                                         <ImageIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                     )}
                                 </div>
-                                <div className="col-span-4 text-center font-medium text-gray-600">
+                                <div className="col-span-3 text-center font-medium text-gray-600">
                                     {inquiry.userId}
                                 </div>
                                 <div className="col-span-2 text-center font-medium text-gray-600" style={{ whiteSpace: 'nowrap' }}>
                                     {formatDate(inquiry.createdAt)}
                                 </div>
-                                <div className="col-span-1 flex justify-center">
+                                <div className="col-span-2 flex justify-center">
                                     <InquiryStatusBadge status={inquiry.answerStatus} />
                                 </div>
                                 <div className="col-span-2 text-center">

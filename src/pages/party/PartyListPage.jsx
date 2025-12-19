@@ -63,7 +63,6 @@ export default function PartyListPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const observerTarget = useRef(null);
-  const isFirstRender = useRef(true);
   const observerEnabled = useRef(false);
 
   // Zustand Store
@@ -78,7 +77,7 @@ export default function PartyListPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("RECRUITING");
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [startDate, setStartDate] = useState("");
   const [sortBy, setSortBy] = useState("latest");
@@ -115,10 +114,10 @@ export default function PartyListPage() {
 
   // 필터 변경 시 리스트 초기화 및 재검색
   useEffect(() => {
-    if (!isFirstRender.current) {
-      window.scrollTo(0, 0);
-    }
-    isFirstRender.current = false;
+    // if (!isFirstRender.current) {
+    //   window.scrollTo(0, 0);
+    // }
+    // isFirstRender.current = false;
 
     const params = {
       keyword: debouncedQuery,
@@ -613,9 +612,11 @@ export default function PartyListPage() {
                       <div className="absolute top-3 left-3">
                         <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg ${isLeader
                           ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white"
-                          : theme === "christmas"
-                            ? "bg-white text-[#1a5f2a]"
-                            : "bg-white text-[#635bff]"
+                          : theme === "pop"
+                            ? "bg-white text-pink-500 border border-pink-200"
+                            : theme === "christmas"
+                              ? "bg-white text-[#1a5f2a]"
+                              : "bg-white text-[#635bff]"
                           }`}>
                           {isLeader ? "파티장" : "참여중"}
                         </span>

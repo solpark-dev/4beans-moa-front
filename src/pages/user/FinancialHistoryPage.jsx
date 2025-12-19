@@ -9,6 +9,7 @@ import {
   useTheme,
   ThemeSwitcher,
 } from "../../config/themeConfig";
+import { themeClasses } from "@/utils/themeUtils";
 
 export default function FinancialHistoryPage() {
   const navigate = useNavigate();
@@ -37,21 +38,11 @@ export default function FinancialHistoryPage() {
       <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
       {/* Hero Header */}
-      <div className={`relative overflow-hidden bg-transparent ${
-        theme === "dark" ? "border-b border-gray-800" : ""
-      }`}>
+      <div className={`relative overflow-hidden bg-transparent border-b ${themeClasses.border.light}`}>
         <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
           <button
             onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 mb-6 transition-colors group ${
-              theme === "dark"
-                ? "text-gray-400 hover:text-[#635bff]"
-                : theme === "pop"
-                  ? "text-black hover:text-pink-500"
-                  : theme === "christmas"
-                    ? "text-gray-500 hover:text-[#c41e3a]"
-                    : "text-gray-400 hover:text-[#635bff]"
-            }`}
+            className={`flex items-center gap-2 mb-6 transition-colors group ${themeClasses.interactive.link}`}
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="font-semibold">뒤로가기</span>
@@ -77,48 +68,19 @@ export default function FinancialHistoryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={`rounded-xl shadow-sm overflow-hidden ${
-            theme === "pop"
-              ? "bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-              : theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "christmas"
-                  ? "bg-white border border-gray-100"
-                  : "bg-white border border-slate-200"
-          }`}
+          className={`rounded-xl shadow-sm overflow-hidden ${themeClasses.card.base}`}
         >
-          <div className={`flex ${
-            theme === "dark"
-              ? "border-b border-gray-700"
-              : theme === "pop"
-                ? "border-b border-gray-200"
-                : theme === "christmas"
-                  ? "border-b border-gray-100"
-                  : "border-b border-slate-200"
-          }`}>
+          <div className={`flex border-b ${themeClasses.border.light}`}>
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
-                  className={`flex-1 py-4 px-4 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                    theme === "pop"
-                      ? isActive
-                        ? "text-pink-600 border-b-2 border-pink-500 bg-pink-50"
-                        : "text-gray-600 hover:bg-pink-50"
-                      : theme === "dark"
-                        ? isActive
-                          ? "text-[#635bff] border-b-2 border-[#635bff] bg-[#635bff]/10"
-                          : "text-gray-400 hover:text-gray-300 hover:bg-gray-800"
-                        : theme === "christmas"
-                          ? isActive
-                            ? "text-[#c41e3a] border-b-2 border-[#c41e3a] bg-[#c41e3a]/5"
-                            : "text-gray-500 hover:text-[#c41e3a] hover:bg-gray-50"
-                          : isActive
-                            ? "text-[#635bff] border-b-2 border-[#635bff] bg-[#635bff]/5"
-                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
-                  }`}
+                  className={`flex-1 py-4 px-4 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${isActive
+                      ? `text-[var(--theme-primary)] border-b-2 border-[var(--theme-primary)] ${themeClasses.bg.accentLight}`
+                      : `${themeClasses.text.muted} hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)]`
+                    }`}
                   onClick={() => setActiveTab(tab.id)}
                 >
                   <Icon className="w-4 h-4" />
@@ -151,41 +113,17 @@ export default function FinancialHistoryPage() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6"
         >
-          <div className={`rounded-xl p-4 ${
-            theme === "pop"
-              ? "bg-cyan-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-              : theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "christmas"
-                  ? "bg-[#c41e3a]/5 border border-[#c41e3a]/10"
-                  : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10 border border-[#635bff]/10"
-          }`}>
+          <div className={`rounded-xl p-4 ${themeClasses.card.base}`}>
             <Receipt className="w-5 h-5 mb-2" style={{ color: currentTheme.accent }} />
             <p className={`text-xs mb-1 ${currentTheme.subtext}`}>자동 결제</p>
             <p className={`text-sm font-bold ${currentTheme.text}`}>매월 정기 결제</p>
           </div>
-          <div className={`rounded-xl p-4 ${
-            theme === "pop"
-              ? "bg-pink-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-              : theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "christmas"
-                  ? "bg-[#0a6638]/5 border border-[#0a6638]/10"
-                  : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10 border border-[#635bff]/10"
-          }`}>
+          <div className={`rounded-xl p-4 ${themeClasses.card.base}`}>
             <ShieldCheck className="w-5 h-5 mb-2" style={{ color: currentTheme.accent }} />
             <p className={`text-xs mb-1 ${currentTheme.subtext}`}>보증금 보호</p>
             <p className={`text-sm font-bold ${currentTheme.text}`}>안전하게 보관</p>
           </div>
-          <div className={`rounded-xl p-4 ${
-            theme === "pop"
-              ? "bg-lime-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
-              : theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : theme === "christmas"
-                  ? "bg-[#c41e3a]/5 border border-[#c41e3a]/10"
-                  : "bg-gradient-to-br from-[#635bff]/5 to-[#635bff]/10 border border-[#635bff]/10"
-          }`}>
+          <div className={`rounded-xl p-4 ${themeClasses.card.base}`}>
             <TrendingUp className="w-5 h-5 mb-2" style={{ color: currentTheme.accent }} />
             <p className={`text-xs mb-1 ${currentTheme.subtext}`}>정산 시스템</p>
             <p className={`text-sm font-bold ${currentTheme.text}`}>투명한 관리</p>

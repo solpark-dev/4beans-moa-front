@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import useBankVerificationStore from '@/store/bankVerificationStore';
 import {
     useTheme,
@@ -76,6 +77,22 @@ export default function BankVerificationPage() {
             <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
 
             <div className="max-w-md mx-auto">
+                {/* 뒤로가기 버튼 */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
+                        ? "text-gray-400 hover:text-[#635bff]"
+                        : theme === "pop"
+                            ? "text-black hover:text-pink-500"
+                            : theme === "christmas"
+                                ? "text-gray-500 hover:text-[#c41e3a]"
+                                : "text-gray-400 hover:text-[#635bff]"
+                        }`}
+                >
+                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-semibold">뒤로가기</span>
+                </button>
+
                 {/* 진행 상태 인디케이터 */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
@@ -132,12 +149,12 @@ export default function BankVerificationPage() {
                         }`}>
                         <motion.div
                             className={`absolute top-0 left-0 h-full rounded-full ${theme === "dark"
-                                    ? "bg-[#635bff]"
-                                    : theme === "pop"
-                                        ? "bg-pink-500"
-                                        : theme === "christmas"
-                                            ? "bg-[#c41e3a]"
-                                            : "bg-[#635bff]"
+                                ? "bg-[#635bff]"
+                                : theme === "pop"
+                                    ? "bg-pink-500"
+                                    : theme === "christmas"
+                                        ? "bg-[#c41e3a]"
+                                        : "bg-[#635bff]"
                                 }`}
                             initial={{ width: '0%' }}
                             animate={{ width: `${((getStepNumber() - 1) / 3) * 100}%` }}

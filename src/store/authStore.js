@@ -103,6 +103,12 @@ export const useAuthStore = create(
         refreshToken: state.refreshToken,
         accessTokenExpiresIn: state.accessTokenExpiresIn,
       }),
+      onRehydrateStorage: () => (state) => {
+        // localStorage에서 상태 복원 후 세션 확인
+        if (state?.accessToken) {
+          state.fetchSession();
+        }
+      },
     }
   )
 );

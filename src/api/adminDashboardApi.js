@@ -5,3 +5,15 @@ export const getDashboardStats = async () => {
     const response = await httpClient.get("/admin/dashboard/stats");
     return response;
 };
+
+// 월 목표 조회
+export const getMonthlyGoal = async () => {
+    const response = await httpClient.get("/admin/dashboard/goal");
+    return response;
+};
+
+// 월 목표 수정
+export const updateMonthlyGoal = async (goalAmount) => {
+    const response = await httpClient.put("/admin/dashboard/goal", { goalAmount });
+    return response;
+};

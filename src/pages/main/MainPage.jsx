@@ -32,11 +32,10 @@ export default function MainPage() {
       <div className="relative min-h-screen">
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 py-10">
           <div
-            className={`${
-              theme === "dark"
+            className={`${theme === "dark"
                 ? "bg-[#1E293B] border-gray-700 text-white"
                 : "bg-white border-gray-200 text-black"
-            } border rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] p-6 font-black`}
+              } border rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)] p-6 font-black`}
           >
             {error}
           </div>
@@ -70,7 +69,6 @@ export default function MainPage() {
       <MainComparisonSection />
       <MainStatsMarquee />
       <MainFeaturesSection stats={stats} />
-      <MainSearchSection products={products} />
       <MainProductsSection />
       <MainHowItWorksSection />
 
