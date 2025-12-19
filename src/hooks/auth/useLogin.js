@@ -120,6 +120,14 @@ export const useLoginPageLogic = () => {
       }));
       return;
     }
+    try {
+      await httpClient.post("/auth/exists-by-email", {
+        email: trimmedEmail,
+      });
+    } catch (e) {
+      alert("존재하는 계정이 아닙니다.");
+      return;
+    }
 
     try {
       const impUid = await runPassCertification();

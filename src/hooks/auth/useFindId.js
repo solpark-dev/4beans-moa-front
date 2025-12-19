@@ -10,7 +10,7 @@ export const useFindIdLogic = () => {
     try {
       setField("isLoading", true);
 
-      const startRes = await httpClient.get("/users/pass/start");
+      const startRes = await httpClient.get("/signup/pass/start");
       const { impCode, merchantUid } = startRes.data;
 
       if (!IMP) {
@@ -32,17 +32,14 @@ export const useFindIdLogic = () => {
 
           try {
             // PASS 인증 검증
-            const verifyRes = await httpClient.post(
-              "/users/pass/verify-find-id",
-              {
-                imp_uid: rsp.imp_uid,
-              }
-            );
+            const verifyRes = await httpClient.post("/signup/pass/verify", {
+              imp_uid: rsp.imp_uid,
+            });
 
             const { phone } = verifyRes.data;
 
             // 아이디 찾기
-            const findIdRes = await httpClient.post("/users/find-id", {
+            const findIdRes = await httpClient.post("/signup/find-id", {
               phone,
             });
             const { email } = findIdRes.data;

@@ -17,7 +17,7 @@ export const initResetPwdPage = () => {
   if (!passBtn.dataset.boundPass) {
     passBtn.addEventListener("click", async () => {
       try {
-        const res = await httpClient.get("/users/pass/start");
+        const res = await httpClient.get("/signup/pass/start");
         const { data } = res;
         const { impCode, merchantUid } = data;
 
