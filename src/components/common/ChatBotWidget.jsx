@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useThemeStore } from "@/store/themeStore";
+import { MessageCircle, ChevronUp, X, Bot, User, Send } from "lucide-react";
 
 // Theme color configurations for chatbot
 const themeColors = {
