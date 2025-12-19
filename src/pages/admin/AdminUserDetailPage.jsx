@@ -45,7 +45,7 @@ export default function AdminUserDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 relative z-10">
+      <div className="min-h-screen flex items-center justify-center bg-transparent relative z-10">
         <p className="text-sm font-bold text-slate-600">
           회원 정보를 불러오는 중입니다...
         </p>
@@ -55,7 +55,7 @@ export default function AdminUserDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 relative z-10">
+      <div className="min-h-screen flex items-center justify-center bg-transparent relative z-10">
         <p className="text-sm font-bold text-red-500">{error}</p>
       </div>
     );
@@ -84,10 +84,10 @@ export default function AdminUserDetailPage() {
 
   return (
     <AdminAuthGuard>
-      <div className="min-h-screen bg-slate-50 text-slate-900 relative z-10">
+      <div className="min-h-screen bg-transparent text-slate-900 relative z-10">
         <AdminUserDetailHeader shortId={shortId} />
 
-        <div className="bg-slate-50">
+        <div className="bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <div className="grid lg:grid-cols-[minmax(0,280px)_1fr] gap-8">
               <aside className="w-full">

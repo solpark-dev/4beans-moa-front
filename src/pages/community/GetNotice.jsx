@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import CommunityLayout from '../../components/community/CommunityLayout';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
@@ -127,13 +128,29 @@ const GetNotice = () => {
     return (
         <CommunityLayout>
             <div className="max-w-3xl mx-auto pt-8">
+                {/* 뒤로가기 버튼 */}
+                <button
+                    onClick={() => navigate('/community/notice')}
+                    className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
+                        ? "text-gray-400 hover:text-[#635bff]"
+                        : theme === "pop"
+                            ? "text-black hover:text-pink-500"
+                            : theme === "christmas"
+                                ? "text-gray-500 hover:text-[#c41e3a]"
+                                : "text-gray-400 hover:text-[#635bff]"
+                        }`}
+                >
+                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-semibold">목록으로</span>
+                </button>
+
                 <NeoCard
-                    color="bg-white"
+                    color={theme === "dark" ? "bg-[#1E293B]" : "bg-white"}
                     hoverable={false}
                     className="rounded-2xl p-6"
                 >
-                    <div className="border-b border-gray-200 pb-6 mb-6">
-                        <h2 className="text-xl font-black text-black mb-4">
+                    <div className={`border-b pb-6 mb-6 ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
+                        <h2 className={`text-xl font-black mb-4 ${theme === "dark" ? "text-white" : "text-black"}`}>
                             {notice.title}
                         </h2>
                         <div className="flex items-center gap-4">
@@ -146,11 +163,11 @@ const GetNotice = () => {
                         </div>
                     </div>
 
-                    <div className="min-h-[300px] py-6 text-gray-700 font-medium leading-relaxed whitespace-pre-wrap">
+                    <div className={`min-h-[300px] py-6 font-medium leading-relaxed whitespace-pre-wrap ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                         {notice.content}
                     </div>
 
-                    <div className="flex items-center justify-end mt-10 pt-6 border-t border-gray-200 gap-3">
+                    <div className={`flex items-center justify-end mt-10 pt-6 border-t gap-3 ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
                         {isAdmin && (
                             <button
                                 onClick={() => navigate(`/community/notice/update/${noticeId}`)}
@@ -165,11 +182,10 @@ const GetNotice = () => {
                         )}
                         <button
                             onClick={() => navigate('/community/notice')}
-                            className="px-6 py-2 text-sm font-black text-black bg-white
-                                border border-gray-200 rounded-xl
-                                shadow-[4px_4px_12px_rgba(0,0,0,0.08)]
-                                hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]
-                                transition-all"
+                            className={`px-6 py-2 text-sm font-black rounded-xl transition-all ${theme === "dark"
+                                ? "text-gray-200 bg-[#0F172A] border border-gray-700 hover:bg-gray-800"
+                                : "text-black bg-white border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.12)]"
+                                }`}
                         >
                             목록
                         </button>

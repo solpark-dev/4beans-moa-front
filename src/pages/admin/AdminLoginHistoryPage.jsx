@@ -7,7 +7,7 @@ export default function AdminLoginHistoryPage() {
   const loginHistory = useAdminLoginHistory(userId);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-transparent text-slate-900 font-sans">
       <section className="relative overflow-hidden px-4 py-12">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,_rgba(15,23,42,0.08),_transparent_55%)]" />
         <div className="relative max-w-7xl mx-auto">

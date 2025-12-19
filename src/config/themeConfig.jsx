@@ -214,7 +214,7 @@ export const headerThemes = {
     switchChecked: "data-[state=checked]:bg-black data-[state=unchecked]:bg-slate-300",
     // Avatar
     avatarBorder: "border-2 border-black bg-slate-50",
-    avatarFallback: "bg-cyan-400 text-black",
+    avatarFallback: "bg-[#635bff] text-white",
   },
   dark: {
     // Header container

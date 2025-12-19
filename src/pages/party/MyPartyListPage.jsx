@@ -13,6 +13,7 @@ import {
   Sparkles,
   Plus,
   ArrowRight,
+  ArrowLeft,
   Activity,
   LayoutGrid,
   Archive,
@@ -207,6 +208,22 @@ export default function MyPartyListPage() {
 
       {/* Simple Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+        {/* 뒤로가기 버튼 */}
+        <button
+          onClick={() => navigate(-1)}
+          className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
+            ? "text-gray-400 hover:text-[#635bff]"
+            : theme === "pop"
+              ? "text-black hover:text-pink-500"
+              : theme === "christmas"
+                ? "text-gray-500 hover:text-[#c41e3a]"
+                : "text-gray-400 hover:text-[#635bff]"
+            }`}
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-semibold">뒤로가기</span>
+        </button>
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

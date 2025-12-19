@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { NeoCard, NeoButton } from '@/components/common/neo';
+import { Separator } from '@/components/ui/separator';
 import { useThemeStore } from '@/store/themeStore';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -96,7 +97,7 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
         <NeoCard
             color={themeColors.cardBg}
             hoverable={false}
-            className="rounded-2xl p-6 h-[687px] flex flex-col min-w-0"
+            className="rounded-2xl p-6 h-[720px] flex flex-col min-w-0"
         >
             <div className="space-y-6 flex-1 overflow-y-auto min-w-0 px-1">
                 {/* Category */}
@@ -116,6 +117,8 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                     </select>
                 </div>
 
+                <Separator className={theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} />
+
                 {/* Title */}
                 <div>
                     <label className={`block text-sm font-black ${themeColors.textColor} mb-2`}>
@@ -127,9 +130,12 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                         value={formData.title}
                         onChange={handleChange}
                         placeholder="문의 제목을 입력하세요"
+                        maxLength="200"
                         className={`w-full max-w-full min-w-0 px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor} placeholder-gray-400`}
                     />
                 </div>
+
+                <Separator className={theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} />
 
                 {/* Content */}
                 <div>
@@ -142,9 +148,12 @@ const InquiryForm = ({ formData, setFormData, imagePreview, setImageFile, setIma
                         onChange={handleChange}
                         placeholder="문의 내용을 입력하세요"
                         rows={6}
+                        maxLength="500"
                         className={`w-full max-w-full min-w-0 px-4 py-3 rounded-xl font-bold ${themeColors.inputBg} focus:outline-none focus:ring-2 ${themeColors.focusRing} ${themeColors.textColor} placeholder-gray-400 resize-none`}
                     />
                 </div>
+
+                <Separator className={theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'} />
 
                 {/* Image Upload */}
                 <div>

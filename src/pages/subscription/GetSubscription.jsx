@@ -58,11 +58,11 @@ const GetSubscription = () => {
             <div className="relative overflow-hidden bg-transparent">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate('/subscription')}
                         className={`flex items-center gap-2 ${themeClasses.text.muted} hover:text-[var(--theme-primary)] mb-6 transition-colors group`}
                     >
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-semibold">뒤로가기</span>
+                        <span className="font-semibold">내 구독 목록</span>
                     </button>
 
                     <motion.div

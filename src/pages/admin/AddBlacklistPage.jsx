@@ -17,7 +17,7 @@ export default function AddBlacklistPage() {
   } = useAddBlacklistLogic();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-black overflow-hidden">
+    <div className="min-h-screen bg-transparent text-black overflow-hidden">
       <AddBlacklistHero />
       <AddBlacklistFormCard
         userId={userId}

@@ -342,8 +342,8 @@ const FloatingButtonsContainer = ({
 
   return (
     <div className="fixed bottom-8 left-8 z-50 flex flex-col-reverse gap-3 items-start">
-      {/* Row 1: Theme Switcher (Bottom) */}
-      <ThemeSwitcherHorizontal />
+      {/* Row 1: Theme Switcher (Bottom) - Hidden on Admin pages */}
+      {!location.pathname.startsWith('/admin') && <ThemeSwitcherHorizontal />}
 
       {/* Row 2: Cursor Selector (Christmas only) */}
       {theme === "christmas" && (

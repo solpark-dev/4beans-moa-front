@@ -3,18 +3,28 @@ import { KeyRound, Clock, CreditCard, Users, Wallet, UserMinus, UserPen } from "
 import { useThemeStore } from "@/store/themeStore";
 
 const WRAP = "p-6";
-const ITEM =
-  "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]";
-const ACTIVE =
-  "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm";
 
 // 테마별 스타일
 const accountMenuThemeStyles = {
   pop: {
+    item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
+    active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm",
     itemHover: "hover:bg-slate-50",
   },
   christmas: {
+    item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
+    active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm",
     itemHover: "hover:bg-red-50",
+  },
+  dark: {
+    item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-700 bg-[#0F172A] text-gray-200 font-black text-sm active:translate-y-[1px]",
+    active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-[#635bff] bg-[#635bff]/20 text-gray-200 font-black text-sm",
+    itemHover: "hover:bg-[#635bff]/10",
+  },
+  classic: {
+    item: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-white text-black font-black text-sm active:translate-y-[1px]",
+    active: "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-gray-200 bg-slate-100 text-black font-black text-sm",
+    itemHover: "hover:bg-slate-50",
   },
 };
 
@@ -23,9 +33,14 @@ export function AccountMenu({
   activeView,
   onShowMain,
   onShowLoginHistory,
+  onOpenUpdateUser,
+  onOpenDeleteUser,
 }) {
   const { theme } = useThemeStore();
   const themeStyle = accountMenuThemeStyles[theme] || accountMenuThemeStyles.pop;
+  const ITEM = themeStyle.item;
+  const ACTIVE = themeStyle.active;
+  
   const goPassword = () => {
     if (typeof actions?.goChangePwd === "function") return actions.goChangePwd();
     if (typeof actions?.goUpdatePassword === "function")
@@ -56,23 +71,18 @@ export function AccountMenu({
       return actions.navigate("/mypage/wallet");
   };
 
-  const goDelete = () => {
-    if (typeof actions?.goDeleteUser === "function")
-      return actions.goDeleteUser();
-    if (typeof actions?.navigateDeleteUser === "function")
-      return actions.navigateDeleteUser();
-    if (typeof actions?.navigate === "function")
-      return actions.navigate("/mypage/delete");
+  // 모달로 변경
+  const goUpdate = () => {
+    if (typeof onOpenUpdateUser === "function") {
+      onOpenUpdateUser();
+    }
   };
 
-  const goUpdate = () => {
-    if (typeof actions?.goEditUser === "function") return actions.goEditUser();
-    if (typeof actions?.goUpdateUser === "function")
-      return actions.goUpdateUser();
-    if (typeof actions?.navigateUpdateUser === "function")
-      return actions.navigateUpdateUser();
-    if (typeof actions?.navigate === "function")
-      return actions.navigate("/mypage/edit");
+  // 모달로 변경
+  const goDelete = () => {
+    if (typeof onOpenDeleteUser === "function") {
+      onOpenDeleteUser();
+    }
   };
 
   return (

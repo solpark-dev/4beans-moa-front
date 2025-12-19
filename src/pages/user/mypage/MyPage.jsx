@@ -62,6 +62,8 @@ import { ConnectionStatusCard } from "./components/ConnectionStatusCard";
 import { LoginHistoryCard } from "./components/LoginHistoryCard";
 import { OtpDialog } from "./components/OtpDialog";
 import { BackupCodeDialog } from "./components/BackupCodeDialog";
+import { UpdateUserDialog } from "./components/UpdateUserDialog";
+import { DeleteUserDialog } from "./components/DeleteUserDialog";
 
 const HERO_WRAPPER = "relative mt-6 sm:mt-10 overflow-hidden";
 
@@ -95,6 +97,10 @@ export default function MyPage() {
   const [activeView, setActiveView] = useState("main");
   const [subscriptionCount, setSubscriptionCount] = useState(0);
   const [partyCount, setPartyCount] = useState(0);
+  
+  // 모달 상태
+  const [updateUserOpen, setUpdateUserOpen] = useState(false);
+  const [deleteUserOpen, setDeleteUserOpen] = useState(false);
   const loginHistory = useLoginHistory({
     size: 10,
     enabled: activeView === "history" && !!user,
@@ -210,6 +216,8 @@ export default function MyPage() {
                   activeView={activeView}
                   onShowMain={() => setActiveView("main")}
                   onShowLoginHistory={() => setActiveView("history")}
+                  onOpenUpdateUser={() => setUpdateUserOpen(true)}
+                  onOpenDeleteUser={() => setDeleteUserOpen(true)}
                 />
               </div>
             )}
@@ -274,6 +282,16 @@ export default function MyPage() {
           />
 
           <BackupCodeDialog backup={backup} />
+          
+          <UpdateUserDialog
+            open={updateUserOpen}
+            onOpenChange={setUpdateUserOpen}
+          />
+          
+          <DeleteUserDialog
+            open={deleteUserOpen}
+            onOpenChange={setDeleteUserOpen}
+          />
         </>
       )}
     </div>

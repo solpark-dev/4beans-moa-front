@@ -203,7 +203,7 @@ export default function ChartComparisonPage() {
     const [selected, setSelected] = useState(null);
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="min-h-screen bg-transparent py-8 px-4">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
@@ -221,8 +221,8 @@ export default function ChartComparisonPage() {
                     <button
                         onClick={() => setSelected("recharts")}
                         className={`flex-1 p-4 rounded-2xl border-2 transition-all duration-300 ${selected === "recharts"
-                                ? "border-blue-500 bg-blue-50 shadow-lg"
-                                : "border-gray-200 bg-white hover:border-blue-300"
+                            ? "border-blue-500 bg-blue-50 shadow-lg"
+                            : "border-gray-200 bg-white hover:border-blue-300"
                             }`}
                     >
                         <div className="flex items-center justify-center gap-2">
@@ -234,8 +234,8 @@ export default function ChartComparisonPage() {
                     <button
                         onClick={() => setSelected("apexcharts")}
                         className={`flex-1 p-4 rounded-2xl border-2 transition-all duration-300 ${selected === "apexcharts"
-                                ? "border-orange-500 bg-orange-50 shadow-lg"
-                                : "border-gray-200 bg-white hover:border-orange-300"
+                            ? "border-orange-500 bg-orange-50 shadow-lg"
+                            : "border-gray-200 bg-white hover:border-orange-300"
                             }`}
                     >
                         <div className="flex items-center justify-center gap-2">

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { useChatBot } from "@/hooks/common/useChatBot";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -35,6 +36,7 @@ const themeColors = {
 };
 
 const ChatBotWidget = () => {
+  const location = useLocation();
   const {
     isOpen,
     messages,
@@ -50,6 +52,9 @@ const ChatBotWidget = () => {
   const bottomRef = useRef(null);
 
   const colors = themeColors[theme] || themeColors.classic;
+
+  // Hide chatbot on admin routes
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -73,6 +78,9 @@ const ChatBotWidget = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Don't render on admin routes
+  if (isAdminRoute) return null;
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       {/* Scroll to Top Button - Above Chatbot */}
@@ -85,15 +93,14 @@ const ChatBotWidget = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={scrollToTop}
-            className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${
-              theme === "dark"
+            className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${theme === "dark"
                 ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
                 : theme === "pop"
                   ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
                   : theme === "christmas"
                     ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
                     : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
-            }`}
+              }`}
             title="맨 위로 이동"
           >
             <ChevronUp className="w-6 h-6" />

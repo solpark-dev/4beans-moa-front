@@ -1,6 +1,5 @@
-﻿import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
@@ -83,60 +82,10 @@ function AppContent() {
   const currentTheme = themeConfig[theme] || themeConfig.pop;
 
   // Pineapple easter egg state
-  const [pineappleEnabled, setPineappleEnabled] = useState(true);
+  const [pineappleEnabled, setPineappleEnabled] = useState(false);
 
-  // Check if current route is admin page
+  // Check if current route is admin page (kept for reference, but no longer hides header)
   const isAdminPage = location.pathname.startsWith("/admin");
-
-  // Header visibility state for admin pages
-  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
-  const lastScrollYRef = useRef(0);
-  const idleTimerRef = useRef(null);
-
-  // Scroll up to show, auto-hide after 5s idle
-  useEffect(() => {
-    if (!isAdminPage) {
-      setIsHeaderHidden(false);
-      return;
-    }
-
-    // Start hidden on admin pages
-    setIsHeaderHidden(true);
-    lastScrollYRef.current = window.scrollY;
-
-    const startIdleTimer = () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-
-      idleTimerRef.current = setTimeout(() => {
-        setIsHeaderHidden(true);
-      }, 5000);
-    };
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const lastScrollY = lastScrollYRef.current;
-
-      // Scrolling UP - show header
-      if (currentScrollY < lastScrollY) {
-        setIsHeaderHidden(false);
-        startIdleTimer();
-      }
-      // Scrolling DOWN - hide header
-      else if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setIsHeaderHidden(true);
-        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      }
-
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    };
-  }, [isAdminPage, location.pathname]);
 
   // CSS Variables Injection
   useEffect(() => {
@@ -181,29 +130,12 @@ function AppContent() {
         setPineappleEnabled={setPineappleEnabled}
       />
 
-      {/* Header with slide animation for admin pages */}
-      {isAdminPage ? (
-        <motion.div
-          initial={false}
-          animate={{
-            y: isHeaderHidden ? "-100%" : "0%",
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 30,
-          }}
-          className="fixed top-0 left-0 right-0 z-[200]"
-        >
-          <Header />
-        </motion.div>
-      ) : (
-        <Header />
-      )}
+      {/* Header - Always visible */}
+      <Header />
 
       <main
         className="flex-1 transition-all duration-500 ease-out"
-        style={{ paddingTop: isAdminPage && isHeaderHidden ? "1rem" : "5rem" }}
+        style={{ paddingTop: "5rem" }}
       >
         <Routes>
           {/* Main/Party */}

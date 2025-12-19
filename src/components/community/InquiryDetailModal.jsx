@@ -43,14 +43,14 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto overflow-x-hidden border border-gray-200 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black text-black">
             문의 상세
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-3">
             <span className={`px-3 py-1 text-xs font-black rounded-lg ${themeStyle.categoryBadge} border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]`}>
@@ -62,21 +62,32 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
             </span>
           </div>
 
+
           {/* Title */}
-          <div>
-            <h3 className="font-black text-xl text-black">{inquiry.title}</h3>
+          <div className="w-full overflow-hidden">
+            <h3
+              className="font-black text-xl text-black whitespace-pre-wrap break-words"
+              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+            >
+              {inquiry.title}
+            </h3>
           </div>
 
           {/* Content */}
           <NeoCard
             color="bg-slate-50"
             hoverable={false}
-            className="rounded-xl p-5"
+            className="rounded-xl p-5 overflow-hidden w-full"
           >
-            <p className="text-sm font-black text-gray-500 mb-2">문의 내용</p>
-            <p className="text-black font-medium whitespace-pre-wrap leading-relaxed">
-              {inquiry.content}
-            </p>
+            <div className="w-full overflow-hidden">
+              <p className="text-sm font-black text-gray-500 mb-2">문의 내용</p>
+              <p
+                className="text-black font-medium whitespace-pre-wrap leading-relaxed break-words w-full max-w-full"
+                style={{ overflowWrap: 'anywhere', wordBreak: 'break-word', wordWrap: 'break-word' }}
+              >
+                {inquiry.content}
+              </p>
+            </div>
           </NeoCard>
 
           {/* Attached Image */}
@@ -102,17 +113,22 @@ const InquiryDetailModal = ({ isOpen, onClose, inquiry }) => {
               <NeoCard
                 color={themeStyle.answerCard}
                 hoverable={false}
-                className="rounded-xl p-5"
+                className="rounded-xl p-5 overflow-hidden w-full"
               >
-                <p className={`text-sm font-black ${themeStyle.answerTextColor} mb-2`}>답변</p>
-                <p className={`${theme === 'christmas' ? 'text-white' : 'text-black'} font-medium whitespace-pre-wrap leading-relaxed`}>
-                  {inquiry.answerContent}
-                </p>
-                {inquiry.answeredAt && (
-                  <p className={`text-xs font-bold ${theme === 'christmas' ? 'text-green-200' : 'text-gray-500'} mt-4`}>
-                    답변일: {formatDate(inquiry.answeredAt)}
+                <div className="w-full overflow-hidden">
+                  <p className={`text-sm font-black ${themeStyle.answerTextColor} mb-2`}>답변</p>
+                  <p
+                    className={`${theme === 'christmas' ? 'text-white' : 'text-black'} font-medium whitespace-pre-wrap leading-relaxed break-words w-full max-w-full`}
+                    style={{ overflowWrap: 'anywhere', wordBreak: 'break-word', wordWrap: 'break-word' }}
+                  >
+                    {inquiry.answerContent}
                   </p>
-                )}
+                  {inquiry.answeredAt && (
+                    <p className={`text-xs font-bold ${theme === 'christmas' ? 'text-green-200' : 'text-gray-500'} mt-4`}>
+                      답변일: {formatDate(inquiry.answeredAt)}
+                    </p>
+                  )}
+                </div>
               </NeoCard>
             </div>
           )}

@@ -18,7 +18,7 @@ const BANKS = [
 /**
  * 은행 선택 드롭다운 컴포넌트
  */
-export default function BankSelector({ value, onChange, disabled = false }) {
+export default function BankSelector({ value, onChange, disabled = false, theme = 'classic' }) {
     const [isOpen, setIsOpen] = useState(false);
 
     const selectedBank = BANKS.find(bank => bank.code === value);
@@ -30,6 +30,8 @@ export default function BankSelector({ value, onChange, disabled = false }) {
         });
         setIsOpen(false);
     };
+
+    const isDark = theme === 'dark';
 
     return (
         <div className="relative">
@@ -43,10 +45,12 @@ export default function BankSelector({ value, onChange, disabled = false }) {
                     flex items-center justify-between
                     transition-all duration-200
                     ${disabled
-                        ? 'bg-slate-100 cursor-not-allowed'
-                        : 'bg-white hover:border-orange-300 cursor-pointer'
+                        ? isDark ? 'bg-gray-800 cursor-not-allowed' : 'bg-slate-100 cursor-not-allowed'
+                        : isDark ? 'bg-[#1E293B] hover:border-[#635bff] cursor-pointer' : 'bg-white hover:border-orange-300 cursor-pointer'
                     }
-                    ${isOpen ? 'border-orange-500 ring-4 ring-orange-100' : 'border-slate-200'}
+                    ${isOpen 
+                        ? isDark ? 'border-[#635bff] ring-4 ring-[#635bff]/20' : 'border-orange-500 ring-4 ring-orange-100' 
+                        : isDark ? 'border-gray-700' : 'border-slate-200'}
                 `}
             >
                 {selectedBank ? (
@@ -61,13 +65,13 @@ export default function BankSelector({ value, onChange, disabled = false }) {
                         >
                             {selectedBank.logo}
                         </div>
-                        <span className="font-medium text-slate-800">{selectedBank.name}</span>
+                        <span className={`font-medium ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>{selectedBank.name}</span>
                     </div>
                 ) : (
-                    <span className="text-slate-400">은행을 선택하세요</span>
+                    <span className={isDark ? 'text-gray-500' : 'text-slate-400'}>은행을 선택하세요</span>
                 )}
                 <ChevronDown
-                    className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${isDark ? 'text-gray-500' : 'text-slate-400'}`}
                 />
             </button>
 
@@ -87,7 +91,9 @@ export default function BankSelector({ value, onChange, disabled = false }) {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -10, scale: 0.95 }}
                             transition={{ duration: 0.15 }}
-                            className="absolute z-50 w-full mt-2 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden"
+                            className={`absolute z-50 w-full mt-2 rounded-xl border shadow-xl overflow-hidden ${
+                                isDark ? 'bg-[#1E293B] border-gray-700' : 'bg-white border-slate-200'
+                            }`}
                         >
                             <div className="max-h-80 overflow-y-auto py-2">
                                 {BANKS.map((bank) => (
@@ -97,8 +103,11 @@ export default function BankSelector({ value, onChange, disabled = false }) {
                                         onClick={() => handleSelect(bank)}
                                         className={`
                                             w-full px-4 py-3 flex items-center gap-3
-                                            hover:bg-orange-50 transition-colors
-                                            ${value === bank.code ? 'bg-orange-50' : ''}
+                                            transition-colors
+                                            ${isDark 
+                                                ? `hover:bg-[#635bff]/20 ${value === bank.code ? 'bg-[#635bff]/20' : ''}`
+                                                : `hover:bg-orange-50 ${value === bank.code ? 'bg-orange-50' : ''}`
+                                            }
                                         `}
                                     >
                                         {/* 은행 로고 */}
@@ -111,11 +120,11 @@ export default function BankSelector({ value, onChange, disabled = false }) {
                                         >
                                             {bank.logo}
                                         </div>
-                                        <span className="font-medium text-slate-800 flex-1 text-left">
+                                        <span className={`font-medium flex-1 text-left ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>
                                             {bank.name}
                                         </span>
                                         {value === bank.code && (
-                                            <Check className="w-5 h-5 text-orange-500" />
+                                            <Check className={`w-5 h-5 ${isDark ? 'text-[#635bff]' : 'text-orange-500'}`} />
                                         )}
                                     </button>
                                 ))}
