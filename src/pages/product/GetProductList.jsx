@@ -153,13 +153,12 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                 {product.productName}
               </h2>
               <div className="flex items-center gap-2 mt-2">
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
-                  theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a]' :
-                  theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' :
-                  theme === 'pop' ? 'bg-pink-100 text-pink-500' :
-                  theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff]' :
-                  'bg-indigo-100 text-indigo-600'
-                }`}>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a]' :
+                    theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' :
+                      theme === 'pop' ? 'bg-pink-100 text-pink-500' :
+                        theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff]' :
+                          'bg-indigo-100 text-indigo-600'
+                  }`}>
                   {product.categoryName || '구독'}
                 </span>
                 {product.productStatus === 'INACTIVE' && (
@@ -213,13 +212,12 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                   }
                 ].map((item, idx) => (
                   <div key={idx} className="flex gap-3 items-start">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a]' :
-                      theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' :
-                      theme === 'pop' ? 'bg-pink-100 text-pink-500' :
-                      theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff]' :
-                      'bg-indigo-100 text-indigo-600'
-                    }`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a]' :
+                        theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff]' :
+                          theme === 'pop' ? 'bg-pink-100 text-pink-500' :
+                            theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff]' :
+                              'bg-indigo-100 text-indigo-600'
+                      }`}>
                       <item.icon className="w-4 h-4" />
                     </div>
                     <div>
@@ -245,13 +243,12 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${
-                        theme === 'christmas' ? 'bg-stone-100 text-gray-900 focus:ring-[#c41e3a]/30' :
-                        theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' :
-                        theme === 'pop' ? 'bg-gray-50 text-gray-900 focus:ring-pink-300' :
-                        theme === 'classic' ? 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30' :
-                        'bg-gray-50 text-gray-900 focus:ring-indigo-300'
-                      }`}
+                      className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${theme === 'christmas' ? 'bg-stone-100 text-gray-900 focus:ring-[#c41e3a]/30' :
+                          theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' :
+                            theme === 'pop' ? 'bg-gray-50 text-gray-900 focus:ring-pink-300' :
+                              theme === 'classic' ? 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30' :
+                                'bg-gray-50 text-gray-900 focus:ring-indigo-300'
+                        }`}
                     />
                   </div>
                 </div>
@@ -269,13 +266,12 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                       onChange={(e) => setEndDate(e.target.value)}
                       min={startDate}
                       placeholder="종료일 미지정 시 계속 유지"
-                      className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${
-                        theme === 'christmas' ? 'bg-stone-100 text-gray-900 focus:ring-[#c41e3a]/30' :
-                        theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' :
-                        theme === 'pop' ? 'bg-gray-50 text-gray-900 focus:ring-pink-300' :
-                        theme === 'classic' ? 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30' :
-                        'bg-gray-50 text-gray-900 focus:ring-indigo-300'
-                      }`}
+                      className={`w-full pl-11 pr-4 py-3 border-none rounded-xl font-medium focus:ring-2 outline-none ${theme === 'christmas' ? 'bg-stone-100 text-gray-900 focus:ring-[#c41e3a]/30' :
+                          theme === 'dark' ? 'bg-[#0F172A] text-white focus:ring-[#635bff]/30' :
+                            theme === 'pop' ? 'bg-gray-50 text-gray-900 focus:ring-pink-300' :
+                              theme === 'classic' ? 'bg-gray-50 text-gray-900 focus:ring-[#635bff]/30' :
+                                'bg-gray-50 text-gray-900 focus:ring-indigo-300'
+                        }`}
                     />
                   </div>
                   <p className={`text-xs mt-1 ml-1 ${themeStyles.subtext}`}>미지정 시 자동 갱신으로 계속 유지됩니다</p>
@@ -293,13 +289,12 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                     onClose();
                     onEdit(product);
                   }}
-                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
-                    theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
-                    theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                    theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
-                    theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                    'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                  }`}
+                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
+                      theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                        theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
+                          theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                            'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                    }`}
                 >
                   수정하기
                 </button>
@@ -308,10 +303,9 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
                     onClose();
                     navigate(`/product/${product.productId}/delete`);
                   }}
-                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
-                    theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' :
-                    'bg-red-50 text-red-500 hover:bg-red-100'
-                  }`}
+                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' :
+                      'bg-red-50 text-red-500 hover:bg-red-100'
+                    }`}
                 >
                   삭제하기
                 </button>
@@ -320,25 +314,23 @@ const ProductDetailModal = ({ product, onClose, user, navigate, onSubscribe, onE
               <>
                 <button
                   onClick={onClose}
-                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${
-                    theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
-                    theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                    theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
-                    theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
-                    'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                  }`}
+                  className={`flex-1 py-3.5 rounded-2xl font-bold transition-all ${theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] hover:bg-[#c41e3a]/20' :
+                      theme === 'dark' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                        theme === 'pop' ? 'bg-pink-100 text-pink-500 hover:bg-pink-200' :
+                          theme === 'classic' ? 'bg-[#635bff]/10 text-[#635bff] hover:bg-[#635bff]/20' :
+                            'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                    }`}
                 >
                   취소
                 </button>
                 <button
                   onClick={handleSubscribe}
-                  className={`flex-[2] py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
-                    theme === 'christmas' ? 'bg-[#c41e3a] text-white hover:bg-[#a51830]' :
-                    theme === 'dark' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
-                    theme === 'pop' ? 'bg-pink-500 text-white hover:bg-pink-600' :
-                    theme === 'classic' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
-                    'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
+                  className={`flex-[2] py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${theme === 'christmas' ? 'bg-[#c41e3a] text-white hover:bg-[#a51830]' :
+                      theme === 'dark' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
+                        theme === 'pop' ? 'bg-pink-500 text-white hover:bg-pink-600' :
+                          theme === 'classic' ? 'bg-[#635bff] text-white hover:bg-[#5851e8]' :
+                            'bg-indigo-600 text-white hover:bg-indigo-700'
+                    }`}
                 >
                   <CalendarPlus className="w-5 h-5" />
                   구독 일정에 등록
@@ -433,100 +425,96 @@ const GetProductList = () => {
   }
 
   return (
-    <div className={`min-h-screen relative z-10 ${themeStyles.bg}`}>
+    <div className={`min-h-screen relative ${themeStyles.bg}`}>
       {/* Christmas Background */}
       {theme === 'christmas' && <ChristmasBackground />}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-transparent">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8 md:pt-4 md:pb-12">
-            <div className="text-center max-w-3xl mx-auto">
-              {/* Badge with Subtitle */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, rotate: 0 }}
-                animate={{ opacity: 1, y: 0, rotate: -5 }}
-                transition={{ duration: 0.5 }}
-                whileHover={{ rotate: 0, scale: 1.02 }}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 shadow-md ${
-                  theme === 'dark' ? 'bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30' :
+          <div className="text-center max-w-3xl mx-auto">
+            {/* Badge with Subtitle */}
+            <motion.div
+              initial={{ opacity: 0, y: 20, rotate: 0 }}
+              animate={{ opacity: 1, y: 0, rotate: -5 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ rotate: 0, scale: 1.02 }}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 shadow-md ${theme === 'dark' ? 'bg-[#635bff]/20 text-[#635bff] border border-[#635bff]/30' :
                   theme === 'christmas' ? 'bg-[#c41e3a]/10 text-[#c41e3a] border border-[#c41e3a]/20' :
-                  theme === 'pop' ? 'bg-pink-100 text-pink-600 border border-pink-200' :
-                  'bg-[#635bff]/10 text-[#635bff] border border-[#635bff]/20'
+                    theme === 'pop' ? 'bg-pink-100 text-pink-600 border border-pink-200' :
+                      'bg-[#635bff]/10 text-[#635bff] border border-[#635bff]/20'
                 }`}
-              >
-                <span className="text-base">✨</span>
-                <span className="text-sm font-bold">
-                  {theme === 'christmas' ? '🎄 구독은 복잡하지 않게, 관리는 더 편하게' : '구독은 복잡하지 않게, 관리는 더 편하게'}
-                </span>
-              </motion.div>
+            >
+              <span className="text-base">✨</span>
+              <span className="text-sm font-bold">
+                {theme === 'christmas' ? '🎄 구독은 복잡하지 않게, 관리는 더 편하게' : '구독은 복잡하지 않게, 관리는 더 편하게'}
+              </span>
+            </motion.div>
 
-              {/* Main Title */}
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className={`text-4xl sm:text-5xl md:text-6xl font-black mb-8 tracking-tight leading-[1.1] ${themeStyles.text}`}
-              >
-                모든 구독을
-                <br />
-                <span className={`${
-                  theme === 'pop' ? 'text-pink-500' :
+            {/* Main Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className={`text-4xl sm:text-5xl md:text-6xl font-black mb-8 tracking-tight leading-[1.1] ${themeStyles.text}`}
+            >
+              모든 구독을
+              <br />
+              <span className={`${theme === 'pop' ? 'text-pink-500' :
                   theme === 'christmas' ? 'bg-gradient-to-r from-[#c41e3a] to-[#1a5f2a] bg-clip-text text-transparent' :
-                  theme === 'dark' ? 'bg-gradient-to-r from-[#635bff] via-[#00d4ff] to-[#00d4ff] bg-clip-text text-transparent' :
-                  'bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent'
+                    theme === 'dark' ? 'bg-gradient-to-r from-[#635bff] via-[#00d4ff] to-[#00d4ff] bg-clip-text text-transparent' :
+                      'bg-gradient-to-r from-[#635bff] to-[#00d4ff] bg-clip-text text-transparent'
                 }`}>
-                  한눈에!
-                </span>
-              </motion.h1>
+                한눈에!
+              </span>
+            </motion.h1>
 
-              {/* Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-4"
-              >
-                {/* Admin: 상품 등록 버튼 */}
-                {user?.role === 'ADMIN' && (
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setIsAddProductModalOpen(true)}
-                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${
-                      theme === 'christmas' ? 'bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25' :
+            {/* Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              {/* Admin: 상품 등록 버튼 */}
+              {user?.role === 'ADMIN' && (
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsAddProductModalOpen(true)}
+                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${theme === 'christmas' ? 'bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25' :
                       theme === 'dark' ? 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25' :
-                      theme === 'pop' ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25' :
-                      'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'
+                        theme === 'pop' ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25' :
+                          'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'
                     }`}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    상품 등록
-                    <ArrowRight className="w-4 h-4" />
-                  </motion.button>
-                )}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  상품 등록
+                  <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              )}
 
-                {/* User: 내 구독 목록 버튼 */}
-                {user && user?.role !== 'ADMIN' && (
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/subscription')}
-                    className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${
-                      theme === 'christmas' ? 'bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25' :
+              {/* User: 내 구독 목록 버튼 */}
+              {user && user?.role !== 'ADMIN' && (
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate('/subscription')}
+                  className={`inline-flex items-center gap-2 px-6 py-3 font-semibold rounded-full shadow-lg transition-colors ${theme === 'christmas' ? 'bg-[#c41e3a] hover:bg-[#a51830] text-white shadow-[#c41e3a]/25' :
                       theme === 'dark' ? 'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25' :
-                      theme === 'pop' ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25' :
-                      'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'
+                        theme === 'pop' ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-500/25' :
+                          'bg-[#635bff] hover:bg-[#5851e8] text-white shadow-[#635bff]/25'
                     }`}
-                  >
-                    <List className="w-4 h-4" />
-                    내 구독 목록
-                    <ArrowRight className="w-4 h-4" />
-                  </motion.button>
-                )}
-              </motion.div>
-            </div>
+                >
+                  <List className="w-4 h-4" />
+                  내 구독 목록
+                  <ArrowRight className="w-4 h-4" />
+                </motion.button>
+              )}
+            </motion.div>
           </div>
-        </section>
+        </div>
+      </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search & Filter Section */}
@@ -572,12 +560,11 @@ const GetProductList = () => {
             animate={{ opacity: 1, y: 0 }}
             className={`text-center py-20 rounded-3xl ${theme === 'dark' ? 'bg-[#1E293B]' : 'bg-gray-50'}`}
           >
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
-              theme === 'christmas' ? 'bg-[#c41e3a]/10' :
-              theme === 'pop' ? 'bg-pink-100' :
-              theme === 'dark' ? 'bg-[#635bff]/10' :
-              'bg-[#635bff]/10'
-            }`}>
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${theme === 'christmas' ? 'bg-[#c41e3a]/10' :
+                theme === 'pop' ? 'bg-pink-100' :
+                  theme === 'dark' ? 'bg-[#635bff]/10' :
+                    'bg-[#635bff]/10'
+              }`}>
               <Search className={`w-10 h-10 ${themeStyles.highlight}`} />
             </div>
             <h3 className={`text-xl font-bold mb-2 ${themeStyles.text}`}>

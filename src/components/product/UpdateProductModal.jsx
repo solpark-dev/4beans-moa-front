@@ -133,7 +133,6 @@ const UpdateProductModal = ({ isOpen, onClose, productId, onSuccess, initialData
                     overflow-y: auto !important;
                     padding-right: 0 !important;
                     margin-right: 0 !important;
-                    position: static !important;
                     touch-action: auto !important;
                     -webkit-overflow-scrolling: touch !important;
                 }

@@ -49,7 +49,7 @@ export default function LoginPage() {
   }, [setField]);
 
   return (
-    <div className={`min-h-screen ${themeClasses.bg.base} pb-20 relative z-10`}>
+    <div className={`min-h-screen bg-transparent pb-20 relative z-10`}>
       <section className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-md">
           <Card className={`${themeClasses.card.elevated} overflow-hidden`}>

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
  */
 export default function Footer() {
   return (
-    <footer className="relative z-20 bg-[var(--theme-bg-card)] border-t border-[var(--theme-border-light)] mt-20 transition-all duration-300">
+    <footer className="relative z-10 bg-[var(--theme-bg-card)] border-t border-[var(--theme-border-light)] mt-20 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
           <h2 className="text-xl font-semibold text-[var(--theme-text)]">MoA</h2>

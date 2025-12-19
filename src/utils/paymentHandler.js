@@ -47,9 +47,12 @@ export const requestBillingAuth = (customerKey) => {
     return new Promise((resolve, reject) => {
         const tossPayments = window.TossPayments(clientKey);
 
+        // Toss customerKey는 최소 2자 이상이어야 함 - prefix 추가
+        const formattedCustomerKey = `MOA_${customerKey}`;
+
         tossPayments
             .requestBillingAuth("카드", {
-                customerKey: customerKey,
+                customerKey: formattedCustomerKey,
                 successUrl: window.location.origin + "/payment/billing/success",
                 failUrl: window.location.origin + "/payment/billing/fail",
             })

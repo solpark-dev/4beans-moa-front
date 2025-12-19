@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { MessageCircle, Send, X, Bot, User, ChevronUp } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 // Theme color configurations for chatbot
 const themeColors = {
@@ -44,43 +44,18 @@ const ChatBotWidget = () => {
     handleKeyDown,
     sendMessage,
   } = useChatBot();
+  const { theme } = useThemeStore();
 
   const bottomRef = useRef(null);
 
-  // Read theme from localStorage
-  const [currentTheme, setCurrentTheme] = useState("classic");
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("partyListTheme") || "classic";
-    setCurrentTheme(savedTheme);
-
-    // Listen for storage changes (when theme changes in PartyListPage)
-    const handleStorageChange = (e) => {
-      if (e.key === "partyListTheme") {
-        setCurrentTheme(e.newValue || "classic");
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-
-    // Also poll for changes (for same-tab updates)
-    const interval = setInterval(() => {
-      const theme = localStorage.getItem("partyListTheme") || "classic";
-      setCurrentTheme(theme);
-    }, 500);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const colors = themeColors[currentTheme] || themeColors.classic;
+  const colors = themeColors[theme] || themeColors.classic;
 
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
 
   // Scroll to top visibility state
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -110,11 +85,11 @@ const ChatBotWidget = () => {
             whileTap={{ scale: 0.95 }}
             onClick={scrollToTop}
             className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${
-              currentTheme === "dark"
+              theme === "dark"
                 ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
-                : currentTheme === "pop"
+                : theme === "pop"
                   ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
-                  : currentTheme === "christmas"
+                  : theme === "christmas"
                     ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
                     : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
             }`}
