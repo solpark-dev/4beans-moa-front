@@ -78,6 +78,8 @@ export default function useUpdateUser() {
     };
   }, []);
 
+  const nickCheckSeqRef = useRef(0);
+
   const goMypage = () => {
     navigate("/mypage");
   };
@@ -138,15 +140,33 @@ export default function useUpdateUser() {
     }
 
     if (v !== (initialNickname ?? "").trim()) {
+      const seq = ++nickCheckSeqRef.current;
+
       try {
         const res = await checkNickname(v);
-        const available = Boolean(res?.data?.available);
+
+        if (seq !== nickCheckSeqRef.current) {
+          return false;
+        }
+
+        if (res?.success !== true) {
+          setNickMsg({
+            text: "닉네임 중복 확인에 실패했습니다.",
+            isError: true,
+          });
+          return false;
+        }
+
+        const available = res?.data?.available === true;
 
         if (!available) {
           setNickMsg({ text: "이미 사용 중인 닉네임입니다.", isError: true });
           return false;
         }
       } catch {
+        if (seq !== nickCheckSeqRef.current) {
+          return false;
+        }
         setNickMsg({ text: "닉네임 중복 확인에 실패했습니다.", isError: true });
         return false;
       }
@@ -213,7 +233,7 @@ export default function useUpdateUser() {
       }
 
       const res = await updateUser({
-        nickname,
+        nickname: (nickname ?? "").trim(),
         phone,
         agreeMarketing,
         profileImage: nextProfileUrl,

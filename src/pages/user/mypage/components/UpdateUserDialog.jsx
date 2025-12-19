@@ -51,7 +51,8 @@ const dialogThemeStyles = {
     inputReadonly: "bg-[#0F172A] border-gray-700 text-gray-400",
     switchBg: "data-[state=checked]:bg-[#635bff]",
     primaryBtn: "bg-[#635bff] hover:bg-[#5851e8] text-white",
-    secondaryBtn: "bg-[#0F172A] border-gray-700 text-gray-200 hover:bg-gray-800",
+    secondaryBtn:
+      "bg-[#0F172A] border-gray-700 text-gray-200 hover:bg-gray-800",
     sectionBg: "bg-[#0F172A] border-gray-700",
     mutedText: "text-gray-400",
   },
@@ -73,7 +74,7 @@ export function UpdateUserDialog({ open, onOpenChange }) {
   const { theme } = useThemeStore();
   const themeStyle = dialogThemeStyles[theme] || dialogThemeStyles.pop;
   const { user, setUser } = useAuthStore();
-  
+
   const fileRef = useRef(null);
   const [nickname, setNickname] = useState("");
   const [agreeMarketing, setAgreeMarketing] = useState(false);
@@ -105,19 +106,35 @@ export function UpdateUserDialog({ open, onOpenChange }) {
   };
 
   const checkNickname = async (value) => {
-    if (!value || value === user?.nickname) {
+    const v = (value ?? "").trim();
+
+    if (!v || v === (user?.nickname ?? "")) {
       setNickMsg({ text: "", isError: false });
       return;
     }
+
     try {
-      const res = await httpClient.get("/users/check-nickname", { params: { nickname: value } });
-      if (res?.available) {
+      const res = await httpClient.get("/users/check-nickname", {
+        params: { nickname: v },
+      });
+
+      if (res?.success !== true) {
+        setNickMsg({ text: "닉네임 확인에 실패했습니다.", isError: true });
+        return;
+      }
+
+      const available = res?.data?.available === true;
+
+      if (available) {
         setNickMsg({ text: "사용 가능한 닉네임입니다.", isError: false });
       } else {
         setNickMsg({ text: "이미 사용 중인 닉네임입니다.", isError: true });
       }
     } catch {
-      setNickMsg({ text: "닉네임 확인 중 오류가 발생했습니다.", isError: true });
+      setNickMsg({
+        text: "닉네임 확인 중 오류가 발생했습니다.",
+        isError: true,
+      });
     }
   };
 
@@ -127,32 +144,47 @@ export function UpdateUserDialog({ open, onOpenChange }) {
       return;
     }
 
+    const nextNickname = (nickname ?? "").trim();
+    if (!nextNickname) {
+      alert("닉네임을 입력해주세요.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("nickname", nickname);
-      formData.append("agreeMarketing", agreeMarketing);
+      let nextProfileUrl = user?.profileImage || null;
+
       if (imageFile) {
-        formData.append("profileImage", imageFile);
+        const fd = new FormData();
+        fd.append("file", imageFile);
+
+        const up = await httpClient.post("/users/uploadProfileImage", fd, {
+          headers: { "Content-Type": undefined },
+        });
+
+        if (up?.success !== true) {
+          throw new Error(up?.error?.message || "프로필 업로드 실패");
+        }
+
+        nextProfileUrl = up.data;
       }
 
-      const res = await httpClient.put("/users/me", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await httpClient.post("/users/update", {
+        nickname: nextNickname,
+        phone: user?.phone || null,
+        agreeMarketing,
+        profileImage: nextProfileUrl,
       });
 
-      if (res?.success) {
-        // 사용자 정보 갱신
-        const meRes = await httpClient.get("/users/me");
-        if (meRes?.success && meRes?.data) {
-          setUser(meRes.data);
-        }
-        alert("회원정보가 수정되었습니다.");
-        onOpenChange(false);
-      } else {
-        alert(res?.error?.message || "수정에 실패했습니다.");
+      if (res?.success !== true) {
+        throw new Error(res?.error?.message || "수정에 실패했습니다.");
       }
+
+      setUser(res.data);
+      alert("회원정보가 수정되었습니다.");
+      onOpenChange(false);
     } catch (err) {
-      alert(err?.response?.data?.error?.message || "수정 중 오류가 발생했습니다.");
+      alert(err?.message || "수정 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -166,7 +198,9 @@ export function UpdateUserDialog({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`max-w-md ${themeStyle.content}`}>
         <DialogHeader>
-          <DialogTitle className={`flex items-center gap-2 ${themeStyle.title}`}>
+          <DialogTitle
+            className={`flex items-center gap-2 ${themeStyle.title}`}
+          >
             <User className="w-5 h-5" />
             회원정보 수정
           </DialogTitle>
@@ -175,7 +209,10 @@ export function UpdateUserDialog({ open, onOpenChange }) {
         <div className="space-y-5 mt-2">
           {/* 프로필 이미지 */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative group cursor-pointer" onClick={openFilePicker}>
+            <div
+              className="relative group cursor-pointer"
+              onClick={openFilePicker}
+            >
               <Avatar className="w-20 h-20 border border-gray-200">
                 <AvatarImage src={displayImage} className="object-cover" />
                 <AvatarFallback className="bg-slate-200 text-slate-700">
@@ -206,11 +243,15 @@ export function UpdateUserDialog({ open, onOpenChange }) {
             />
           </div>
 
-          <Separator className={theme === "dark" ? "bg-gray-700" : "bg-gray-200"} />
+          <Separator
+            className={theme === "dark" ? "bg-gray-700" : "bg-gray-200"}
+          />
 
           {/* 이메일 (읽기전용) */}
           <div className="space-y-2">
-            <Label className={`text-sm font-bold ${themeStyle.label}`}>이메일 (ID)</Label>
+            <Label className={`text-sm font-bold ${themeStyle.label}`}>
+              이메일 (ID)
+            </Label>
             <Input
               readOnly
               value={user?.userId || ""}
@@ -220,7 +261,9 @@ export function UpdateUserDialog({ open, onOpenChange }) {
 
           {/* 닉네임 */}
           <div className="space-y-2">
-            <Label className={`text-sm font-bold ${themeStyle.label}`}>닉네임</Label>
+            <Label className={`text-sm font-bold ${themeStyle.label}`}>
+              닉네임
+            </Label>
             <Input
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
@@ -229,7 +272,11 @@ export function UpdateUserDialog({ open, onOpenChange }) {
               className={`${themeStyle.input} rounded-xl`}
             />
             {nickMsg.text && (
-              <p className={`text-xs ${nickMsg.isError ? "text-red-500" : "text-emerald-600"}`}>
+              <p
+                className={`text-xs ${
+                  nickMsg.isError ? "text-red-500" : "text-emerald-600"
+                }`}
+              >
                 {nickMsg.text}
               </p>
             )}
@@ -237,7 +284,9 @@ export function UpdateUserDialog({ open, onOpenChange }) {
 
           {/* 휴대폰 번호 */}
           <div className="space-y-2">
-            <Label className={`text-sm font-bold ${themeStyle.label}`}>휴대폰 번호</Label>
+            <Label className={`text-sm font-bold ${themeStyle.label}`}>
+              휴대폰 번호
+            </Label>
             <div className="flex gap-2">
               <Input
                 readOnly
@@ -255,7 +304,9 @@ export function UpdateUserDialog({ open, onOpenChange }) {
             </div>
           </div>
 
-          <Separator className={theme === "dark" ? "bg-gray-700" : "bg-gray-200"} />
+          <Separator
+            className={theme === "dark" ? "bg-gray-700" : "bg-gray-200"}
+          />
 
           {/* 마케팅 동의 */}
           <div className={`${themeStyle.sectionBg} border rounded-xl p-4`}>
@@ -263,8 +314,12 @@ export function UpdateUserDialog({ open, onOpenChange }) {
               <div className="flex items-center gap-2">
                 <BellRing className="w-4 h-4" />
                 <div>
-                  <p className={`text-sm font-bold ${themeStyle.label}`}>마케팅 정보 수신 동의</p>
-                  <p className={`text-xs ${themeStyle.mutedText}`}>이벤트 및 혜택 정보를 받아보세요</p>
+                  <p className={`text-sm font-bold ${themeStyle.label}`}>
+                    마케팅 정보 수신 동의
+                  </p>
+                  <p className={`text-xs ${themeStyle.mutedText}`}>
+                    이벤트 및 혜택 정보를 받아보세요
+                  </p>
                 </div>
               </div>
               <Switch
