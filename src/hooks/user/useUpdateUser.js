@@ -2,8 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUpdateUserStore } from "@/store/user/updateUserStore";
 import { useAuthStore } from "@/store/authStore";
-import { checkCommon, startPassAuth, verifyPassAuth } from "@/api/authApi";
-import { getUser, updateUser, uploadProfileImage } from "@/api/userApi";
+import { startPassAuth, verifyPassAuth } from "@/api/authApi";
+import {
+  getUser,
+  updateUser,
+  uploadProfileImage,
+  checkNickname,
+} from "@/api/userApi";
 
 const BAD_WORDS = [
   "fuck",
@@ -132,16 +137,17 @@ export default function useUpdateUser() {
       }
     }
 
-    if (v !== initialNickname) {
+    if (v !== (initialNickname ?? "").trim()) {
       try {
-        const res = await checkCommon({ type: "nickname", value: v });
-        const available = !!res?.data?.available;
+        const res = await checkNickname(v);
+        const available = Boolean(res?.data?.available);
+
         if (!available) {
           setNickMsg({ text: "이미 사용 중인 닉네임입니다.", isError: true });
           return false;
         }
       } catch {
-        setNickMsg({ text: "이미 사용 중인 닉네임입니다.", isError: true });
+        setNickMsg({ text: "닉네임 중복 확인에 실패했습니다.", isError: true });
         return false;
       }
     }
@@ -150,8 +156,8 @@ export default function useUpdateUser() {
     return true;
   };
 
-  const onNicknameBlur = async () => {
-    await validateNickname(nickname);
+  const onNicknameBlur = async (valueFromInput) => {
+    await validateNickname(valueFromInput);
   };
 
   const onPassVerify = async () => {

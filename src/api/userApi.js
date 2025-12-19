@@ -10,6 +10,9 @@ export const updateUser = (data) => httpClient.post("/users/update", data);
 
 export const updatePwd = (data) => httpClient.post("/users/updatePwd", data);
 
+export const checkNickname = (nickname) =>
+  httpClient.get("/users/check-nickname", { params: { nickname } });
+
 export const uploadProfileImage = (formData) =>
   httpClient.post("/users/uploadProfileImage", formData, {
     headers: { "Content-Type": undefined },

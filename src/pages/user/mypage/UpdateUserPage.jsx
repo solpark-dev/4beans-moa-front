@@ -115,9 +115,10 @@ function PopButton({
   ...props
 }) {
   const themeStyle = updateUserThemeStyles[theme] || updateUserThemeStyles.pop;
-  const colorClass = variant === "primary"
-    ? `${themeStyle.button.primaryBg} ${themeStyle.button.primaryText}`
-    : variant === "secondary"
+  const colorClass =
+    variant === "primary"
+      ? `${themeStyle.button.primaryBg} ${themeStyle.button.primaryText}`
+      : variant === "secondary"
       ? `${themeStyle.button.secondaryBg} ${themeStyle.button.secondaryText}`
       : color;
 
@@ -237,9 +238,7 @@ export default function UpdateUserPage() {
             >
               <span className="block">UPDATE</span>
               <span className="block">
-                <span className={themeStyle.titleAccent.cyan}>
-                  YOUR
-                </span>
+                <span className={themeStyle.titleAccent.cyan}>YOUR</span>
               </span>
               <span className={`block ${themeStyle.titleAccent.pink}`}>
                 PROFILE!
@@ -306,7 +305,9 @@ export default function UpdateUserPage() {
                     className="relative group cursor-pointer"
                     onClick={openFilePicker}
                   >
-                    <div className={`rounded-full ${themeStyle.sticker.border} ${themeStyle.sticker.shadow}`}>
+                    <div
+                      className={`rounded-full ${themeStyle.sticker.border} ${themeStyle.sticker.shadow}`}
+                    >
                       <Avatar className="w-24 h-24 bg-slate-100">
                         <AvatarImage
                           src={displayImage}
@@ -318,7 +319,9 @@ export default function UpdateUserPage() {
                       </Avatar>
                     </div>
                     <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className={`w-24 h-24 rounded-full bg-black/35 flex items-center justify-center ${themeStyle.sticker.border}`}>
+                      <div
+                        className={`w-24 h-24 rounded-full bg-black/35 flex items-center justify-center ${themeStyle.sticker.border}`}
+                      >
                         <Upload className="w-6 h-6 text-white" />
                       </div>
                     </div>
@@ -381,21 +384,24 @@ export default function UpdateUserPage() {
                   <Input
                     value={nickname || ""}
                     onChange={(e) => onNicknameChange(e.target.value)}
-                    onBlur={onNicknameBlur}
+                    onBlur={(e) => onNicknameBlur(e.target.value)}
                     placeholder="변경할 닉네임 입력"
                     className={`bg-white ${themeStyle.input.border} rounded-2xl font-bold placeholder:text-gray-400 ${themeStyle.input.focusRing} ${themeStyle.input.shadow}`}
                   />
                   {nickMsg.text && (
                     <Sticker
-                      color={nickMsg.isError ? "bg-white" : themeStyle.accent.lime}
+                      color={
+                        nickMsg.isError ? "bg-white" : themeStyle.accent.lime
+                      }
                       rotate={0}
                       className="px-3 py-2 rounded-xl inline-block"
                       withShadow={false}
                       theme={theme}
                     >
                       <p
-                        className={`text-sm font-black ${nickMsg.isError ? "text-red-600" : "text-black"
-                          }`}
+                        className={`text-sm font-black ${
+                          nickMsg.isError ? "text-red-600" : "text-black"
+                        }`}
                       >
                         {nickMsg.text}
                       </p>
@@ -435,7 +441,9 @@ export default function UpdateUserPage() {
                   </div>
                 </div>
 
-                <div className={`${themeStyle.sticker.border} rounded-3xl p-5 bg-slate-100 ${themeStyle.sticker.shadow}`}>
+                <div
+                  className={`${themeStyle.sticker.border} rounded-3xl p-5 bg-slate-100 ${themeStyle.sticker.shadow}`}
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
