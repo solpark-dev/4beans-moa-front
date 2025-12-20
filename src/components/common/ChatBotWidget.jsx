@@ -30,7 +30,7 @@ const themeColors = {
   },
   christmas: {
     primary: "bg-[#c41e3a] hover:bg-[#a51830]",
-    header: "bg-gradient-to-r from-[#c41e3a] to-[#1a5f2a]",
+    header: "bg-[#c41e3a]",
     accent: "#c41e3a",
   },
 };
@@ -94,12 +94,12 @@ const ChatBotWidget = () => {
             whileTap={{ scale: 0.95 }}
             onClick={scrollToTop}
             className={`w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${theme === "dark"
-                ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
-                : theme === "pop"
-                  ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
-                  : theme === "christmas"
-                    ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
-                    : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
+              ? "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700"
+              : theme === "pop"
+                ? "bg-white text-pink-500 border border-gray-200 hover:bg-pink-50"
+                : theme === "christmas"
+                  ? "bg-white text-[#c41e3a] border border-gray-200 hover:bg-red-50"
+                  : "bg-white text-[#635bff] border border-gray-200 hover:bg-indigo-50"
               }`}
             title="맨 위로 이동"
           >

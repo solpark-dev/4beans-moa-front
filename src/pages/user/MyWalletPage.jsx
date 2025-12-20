@@ -121,7 +121,7 @@ export default function MyWalletPage() {
         }`}>
         <div className="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/mypage")}
             className={`flex items-center gap-2 mb-6 transition-colors group ${theme === "dark"
               ? "text-gray-400 hover:text-[#635bff]"
               : theme === "pop"

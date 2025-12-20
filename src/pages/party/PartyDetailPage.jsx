@@ -11,10 +11,9 @@ import UpdateOttModal from "../../components/party/UpdateOttModal";
 import RippleButton from "../../components/party/RippleButton";
 import { fetchPartyMembers, leaveParty } from "../../hooks/party/partyService";
 import {
-  useTheme,
-  Sticker,
   themeConfig
 } from "../../config/themeConfig";
+import { useThemeStore } from "../../store/themeStore";
 import { getProductIconUrl } from "../../utils/imageUtils";
 import {
   Eye,
@@ -41,7 +40,7 @@ import {
   Zap
 } from "lucide-react";
 
-// Party 페이지 테마 스타일
+// Party 페이지 테마 스타일 (PartyListPage와 통일)
 const partyThemeStyles = {
   pop: {
     accent: 'text-pink-500',
@@ -51,7 +50,7 @@ const partyThemeStyles = {
     buttonShadow: 'shadow-pink-500/25',
     accentColor: '#ec4899',
     gradientFrom: 'from-pink-500',
-    gradientTo: 'to-purple-600',
+    gradientTo: 'to-pink-500', // 단색으로 변경 (그라데이션 없음)
   },
   classic: {
     accent: 'text-[#635bff]',
@@ -71,12 +70,12 @@ const partyThemeStyles = {
     buttonShadow: 'shadow-gray-900/25',
     accentColor: '#635bff',
     gradientFrom: 'from-[#635bff]',
-    gradientTo: 'to-purple-600',
+    gradientTo: 'to-[#00d4ff]',
   },
   christmas: {
     accent: 'text-[#c41e3a]',
     accentBg: 'bg-[#c41e3a]',
-    hoverAccentBg: 'hover:bg-red-700',
+    hoverAccentBg: 'hover:bg-[#a91b32]',
     greenAccent: 'text-[#1a5f2a]',
     greenBg: 'bg-[#1a5f2a]',
     badge: 'bg-red-50 text-[#c41e3a]',
@@ -85,7 +84,7 @@ const partyThemeStyles = {
     cardShadow: 'shadow-[4px_4px_12px_rgba(0,0,0,0.08)]',
     accentColor: '#c41e3a',
     gradientFrom: 'from-[#c41e3a]',
-    gradientTo: 'to-[#1a5f2a]',
+    gradientTo: 'to-[#a91b32]',
   },
 };
 
@@ -94,14 +93,15 @@ export default function PartyDetailPage() {
   const navigate = useNavigate();
   const { user, fetchSession } = useAuthStore();
 
-  // Theme
-  const { theme, setTheme, currentTheme } = useTheme("appTheme");
-  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.pop;
+  // Theme (PartyListPage와 동일한 방식 사용)
+  const { theme, setTheme } = useThemeStore();
+  const currentTheme = themeConfig[theme] || themeConfig.classic;
+  const themeStyle = partyThemeStyles[theme] || partyThemeStyles.classic;
 
   // 테마별 악센트 색상
   const getAccentColor = () => {
     switch (theme) {
-      case "christmas": return "#c41e3a";
+      case "christmas": return "#c41e3a"; // 헤더와 동일한 빨간색
       case "pop": return "#ec4899";
       case "dark": return "#635bff";
       default: return "#635bff";
@@ -359,14 +359,12 @@ export default function PartyDetailPage() {
       <section className="relative overflow-hidden">
         {/* Background Gradient */}
         <div className={`absolute inset-0 bg-gradient-to-br ${themeStyle.gradientFrom}/10 ${themeStyle.gradientTo}/5`} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/80 dark:to-[#0B1120]/80"
-             style={{ display: theme === "dark" ? "block" : "block" }} />
 
         {/* Decorative Elements */}
         <div className="absolute top-20 right-10 w-72 h-72 rounded-full opacity-20 blur-3xl"
-             style={{ background: accentColor }} />
+          style={{ background: accentColor }} />
         <div className="absolute bottom-0 left-20 w-96 h-96 rounded-full opacity-10 blur-3xl"
-             style={{ background: accentColor }} />
+          style={{ background: accentColor }} />
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32">
           {/* Back Button */}
@@ -374,17 +372,15 @@ export default function PartyDetailPage() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => navigate("/party")}
-            className={`flex items-center gap-2 mb-10 transition-all group ${
-              theme === "dark"
-                ? "text-gray-400 hover:text-white"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
+            className={`flex items-center gap-2 mb-10 transition-all group ${theme === "dark"
+              ? "text-gray-400 hover:text-white"
+              : "text-gray-500 hover:text-gray-900"
+              }`}
           >
-            <div className={`p-2 rounded-full transition-all ${
-              theme === "dark"
-                ? "bg-gray-800 group-hover:bg-gray-700"
-                : "bg-white/80 group-hover:bg-white shadow-sm"
-            }`}>
+            <div className={`p-2 rounded-full transition-all ${theme === "dark"
+              ? "bg-gray-800 group-hover:bg-gray-700"
+              : "bg-white/80 group-hover:bg-white shadow-sm"
+              }`}>
               <ArrowLeft className="w-4 h-4" />
             </div>
             <span className="font-medium text-sm">파티 목록</span>
@@ -399,9 +395,8 @@ export default function PartyDetailPage() {
               transition={{ duration: 0.5, type: "spring" }}
               className="relative"
             >
-              <div className={`w-28 h-28 md:w-36 md:h-36 rounded-3xl overflow-hidden shadow-2xl ring-4 ${
-                theme === "dark" ? "ring-gray-800" : "ring-white"
-              }`}>
+              <div className={`w-28 h-28 md:w-36 md:h-36 rounded-3xl overflow-hidden shadow-2xl ring-4 ${theme === "dark" ? "ring-gray-800" : "ring-white"
+                }`}>
                 {party.productImage ? (
                   <img
                     src={getProductIconUrl(party.productImage)}
@@ -445,11 +440,10 @@ export default function PartyDetailPage() {
                   </span>
                 )}
                 {isMember && !isLeader && (
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1.5 ${
-                    theme === "dark"
-                      ? "bg-gray-800 text-emerald-400"
-                      : "bg-white text-emerald-600"
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1.5 ${theme === "dark"
+                    ? "bg-gray-800 text-emerald-400"
+                    : "bg-white text-emerald-600"
+                    }`}>
                     <Check className="w-3.5 h-3.5" />
                     참여중
                   </span>
@@ -461,9 +455,8 @@ export default function PartyDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className={`text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
+                className={`text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight ${theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
               >
                 {party.productName}
               </motion.h1>
@@ -523,11 +516,10 @@ export default function PartyDetailPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className={`rounded-3xl overflow-hidden shadow-xl mb-6 ${
-            theme === "dark"
-              ? "bg-[#1E293B] border border-gray-700"
-              : "bg-white border border-gray-100"
-          }`}
+          className={`rounded-3xl overflow-hidden shadow-xl mb-6 ${theme === "dark"
+            ? "bg-[#1E293B] border border-gray-700"
+            : "bg-white border border-gray-100"
+            }`}
         >
           <div className="p-6 md:p-8">
             {/* Price & Stats Row */}
@@ -568,13 +560,12 @@ export default function PartyDetailPage() {
                   {[...Array(party.maxMembers)].map((_, i) => (
                     <div
                       key={i}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                        i < party.currentMembers
-                          ? `bg-gradient-to-br ${themeStyle.gradientFrom} ${themeStyle.gradientTo} text-white shadow-md`
-                          : theme === "dark"
-                            ? "bg-gray-700 text-gray-500 border-2 border-dashed border-gray-600"
-                            : "bg-gray-50 text-gray-300 border-2 border-dashed border-gray-200"
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i < party.currentMembers
+                        ? `bg-gradient-to-br ${themeStyle.gradientFrom} ${themeStyle.gradientTo} text-white shadow-md`
+                        : theme === "dark"
+                          ? "bg-gray-700 text-gray-500 border-2 border-dashed border-gray-600"
+                          : "bg-gray-50 text-gray-300 border-2 border-dashed border-gray-200"
+                        }`}
                     >
                       {i < party.currentMembers ? (
                         members[i]?.nickname?.[0]?.toUpperCase() || <Check className="w-4 h-4" />
@@ -634,15 +625,13 @@ export default function PartyDetailPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className={`rounded-3xl overflow-hidden shadow-xl mb-6 ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : "bg-white border border-gray-100"
-            }`}
+            className={`rounded-3xl overflow-hidden shadow-xl mb-6 ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : "bg-white border border-gray-100"
+              }`}
           >
-            <div className={`px-6 py-4 border-b flex justify-between items-center ${
-              theme === "dark" ? "border-gray-700" : "border-gray-100"
-            }`}>
+            <div className={`px-6 py-4 border-b flex justify-between items-center ${theme === "dark" ? "border-gray-700" : "border-gray-100"
+              }`}>
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-xl bg-gradient-to-br ${themeStyle.gradientFrom}/20 ${themeStyle.gradientTo}/20`}>
                   <Lock className="w-5 h-5" style={{ color: accentColor }} />
@@ -654,11 +643,10 @@ export default function PartyDetailPage() {
               {isLeader && (
                 <button
                   onClick={() => setIsOttModalOpen(true)}
-                  className={`text-sm px-4 py-2 rounded-full font-semibold transition-all ${
-                    theme === "dark"
-                      ? "bg-gray-700 hover:bg-gray-600 text-white"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  }`}
+                  className={`text-sm px-4 py-2 rounded-full font-semibold transition-all ${theme === "dark"
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    }`}
                 >
                   수정
                 </button>
@@ -699,13 +687,11 @@ export default function PartyDetailPage() {
                 /* 방장 또는 빌링키 등록된 멤버 - 정상 OTT 정보 표시 */
                 <div className="space-y-4">
                   {/* ID Field */}
-                  <div className={`rounded-2xl p-4 flex items-center justify-between ${
-                    theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"
-                  }`}>
+                  <div className={`rounded-2xl p-4 flex items-center justify-between ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"
+                    }`}>
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        theme === "dark" ? "bg-gray-700" : "bg-white shadow-sm"
-                      }`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${theme === "dark" ? "bg-gray-700" : "bg-white shadow-sm"
+                        }`}>
                         <span className="text-lg">👤</span>
                       </div>
                       <div>
@@ -723,13 +709,12 @@ export default function PartyDetailPage() {
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleCopy(party.ottId, 'id')}
-                        className={`p-2 rounded-xl transition-all ${
-                          copiedField === 'id'
-                            ? "bg-emerald-100 text-emerald-600"
-                            : theme === "dark"
-                              ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                              : "bg-white hover:bg-gray-100 text-gray-600 shadow-sm"
-                        }`}
+                        className={`p-2 rounded-xl transition-all ${copiedField === 'id'
+                          ? "bg-emerald-100 text-emerald-600"
+                          : theme === "dark"
+                            ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                            : "bg-white hover:bg-gray-100 text-gray-600 shadow-sm"
+                          }`}
                       >
                         {copiedField === 'id' ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                       </motion.button>
@@ -737,13 +722,11 @@ export default function PartyDetailPage() {
                   </div>
 
                   {/* Password Field */}
-                  <div className={`rounded-2xl p-4 flex items-center justify-between ${
-                    theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"
-                  }`}>
+                  <div className={`rounded-2xl p-4 flex items-center justify-between ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"
+                    }`}>
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        theme === "dark" ? "bg-gray-700" : "bg-white shadow-sm"
-                      }`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${theme === "dark" ? "bg-gray-700" : "bg-white shadow-sm"
+                        }`}>
                         <span className="text-lg">🔑</span>
                       </div>
                       <div>
@@ -761,13 +744,12 @@ export default function PartyDetailPage() {
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleCopy(party.ottPassword, 'pw')}
-                        className={`p-2 rounded-xl transition-all ${
-                          copiedField === 'pw'
-                            ? "bg-emerald-100 text-emerald-600"
-                            : theme === "dark"
-                              ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                              : "bg-white hover:bg-gray-100 text-gray-600 shadow-sm"
-                        }`}
+                        className={`p-2 rounded-xl transition-all ${copiedField === 'pw'
+                          ? "bg-emerald-100 text-emerald-600"
+                          : theme === "dark"
+                            ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                            : "bg-white hover:bg-gray-100 text-gray-600 shadow-sm"
+                          }`}
                       >
                         {copiedField === 'pw' ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                       </motion.button>
@@ -779,13 +761,12 @@ export default function PartyDetailPage() {
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => setShowOttInfo(!showOttInfo)}
-                    className={`w-full py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
-                      showOttInfo
-                        ? theme === "dark"
-                          ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        : `bg-gradient-to-r ${themeStyle.gradientFrom} ${themeStyle.gradientTo} text-white`
-                    }`}
+                    className={`w-full py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${showOttInfo
+                      ? theme === "dark"
+                        ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : `bg-gradient-to-r ${themeStyle.gradientFrom} ${themeStyle.gradientTo} text-white`
+                      }`}
                     style={!showOttInfo ? { boxShadow: `0 8px 20px ${accentColor}30` } : {}}
                   >
                     {showOttInfo ? (
@@ -811,17 +792,15 @@ export default function PartyDetailPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className={`rounded-3xl overflow-hidden shadow-xl mb-6 ${
-            theme === "dark"
-              ? "bg-[#1E293B] border border-gray-700"
-              : "bg-white border border-gray-100"
-          }`}
+          className={`rounded-3xl overflow-hidden shadow-xl mb-6 ${theme === "dark"
+            ? "bg-[#1E293B] border border-gray-700"
+            : "bg-white border border-gray-100"
+            }`}
         >
           <button
             onClick={() => setShowRules(!showRules)}
-            className={`w-full px-6 py-5 flex items-center justify-between transition-colors ${
-              theme === "dark" ? "hover:bg-gray-800/50" : "hover:bg-gray-50"
-            }`}
+            className={`w-full px-6 py-5 flex items-center justify-between transition-colors ${theme === "dark" ? "hover:bg-gray-800/50" : "hover:bg-gray-50"
+              }`}
           >
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5" style={{ color: accentColor }} />
@@ -879,11 +858,10 @@ export default function PartyDetailPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className={`rounded-3xl overflow-hidden shadow-xl ${
-              theme === "dark"
-                ? "bg-[#1E293B] border border-gray-700"
-                : "bg-white border border-gray-100"
-            }`}
+            className={`rounded-3xl overflow-hidden shadow-xl ${theme === "dark"
+              ? "bg-[#1E293B] border border-gray-700"
+              : "bg-white border border-gray-100"
+              }`}
           >
             <div className={`px-6 py-4 border-b ${theme === "dark" ? "border-gray-700" : "border-gray-100"}`}>
               <div className="flex items-center gap-3">
@@ -904,9 +882,8 @@ export default function PartyDetailPage() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 * i }}
-                    className={`p-4 rounded-2xl text-center ${
-                      theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"
-                    }`}
+                    className={`p-4 rounded-2xl text-center ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"
+                      }`}
                   >
                     <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg mb-3 bg-gradient-to-br ${themeStyle.gradientFrom} ${themeStyle.gradientTo}`}>
                       {m.nickname?.[0]?.toUpperCase()}
@@ -927,13 +904,11 @@ export default function PartyDetailPage() {
                 {[...Array(availableSlots)].map((_, i) => (
                   <div
                     key={`empty-${i}`}
-                    className={`p-4 rounded-2xl text-center border-2 border-dashed ${
-                      theme === "dark" ? "border-gray-700" : "border-gray-200"
-                    }`}
+                    className={`p-4 rounded-2xl text-center border-2 border-dashed ${theme === "dark" ? "border-gray-700" : "border-gray-200"
+                      }`}
                   >
-                    <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 ${
-                      theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                    }`}>
+                    <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"
+                      }`}>
                       <Users className={`w-5 h-5 ${theme === "dark" ? "text-gray-600" : "text-gray-300"}`} />
                     </div>
                     <p className={`text-sm ${theme === "dark" ? "text-gray-600" : "text-gray-400"}`}>
@@ -955,11 +930,10 @@ export default function PartyDetailPage() {
         className="fixed bottom-0 left-0 right-0 z-50"
       >
         <div className={`mx-auto max-w-5xl px-4 pb-4`}>
-          <div className={`rounded-2xl p-4 shadow-2xl backdrop-blur-xl ${
-            theme === "dark"
-              ? "bg-gray-900/95 border border-gray-700"
-              : "bg-white/95 border border-gray-200"
-          }`}>
+          <div className={`rounded-2xl p-4 shadow-2xl backdrop-blur-xl ${theme === "dark"
+            ? "bg-gray-900/95 border border-gray-700"
+            : "bg-white/95 border border-gray-200"
+            }`}>
             <div className="flex items-center justify-between gap-4">
               {/* Left: Price Summary */}
               <div className="hidden sm:block">
@@ -1063,9 +1037,8 @@ export default function PartyDetailPage() {
               {/* Close Button */}
               <button
                 onClick={() => !joinLoading && setIsJoinModalOpen(false)}
-                className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${
-                  theme === "dark" ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
-                }`}
+                className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${theme === "dark" ? "hover:bg-gray-700 text-gray-400" : "hover:bg-gray-100 text-gray-500"
+                  }`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1152,11 +1125,10 @@ export default function PartyDetailPage() {
                     <button
                       onClick={() => setIsJoinModalOpen(false)}
                       disabled={joinLoading}
-                      className={`flex-1 py-4 font-semibold rounded-xl transition-all ${
-                        theme === "dark"
-                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      } ${joinLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`flex-1 py-4 font-semibold rounded-xl transition-all ${theme === "dark"
+                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        } ${joinLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       취소
                     </button>
