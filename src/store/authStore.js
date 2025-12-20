@@ -84,8 +84,11 @@ export const useAuthStore = create(
       },
 
       logout: async () => {
+        const { refreshToken } = get();
         try {
-          await httpClient.post("/auth/logout");
+          await httpClient.post("/auth/logout", null, {
+            headers: refreshToken ? { "Refresh-Token": refreshToken } : {},
+          });
         } catch (error) {
           console.error("Logout Error:", error);
         } finally {

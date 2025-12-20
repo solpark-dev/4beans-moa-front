@@ -193,10 +193,6 @@ function AppContent() {
 
           {/* User pages (Private - ProtectedRoute) */}
           <Route
-            path="/mypage"
-            element={<ProtectedRoute element={<MyPage />} />}
-          />
-          <Route
             path="/mypage/password"
             element={<ProtectedRoute element={<UpdatePwdPage />} />}
           />

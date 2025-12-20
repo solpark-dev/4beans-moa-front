@@ -9,37 +9,26 @@ const LoadingFallback = () => (
 );
 
 export default function ProtectedRoute({ element }) {
-  const { user, accessToken, loading, fetchSession } = useAuthStore();
+  const { user, loading, fetchSession } = useAuthStore();
   const hasRequestedSession = useRef(false);
 
   useEffect(() => {
-    if (!accessToken) {
-      // No token: ensure we are not stuck in a loading state and skip any API calls.
-      if (loading) {
-        useAuthStore.setState({ loading: false });
-      }
-      return;
-    }
-
     if (!user && !hasRequestedSession.current) {
       hasRequestedSession.current = true;
-      Promise.resolve(fetchSession())
-        .catch(() => {
-          // Swallow errors here; navigation logic below will redirect unauthenticated users.
-        })
-        .finally(() => {
-          useAuthStore.setState({ loading: false });
-        });
+      fetchSession().finally(() => {
+        useAuthStore.setState({ loading: false });
+      });
     }
-  }, [accessToken, user, loading, fetchSession]);
+  }, [user, fetchSession]);
 
-  if (!accessToken) return <Navigate to="/login" replace />;
-
-  if (loading || (!user && hasRequestedSession.current)) {
+  if (loading) {
     return <LoadingFallback />;
   }
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return element;
 }
+
