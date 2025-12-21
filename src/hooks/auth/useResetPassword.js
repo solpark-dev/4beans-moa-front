@@ -1,4 +1,8 @@
 import httpClient from "@/api/httpClient";
+import { loadIamport } from "@/utils/iamport";
+import { buildPassRedirectUrl, consumePassImpUid } from "@/utils/passRedirect";
+
+const PURPOSE_RESET = "reset-password";
 
 export const initResetPwdPage = () => {
   const passBtn = document.getElementById("btnResetPassAuth");
@@ -14,6 +18,39 @@ export const initResetPwdPage = () => {
     return;
   }
 
+  const processImpUid = async (impUid) => {
+    const verify = await httpClient.post("/users/pass/verify", {
+      imp_uid: impUid,
+    });
+
+    const { data } = verify;
+    const di = data.di;
+
+    await httpClient.post("/users/resetPwd/start-pass", { di });
+
+    guide.innerText =
+      "본인 인증이 완료되었습니다. 새 비밀번호를 입력해 주세요.";
+    formArea.classList.remove("hidden");
+
+    step1.classList.remove("text-blue-600");
+    step1.classList.add("text-gray-400");
+    step2.classList.remove("text-gray-400");
+    step2.classList.add("text-blue-600");
+
+    alert("본인인증 성공. 비밀번호를 변경할 수 있습니다.");
+  };
+
+  const redirectedImp = consumePassImpUid(PURPOSE_RESET);
+  if (redirectedImp) {
+    processImpUid(redirectedImp).catch((err) => {
+      const msg =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        "본인인증 처리 중 오류가 발생했습니다.";
+      alert(msg);
+    });
+  }
+
   if (!passBtn.dataset.boundPass) {
     passBtn.addEventListener("click", async () => {
       try {
@@ -21,50 +58,42 @@ export const initResetPwdPage = () => {
         const { data } = res;
         const { impCode, merchantUid } = data;
 
-        if (!window.IMP) {
+        const IMP = await loadIamport();
+        if (!IMP) {
           alert("본인인증 모듈이 로드되지 않았습니다.");
           return;
         }
 
-        window.IMP.init(impCode);
-        window.IMP.certification(
+        IMP.init(impCode);
+        IMP.certification(
           {
             merchant_uid: merchantUid,
-            popup: true,
             pg: "inicis_unified",
+            popup: true,
+            m_redirect_url: buildPassRedirectUrl({
+              purpose: PURPOSE_RESET,
+              returnTo: "/reset-password",
+            }),
           },
           async function (rsp) {
-            if (!rsp.success) {
-              alert("본인인증 실패");
-              return;
+            if (!rsp?.success) return;
+            if (!rsp.imp_uid) return;
+
+            try {
+              await processImpUid(rsp.imp_uid);
+            } catch (err) {
+              const msg =
+                err?.response?.data?.error?.message ||
+                err?.response?.data?.message ||
+                "본인인증 처리 중 오류가 발생했습니다.";
+              alert(msg);
             }
-
-            const verify = await httpClient.post("/users/pass/verify", {
-              imp_uid: rsp.imp_uid,
-            });
-
-            const { data } = verify;
-            const di = data.di;
-
-            await httpClient.post("/users/resetPwd/start-pass", { di });
-
-            guide.innerText =
-              "본인 인증이 완료되었습니다. 새 비밀번호를 입력해 주세요.";
-            formArea.classList.remove("hidden");
-
-            step1.classList.remove("text-blue-600");
-            step1.classList.add("text-gray-400");
-            step2.classList.remove("text-gray-400");
-            step2.classList.add("text-blue-600");
-
-            alert("본인인증 성공. 비밀번호를 변경할 수 있습니다.");
           }
         );
       } catch (err) {
-        console.log(err);
         const msg =
-          err.response?.data?.error?.message ||
-          err.response?.data?.message ||
+          err?.response?.data?.error?.message ||
+          err?.response?.data?.message ||
           "본인인증 처리 중 오류가 발생했습니다.";
         alert(msg);
       }
@@ -114,10 +143,9 @@ export const initResetPwdPage = () => {
           alert(msg);
         }
       } catch (err) {
-        console.log(err);
         const msg =
-          err.response?.data?.error?.message ||
-          err.response?.data?.message ||
+          err?.response?.data?.error?.message ||
+          err?.response?.data?.message ||
           "비밀번호 변경 중 오류가 발생했습니다.";
         alert(msg);
       }

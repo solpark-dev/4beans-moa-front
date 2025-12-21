@@ -10,21 +10,14 @@ import {
   restoreAccount,
 } from "@/api/authApi";
 import { purgeLoginPasswords } from "@/store/authStore";
-
-const loadIamport = () =>
-  new Promise((resolve, reject) => {
-    if (window.IMP) {
-      resolve(window.IMP);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://cdn.iamport.kr/v1/iamport.js";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve(window.IMP);
-    script.onerror = reject;
-    document.body.appendChild(script);
-  });
+import { loadIamport } from "@/utils/iamport";
+import {
+  buildPassRedirectUrl,
+  consumePassImpUid,
+  stashSession,
+  readSession,
+  removeSession,
+} from "@/utils/passRedirect";
 
 export const PASSWORD_STORAGE_KEYS = [
   "login-password",
@@ -57,6 +50,10 @@ export const applyRememberEmail = (storage, email, remember) => {
   }
 };
 
+const PURPOSE_UNLOCK = "login-unlock";
+const PURPOSE_RESTORE = "login-restore";
+const PASS_LOGIN_EMAIL = "PASS_LOGIN_EMAIL";
+
 export const useLoginPageLogic = () => {
   const navigate = useNavigate();
   const {
@@ -81,34 +78,83 @@ export const useLoginPageLogic = () => {
     otp: "",
   });
 
-  const runPassCertification = useCallback(async () => {
+  const startCertification = useCallback(async ({ purpose, returnTo }) => {
     const IMP = await loadIamport();
     if (!IMP) {
       alert("본인인증 모듈 로드에 실패했습니다.");
-      return null;
+      return;
     }
 
     const startRes = await startPassAuth();
     if (!startRes?.success) {
       alert(startRes?.error?.message || "본인인증 시작에 실패했습니다.");
-      return null;
+      return;
     }
 
     const { impCode, merchantUid } = startRes.data;
     IMP.init(impCode);
 
-    const impUid = await new Promise((resolve) => {
-      IMP.certification({ merchant_uid: merchantUid }, (rsp) => {
-        if (!rsp?.success) {
-          resolve(null);
-          return;
+    IMP.certification(
+      {
+        merchant_uid: merchantUid,
+        pg: "inicis_unified",
+        popup: true,
+        m_redirect_url: buildPassRedirectUrl({ purpose, returnTo }),
+      },
+      (rsp) => {
+        if (!rsp?.success) return;
+        if (rsp.imp_uid) {
+          sessionStorage.setItem("PASS_IMP_UID", rsp.imp_uid);
+          sessionStorage.setItem("PASS_PURPOSE", purpose);
         }
-        resolve(rsp.imp_uid || null);
-      });
-    });
-
-    return impUid;
+      }
+    );
   }, []);
+
+  const processUnlock = useCallback(async (userId, impUid) => {
+    try {
+      await httpClient.post("/auth/exists-by-email", { email: userId });
+    } catch {
+      alert("존재하는 계정이 아닙니다.");
+      return;
+    }
+
+    const res = await unlockAccount({ userId, impUid });
+    if (!res?.success) {
+      alert(res?.error?.message || "본인인증 확인에 실패했습니다.");
+      return;
+    }
+
+    alert("본인인증 완료. 계정 잠금이 해제되었습니다.");
+  }, []);
+
+  const processRestore = useCallback(
+    async (userId, impUid) => {
+      const res = await restoreAccount({ userId, impUid });
+      if (!res?.success) {
+        alert(res?.error?.message || "계정 복구에 실패했습니다.");
+        return;
+      }
+
+      const data = res.data || {};
+      if (data.accessToken && data.refreshToken) {
+        setTokens({
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          accessTokenExpiresIn: data.accessTokenExpiresIn,
+        });
+      }
+
+      const me = await httpClient.get("/users/me");
+      if (me?.success) {
+        useAuthStore.getState().setUser(me.data);
+      }
+
+      alert("계정 복구가 완료되었습니다.");
+      navigate("/", { replace: true });
+    },
+    [navigate, setTokens]
+  );
 
   const handleUnlockByCertification = useCallback(async () => {
     const trimmedEmail = email.trim();
@@ -120,78 +166,46 @@ export const useLoginPageLogic = () => {
       }));
       return;
     }
-    try {
-      await httpClient.post("/auth/exists-by-email", {
-        email: trimmedEmail,
-      });
-    } catch (e) {
-      alert("존재하는 계정이 아닙니다.");
-      return;
-    }
 
-    try {
-      const impUid = await runPassCertification();
-      if (!impUid) {
-        alert("본인인증이 취소되었습니다.");
-        return;
-      }
+    stashSession(PASS_LOGIN_EMAIL, trimmedEmail);
 
-      const res = await unlockAccount({ userId: trimmedEmail, impUid });
-
-      if (!res?.success) {
-        alert(res?.error?.message || "본인인증 확인에 실패했습니다.");
-        return;
-      }
-
-      alert("본인인증 완료. 계정 잠금이 해제되었습니다.");
-    } catch (e) {
-      console.error(e);
-      alert("본인인증 처리 중 오류가 발생했습니다.");
-    }
-  }, [email, runPassCertification]);
+    await startCertification({
+      purpose: PURPOSE_UNLOCK,
+      returnTo: "/login",
+    });
+  }, [email, setErrors, startCertification]);
 
   const handleRestoreByCertification = useCallback(
     async (userId) => {
       const trimmedEmail = (userId || "").trim();
       if (!trimmedEmail) return;
 
-      try {
-        const impUid = await runPassCertification();
-        if (!impUid) {
-          alert("본인인증이 취소되었습니다.");
-          return;
-        }
+      stashSession(PASS_LOGIN_EMAIL, trimmedEmail);
 
-        const res = await restoreAccount({ userId: trimmedEmail, impUid });
-
-        if (!res?.success) {
-          alert(res?.error?.message || "계정 복구에 실패했습니다.");
-          return;
-        }
-
-        const data = res.data || {};
-        if (data.accessToken && data.refreshToken) {
-          setTokens({
-            accessToken: data.accessToken,
-            refreshToken: data.refreshToken,
-            accessTokenExpiresIn: data.accessTokenExpiresIn,
-          });
-        }
-
-        const me = await httpClient.get("/users/me");
-        if (me?.success) {
-          useAuthStore.getState().setUser(me.data);
-        }
-
-        alert("계정 복구가 완료되었습니다.");
-        navigate("/", { replace: true });
-      } catch (e) {
-        console.error(e);
-        alert("계정 복구 처리 중 오류가 발생했습니다.");
-      }
+      await startCertification({
+        purpose: PURPOSE_RESTORE,
+        returnTo: "/login",
+      });
     },
-    [runPassCertification, setTokens, navigate]
+    [startCertification]
   );
+
+  useEffect(() => {
+    const unlockImp = consumePassImpUid(PURPOSE_UNLOCK);
+    if (unlockImp) {
+      const savedEmail = readSession(PASS_LOGIN_EMAIL) || "";
+      removeSession(PASS_LOGIN_EMAIL);
+      if (savedEmail) processUnlock(savedEmail, unlockImp);
+      return;
+    }
+
+    const restoreImp = consumePassImpUid(PURPOSE_RESTORE);
+    if (restoreImp) {
+      const savedEmail = readSession(PASS_LOGIN_EMAIL) || "";
+      removeSession(PASS_LOGIN_EMAIL);
+      if (savedEmail) processRestore(savedEmail, restoreImp);
+    }
+  }, [processUnlock, processRestore]);
 
   const handleEmailLogin = useCallback(async () => {
     const trimmedEmail = email.trim();
@@ -303,6 +317,7 @@ export const useLoginPageLogic = () => {
     resetOtp,
     handleUnlockByCertification,
     handleRestoreByCertification,
+    setErrors,
   ]);
 
   const handleOtpConfirm = useCallback(async () => {

@@ -1,12 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useSignupStore } from "@/store/user/addUserStore";
 import { signup, checkCommon } from "@/api/authApi";
 
+import { loadIamport } from "@/utils/iamport";
+import { buildPassRedirectUrl, consumePassImpUid } from "@/utils/passRedirect";
+
 const REGEX = {
   NICKNAME: /^[A-Za-z0-9가-힣]{2,10}$/,
 };
+
+const PURPOSE_SOCIAL_SIGNUP = "social-signup";
 
 export const useSocialSignup = () => {
   const navigate = useNavigate();
@@ -70,26 +75,66 @@ export const useSocialSignup = () => {
     return () => clearTimeout(t);
   }, [form.nickname]);
 
-  /* PASS 인증 */
+  const processImpUid = useCallback(
+    async (impUid) => {
+      const verify = await httpClient.post("/signup/pass/verify", {
+        imp_uid: impUid,
+      });
+
+      const { phone, ci } = verify.data;
+
+      setField("phone", phone);
+      sessionStorage.setItem("PASS_CI", ci);
+      setErrorMessage("phone", "본인인증 성공!", false);
+    },
+    [setField, setErrorMessage]
+  );
+
+  useEffect(() => {
+    const impUid = consumePassImpUid(PURPOSE_SOCIAL_SIGNUP);
+    if (impUid) {
+      processImpUid(impUid).catch(() => {
+        alert("본인인증 실패");
+      });
+    }
+  }, [processImpUid]);
+
   const handlePassAuth = async () => {
     try {
       const start = await httpClient.get("/signup/pass/start");
       const { impCode, merchantUid } = start.data;
 
-      window.IMP.init(impCode);
-      window.IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
-        if (!rsp.success) return;
+      const IMP = await loadIamport();
+      if (!IMP) {
+        alert("본인인증 모듈 로드에 실패했습니다.");
+        return;
+      }
 
-        const verify = await httpClient.post("/signup/pass/verify", {
-          imp_uid: rsp.imp_uid,
-        });
+      IMP.init(impCode);
 
-        const { phone, ci } = verify.data;
+      const returnTo = `${window.location.pathname}${window.location.search}`;
 
-        setField("phone", phone);
-        sessionStorage.setItem("PASS_CI", ci);
-        setErrorMessage("phone", "본인인증 성공!", false);
-      });
+      IMP.certification(
+        {
+          merchant_uid: merchantUid,
+          pg: "inicis_unified",
+          popup: true,
+          m_redirect_url: buildPassRedirectUrl({
+            purpose: PURPOSE_SOCIAL_SIGNUP,
+            returnTo,
+          }),
+        },
+        async (rsp) => {
+          if (!rsp?.success) return;
+          if (!rsp.imp_uid) return;
+
+          try {
+            await processImpUid(rsp.imp_uid);
+          } catch {
+            alert("본인인증 실패");
+          }
+        }
+      );
     } catch {
       alert("본인인증 실패");
     }

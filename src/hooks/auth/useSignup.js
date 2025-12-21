@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from "react";
+﻿import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "@/api/httpClient";
 import { useSignupStore } from "@/store/user/addUserStore";
@@ -12,6 +12,9 @@ import {
 } from "@/api/authApi";
 import { useAuthStore } from "@/store/authStore";
 
+import { loadIamport } from "@/utils/iamport";
+import { buildPassRedirectUrl, consumePassImpUid } from "@/utils/passRedirect";
+
 const BAD_WORDS = ["fuck", "shit", "bitch", "asshole", "ssibal", "jiral"];
 
 const REGEX = {
@@ -20,6 +23,8 @@ const REGEX = {
   PASSWORD:
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,20}$/,
 };
+
+const PURPOSE_SIGNUP = "signup";
 
 export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
   const navigate = useNavigate();
@@ -37,7 +42,6 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
       if (form.previewUrl) URL.revokeObjectURL(form.previewUrl);
       reset();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (e) => {
@@ -159,11 +163,76 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
     return () => clearTimeout(t);
   }, [form.nickname]);
 
+  const processImpUid = useCallback(
+    async (impUid) => {
+      try {
+        const verifyUrl = "/signup/pass/verify";
+        const verify = await httpClient.post(
+          verifyUrl,
+          { imp_uid: impUid },
+          { skipAuth: true }
+        );
+
+        if (!verify?.success) {
+          throw new Error(verify?.error?.message || "본인인증에 실패했습니다.");
+        }
+
+        const { phone, ci } = verify.data;
+
+        const phoneCheck = await checkPhone(phone);
+        const available =
+          phoneCheck?.data?.available ?? phoneCheck?.data?.data?.available;
+
+        if (!phoneCheck?.success || available === false) {
+          if (isSocial && socialInfo?.provider && socialInfo?.providerUserId) {
+            const ok = window.confirm(
+              "이미 가입된 휴대폰 번호입니다.\n해당 계정에 소셜 로그인을 연동하시겠습니까?"
+            );
+
+            if (ok) {
+              navigate("/oauth/phone-connect", {
+                replace: true,
+                state: {
+                  provider: socialInfo.provider,
+                  providerUserId: socialInfo.providerUserId,
+                  phone,
+                  ci,
+                },
+              });
+            }
+            return;
+          }
+          throw new Error("이미 가입된 휴대폰 번호입니다.");
+        }
+
+        setField("phone", phone);
+        sessionStorage.setItem("PASS_CI", ci);
+        setErrorMessage("phone", "본인인증 성공!", false);
+      } catch (err) {
+        sessionStorage.removeItem("PASS_CI");
+        setField("phone", "");
+
+        const message =
+          err?.message ||
+          err?.response?.data?.error?.message ||
+          err?.response?.data?.message ||
+          "본인인증에 실패했습니다.";
+
+        setErrorMessage("phone", message, true);
+        alert(message);
+      }
+    },
+    [isSocial, socialInfo, navigate, setField, setErrorMessage]
+  );
+
+  useEffect(() => {
+    const impUid = consumePassImpUid(PURPOSE_SIGNUP);
+    if (impUid) processImpUid(impUid);
+  }, [processImpUid]);
+
   const handlePassAuth = async () => {
     try {
       const startUrl = "/signup/pass/start";
-      const verifyUrl = "/signup/pass/verify";
-
       const start = await httpClient.get(startUrl, { skipAuth: true });
 
       if (!start?.success) {
@@ -174,78 +243,30 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
       const { impCode, merchantUid } = start.data;
 
-      if (!window.IMP) {
+      const IMP = await loadIamport();
+      if (!IMP) {
         alert("본인인증 모듈 로드에 실패했습니다.");
         return;
       }
 
-      window.IMP.init(impCode);
+      IMP.init(impCode);
 
-      window.IMP.certification({ merchant_uid: merchantUid }, async (rsp) => {
-        if (!rsp.success) return;
-
-        try {
-          const verify = await httpClient.post(
-            verifyUrl,
-            { imp_uid: rsp.imp_uid },
-            { skipAuth: true }
-          );
-
-          if (!verify?.success) {
-            throw new Error(
-              verify?.error?.message || "본인인증에 실패했습니다."
-            );
-          }
-
-          const { phone, ci } = verify.data;
-          const phoneCheck = await checkPhone(phone);
-          const available =
-            phoneCheck?.data?.available ?? phoneCheck?.data?.data?.available;
-          if (!phoneCheck?.success || available === false) {
-            if (
-              isSocial &&
-              socialInfo?.provider &&
-              socialInfo?.providerUserId
-            ) {
-              const ok = window.confirm(
-                "이미 가입된 휴대폰 번호입니다.\n해당 계정에 소셜 로그인을 연동하시겠습니까?"
-              );
-
-              if (ok) {
-                navigate("/oauth/phone-connect", {
-                  replace: true,
-                  state: {
-                    provider: socialInfo.provider,
-                    providerUserId: socialInfo.providerUserId,
-                    phone,
-                    ci,
-                  },
-                });
-              }
-
-              return;
-            }
-
-            throw new Error("이미 가입된 휴대폰 번호입니다.");
-          }
-
-          setField("phone", phone);
-          sessionStorage.setItem("PASS_CI", ci);
-          setErrorMessage("phone", "본인인증 성공!", false);
-        } catch (err) {
-          sessionStorage.removeItem("PASS_CI");
-          setField("phone", "");
-
-          const message =
-            err?.message ||
-            err?.response?.data?.error?.message ||
-            err?.response?.data?.message ||
-            "본인인증에 실패했습니다.";
-
-          setErrorMessage("phone", message, true);
-          alert(message);
+      IMP.certification(
+        {
+          merchant_uid: merchantUid,
+          pg: "inicis_unified",
+          popup: true,
+          m_redirect_url: buildPassRedirectUrl({
+            purpose: PURPOSE_SIGNUP,
+            returnTo: "/signup",
+          }),
+        },
+        (rsp) => {
+          if (!rsp?.success) return;
+          if (!rsp.imp_uid) return;
+          processImpUid(rsp.imp_uid);
         }
-      });
+      );
     } catch (err) {
       alert(err?.message || "본인인증 처리 중 오류가 발생했습니다.");
     }
@@ -288,6 +309,7 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
 
       return;
     }
+
     if (!form.nickname || errors.nickname.isError)
       return alert("닉네임을 확인해주세요.");
 
@@ -379,6 +401,7 @@ export const useSignup = ({ mode = "normal", socialInfo } = {}) => {
       alert(err?.message || err?.response?.data?.message || "회원가입 실패");
     }
   };
+
   return {
     form,
     errors,

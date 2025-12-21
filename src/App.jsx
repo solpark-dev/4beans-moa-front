@@ -73,7 +73,8 @@ import { themeConfig } from "./config/themeConfig";
 import { NeoBackground } from "./components/common/neo";
 import { SnowPlowProvider } from "./components/christmas/SnowPlow";
 
-// Inner App component that uses SnowPlow context
+import PassRedirect from "@/pages/auth/PassRedirect";
+
 function AppContent() {
   useGlobalLinkHandler();
   const location = useLocation();
@@ -81,13 +82,10 @@ function AppContent() {
   const { theme, setTheme } = useThemeStore();
   const currentTheme = themeConfig[theme] || themeConfig.pop;
 
-  // Pineapple easter egg state
   const [pineappleEnabled, setPineappleEnabled] = useState(false);
 
-  // Check if current route is admin page (kept for reference, but no longer hides header)
   const isAdminPage = location.pathname.startsWith("/admin");
 
-  // CSS Variables Injection
   useEffect(() => {
     const currentThemeConfig = themeConfig[theme] || themeConfig.pop;
     const cssVars = currentThemeConfig.cssVars;
@@ -98,16 +96,14 @@ function AppContent() {
     }
   }, [theme]);
 
-  // Theme Keyboard Shortcuts: Ctrl+Shift+1~4
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.shiftKey) {
-        // e.code를 사용하여 Shift 키 조합에서도 정확히 감지
         const themeMap = {
-          'Digit1': 'pop',
-          'Digit2': 'classic',
-          'Digit3': 'dark',
-          'Digit4': 'christmas',
+          Digit1: "pop",
+          Digit2: "classic",
+          Digit3: "dark",
+          Digit4: "christmas",
         };
         const newTheme = themeMap[e.code];
         if (newTheme) {
@@ -117,15 +113,13 @@ function AppContent() {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [setTheme]);
 
-  // Easter egg for specific test accounts
   const showEasterEgg =
     user && (user.userId === "usertest1" || user.userId === "admintest");
 
-  // 테마별 배경색 설정 (NeoBackground가 보이도록 투명)
   const getBgClass = () => {
     switch (theme) {
       case "dark":
@@ -146,14 +140,15 @@ function AppContent() {
     >
       <NeoBackground />
       <ScrollToTop />
-      {showEasterEgg && pineappleEnabled && <PineappleEasterEgg showToggle={false} />}
+      {showEasterEgg && pineappleEnabled && (
+        <PineappleEasterEgg showToggle={false} />
+      )}
       <FloatingButtonsContainer
         showPineapple={showEasterEgg}
         pineappleEnabled={pineappleEnabled}
         setPineappleEnabled={setPineappleEnabled}
       />
 
-      {/* Header - Always visible */}
       <Header />
 
       <main
@@ -161,7 +156,6 @@ function AppContent() {
         style={{ paddingTop: "5rem" }}
       >
         <Routes>
-          {/* Main/Party */}
           <Route path="/" element={<MainPage />} />
           <Route path="/party" element={<PartyListPage />} />
           <Route path="/party/create" element={<PartyCreatePage />} />
@@ -171,13 +165,16 @@ function AppContent() {
 
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/oauth/phone-connect" element={<PhoneConnectPage />} />
-          {/* User pages (Public) */}
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<AddUserPage />} />
           <Route path="/find-email" element={<FindIdPage />} />
           <Route path="/register/social" element={<SocialRegisterPage />} />
           <Route path="/reset-password" element={<ResetPwdPage />} />
           <Route path="/email-verified" element={<EmailVerifiedPage />} />
+
+          <Route path="/auth/pass/redirect" element={<PassRedirect />} />
+
           <Route
             path="/mypage"
             element={
@@ -186,12 +183,7 @@ function AppContent() {
               </RequireAuth>
             }
           />
-          <Route
-            path="/user/register/social"
-            element={<SocialRegisterPage />}
-          />
 
-          {/* User pages (Private - ProtectedRoute) */}
           <Route
             path="/mypage"
             element={<ProtectedRoute element={<MyPage />} />}
@@ -236,11 +228,11 @@ function AppContent() {
             path="/my-parties"
             element={<ProtectedRoute element={<MyPartyListPage />} />}
           />
-          {/* Complex conditional rendering handled by ProtectedRoute */}
           <Route
             path="/mypage/edit"
             element={<ProtectedRoute element={<UpdateUserPage />} />}
           />
+
           <Route
             path="/admin/blacklist/add"
             element={
@@ -303,14 +295,14 @@ function AppContent() {
               </AdminAuthGuard>
             }
           />
+
           <Route path="/product" element={<GetProductList />} />
           <Route path="/product/:id" element={<GetProduct />} />
-
           <Route
             path="/product/:id/delete"
             element={<ProtectedRoute element={<DeleteProduct />} />}
-          // TODO: Add role check for ADMIN
           />
+
           <Route
             path="/subscription/add/:productId"
             element={<ProtectedRoute element={<AddSubscription />} />}
@@ -331,7 +323,7 @@ function AppContent() {
             path="/subscription/:id/cancel"
             element={<ProtectedRoute element={<CancelSubscription />} />}
           />
-          {/* Support/Community & payments */}
+
           <Route path="/subscriptions" element={<GetProductList />} />
           <Route path="/my/subscriptions" element={<UserSubscriptionList />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
@@ -343,10 +335,7 @@ function AppContent() {
             path="/payment/billing/success"
             element={<BillingSuccessPage />}
           />
-          <Route
-            path="/payment/billing/fail"
-            element={<BillingFailPage />}
-          />
+          <Route path="/payment/billing/fail" element={<BillingFailPage />} />
 
           <Route path="/community/notice" element={<ListNotice />} />
           <Route
@@ -372,7 +361,6 @@ function AppContent() {
   );
 }
 
-// Main App wrapper with SnowPlowProvider
 export default function App() {
   return (
     <SnowPlowProvider>
@@ -380,5 +368,3 @@ export default function App() {
     </SnowPlowProvider>
   );
 }
-
-

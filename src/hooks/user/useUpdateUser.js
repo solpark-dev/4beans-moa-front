@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUpdateUserStore } from "@/store/user/updateUserStore";
 import { useAuthStore } from "@/store/authStore";
 import { checkCommon, startPassAuth, verifyPassAuth } from "@/api/authApi";
 import { getUser, updateUser, uploadProfileImage } from "@/api/userApi";
+
+import { loadIamport } from "@/utils/iamport";
+import { buildPassRedirectUrl, consumePassImpUid } from "@/utils/passRedirect";
 
 const BAD_WORDS = [
   "fuck",
@@ -16,6 +19,8 @@ const BAD_WORDS = [
   "좆",
   "썅",
 ];
+
+const PURPOSE_UPDATE_PHONE = "update-user-phone";
 
 export default function useUpdateUser() {
   const navigate = useNavigate();
@@ -154,43 +159,74 @@ export default function useUpdateUser() {
     await validateNickname(nickname);
   };
 
+  const processPhoneImpUid = useCallback(
+    async (impUid) => {
+      const verify = await verifyPassAuth({ imp_uid: impUid });
+      if (!verify?.success) {
+        throw new Error(verify?.error?.message || "본인인증 실패");
+      }
+      const verified = verify.data;
+      setField("phone", verified.phone);
+      alert("본인인증 성공. 휴대폰 번호 변경됨.");
+    },
+    [setField]
+  );
+
+  useEffect(() => {
+    const impUid = consumePassImpUid(PURPOSE_UPDATE_PHONE);
+    if (!impUid) return;
+
+    processPhoneImpUid(impUid).catch((err) => {
+      alert(err?.message || "본인인증 실패");
+    });
+  }, [processPhoneImpUid]);
+
   const onPassVerify = async () => {
     try {
       const start = await startPassAuth();
       const { impCode, merchantUid } = start?.data || {};
 
-      if (!window.IMP) throw new Error("본인인증 모듈이 로드되지 않았습니다.");
+      const IMP = await loadIamport();
+      if (!IMP) throw new Error("본인인증 모듈이 로드되지 않았습니다.");
 
-      const verified = await new Promise((resolve, reject) => {
-        window.IMP.init(impCode);
-        window.IMP.certification(
-          { merchant_uid: merchantUid, popup: true, pg: "inicis_unified" },
-          async function (rsp) {
-            if (!rsp?.success) {
-              reject(new Error("본인인증 실패"));
-              return;
-            }
-            try {
-              const verify = await verifyPassAuth({ imp_uid: rsp.imp_uid });
-              resolve(verify.data);
-            } catch (err) {
-              reject(err);
-            }
+      IMP.init(impCode);
+      IMP.certification(
+        {
+          merchant_uid: merchantUid,
+          pg: "inicis_unified",
+          popup: true,
+          m_redirect_url: buildPassRedirectUrl({
+            purpose: PURPOSE_UPDATE_PHONE,
+            returnTo: "/mypage/edit",
+          }),
+        },
+        async (rsp) => {
+          if (!rsp?.success) return;
+          if (!rsp.imp_uid) return;
+
+          try {
+            await processPhoneImpUid(rsp.imp_uid);
+          } catch (err) {
+            alert(err?.message || "본인인증 실패");
           }
-        );
-      });
-
-      setField("phone", verified.phone);
-      alert("본인인증 성공. 휴대폰 번호 변경됨.");
+        }
+      );
     } catch (err) {
       alert(err?.message || "본인인증 실패");
     }
   };
 
-  const onSave = async () => {
+  const onSave = async (options = {}) => {
+    const {
+      navigateToMypage = true,
+      showAlert = true,
+      onSuccess,
+      onFail,
+    } = options;
+
     try {
       const ok = await validateNickname(nickname);
-      if (!ok) return;
+      if (!ok) return { success: false };
 
       const file = fileRef.current?.files?.[0] || null;
 
@@ -221,10 +257,19 @@ export default function useUpdateUser() {
       useAuthStore.getState().setUser(updatedUser);
       setUserData(updatedUser);
 
-      alert("회원정보가 수정되었습니다.");
-      navigate("/mypage", { replace: true });
+      if (showAlert) alert("회원정보가 수정되었습니다.");
+
+      if (typeof onSuccess === "function") onSuccess(updatedUser);
+
+      if (navigateToMypage) {
+        navigate("/mypage", { replace: true });
+      }
+
+      return { success: true, data: updatedUser };
     } catch (err) {
-      alert(err?.message || "회원정보 수정 실패");
+      if (showAlert) alert(err?.message || "회원정보 수정 실패");
+      if (typeof onFail === "function") onFail(err);
+      return { success: false, error: err };
     }
   };
 
