@@ -490,6 +490,7 @@ export default function MyPartyListPage() {
                         <motion.div key={item.partyId} variants={itemVariants}>
                           <Link
                             to={`/party/${item.partyId}`}
+                            state={{ from: '/my-parties' }}
                             className="group block"
                           >
                             <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${theme === "dark"
@@ -596,6 +597,7 @@ export default function MyPartyListPage() {
                         <motion.div key={item.partyId} variants={itemVariants}>
                           <Link
                             to={`/party/${item.partyId}`}
+                            state={{ from: '/my-parties' }}
                             className="group block"
                           >
                             <div className={`relative h-full rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1 ${theme === "dark"

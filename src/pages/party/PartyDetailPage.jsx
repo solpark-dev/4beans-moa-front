@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePartyStore } from "../../store/party/partyStore";
@@ -91,6 +91,10 @@ const partyThemeStyles = {
 export default function PartyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 출발지에 따른 뒤로가기 경로 결정
+  const backPath = location.state?.from || '/party';
   const { user, fetchSession } = useAuthStore();
 
   // Theme (PartyListPage와 동일한 방식 사용)
@@ -232,7 +236,7 @@ export default function PartyDetailPage() {
     try {
       await leaveParty(id);
       alert("파티에서 탈퇴했습니다.");
-      navigate("/my-parties");
+      navigate("/party");
     } catch (error) {
       console.error(error);
       alert("탈퇴 처리에 실패했습니다.");
@@ -371,7 +375,7 @@ export default function PartyDetailPage() {
           <motion.button
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            onClick={() => navigate("/party")}
+            onClick={() => navigate(backPath)}
             className={`flex items-center gap-2 mb-10 transition-all group ${theme === "dark"
               ? "text-gray-400 hover:text-white"
               : "text-gray-500 hover:text-gray-900"
@@ -383,7 +387,7 @@ export default function PartyDetailPage() {
               }`}>
               <ArrowLeft className="w-4 h-4" />
             </div>
-            <span className="font-medium text-sm">파티 목록</span>
+            <span className="font-medium text-sm">{backPath === '/my-parties' ? '내 파티' : '파티 목록'}</span>
           </motion.button>
 
           {/* Main Hero Content */}

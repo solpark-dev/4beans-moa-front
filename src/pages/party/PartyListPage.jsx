@@ -112,6 +112,13 @@ export default function PartyListPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // 날짜 선택 시 자동으로 시작일 오름차순 정렬 적용
+  useEffect(() => {
+    if (startDate) {
+      setSortBy('start_date_asc');
+    }
+  }, [startDate]);
+
   // 필터 변경 시 리스트 초기화 및 재검색
   useEffect(() => {
     // if (!isFirstRender.current) {
@@ -577,7 +584,7 @@ export default function PartyListPage() {
                       }
                       return;
                     }
-                    navigate(`/party/${party.partyId}`);
+                    navigate(`/party/${party.partyId}`, { state: { from: '/party' } });
                   }}
                   className={`group relative overflow-hidden cursor-pointer transition-all duration-300 ${theme === "pop"
                     ? "bg-white border border-gray-200 rounded-3xl shadow-[4px_4px_12px_rgba(0,0,0,0.08)]"
