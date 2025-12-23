@@ -143,10 +143,21 @@ export const usePushNotification = () => {
   );
 
   useEffect(() => {
+    // 로그인 상태가 아니면 unread count 조회하지 않음
+    if (!accessToken || !user) {
+      setUnreadCount(0);
+      return;
+    }
+    
+    // 관리자는 일반 푸시 알림 사용하지 않음
+    if (isAdmin) {
+      return;
+    }
+
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, 60000);
     return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+  }, [fetchUnreadCount, accessToken, user, isAdmin]);
 
   useEffect(() => {
     if (!accessToken || !user || isAdmin) return;
