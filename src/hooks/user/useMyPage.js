@@ -76,7 +76,7 @@ export const useMyPage = () => {
   const isAdmin = user?.role === "ADMIN";
 
   /* ===============================
-   * ✅ 실제 OAuth 연결 객체
+   *  OAuth 연결 객체
    * =============================== */
   const googleOAuth = (user?.oauthConnections || []).find(
     (c) => c.provider?.toLowerCase() === "google" && !c.releaseDate
@@ -141,7 +141,7 @@ export const useMyPage = () => {
   };
 
   /* ===============================
-   * ✅ 수정된 버튼 클릭 로직
+   * 수정된 버튼 클릭 로직
    * =============================== */
   const handleGoogleClick = () => {
     if (googleOAuth) {

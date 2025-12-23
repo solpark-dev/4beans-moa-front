@@ -75,6 +75,56 @@ import { SnowPlowProvider } from "./components/christmas/SnowPlow";
 
 import PassRedirect from "@/pages/auth/PassRedirect";
 
+import LandingPageA from "@/pages/landing/LandingPageA";
+import LandingPageB from "@/pages/landing/LandingPageB";
+import LandingPageC from "@/pages/landing/LandingPageC";
+import LandingPageD from "@/pages/landing/LandingPageD";
+import LandingPageE from "@/pages/landing/LandingPageE";
+import LandingPageF from "@/pages/landing/LandingPageF";
+import LandingPageG from "@/pages/landing/LandingPageG";
+import LandingPageH from "@/pages/landing/LandingPageH";
+import LandingPageI from "@/pages/landing/LandingPageI";
+import LandingPageJ from "@/pages/landing/LandingPageJ";
+import LandingPageK from "@/pages/landing/LandingPageK";
+import LandingPageL from "@/pages/landing/LandingPageL";
+import LandingPageM from "@/pages/landing/LandingPageM";
+import LandingPageN from "@/pages/landing/LandingPageN";
+import LandingPageO from "@/pages/landing/LandingPageO";
+import LandingPageP from "@/pages/landing/LandingPageP";
+import LandingPageQ from "@/pages/landing/LandingPageQ";
+import LandingPageR from "@/pages/landing/LandingPageR";
+import LandingPageS from "@/pages/landing/LandingPageS";
+import LandingPageT from "@/pages/landing/LandingPageT";
+import LandingPageU from "@/pages/landing/LandingPageU";
+import LandingPageV from "@/pages/landing/LandingPageV";
+import LandingPageW from "@/pages/landing/LandingPageW";
+import LandingPageX from "@/pages/landing/LandingPageX";
+import LandingPageY from "@/pages/landing/LandingPageY";
+import LandingPageYsa01 from "@/pages/landing/LandingPageYsa01";
+import LandingPageZ from "@/pages/landing/LandingPageZ";
+
+import LandingPageZChat from "@/pages/landing/LandingPageZChat";
+import LandingPageZCinematic from "@/pages/landing/LandingPageZCinematic";
+import LandingPageZCollage from "@/pages/landing/LandingPageZCollage";
+import LandingPageZGlassLight from "@/pages/landing/LandingPageZGlassLight";
+import LandingPageZHyundai from "@/pages/landing/LandingPageZHyundai";
+import LandingPageZLinear from "@/pages/landing/LandingPageZLinear";
+import LandingPageZMemphis from "@/pages/landing/LandingPageZMemphis";
+import LandingPageZO2 from "@/pages/landing/LandingPageZO2";
+import LandingPageZO3 from "@/pages/landing/LandingPageZO3";
+import LandingPageZParallax from "@/pages/landing/LandingPageZParallax";
+import LandingPageZParticles from "@/pages/landing/LandingPageZParticles";
+import LandingPageZPhysics from "@/pages/landing/LandingPageZPhysics";
+import LandingPageZPortrait from "@/pages/landing/LandingPageZPortrait";
+import LandingPageZPortraitV2 from "@/pages/landing/LandingPageZPortraitV2";
+import LandingPageZQQ from "@/pages/landing/LandingPageZQQ";
+import LandingPageZRetro from "@/pages/landing/LandingPageZRetro";
+import LandingPageZRiso from "@/pages/landing/LandingPageZRiso";
+import LandingPageZRiso2 from "@/pages/landing/LandingPageZRiso2";
+import LandingPageZSolar from "@/pages/landing/LandingPageZSolar";
+import LandingPageZSpatial from "@/pages/landing/LandingPageZSpatial";
+import LandingPageZSwiss from "@/pages/landing/LandingPageZSwiss";
+
 function AppContent() {
   useGlobalLinkHandler();
   const location = useLocation();
@@ -353,6 +403,75 @@ function AppContent() {
 
           <Route path="/community/inquiry" element={<Inquiry />} />
           <Route path="/community/inquiry/admin" element={<InquiryAdmin />} />
+
+          <Route path="/landing/a" element={<LandingPageA />} />
+          <Route path="/landing/b" element={<LandingPageB />} />
+          <Route path="/landing/c" element={<LandingPageC />} />
+          <Route path="/landing/d" element={<LandingPageD />} />
+          <Route path="/landing/e" element={<LandingPageE />} />
+          <Route path="/landing/f" element={<LandingPageF />} />
+          <Route path="/landing/g" element={<LandingPageG />} />
+          <Route path="/landing/h" element={<LandingPageH />} />
+          <Route path="/landing/i" element={<LandingPageI />} />
+          <Route path="/landing/j" element={<LandingPageJ />} />
+          <Route path="/landing/k" element={<LandingPageK />} />
+          <Route path="/landing/l" element={<LandingPageL />} />
+          <Route path="/landing/m" element={<LandingPageM />} />
+          <Route path="/landing/n" element={<LandingPageN />} />
+          <Route path="/landing/o" element={<LandingPageO />} />
+          <Route path="/landing/p" element={<LandingPageP />} />
+          <Route path="/landing/q" element={<LandingPageQ />} />
+          <Route path="/landing/r" element={<LandingPageR />} />
+          <Route path="/landing/s" element={<LandingPageS />} />
+          <Route path="/landing/t" element={<LandingPageT />} />
+          <Route path="/landing/u" element={<LandingPageU />} />
+          <Route path="/landing/v" element={<LandingPageV />} />
+          <Route path="/landing/w" element={<LandingPageW />} />
+          <Route path="/landing/x" element={<LandingPageX />} />
+          <Route path="/landing/y" element={<LandingPageY />} />
+          <Route path="/landing/ysa01" element={<LandingPageYsa01 />} />
+          <Route path="/landing/z" element={<LandingPageZ />} />
+
+          {/* Landing Z Variants */}
+          <Route path="/landing/z/chat" element={<LandingPageZChat />} />
+          <Route
+            path="/landing/z/cinematic"
+            element={<LandingPageZCinematic />}
+          />
+          <Route path="/landing/z/collage" element={<LandingPageZCollage />} />
+          <Route
+            path="/landing/z/glass-light"
+            element={<LandingPageZGlassLight />}
+          />
+          <Route path="/landing/z/hyundai" element={<LandingPageZHyundai />} />
+          <Route path="/landing/z/linear" element={<LandingPageZLinear />} />
+          <Route path="/landing/z/memphis" element={<LandingPageZMemphis />} />
+          <Route path="/landing/z/o2" element={<LandingPageZO2 />} />
+          <Route path="/landing/z/o3" element={<LandingPageZO3 />} />
+          <Route
+            path="/landing/z/parallax"
+            element={<LandingPageZParallax />}
+          />
+          <Route
+            path="/landing/z/particles"
+            element={<LandingPageZParticles />}
+          />
+          <Route path="/landing/z/physics" element={<LandingPageZPhysics />} />
+          <Route
+            path="/landing/z/portrait"
+            element={<LandingPageZPortrait />}
+          />
+          <Route
+            path="/landing/z/portrait-v2"
+            element={<LandingPageZPortraitV2 />}
+          />
+          <Route path="/landing/z/oq" element={<LandingPageZQQ />} />
+          <Route path="/landing/z/retro" element={<LandingPageZRetro />} />
+          <Route path="/landing/z/riso" element={<LandingPageZRiso />} />
+          <Route path="/landing/z/riso2" element={<LandingPageZRiso2 />} />
+          <Route path="/landing/z/solar" element={<LandingPageZSolar />} />
+          <Route path="/landing/z/spatial" element={<LandingPageZSpatial />} />
+          <Route path="/landing/z/swiss" element={<LandingPageZSwiss />} />
         </Routes>
       </main>
 
